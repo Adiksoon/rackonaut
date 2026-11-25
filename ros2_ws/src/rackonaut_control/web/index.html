@@ -64,6 +64,19 @@
       <div><span>Additional distance / energy</span><strong id="avoidance-cost">—</strong></div>
     </div>
   </section>
+  <section class="card localization-panel" id="localization-panel" aria-labelledby="localization-title" hidden>
+    <div class="energy-head">
+      <div><h2 id="localization-title">Localization &amp; Spatial Mapping</h2><p id="localization-reason">Waiting for a synchronized scan.</p></div>
+      <span class="signal" id="localization-status" role="status">Degraded</span>
+    </div>
+    <div class="energy-grid">
+      <div><span>Flight pose source</span><strong id="localization-source">—</strong></div>
+      <div><span>Estimated XYZ</span><strong id="localization-pose">—</strong><small id="localization-sigma"></small></div>
+      <div><span>Map match RMS</span><strong id="localization-fit">—</strong><small id="localization-overlap"></small></div>
+      <div><span>Matched scan age / rate</span><strong id="localization-rate">—</strong></div>
+      <div><span>Measured map</span><strong id="localization-map-size">—</strong><small id="localization-validation"></small></div>
+    </div>
+  </section>
   <div class="workspace" id="workspace" data-view="plan">
     <section class="card warehouse" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Top-down view · Rackonaut showcase</p></div>
@@ -89,6 +102,12 @@
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
         </div>
+        <div class="localization-layers" id="localization-layers" role="group" aria-label="Spatial mapping layers" hidden>
+          <button type="button" id="twin-warehouse-model" aria-pressed="true">Warehouse model</button>
+          <button type="button" id="twin-measured-map" aria-pressed="true">Measured point cloud</button>
+          <button type="button" id="twin-estimated-path" aria-pressed="true">Estimated trajectory</button>
+          <button type="button" id="twin-reference-path" aria-pressed="false" hidden>Reference trajectory</button>
+        </div>
         <div class="twin-legend">
           <span id="twin-access-key"><i class="twin-key reserve"></i>Access zones</span>
           <span id="twin-laser-key"><i class="twin-key field"></i>LiDAR field</span>
@@ -100,6 +119,9 @@
           <span id="twin-onboard-key" hidden><i class="twin-key onboard"></i>Onboard returns</span>
           <span id="twin-hazard-key" hidden><i class="twin-key returns"></i>Blocked flight volume</span>
           <span id="twin-bypass-key" hidden><i class="twin-key bypass"></i>Measured bypass</span>
+          <span id="twin-mapping-key" hidden><i class="twin-key onboard"></i>Accumulated LiDAR</span>
+          <span id="twin-estimate-key" hidden><i class="twin-key estimate"></i>Estimated pose history</span>
+          <span id="twin-reference-key" hidden><i class="twin-key reference"></i>Validation reference</span>
         </div>
         <section id="twin-detail" class="twin-detail" aria-label="Location details">
           <div class="twin-detail-head"><div><h3 id="twin-slot-title">Location details</h3><p id="twin-slot-summary">Select a location marker to view its observations.</p></div>

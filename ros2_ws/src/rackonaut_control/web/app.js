@@ -425,6 +425,24 @@ function drawAvoidance(job) {
   put("avoidance-cost", `${distance} / ${energy}`);
 }
 
+function drawLocalization() {
+  if (!layout.localization) return;
+  const loc = state?.localization;
+  const validation = state?.localization_validation;
+  const quality = loc?.state || "DEGRADED";
+  el("localization-panel").dataset.state = quality.toLowerCase();
+  put("localization-status", quality);
+  put("localization-source", layout.localization.mode === "shadow" ? "Gazebo · shadow comparison" : "LiDAR + IMU");
+  put("localization-reason", loc?.reason || "Waiting for a synchronized scan.");
+  put("localization-pose", loc?.position ? `${loc.position.map(x => x.toFixed(3)).join(" / ")} m` : "—");
+  put("localization-sigma", loc?.sigma ? `Fit σ up to ${(Math.max(...loc.sigma)*100).toFixed(1)} cm` : "");
+  put("localization-fit", loc?.rms == null ? "—" : `${(loc.rms*100).toFixed(1)} cm`);
+  put("localization-overlap", loc?.overlap == null ? "" : `${Math.round(loc.overlap*100)}% correspondences`);
+  put("localization-rate", loc?.scan_age_ms == null ? "—" : `${loc.scan_age_ms} ms / ${loc.update_hz.toFixed(1)} Hz`);
+  put("localization-map-size", loc?.map_voxels ? `${loc.map_voxels.toLocaleString()} cells` : "—");
+  put("localization-validation", validation ? `Validation RMSE ${(validation.rmse*100).toFixed(1)} cm` : "");
+}
+
 function drawSafety() {
   const enabled = !!layout.safety_fields;
   el("safety-banner").hidden = el("warehouse-safety").hidden = !enabled;
@@ -525,6 +543,8 @@ function draw() {
   let reason = "";
   if (state?.busy || dispatching) reason = "An inspection is in progress or its report is being prepared.";
   else if (!preview) reason = "Select at least one functional location.";
+  else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
+    reason = "Waiting for reliable sensor localization.";
   else if (!state?.robot) reason = "Waiting for drone odometry.";
   else if (!state.at_pad) reason = "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
@@ -555,6 +575,7 @@ function draw() {
   drawAdaptive(job);
   drawEnergy(job);
   drawAvoidance(job);
+  drawLocalization();
   drawTwin(job);
 }
 
@@ -584,6 +605,7 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  el("localization-panel").hidden = !layout.localization;
   if (layout.avoidance) {
     el("avoidance-panel").hidden = false;
     el("flight-obstacle-controls").hidden = false;

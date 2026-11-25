@@ -61,6 +61,7 @@ class Mission(Node):
             "safety_interlock": False,
             "adaptive_quality": False,
             "obstacle_avoidance": False,
+            "sensor_localization": False,
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -79,10 +80,12 @@ class Mission(Node):
 
         self.route = load_route(settings["route_file"])
         self.aerial = self.route.aerial
+        self.sensor_localization = settings["sensor_localization"]
+        self.localization, self.localization_at = {}, -1e6
         self.navigation = Navigator() if settings["obstacle_avoidance"] else None
         if self.navigation and not self.aerial:
             raise ValueError("Local obstacle avoidance requires a reserved aerial route.")
-        self.scanner = Scanner(self) if self.navigation else None
+        self.scanner = Scanner(self, exact_pose=self.sensor_localization) if self.navigation else None
         self.frame = settings["odom_frame"]
         self.command_topic = settings["cmd_vel_topic"]
         self.autostart = settings["autostart"]
@@ -92,6 +95,12 @@ class Mission(Node):
         self.create_service(Trigger, f"{MISSION}/start", self.on_start)
         self.create_service(Trigger, f"{MISSION}/abort", self.on_abort)
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        if self.sensor_localization:
+            if not self.scanner:
+                raise ValueError("Sensor localization requires onboard obstacle avoidance.")
+            self.create_subscription(Odometry, "/rackonaut/localization/estimate",
+                                     self.scanner.odometry, qos_profile_sensor_data)
+            self.create_subscription(String, "/rackonaut/localization/state", self.on_localization, latest)
         self.safety_interlock = settings["safety_interlock"]
         self.safety_at, self.safety_permit = -1e6, False
         self.permit_departure = None
@@ -166,8 +175,16 @@ class Mission(Node):
         yaw = atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z))
         self.pose, self.odom_stamp = Target(p.x, p.y, p.z, yaw), stamp
         self.speed, self.odom_at = hypot(v.x, v.y, v.z), monotonic()
-        if self.scanner:
+        if self.scanner and not self.sensor_localization:
             self.scanner.odometry(message)
+
+    def on_localization(self, message):
+        state = json.loads(message.data)
+        if state.get("mode") == "sensor_based":
+            self.localization, self.localization_at = state, monotonic()
+
+    def localization_ready(self, now):
+        return now - self.localization_at <= .40 and self.localization.get("state") == "TRACKING"
 
     def on_safety(self, message):
         state = json.loads(message.data)
@@ -226,6 +243,8 @@ class Mission(Node):
                 return "Waiting for confirmed charge readiness"
         if self.pose is None or now - self.odom_at > .65:
             return f"Waiting for fresh odometry in {self.frame}"
+        if self.sensor_localization and not self.localization_ready(now):
+            return "Waiting for verified sensor localization"
         if self.scanner and self.scanner.current(now) is None:
             return "Waiting for synchronized onboard lidar"
         if self.count_publishers(self.command_topic):
@@ -376,6 +395,8 @@ class Mission(Node):
         p, goal = self.pose, self.target
         horizontal = hypot(p.x - goal.x, p.y - goal.y)
         altitude = p.z <= self.route.pad.z + .018 if touchdown else abs(p.z - goal.z) <= .06
+        if touchdown and self.sensor_localization:
+            altitude = self.battery.get("contact") is True
         if horizontal <= .065 and altitude and abs(heading_error(goal.yaw, p.yaw)) <= .055 and self.speed <= .11:
             if self.settled_since is None:
                 self.settled_since = now
@@ -726,6 +747,9 @@ class Mission(Node):
         if now - self.safety_at > .65 or self.safety_phase != "RESERVED" or not set(self.route.zones) <= self.safety_zones:
             self.finish("ABORTED", "Safety clearance lost; automatic restart disabled", now)
             return True
+        if self.sensor_localization and not self.localization_ready(now):
+            self.finish("ABORTED", "LOCALIZATION_LOST: Sensor position is no longer reliable", now)
+            return True
         if not self.energy_fresh(now) or now - self.odom_at > .65:
             self.finish("ABORTED", "Energy or odometry telemetry stopped advancing", now)
             return True
@@ -875,6 +899,8 @@ class Mission(Node):
             status["avoidance"] = avoidance = self.navigation.snapshot(now)
             if avoidance["scan_age_ms"] is None and self.scanner.cloud:
                 avoidance["scan_age_ms"] = round((now-self.scanner.cloud.received)*1000)
+        if self.sensor_localization:
+            status["localization"] = self.localization.get("state", "DEGRADED")
         if self.adaptive:
             status["adaptive"] = {"attempt": self.retry_number + 1, "reason": self.attempt_reason,
                                   "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,

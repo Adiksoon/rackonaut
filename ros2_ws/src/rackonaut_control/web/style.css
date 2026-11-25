@@ -259,6 +259,10 @@ thead th { color: var(--muted); font-weight: 550; }
 .energy-panel[data-dock="charging"], .energy-panel[data-dock="approaching"] { border-left-color: #e9bb70; }
 .energy-panel[data-dock="fault"] { border-left-color: #ee9299; }
 .avoidance-panel { margin: 0 0 12px; padding: 11px 15px; border-left: 3px solid #71d4ef; }
+.localization-panel { margin: 0 0 12px; padding: 11px 15px; border-left: 3px solid #77d9b4; }
+.localization-panel[data-state="degraded"] { border-left-color: #f2c278; }
+.localization-panel[data-state="lost"] { border-left-color: #ff7180; }
+.localization-panel .energy-grid strong { font: 700 .8rem ui-monospace, monospace; }
 .avoidance-panel[data-state="avoiding"], .avoidance-panel[data-state="returning_to_route"] { border-left-color: #d9a3ff; }
 .avoidance-panel[data-state="fault"], .avoidance-panel[data-state="recovery_required"],
 .avoidance-panel[data-state="safety_abort"], .avoidance-panel[data-state="braking"] { border-left-color: #ff7180; }

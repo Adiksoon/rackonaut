@@ -33,7 +33,14 @@ def setup(context):
     if enabled("laser_rviz") and not laser:
         raise ValueError("laser_rviz requires safety_sensor:=laser.")
     world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
-    avoidance = enabled("avoidance")
+    localization = arg("localization")
+    if localization not in {"ground_truth", "shadow", "sensor_based"}:
+        raise ValueError("Select ground_truth, shadow or sensor_based localization.")
+    localizer = localization != "ground_truth"
+    diagnostics = enabled("localization_diagnostics")
+    if diagnostics and not localizer:
+        raise ValueError("Localization diagnostics require the localizer.")
+    avoidance = enabled("avoidance") or localizer
     aerial = enabled("aerial") or avoidance
     if aerial and not safety:
         raise ValueError("aerial:=true requires safety:=true.")
@@ -49,11 +56,17 @@ def setup(context):
         world = "aerial_laser_showcase.sdf" if laser else "aerial_showcase.sdf"
     if avoidance:
         world = "avoidance_laser_showcase.sdf" if laser else "avoidance_showcase.sdf"
+    if localizer:
+        world = "localization_laser_showcase.sdf" if laser else "localization_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
     props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
     if avoidance:
         command.append("--avoidance")
+    if localizer:
+        command.extend(["--localization", localization])
+    if diagnostics:
+        command.append("--localization-validation")
     if profile:
         dock = profile["nodes"]["dock"]
         command.extend(["--spawn", str(dock[0]), str(dock[1]), str(dock[2] + .07), "0"])
@@ -75,6 +88,14 @@ def setup(context):
     elif not arg("backend_url"):
         raise ValueError("Provide backend_url when mock:=false.")
     data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / "control")
+    localization_nodes = []
+    if localizer:
+        localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
+                              additional_env={"OPENBLAS_NUM_THREADS": "1"},
+                              parameters=[{"mode": localization, "data_dir": data}]))
+    if diagnostics:
+        localization_nodes.append(Node(package="rackonaut_localization", executable="validate_pose", output="screen",
+                              additional_env={"OPENBLAS_NUM_THREADS": "1"}, parameters=[{"data_dir": data}]))
     processes.append(Node(package="rackonaut_control", executable="serve", output="screen", parameters=[{
         "http_port": int(arg("http_port")),
         "backend_url": backend,
@@ -85,6 +106,8 @@ def setup(context):
         "energy_enabled": energy,
         "aerial_enabled": aerial,
         "avoidance_enabled": avoidance,
+        "localization_mode": localization,
+        "localization_diagnostics": diagnostics,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -94,6 +117,7 @@ def setup(context):
             "charge": float(arg("charge_rate")),
             "events_file": str(Path(data) / "charge-cycles.jsonl"),
             "aerial": aerial,
+            "sensor_localization": localization == "sensor_based",
             **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
@@ -130,7 +154,7 @@ def setup(context):
             if enabled("laser_rviz"):
                 safety_nodes.append(Node(package="rviz2", executable="rviz2", output="screen",
                                          arguments=["-d", str(config / "laser_safety.rviz")]))
-    return [*on_exit, *processes, *safety_nodes]
+    return [*on_exit, *processes, *localization_nodes, *safety_nodes]
 
 
 def generate_launch_description():
@@ -138,6 +162,7 @@ def generate_launch_description():
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
                 "energy": "false", "aerial": "false", "avoidance": "false",
+                "localization": "ground_truth", "localization_diagnostics": "false",
                 "battery_initial": "auto", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),

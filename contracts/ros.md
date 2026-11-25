@@ -38,3 +38,18 @@ Before substituting a drone, Michał confirms the model version and license, nat
 ## Opt-in obstacle avoidance showcase
 
 The `avoidance:=true` reference profile publishes an organized `sensor_msgs/msg/PointCloud2` on `/rackonaut/drone/lidar/points`. The cloud carries simulator acquisition time, a 192 × 37 layout and Cartesian coordinates in meters with a nominal cadence of 6 Hz in simulation time. The fixed TF from `rackonaut_base_link` to `rackonaut_reference_drone/base_link/local_lidar` translates 0.09 m along +Z with identity rotation. The companion RGB camera and existing motion bridge retain their interfaces. Mission status carries the optional `avoidance` diagnostics. [Profile and validation](../docs/OBSTACLE_AVOIDANCE.md)
+
+## Opt-in sensor localization showcase
+
+The `localization:=sensor_based` profile makes `rackonaut_localization` the owner of `/rackonaut/drone/odom` and of the dynamic TF from `rackonaut_odom` to `rackonaut_base_link`. The `shadow` profile exposes estimates while retaining the Gazebo source for control.
+
+| Topic | Type | Meaning |
+|---|---|---|
+| `/rackonaut/drone/imu` | `sensor_msgs/msg/Imu` | Body angular rates and specific force, 50 Hz nominal, frame `rackonaut_reference_drone/base_link/local_imu` at the body origin |
+| `/rackonaut/localization/estimate` | `nav_msgs/msg/Odometry` | Registered pose at the exact acquisition stamp of the corresponding LiDAR cloud |
+| `/rackonaut/localization/measured_map` | `sensor_msgs/msg/PointCloud2` | Accumulated observed endpoints in `rackonaut_odom` |
+| `/rackonaut/localization/state` | `std_msgs/msg/String` | Localization status, quality metrics and reduced display layers |
+| `/rackonaut/dock/contacts` | `ros_gz_interfaces/msg/Contacts` | Physical collision contact with the dock switch |
+| `/rackonaut/validation/ground_truth` | `nav_msgs/msg/Odometry` | Optional independent validator input, enabled by `localization_diagnostics:=true` |
+
+The estimator uses the IMU rates and specific force. In sensor mode the avoidance module uses the registered pose at the cloud stamp. The Energy Manager uses the active estimated odometry and independently checks the dock contact. [Profile and validation](../docs/SENSOR_LOCALIZATION.md)

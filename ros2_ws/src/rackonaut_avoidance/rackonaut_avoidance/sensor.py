@@ -90,11 +90,12 @@ class Cloud:
 
 
 class Scanner:
-    def __init__(self, node):
+    def __init__(self, node, exact_pose=False):
         self.poses = deque(maxlen=16)
         self.pending = None
         self.cloud = None
         self.latest_stamp = -1.
+        self.exact_pose = exact_pose
         self.subscription = node.create_subscription(PointCloud2, TOPIC, self.receive, qos_profile_sensor_data)
 
     def odometry(self, message):
@@ -119,7 +120,7 @@ class Scanner:
             if self.poses[-1][0] >= time or now - received > .13:
                 self.pending = None
                 pose_time, center, matrix = min(self.poses, key=lambda pose: abs(time - pose[0]))
-                if abs(pose_time - time) <= .085:
+                if abs(pose_time - time) <= (.001 if self.exact_pose else .085):
                     try:
                         ranges, finite, near = unpack(message)
                     except ValueError:

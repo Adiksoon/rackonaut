@@ -1,0 +1,50 @@
+{
+  "baseline-laser": {
+    "samples": 96,
+    "span_sim_s": 5.704,
+    "span_wall_s": 14.5163,
+    "rtf": 0.39294,
+    "rgb_wall_hz": 3.865,
+    "rgb_intervals": 63,
+    "lidar_wall_hz": 2.331,
+    "lidar_intervals": 36,
+    "ground_wall_hz": 1.943,
+    "ground_intervals": 30
+  },
+  "baseline-virtual": {
+    "samples": 96,
+    "span_sim_s": 7.492,
+    "span_wall_s": 12.2758,
+    "rtf": 0.61031,
+    "rgb_wall_hz": 6.088,
+    "rgb_intervals": 95,
+    "lidar_wall_hz": 3.666,
+    "lidar_intervals": 61
+  },
+  "sensor-laser": {
+    "samples": 96,
+    "span_sim_s": 5.76,
+    "span_wall_s": 14.1738,
+    "rtf": 0.40638,
+    "rgb_wall_hz": 4.033,
+    "rgb_intervals": 64,
+    "lidar_wall_hz": 2.433,
+    "lidar_intervals": 39,
+    "imu_wall_hz": 19.591,
+    "imu_intervals": 95,
+    "ground_wall_hz": 2.031,
+    "ground_intervals": 31
+  },
+  "sensor-virtual": {
+    "samples": 96,
+    "span_sim_s": 7.44,
+    "span_wall_s": 12.4653,
+    "rtf": 0.59686,
+    "rgb_wall_hz": 5.993,
+    "rgb_intervals": 95,
+    "lidar_wall_hz": 3.61,
+    "lidar_intervals": 58,
+    "imu_wall_hz": 30.281,
+    "imu_intervals": 95
+  }
+}

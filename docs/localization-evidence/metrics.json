@@ -1,0 +1,1171 @@
+{
+  "shadow": {
+    "inspection_id": "INS-CONTROL-20261125-160110-3637A6EE",
+    "outcome": "COMPLETE",
+    "mission_detail": "Landed on the launch pad",
+    "duration_wall_s": 309.0,
+    "landed": true,
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 35.518,
+      "dock": "DOCKED",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 207.4,
+      "model": {
+        "hover": 0.26,
+        "movement": 0.19,
+        "climb": 0.52,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      },
+      "profile": "protected_aerial_demo"
+    },
+    "safety_phase": "RELEASED",
+    "persistence": [],
+    "flight_window_sim": [
+      20.92,
+      206.88
+    ],
+    "all_matches": {
+      "samples": 1658,
+      "rmse_xyz_m": [
+        0.047602,
+        0.020406,
+        0.006478
+      ],
+      "rmse_m": 0.052195,
+      "p95_m": 0.074437,
+      "max_m": 0.091454,
+      "angle_rmse_deg": 0.57856,
+      "angle_p95_deg": 1.06286,
+      "angle_max_deg": 2.1621
+    },
+    "flight_matches": {
+      "samples": 1120,
+      "rmse_xyz_m": [
+        0.03377,
+        0.024803,
+        0.005857
+      ],
+      "rmse_m": 0.042307,
+      "p95_m": 0.079167,
+      "max_m": 0.091454,
+      "angle_rmse_deg": 0.59889,
+      "angle_p95_deg": 1.75359,
+      "angle_max_deg": 2.1621
+    },
+    "flight_by_phase": {
+      "other": {
+        "samples": 29,
+        "rmse_xyz_m": [
+          0.057803,
+          0.028947,
+          0.00772
+        ],
+        "rmse_m": 0.065105,
+        "p95_m": 0.089134,
+        "max_m": 0.091454,
+        "angle_rmse_deg": 0.53956,
+        "angle_p95_deg": 0.78034,
+        "angle_max_deg": 0.8084
+      },
+      "vertical_takeoff": {
+        "samples": 76,
+        "rmse_xyz_m": [
+          0.071891,
+          0.0181,
+          0.007703
+        ],
+        "rmse_m": 0.074533,
+        "p95_m": 0.084169,
+        "max_m": 0.087023,
+        "angle_rmse_deg": 0.62733,
+        "angle_p95_deg": 0.7994,
+        "angle_max_deg": 0.8513
+      },
+      "tunnel": {
+        "samples": 484,
+        "rmse_xyz_m": [
+          0.027845,
+          0.035561,
+          0.005763
+        ],
+        "rmse_m": 0.045531,
+        "p95_m": 0.078827,
+        "max_m": 0.08935,
+        "angle_rmse_deg": 0.82093,
+        "angle_p95_deg": 1.95298,
+        "angle_max_deg": 2.1621
+      },
+      "descent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.006452,
+          0.000702,
+          0.004828
+        ],
+        "rmse_m": 0.008089,
+        "p95_m": 0.012963,
+        "max_m": 0.025804,
+        "angle_rmse_deg": 0.1348,
+        "angle_p95_deg": 0.23641,
+        "angle_max_deg": 0.337
+      },
+      "aisle": {
+        "samples": 137,
+        "rmse_xyz_m": [
+          0.006513,
+          0.001127,
+          0.005764
+        ],
+        "rmse_m": 0.00877,
+        "p95_m": 0.014783,
+        "max_m": 0.020418,
+        "angle_rmse_deg": 0.12543,
+        "angle_p95_deg": 0.2295,
+        "angle_max_deg": 0.3206
+      },
+      "turn": {
+        "samples": 27,
+        "rmse_xyz_m": [
+          0.004371,
+          0.000825,
+          0.007563
+        ],
+        "rmse_m": 0.008775,
+        "p95_m": 0.011747,
+        "max_m": 0.01266,
+        "angle_rmse_deg": 0.10906,
+        "angle_p95_deg": 0.19767,
+        "angle_max_deg": 0.2082
+      },
+      "lateral_avoidance": {
+        "samples": 154,
+        "rmse_xyz_m": [
+          0.005515,
+          0.002291,
+          0.003534
+        ],
+        "rmse_m": 0.00694,
+        "p95_m": 0.012231,
+        "max_m": 0.015931,
+        "angle_rmse_deg": 0.11951,
+        "angle_p95_deg": 0.19481,
+        "angle_max_deg": 0.426
+      },
+      "aisle_ascent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.004862,
+          0.000781,
+          0.004452
+        ],
+        "rmse_m": 0.006639,
+        "p95_m": 0.011904,
+        "max_m": 0.014675,
+        "angle_rmse_deg": 0.13805,
+        "angle_p95_deg": 0.24729,
+        "angle_max_deg": 0.4109
+      },
+      "docking": {
+        "samples": 77,
+        "rmse_xyz_m": [
+          0.071791,
+          0.018616,
+          0.00818
+        ],
+        "rmse_m": 0.074615,
+        "p95_m": 0.085314,
+        "max_m": 0.087259,
+        "angle_rmse_deg": 0.6239,
+        "angle_p95_deg": 0.79706,
+        "angle_max_deg": 0.8198
+      }
+    },
+    "dock_offset_change_m": 6.4e-05,
+    "dock_offset_change_xyz": [
+      4.9e-05,
+      -1e-06,
+      -4.1e-05
+    ],
+    "fixture-inserted": {
+      "wall": 138.361,
+      "stage": "TRANSIT",
+      "phase": "TRANSIT",
+      "position": [
+        5.463,
+        0.452,
+        0.791,
+        1.572
+      ],
+      "target": [
+        8.26,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Swept path verified by onboard lidar",
+        "direction": [
+          1.0,
+          -0.001,
+          -0.0
+        ],
+        "scan_age_ms": 139,
+        "scan_stamp": 103.088,
+        "origin": [
+          5.47,
+          0.454,
+          0.88
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 1.5,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "localization": {},
+      "energy": 70.803,
+      "sim": 103.24,
+      "completed": [
+        "A-01-01"
+      ],
+      "detail": "Flying to the inspection viewpoint"
+    }
+  },
+  "shadow2": {
+    "inspection_id": "INS-CONTROL-20261125-160532-BADD1FFF",
+    "outcome": "COMPLETE",
+    "mission_detail": "Landed on the launch pad",
+    "duration_wall_s": 320.1,
+    "landed": true,
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 35.39,
+      "dock": "DOCKED",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 226.84,
+      "model": {
+        "hover": 0.26,
+        "movement": 0.19,
+        "climb": 0.52,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      },
+      "profile": "protected_aerial_demo"
+    },
+    "safety_phase": "RELEASED",
+    "persistence": [],
+    "flight_window_sim": [
+      41.08,
+      226.4
+    ],
+    "all_matches": {
+      "samples": 1367,
+      "rmse_xyz_m": [
+        0.004271,
+        0.001937,
+        0.008056
+      ],
+      "rmse_m": 0.009322,
+      "p95_m": 0.01382,
+      "max_m": 0.037705,
+      "angle_rmse_deg": 0.07965,
+      "angle_p95_deg": 0.15018,
+      "angle_max_deg": 0.3119
+    },
+    "flight_matches": {
+      "samples": 1116,
+      "rmse_xyz_m": [
+        0.004424,
+        0.002142,
+        0.006731
+      ],
+      "rmse_m": 0.008335,
+      "p95_m": 0.013981,
+      "max_m": 0.037705,
+      "angle_rmse_deg": 0.08242,
+      "angle_p95_deg": 0.15845,
+      "angle_max_deg": 0.3119
+    },
+    "flight_by_phase": {
+      "other": {
+        "samples": 33,
+        "rmse_xyz_m": [
+          0.002831,
+          0.000707,
+          0.01261
+        ],
+        "rmse_m": 0.012943,
+        "p95_m": 0.027944,
+        "max_m": 0.028969,
+        "angle_rmse_deg": 0.05803,
+        "angle_p95_deg": 0.09616,
+        "angle_max_deg": 0.1059
+      },
+      "vertical_takeoff": {
+        "samples": 76,
+        "rmse_xyz_m": [
+          0.001146,
+          0.000711,
+          0.008325
+        ],
+        "rmse_m": 0.008433,
+        "p95_m": 0.013184,
+        "max_m": 0.013857,
+        "angle_rmse_deg": 0.0594,
+        "angle_p95_deg": 0.1002,
+        "angle_max_deg": 0.1217
+      },
+      "tunnel": {
+        "samples": 481,
+        "rmse_xyz_m": [
+          0.002538,
+          0.002917,
+          0.000808
+        ],
+        "rmse_m": 0.00395,
+        "p95_m": 0.007819,
+        "max_m": 0.018327,
+        "angle_rmse_deg": 0.05896,
+        "angle_p95_deg": 0.108,
+        "angle_max_deg": 0.1868
+      },
+      "descent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.005155,
+          0.000622,
+          0.007392
+        ],
+        "rmse_m": 0.009033,
+        "p95_m": 0.014764,
+        "max_m": 0.015683,
+        "angle_rmse_deg": 0.11624,
+        "angle_p95_deg": 0.2152,
+        "angle_max_deg": 0.2734
+      },
+      "aisle": {
+        "samples": 133,
+        "rmse_xyz_m": [
+          0.006225,
+          0.001174,
+          0.010045
+        ],
+        "rmse_m": 0.011876,
+        "p95_m": 0.01583,
+        "max_m": 0.020383,
+        "angle_rmse_deg": 0.10912,
+        "angle_p95_deg": 0.18826,
+        "angle_max_deg": 0.2346
+      },
+      "turn": {
+        "samples": 27,
+        "rmse_xyz_m": [
+          0.005345,
+          0.001052,
+          0.010891
+        ],
+        "rmse_m": 0.012177,
+        "p95_m": 0.013983,
+        "max_m": 0.016144,
+        "angle_rmse_deg": 0.12145,
+        "angle_p95_deg": 0.24001,
+        "angle_max_deg": 0.2888
+      },
+      "lateral_avoidance": {
+        "samples": 153,
+        "rmse_xyz_m": [
+          0.007484,
+          0.002093,
+          0.008272
+        ],
+        "rmse_m": 0.01135,
+        "p95_m": 0.016724,
+        "max_m": 0.037705,
+        "angle_rmse_deg": 0.10108,
+        "angle_p95_deg": 0.16658,
+        "angle_max_deg": 0.3119
+      },
+      "aisle_ascent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.005397,
+          0.000702,
+          0.00755
+        ],
+        "rmse_m": 0.009308,
+        "p95_m": 0.013952,
+        "max_m": 0.022731,
+        "angle_rmse_deg": 0.11074,
+        "angle_p95_deg": 0.20139,
+        "angle_max_deg": 0.247
+      },
+      "docking": {
+        "samples": 77,
+        "rmse_xyz_m": [
+          0.001105,
+          0.000616,
+          0.0081
+        ],
+        "rmse_m": 0.008199,
+        "p95_m": 0.01293,
+        "max_m": 0.015649,
+        "angle_rmse_deg": 0.05489,
+        "angle_p95_deg": 0.09368,
+        "angle_max_deg": 0.126
+      }
+    },
+    "dock_offset_change_m": 0.013419,
+    "dock_offset_change_xyz": [
+      -4.4e-05,
+      0.000883,
+      -0.01339
+    ],
+    "status_counts": {
+      "TRACKING": 1921,
+      "DEGRADED": 0,
+      "LOST": 0
+    },
+    "map_cells": 56409,
+    "pipeline_ms": {
+      "median": 26.26,
+      "p95": 38.25
+    },
+    "processing_ms": {
+      "median": 14.12,
+      "p95": 17.45
+    },
+    "update_hz": {
+      "median": 3.49,
+      "p95": 3.57
+    },
+    "sim_hz": {
+      "median": 6.02,
+      "p95": 6.03
+    },
+    "scan_age_ms": {
+      "median": 145.0,
+      "p95": 293.0
+    },
+    "scan_lag_sim_ms": {
+      "median": 52.0,
+      "p95": 100.0
+    },
+    "fixture-inserted": {
+      "wall": 144.484,
+      "stage": "TRANSIT",
+      "phase": "TRANSIT",
+      "position": [
+        5.464,
+        0.452,
+        0.791,
+        1.573
+      ],
+      "target": [
+        8.26,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Swept path verified by onboard lidar",
+        "direction": [
+          1.0,
+          -0.001,
+          -0.0
+        ],
+        "scan_age_ms": 10,
+        "scan_stamp": 123.008,
+        "origin": [
+          5.471,
+          0.454,
+          0.88
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 1.5,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "localization": {
+        "mode": "shadow",
+        "state": "TRACKING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "accepted": 740,
+        "position": [
+          5.463,
+          0.453,
+          0.778
+        ],
+        "orientation": [
+          0.00561,
+          0.008646,
+          0.707739,
+          0.706399
+        ],
+        "scan_age_ms": 45,
+        "update_hz": 3.5,
+        "sim_hz": 6.02,
+        "rms": 0.0121,
+        "overlap": 0.966,
+        "sigma": [
+          0.0115,
+          0.007,
+          0.0044
+        ],
+        "weakest": 0.06661,
+        "processing_ms": 15.27,
+        "pipeline_ms": 35.3,
+        "scan_lag_sim_ms": 112,
+        "map_voxels": 47845
+      },
+      "energy": 70.58,
+      "sim": 123.04,
+      "completed": [
+        "A-01-01"
+      ],
+      "detail": "Flying to the inspection viewpoint"
+    }
+  },
+  "sensor": {
+    "inspection_id": "INS-CONTROL-20261125-161057-6157F917",
+    "outcome": "COMPLETE",
+    "mission_detail": "Landed on the launch pad",
+    "duration_wall_s": 316.6,
+    "landed": true,
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 35.535,
+      "dock": "CHARGING",
+      "contact": true,
+      "charging": true,
+      "cycles": 0,
+      "sim_time": 275.36,
+      "model": {
+        "hover": 0.26,
+        "movement": 0.19,
+        "climb": 0.52,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      },
+      "profile": "protected_aerial_demo",
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": true
+    },
+    "safety_phase": "RELEASED",
+    "persistence": [],
+    "flight_window_sim": [
+      89.5,
+      274.9
+    ],
+    "all_matches": {
+      "samples": 1997,
+      "rmse_xyz_m": [
+        0.003901,
+        0.001482,
+        0.013728
+      ],
+      "rmse_m": 0.014348,
+      "p95_m": 0.0271,
+      "max_m": 0.030374,
+      "angle_rmse_deg": 0.0792,
+      "angle_p95_deg": 0.13452,
+      "angle_max_deg": 0.339
+    },
+    "flight_matches": {
+      "samples": 1117,
+      "rmse_xyz_m": [
+        0.00451,
+        0.001913,
+        0.007041
+      ],
+      "rmse_m": 0.008577,
+      "p95_m": 0.014097,
+      "max_m": 0.030374,
+      "angle_rmse_deg": 0.08221,
+      "angle_p95_deg": 0.1569,
+      "angle_max_deg": 0.339
+    },
+    "flight_by_phase": {
+      "other": {
+        "samples": 35,
+        "rmse_xyz_m": [
+          0.002011,
+          0.000995,
+          0.016288
+        ],
+        "rmse_m": 0.016442,
+        "p95_m": 0.028636,
+        "max_m": 0.030374,
+        "angle_rmse_deg": 0.05786,
+        "angle_p95_deg": 0.10435,
+        "angle_max_deg": 0.1323
+      },
+      "vertical_takeoff": {
+        "samples": 77,
+        "rmse_xyz_m": [
+          0.001292,
+          0.000717,
+          0.008413
+        ],
+        "rmse_m": 0.008542,
+        "p95_m": 0.013871,
+        "max_m": 0.015835,
+        "angle_rmse_deg": 0.05153,
+        "angle_p95_deg": 0.08406,
+        "angle_max_deg": 0.0957
+      },
+      "tunnel": {
+        "samples": 484,
+        "rmse_xyz_m": [
+          0.00292,
+          0.002477,
+          0.000761
+        ],
+        "rmse_m": 0.003904,
+        "p95_m": 0.008372,
+        "max_m": 0.017518,
+        "angle_rmse_deg": 0.05716,
+        "angle_p95_deg": 0.10659,
+        "angle_max_deg": 0.162
+      },
+      "descent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.004917,
+          0.000646,
+          0.00759
+        ],
+        "rmse_m": 0.009067,
+        "p95_m": 0.012266,
+        "max_m": 0.01379,
+        "angle_rmse_deg": 0.11813,
+        "angle_p95_deg": 0.20577,
+        "angle_max_deg": 0.2649
+      },
+      "aisle": {
+        "samples": 125,
+        "rmse_xyz_m": [
+          0.006645,
+          0.001202,
+          0.010092
+        ],
+        "rmse_m": 0.012143,
+        "p95_m": 0.016061,
+        "max_m": 0.028135,
+        "angle_rmse_deg": 0.11231,
+        "angle_p95_deg": 0.18228,
+        "angle_max_deg": 0.339
+      },
+      "turn": {
+        "samples": 27,
+        "rmse_xyz_m": [
+          0.003882,
+          0.001099,
+          0.010738
+        ],
+        "rmse_m": 0.011471,
+        "p95_m": 0.013172,
+        "max_m": 0.014097,
+        "angle_rmse_deg": 0.12883,
+        "angle_p95_deg": 0.19726,
+        "angle_max_deg": 0.2142
+      },
+      "lateral_avoidance": {
+        "samples": 156,
+        "rmse_xyz_m": [
+          0.007316,
+          0.00212,
+          0.008499
+        ],
+        "rmse_m": 0.011413,
+        "p95_m": 0.017686,
+        "max_m": 0.024648,
+        "angle_rmse_deg": 0.09899,
+        "angle_p95_deg": 0.16675,
+        "angle_max_deg": 0.2774
+      },
+      "aisle_ascent": {
+        "samples": 68,
+        "rmse_xyz_m": [
+          0.00577,
+          0.000823,
+          0.007471
+        ],
+        "rmse_m": 0.009476,
+        "p95_m": 0.013293,
+        "max_m": 0.0171,
+        "angle_rmse_deg": 0.11349,
+        "angle_p95_deg": 0.21845,
+        "angle_max_deg": 0.2442
+      },
+      "docking": {
+        "samples": 77,
+        "rmse_xyz_m": [
+          0.001334,
+          0.000858,
+          0.008476
+        ],
+        "rmse_m": 0.008624,
+        "p95_m": 0.013358,
+        "max_m": 0.014846,
+        "angle_rmse_deg": 0.059,
+        "angle_p95_deg": 0.09322,
+        "angle_max_deg": 0.129
+      }
+    },
+    "dock_offset_change_m": 0.015161,
+    "dock_offset_change_xyz": [
+      -0.002447,
+      0.000911,
+      -0.014934
+    ],
+    "control_odometry": {
+      "samples": 3701,
+      "rmse_xyz_m": [
+        0.005942,
+        0.00257,
+        0.007618
+      ],
+      "rmse_m": 0.009997,
+      "p95_m": 0.01659,
+      "max_m": 0.047397,
+      "angle_rmse_deg": 0.11584,
+      "angle_p95_deg": 0.2337,
+      "angle_max_deg": 0.5447,
+      "max_tunnel_cross_track_m": 0.023488,
+      "max_tunnel_estimated_cross_track_m": 0.024307,
+      "max_tunnel_position_error_m": 0.023357,
+      "max_departure_shaft_cross_track_m": 0.002362,
+      "max_descent_gate_cross_track_m": 0.005657,
+      "first_stamp_sim": 112.86
+    },
+    "status_counts": {
+      "TRACKING": 1900,
+      "DEGRADED": 0,
+      "LOST": 0
+    },
+    "map_cells": 56423,
+    "pipeline_ms": {
+      "median": 25.42,
+      "p95": 37.851
+    },
+    "processing_ms": {
+      "median": 13.945,
+      "p95": 16.67
+    },
+    "update_hz": {
+      "median": 3.53,
+      "p95": 3.59
+    },
+    "sim_hz": {
+      "median": 6.03,
+      "p95": 6.03
+    },
+    "scan_age_ms": {
+      "median": 143.0,
+      "p95": 286.0
+    },
+    "scan_lag_sim_ms": {
+      "median": 52.0,
+      "p95": 100.0
+    },
+    "fixture-inserted": {
+      "wall": 142.892,
+      "stage": "TRANSIT",
+      "phase": "TRANSIT",
+      "position": [
+        5.454,
+        0.449,
+        0.79,
+        1.569
+      ],
+      "target": [
+        8.26,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Swept path verified by onboard lidar",
+        "direction": [
+          1.0,
+          0.0,
+          -0.0
+        ],
+        "scan_age_ms": 156,
+        "scan_stamp": 170.484,
+        "origin": [
+          5.458,
+          0.451,
+          0.881
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 1.5,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "localization": {
+        "mode": "sensor_based",
+        "state": "TRACKING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "accepted": 1026,
+        "position": [
+          5.457,
+          0.451,
+          0.791
+        ],
+        "orientation": [
+          0.004025,
+          0.006073,
+          0.706428,
+          0.707748
+        ],
+        "scan_age_ms": 192,
+        "imu_age_ms": 53,
+        "update_hz": 3.55,
+        "sim_hz": 6.02,
+        "rms": 0.0124,
+        "overlap": 0.968,
+        "sigma": [
+          0.0123,
+          0.007,
+          0.0044
+        ],
+        "weakest": 0.05769,
+        "processing_ms": 13.83,
+        "pipeline_ms": 30.91,
+        "scan_lag_sim_ms": 36,
+        "map_voxels": 47761
+      },
+      "energy": 70.147,
+      "sim": 170.54,
+      "completed": [
+        "A-01-01"
+      ],
+      "detail": "Flying to the inspection viewpoint"
+    }
+  },
+  "loss": {
+    "inspection_id": "INS-CONTROL-20261125-161829-BF05567D",
+    "outcome": "ABORTED",
+    "mission_detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "duration_wall_s": 37.4,
+    "landed": false,
+    "completed": [],
+    "energy": {
+      "simulated": true,
+      "fresh": false,
+      "percent": 92.791,
+      "dock": "FAULT",
+      "contact": false,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 28.22,
+      "model": {
+        "hover": 0.26,
+        "movement": 0.19,
+        "climb": 0.52,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      },
+      "profile": "protected_aerial_demo",
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": false
+    },
+    "safety_phase": "RECOVERY",
+    "persistence": [
+      "D",
+      "A"
+    ],
+    "status_counts": {
+      "TRACKING": 225,
+      "DEGRADED": 0,
+      "LOST": 8
+    },
+    "map_cells": 11991,
+    "pipeline_ms": {
+      "median": 27.52,
+      "p95": 37.13
+    },
+    "processing_ms": {
+      "median": 12.82,
+      "p95": 14.3
+    },
+    "update_hz": {
+      "median": 2.33,
+      "p95": 2.388
+    },
+    "sim_hz": {
+      "median": 6.03,
+      "p95": 6.03
+    },
+    "scan_age_ms": {
+      "median": 234.0,
+      "p95": 459.6
+    },
+    "scan_lag_sim_ms": {
+      "median": 36.0,
+      "p95": 95.2
+    },
+    "before-loss": {
+      "wall": 40.415,
+      "stage": "ENTERING_CORRIDOR",
+      "phase": "ENTERING_CORRIDOR",
+      "position": [
+        -4.7,
+        10.301,
+        6.686,
+        -0.0
+      ],
+      "target": [
+        2.1,
+        10.3,
+        6.7,
+        0.0
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Holding the reached waypoint",
+        "direction": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scan_age_ms": 93,
+        "scan_stamp": 28.056,
+        "origin": [
+          -4.701,
+          10.3,
+          6.764
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 0.017,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "localization": {
+        "mode": "sensor_based",
+        "state": "TRACKING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "accepted": 168,
+        "position": [
+          -4.701,
+          10.3,
+          6.674
+        ],
+        "orientation": [
+          8.5e-05,
+          0.000217,
+          -0.000128,
+          1.0
+        ],
+        "scan_age_ms": 104,
+        "imu_age_ms": 5,
+        "update_hz": 2.27,
+        "sim_hz": 6.02,
+        "rms": 0.0105,
+        "overlap": 1.0,
+        "sigma": [
+          0.0065,
+          0.0058,
+          0.0062
+        ],
+        "weakest": 0.20781,
+        "processing_ms": 13.35,
+        "pipeline_ms": 17.02,
+        "scan_lag_sim_ms": 44,
+        "map_voxels": 11843
+      },
+      "energy": 92.803,
+      "sim": 28.18,
+      "completed": [],
+      "detail": "Following the reserved aerial corridor"
+    },
+    "recovered": {
+      "lost_after_pause_s": 0.425,
+      "tracking_after_resume_s": 0.088,
+      "before": {
+        "position": [
+          -4.7,
+          10.301,
+          6.686,
+          -0.0
+        ],
+        "localization": "TRACKING",
+        "estimate": [
+          -4.701,
+          10.3,
+          6.674
+        ],
+        "mission": "ENTERING_CORRIDOR",
+        "detail": "Following the reserved aerial corridor",
+        "phase": "RESERVED",
+        "reserved": [
+          "D",
+          "A"
+        ],
+        "diagnostics": false,
+        "contact": false
+      },
+      "first_lost": {
+        "position": [
+          -4.7,
+          10.301,
+          6.686,
+          -0.0
+        ],
+        "localization": "LOST",
+        "estimate": [
+          -4.7,
+          10.3,
+          6.686
+        ],
+        "mission": "ENTERING_CORRIDOR",
+        "detail": "Following the reserved aerial corridor",
+        "phase": "RESERVED",
+        "reserved": [
+          "D",
+          "A"
+        ],
+        "diagnostics": false,
+        "contact": false
+      },
+      "holding": {
+        "position": [
+          -4.7,
+          10.301,
+          6.686,
+          -0.0
+        ],
+        "localization": "LOST",
+        "estimate": [
+          -4.7,
+          10.3,
+          6.686
+        ],
+        "mission": "ABORTED",
+        "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+        "phase": "RECOVERY",
+        "reserved": [
+          "D",
+          "A"
+        ],
+        "diagnostics": false,
+        "contact": false
+      },
+      "reacquired": {
+        "position": [
+          -4.647,
+          10.301,
+          6.701,
+          -0.0
+        ],
+        "localization": "TRACKING",
+        "estimate": [
+          -4.653,
+          10.3,
+          6.699
+        ],
+        "mission": "ABORTED",
+        "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+        "phase": "RECOVERY",
+        "reserved": [
+          "D",
+          "A"
+        ],
+        "diagnostics": false,
+        "contact": false
+      }
+    }
+  }
+}

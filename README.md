@@ -16,6 +16,8 @@ The [protected aerial infrastructure demo](docs/AERIAL_INFRASTRUCTURE.md) adds a
 
 The [onboard obstacle avoidance demo](docs/OBSTACLE_AVOIDANCE.md) adds a spatial LiDAR, measured local bypasses and operator recovery for blocked airways.
 
+The [sensor-based localization demo](docs/SENSOR_LOCALIZATION.md) adds LiDAR/IMU navigation and a measured warehouse point cloud with optional reference validation.
+
 The [complete demo guide](docs/DEMO_COMPLETE.md) covers the `demo-complete` tag, launch, full inventory, reinspection and team handoff.
 
 | Role | Guide | AI starter prompt | Suggested branch |

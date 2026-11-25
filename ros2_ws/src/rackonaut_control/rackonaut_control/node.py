@@ -87,6 +87,11 @@ class Control(Node):
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
         self.aerial_enabled = self.declare_parameter("aerial_enabled", False).value
         self.avoidance_enabled = self.declare_parameter("avoidance_enabled", False).value
+        self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
+        self.localization_diagnostics = self.declare_parameter("localization_diagnostics", False).value
+        self.localization, self.localization_at, self.pose_validation = None, -1e6, None
+        if self.localization_mode != "ground_truth":
+            self.layout["localization"] = {"mode": self.localization_mode, "diagnostics": self.localization_diagnostics}
         self.flight_props = set()
         if self.avoidance_enabled:
             self.flight_props = set(json.loads((warehouse / "config/avoidance_layout.json").read_text()))
@@ -122,6 +127,10 @@ class Control(Node):
         self.health_future = None
         self.next_health = 0.
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        if self.localization_mode != "ground_truth":
+            self.create_subscription(String, "/rackonaut/localization/state", self.on_localization, latest)
+        if self.localization_diagnostics:
+            self.create_subscription(String, "/rackonaut/localization/validation", self.on_pose_validation, latest)
         if self.energy_enabled:
             self.create_subscription(String, "/rackonaut/energy/state", self.on_energy, latest)
         if self.safety_enabled:
@@ -141,6 +150,12 @@ class Control(Node):
         self.start_client = self.create_client(Trigger, "/rackonaut/mission/start")
         self.abort_client = self.create_client(Trigger, "/rackonaut/mission/abort")
         self.timer = self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
+
+    def on_localization(self, message):
+        self.localization, self.localization_at = json.loads(message.data), monotonic()
+
+    def on_pose_validation(self, message):
+        self.pose_validation = json.loads(message.data)
 
     def load_history(self):
         result = []
@@ -305,6 +320,10 @@ class Control(Node):
         with self.lock:
             if self.busy():
                 raise RuntimeError("Wait for the running inspection and its report.")
+            if self.localization_mode == "sensor_based" and (
+                    not self.localization or monotonic() - self.localization_at > .40
+                    or self.localization.get("state") != "TRACKING"):
+                raise RuntimeError("Wait for reliable sensor-based localization.")
             if not self.at_pad():
                 raise RuntimeError("The drone must be stopped on the launch pad before dispatch.")
             if self.energy_enabled:
@@ -349,6 +368,7 @@ class Control(Node):
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
                     **({"travel_timeout": "70.0", "obstacle_avoidance": "true"} if self.avoidance_enabled
                        else {"travel_timeout": "52.0"} if self.aerial_enabled else {}),
+                    **({"sensor_localization": "true"} if self.localization_mode == "sensor_based" else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                 }))
@@ -489,7 +509,7 @@ class Control(Node):
                            "planned": job.planned or job.plan["points"], "flown": job.flown,
                            "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
                            "result": job.archive, "error": job.error or job.export_error}
-            return {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
+            result = {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
                     "position": self.position, "orientation": self.orientation,
                     "energy": self.energy_state(),
                     "backend": self.backend_state, "mission": current,
@@ -498,6 +518,14 @@ class Control(Node):
                     "safety_enabled": self.safety_enabled, "safety": safety,
                     "last_reservation": (self.safety or {}).get("required", []) if safety is None else [],
                     "overview": monotonic() - self.overview_at < 1.5}
+            if self.localization_mode != "ground_truth":
+                value = self.localization
+                if value and monotonic() - self.localization_at > .65:
+                    value = {**value, "state": "LOST", "reason": "Localization heartbeat stopped advancing"}
+                result["localization"] = value
+                if self.localization_diagnostics:
+                    result["localization_validation"] = self.pose_validation
+            return result
 
     def close(self):
         if self.job:

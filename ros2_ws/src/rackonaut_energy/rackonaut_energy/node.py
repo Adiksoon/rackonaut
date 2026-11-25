@@ -11,6 +11,7 @@ from ament_index_python.packages import get_package_share_path
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+from ros_gz_interfaces.msg import Contacts
 from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
 
@@ -34,6 +35,7 @@ class Energy(Node):
             raise ValueError("initial_percent must be within 0–100.")
         self.events_file = self.declare_parameter("events_file", "").value
         self.aerial = self.declare_parameter("aerial", False).value
+        self.sensor_localization = self.declare_parameter("sensor_localization", False).value
         layout_name = "aerial_layout.json" if self.aerial else "control_layout.json"
         layout = get_package_share_path("rackonaut_warehouse") / "config" / layout_name
         pad = json.loads(layout.read_text())["pad"]
@@ -48,16 +50,33 @@ class Energy(Node):
         self.dock_state = "FAULT"
         self.contact_verified = False
         self.model_mode = "idle"
+        self.pad_contact_at = -1e6
+        self.pad_contact_stamp = -1.
+        self.pad_touched = False
         latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.status_pub = self.create_publisher(String, STATE, latched)
         self.light_pub = self.create_publisher(String, "/rackonaut/energy/dock_light", 5)
         self.battery_pub = self.create_publisher(BatteryState, BATTERY, 5)
         self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odometry, qos_profile_sensor_data)
         self.create_subscription(String, "/rackonaut/mission/status", self.on_mission, latched)
+        if self.sensor_localization:
+            self.create_subscription(Contacts, "/rackonaut/dock/contacts", self.on_pad_contact, qos_profile_sensor_data)
         self.create_timer(.20, self.publish_status)
 
     def on_mission(self, message):
         self.mission = json.loads(message.data)
+
+    def on_pad_contact(self, message):
+        stamp = message.header.stamp.sec + message.header.stamp.nanosec * 1.e-9
+        if stamp <= self.pad_contact_stamp:
+            return
+        self.pad_contact_stamp, self.pad_contact_at = stamp, monotonic()
+        pair = {"rackonaut_dock::body::dock_contact_surface_collision",
+                "rackonaut_reference_drone::base_link::body_collision"}
+        self.pad_touched = any({item.collision1.name, item.collision2.name} == pair for item in message.contacts)
+
+    def physical_contact(self):
+        return self.pad_touched and monotonic() - self.pad_contact_at <= .40
 
     def on_odometry(self, message):
         if (message.header.frame_id, message.child_frame_id) != ("rackonaut_odom", "rackonaut_base_link"):
@@ -83,7 +102,12 @@ class Energy(Node):
         stage = self.mission.get("stage")
         if stage not in CHARGE_ALLOWED:
             self.cycle_started = False
-        touching = contact(pose, self.dock, speed, rotation)
+        if self.sensor_localization:
+            # The switch provides touchdown. Estimation supplies alignment and motion.
+            touching = (self.physical_contact() and abs(p.z - self.dock[2]) <= .085
+                        and contact((p.x, p.y, self.dock[2], heading), self.dock, speed, rotation))
+        else:
+            touching = contact(pose, self.dock, speed, rotation)
         if not touching:
             self.contact_since = None
             self.cycle_started = False
@@ -123,13 +147,16 @@ class Energy(Node):
 
     def publish_status(self):
         fresh = monotonic() - self.last_at <= ODOM_TIMEOUT
-        dock = self.dock_state if fresh else "FAULT"
-        charging = fresh and self.model_mode == "charging"
+        contact_live = not self.sensor_localization or self.physical_contact()
+        dock = self.dock_state if fresh and (contact_live or not self.contact_verified) else "FAULT"
+        charging = fresh and contact_live and self.model_mode == "charging"
         self.status_pub.publish(String(data=json.dumps({
             "simulated": True, "fresh": fresh, "percent": round(self.level, 3),
-            "dock": dock, "contact": fresh and self.contact_verified, "charging": charging,
+            "dock": dock, "contact": fresh and self.contact_verified and contact_live, "charging": charging,
             "cycles": self.cycles, "sim_time": self.stamp, "model": asdict(self.model),
             "profile": "protected_aerial_demo" if self.aerial else "reference_demo",
+            **({"contact_source": "gazebo_dock_switch", "switch_engaged": contact_live}
+               if self.sensor_localization else {}),
         }, separators=(",", ":"))))
         self.light_pub.publish(String(data=dock))
         if not fresh:

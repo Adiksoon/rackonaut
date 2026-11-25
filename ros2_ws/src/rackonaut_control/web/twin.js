@@ -167,7 +167,9 @@ export function createTwin(layout, callbacks) {
   rim.position.set(22, 19, -25);
   scene.add(rim);
   scene.fog = new T.Fog(0x081521, 79, 140);
-  const warehouse = makeWarehouse(layout, scene);
+  const warehouseModel = new T.Group();
+  scene.add(warehouseModel);
+  const warehouse = makeWarehouse(layout, warehouseModel);
   const { drone, body, edge } = makeAircraft(scene, layout.avoidance);
   const corridor = warehouse.aerial ? path(scene, 0xc597fa, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
@@ -190,6 +192,13 @@ export function createTwin(layout, callbacks) {
   const bypass = layout.avoidance ? path(onboard, 0xdd9bff) : null;
   const field = layout.avoidance ? path(onboard, 0x4f9cc0, true, true) : null;
   const direction = layout.avoidance ? path(onboard, 0xf0cc77) : null;
+  const mapLayer = new T.Group();
+  scene.add(mapLayer);
+  const measuredMap = layout.localization ? samples(mapLayer, 2200, 0x80d9ff, .088, .82) : null;
+  const unmatched = layout.localization ? samples(mapLayer, 120, 0xffb66b, .105, .90) : null;
+  const estimatedPath = layout.localization ? path(scene, 0x5bffba) : null;
+  const referencePath = layout.localization?.diagnostics ? path(scene, 0xffb66b, true) : null;
+  if (referencePath) referencePath.visible = false;
 
   let width = 1, height = 1, raf = 0, lastDraw = 0, visible = false, eco = false;
   let focus = null, detailSignature = "", sampleSignature = "", startedAt = 0, moving = false, transition = null;
@@ -261,6 +270,23 @@ export function createTwin(layout, callbacks) {
   for (const [id, scanner] of Object.entries(warehouse.lasers)) {
     addMarker(`LiDAR ${id}`, "sensor-marker", [scanner.pose[0], scanner.pose[1], .20], null);
   }
+  if (layout.localization) {
+    const layers = [["twin-warehouse-model", warehouseModel], ["twin-measured-map", mapLayer],
+                    ["twin-estimated-path", estimatedPath], ["twin-reference-path", referencePath]];
+    byId("localization-layers").hidden = false;
+    byId("twin-mapping-key").hidden = byId("twin-estimate-key").hidden = false;
+    byId("twin-reference-key").hidden = !referencePath;
+    for (const [id, layer] of layers) {
+      if (!layer) continue;
+      const button = byId(id);
+      button.hidden = false;
+      button.addEventListener("click", () => {
+        layer.visible = !layer.visible;
+        button.setAttribute("aria-pressed", String(layer.visible));
+        queue();
+      });
+    }
+  }
 
   function queue() {
     if (visible && !document.hidden && !raf) raf = requestAnimationFrame(draw);
@@ -298,7 +324,7 @@ export function createTwin(layout, callbacks) {
     for (const { element, anchor, kind } of labels) {
       projected.copy(anchor).project(camera);
       const within = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < .97 && Math.abs(projected.y) < .97;
-      const show = within && (element !== flightLabel || drone.visible)
+      const show = within && (element === flightLabel ? drone.visible : warehouseModel.visible)
         && (kind !== "aerial-marker" || warehouse.aerial.infrastructure.visible);
       element.style.visibility = show ? "visible" : "hidden";
       if (!show) continue;
@@ -562,6 +588,14 @@ export function createTwin(layout, callbacks) {
       }
       setPath(field, rays);
       setPath(direction, a?.origin ? [a.origin, a.origin.map((v, i) => v + a.direction[i] * a.verified_distance)] : []);
+    }
+    if (layout.localization) {
+      const localization = state?.localization;
+      const vectors = points => (points || []).map(([x, y, z]) => [x, z, -y]);
+      measuredMap(vectors(localization?.map_points));
+      unmatched(vectors(localization?.unmatched));
+      setPath(estimatedPath, localization?.trajectory || [], .021);
+      if (referencePath) setPath(referencePath, state?.localization_validation?.trajectory || [], .035);
     }
     updateDrone(state);
     if (warehouse.aerial) {

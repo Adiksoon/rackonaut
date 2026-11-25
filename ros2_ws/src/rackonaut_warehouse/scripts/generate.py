@@ -645,6 +645,75 @@ def avoidance_fixtures(world):
     return layout
 
 
+def localization_infrastructure(world, dock):
+    for system in ("imu", "contact"):
+        add(world, "plugin", filename=f"ignition-gazebo-{system}-system",
+            name=f"ignition::gazebo::systems::{system.capitalize()}")
+    station = world.find("model[@name='rackonaut_dock']/link")
+    box(station, "dock_contact_surface", (dock[0], dock[1], -.001),
+        (1.18, 1.18, .010), collision=True)
+    sensor = add(station, "sensor", name="dock_presence", type="contact")
+    add(sensor, "always_on", "true")
+    add(sensor, "update_rate", 25)
+    add(add(sensor, "contact"), "collision", "dock_contact_surface_collision")
+
+
+def hall_triangles():
+    """Read the installed hall's static COLLADA surfaces in world coordinates."""
+    mesh = ET.parse(ROOT / "meshes/steel_warehouse_lod1.dae").getroot()
+    ns = {"c": mesh.tag.split("}")[0][1:]}
+    geometry = {g.get("id"): g.find("c:mesh", ns) for g in mesh.findall(".//c:geometry", ns)}
+    selected = {"structure-mesh", "shell-mesh", "lights-mesh", "shutter_frames-mesh", "door_frames-mesh"}
+    triangles = []
+    for node in mesh.findall(".//c:visual_scene//c:node", ns):
+        instance = node.find("c:instance_geometry", ns)
+        key = instance.get("url")[1:] if instance is not None else ""
+        if key not in selected:
+            continue
+        # These static hall assets are immediate children of the identity node.
+        transform = list(map(float, node.findtext("c:matrix", namespaces=ns).split()))
+        part = geometry[key]
+        position_input = part.find("c:vertices/c:input[@semantic='POSITION']", ns)
+        source = part.find(f"c:source[@id='{position_input.get('source')[1:]}']/c:float_array", ns)
+        coordinates = iter(map(float, source.text.split()))
+        points = []
+        for x, y, z in zip(coordinates, coordinates, coordinates):
+            points.append([round(transform[i]*x + transform[i+1]*y + transform[i+2]*z
+                                 + transform[i+3] + (HALL_CENTER if i == 0 else 0.), 5)
+                           for i in (0, 4, 8)])
+        for shape in part.findall("c:triangles", ns):
+            inputs = shape.findall("c:input", ns)
+            stride = max(int(i.get("offset")) for i in inputs) + 1
+            vertex = next(int(i.get("offset")) for i in inputs if i.get("semantic") == "VERTEX")
+            indices = iter(list(map(int, shape.findtext("c:p", namespaces=ns).split()))[vertex::stride])
+            triangles.extend([*points[a], *points[b], *points[c]] for a, b, c in zip(indices, indices, indices))
+    return triangles
+
+
+def localization_map(world):
+    """Map installation geometry only. Each box uses the same world axes as its visual."""
+    boxes = []
+    for model in world.findall("model"):
+        name = model.get("name")
+        if name in {"protected_flight_infrastructure", "rackonaut_dock"}:
+            parts = model.findall("link/visual")
+        elif name.startswith("rack_row_"):
+            parts = [p for p in model.findall("link/visual")
+                     if p.get("name").startswith(("post_", "deck_", "beam_", "guard_", "label_mount_"))]
+        elif name == "safety_markings_and_launch_pad":
+            parts = model.findall("link/visual[@name='matte_concrete_top']")
+        elif name.startswith(("safety_a_", "safety_b_", "safety_t_", "safety_d_")):
+            parts = [p for p in model.findall("link/visual") if not p.get("name").startswith("threshold_")]
+        else:
+            continue
+        for part in parts:
+            size = part.findtext("geometry/box/size")
+            if size:
+                center = part.findtext("pose").split()[:3]
+                boxes.append(list(map(float, [*center, *size.split()])))
+    return {"world_frame": "rackonaut_odom", "boxes": boxes, "triangles": hall_triangles()}
+
+
 def generate(args):
     sdf, world = world_base()
     hall(world, args.hall)
@@ -684,6 +753,10 @@ def generate(args):
         props = avoidance_fixtures(world)
         if args.avoidance_layout:
             args.avoidance_layout.write_text(json.dumps(props, indent=2) + "\n")
+    if args.localization:
+        localization_infrastructure(world, offset)
+        if args.localization_map:
+            args.localization_map.write_text(json.dumps(localization_map(world), separators=(",", ":")) + "\n")
     if aerial and args.aerial_layout:
         aerial["scene"] = twin_geometry(world, safety_posts(aisles, rack_end, aerial))
         args.aerial_layout.write_text(json.dumps(aerial, separators=(",", ":")) + "\n")
@@ -812,6 +885,8 @@ def main():
     parser.add_argument("--aerial-layout", type=Path)
     parser.add_argument("--avoidance", action="store_true")
     parser.add_argument("--avoidance-layout", type=Path)
+    parser.add_argument("--localization", action="store_true")
+    parser.add_argument("--localization-map", type=Path)
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -831,6 +906,8 @@ def main():
         parser.error("Aerial infrastructure requires an energy showcase.")
     if (args.avoidance and not args.aerial) or (args.avoidance_layout and not args.avoidance):
         parser.error("Obstacle avoidance fixtures require an aerial showcase.")
+    if (args.localization and not args.avoidance) or (args.localization_map and not args.localization):
+        parser.error("Sensor localization requires an avoidance showcase.")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")

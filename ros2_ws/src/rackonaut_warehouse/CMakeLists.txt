@@ -93,6 +93,23 @@ add_custom_command(OUTPUT "${avoidance_world}" "${avoidance_laser_world}" "${avo
 add_custom_target(avoidance_showcase ALL DEPENDS "${avoidance_world}" "${avoidance_laser_world}"
   "${avoidance_laser_fields}" "${avoidance_layout}")
 
+set(localization_world "${CMAKE_CURRENT_BINARY_DIR}/localization_showcase.sdf")
+set(localization_laser_world "${CMAKE_CURRENT_BINARY_DIR}/localization_laser_showcase.sdf")
+set(localization_map "${CMAKE_CURRENT_BINARY_DIR}/localization_map.json")
+set(localization_laser_fields "${CMAKE_CURRENT_BINARY_DIR}/localization_laser_fields.json")
+add_custom_command(OUTPUT "${localization_world}" "${localization_laser_world}" "${localization_map}"
+  "${localization_laser_fields}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --avoidance --localization
+    --localization-map "${localization_map}" --output "${localization_world}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --avoidance --localization
+    --laser "${localization_laser_fields}" --output "${localization_laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py" "${CMAKE_CURRENT_SOURCE_DIR}/meshes/steel_warehouse_lod1.dae"
+  VERBATIM)
+add_custom_target(localization_showcase ALL DEPENDS "${localization_world}" "${localization_laser_world}"
+  "${localization_map}" "${localization_laser_fields}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
@@ -108,5 +125,7 @@ install(FILES "${aerial_world}" "${aerial_laser_world}" DESTINATION share/${PROJ
 install(FILES "${aerial_layout}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${avoidance_world}" "${avoidance_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${avoidance_layout}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${localization_world}" "${localization_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${localization_map}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()
