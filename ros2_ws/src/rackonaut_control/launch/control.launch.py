@@ -76,6 +76,10 @@ def setup(context):
     if enabled("gazebo_gui"):
         command.append("--gui")
     processes = [ExecuteProcess(cmd=command, cwd=str(root), output="screen", name="control_simulator")]
+    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / "control")
+    api_profile = arg("api_profile")
+    if api_profile not in {"fixture", "mock_sap"}:
+        raise ValueError("api_profile must be fixture or mock_sap.")
     backend = arg("backend_url") or f"http://127.0.0.1:{arg('mock_port')}"
     if enabled("mock"):
         expected = f"http://127.0.0.1:{arg('mock_port')}"
@@ -84,13 +88,14 @@ def setup(context):
         python = root / ".venv-backend/bin/python"
         if not python.is_file():
             raise RuntimeError("Run python3.10 scripts/api/setup.py to prepare the fixture API.")
+        api_app = ["backend.sap_api:app", "--factory"] if api_profile == "mock_sap" else ["backend.control_fixture:app"]
         processes.append(ExecuteProcess(
-            cmd=[str(python), "-m", "uvicorn", "backend.control_fixture:app", "--host", "127.0.0.1",
-                 "--port", arg("mock_port")], cwd=str(root), name="control_fixture", output="screen",
+            cmd=[str(python), "-m", "uvicorn", *api_app, "--host", "127.0.0.1", "--port", arg("mock_port")],
+            cwd=str(root), name=f"control_{api_profile}", output="screen",
+            additional_env={"RACKONAUT_SAP_DB": str(Path(data).expanduser().resolve() / "warehouse.sqlite3")},
         ))
     elif not arg("backend_url"):
         raise ValueError("Provide backend_url when mock:=false.")
-    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / "control")
     localization_nodes = []
     if localizer:
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
@@ -168,7 +173,7 @@ def setup(context):
 
 
 def generate_launch_description():
-    defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
+    defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "", "api_profile": "fixture",
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
                 "energy": "false", "aerial": "false", "avoidance": "false",

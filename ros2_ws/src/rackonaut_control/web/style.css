@@ -295,3 +295,29 @@ thead th { color: var(--muted); font-weight: 550; }
 .recovery-checks li[data-ok="true"] { color: #a5e8cf; }
 .twin-key.recovery-plan { background: #ffbd6a; }
 .twin-key.recovery-flown { background: #ff8ada; }
+
+.intelligence-panel { margin-bottom:16px; }
+.intelligence-panel .energy-head { align-items:end; gap:12px; }
+.intelligence-panel label { display:flex; flex-direction:column; gap:4px; color:var(--muted); font-size:.78rem; }
+.intelligence-panel select { max-width:100%; padding:7px 9px; border:1px solid var(--line); border-radius:7px; background:var(--deep); color:var(--text); }
+.intelligence-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:8px; }
+.intelligence-metrics > div { background:#0c1923; border:1px solid #29404f; border-radius:9px; padding:9px 11px; }
+.intelligence-metrics span,.intelligence-metrics small { display:block; color:var(--muted); font-size:.75rem; }
+.intelligence-metrics strong { display:block; color:var(--mint); font-size:1.25rem; padding:1px 0; }
+.intelligence-filters { display:flex; gap:10px; flex-wrap:wrap; margin:12px 0 8px; }
+.intelligence-table { overflow-x:auto; max-height:275px; border:1px solid var(--line); border-radius:9px; }
+.intelligence-table table { margin:0; }
+.intelligence-table thead { position:sticky; z-index:1; top:0; background:#192b37; }
+.intelligence-table tr[data-selected="true"] { background:#183727; }
+.intelligence-issue { color:var(--mint); background:none; padding:2px 0; border:0; text-decoration:underline; text-underline-offset:3px; }
+.intelligence-priority[data-priority="HIGH"] { color:#ffb79f; font-weight:700; }
+#intelligence-detail { background:#0c1923; border:1px solid #345568; border-radius:9px; margin-top:9px; padding:12px; }
+.intelligence-detail-head,.intelligence-related { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; }
+.intelligence-facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:10px; margin:9px 0; }
+.intelligence-facts > div,.intelligence-recommendation { background:#152634; border-radius:7px; padding:8px 10px; }
+#intelligence-detail details { margin:9px 0; }
+#intelligence-detail details li code { display:block; }
+.intelligence-photos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,360px)); gap:10px; }
+.intelligence-photos figure { margin:3px 0; overflow:hidden; }
+.intelligence-photos img { width:100%; border-radius:6px; }
+.intelligence-photos figcaption { font-size:.76rem; color:var(--muted); overflow-wrap:anywhere; }

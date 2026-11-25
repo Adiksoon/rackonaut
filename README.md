@@ -1,6 +1,6 @@
 # Rackonaut
 
-Rackonaut is a RobotHack 2026 prototype for inspecting warehouse storage locations. A teleoperated drone in Gazebo supplies camera data to ROS 2. Computer vision will turn that data into observations. A backend will compare them with simulated SAP inventory, and a dashboard will present the results.
+Rackonaut is a RobotHack 2026 prototype for inspecting warehouse storage locations. A simulated drone supplies camera data to ROS 2. Computer vision publishes observations that the Mock SAP profile compares with simulated warehouse inventory. The Control Center surfaces the resulting evidence and recommended actions.
 
 This baseline gives the team a shared ROS workspace, reference simulation, synthetic camera data, a fixture-backed REST API, and contracts. See [test results](docs/TEST_RESULTS.md) for the scope of the available evidence.
 
@@ -20,13 +20,15 @@ The [sensor-based localization demo](docs/SENSOR_LOCALIZATION.md) adds LiDAR/IMU
 
 The [autonomous recovery demo](docs/AUTONOMOUS_RECOVERY.md) returns an interrupted drone to its dock after a separate operator approval.
 
+The [Mock SAP and Warehouse Intelligence demo](docs/SAP_BUSINESS_INTELLIGENCE.md) compares sensor observations with simulated warehouse records and recommends actions.
+
 The [complete demo guide](docs/DEMO_COMPLETE.md) covers the `demo-complete` tag, launch, full inventory, reinspection and team handoff.
 
 | Role | Guide | AI starter prompt | Suggested branch |
 |---|---|---|---|
 | Warehouse and computer vision | [Adrian](docs/onboarding/ADRIAN.md) | [Warehouse prompt](docs/onboarding/AI_PROMPT_WAREHOUSE.md) | `feature/warehouse`, then `feature/perception` |
 | Drone and camera | [Michał](docs/onboarding/MICHAL.md) | [Drone prompt](docs/onboarding/AI_PROMPT_DRONE.md) | `feature/drone` |
-| Warehouse backend | [Backend](docs/onboarding/BACKEND.md) | [Backend prompt](docs/onboarding/AI_PROMPT_BACKEND.md) | `feature/backend` |
+| Warehouse backend · Adrian | [Backend](docs/onboarding/BACKEND.md) | [Backend prompt](docs/onboarding/AI_PROMPT_BACKEND.md) | `feature/sap-business-intelligence` |
 | Dashboard | [Dashboard](docs/onboarding/DASHBOARD.md) | [Dashboard prompt](docs/onboarding/AI_PROMPT_DASHBOARD.md) | `feature/dashboard` |
 
 Accept the private GitHub invitation before cloning. In WSL, clone under your Linux home directory. For the native Windows backend or dashboard profile, clone in a regular Windows directory.

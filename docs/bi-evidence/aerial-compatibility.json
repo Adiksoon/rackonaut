@@ -1,0 +1,49 @@
+{
+  "inspection_id": "INS-CONTROL-20261125-171103-633849DF",
+  "profile": {
+    "mode": "sensor_based",
+    "diagnostics": false
+  },
+  "recovery_enabled": true,
+  "flight_duration_wall_s": 266.3,
+  "result": "COMPLETE",
+  "dock_contact": true,
+  "dock_contact_source": "gazebo_dock_switch",
+  "phases": [
+    "STARTING",
+    "WAITING",
+    "VERTICAL_TAKEOFF",
+    "ENTERING_CORRIDOR",
+    "OVERHEAD_TRANSIT",
+    "WAITING_FOR_AISLE_CLEARANCE",
+    "AISLE_DESCENT",
+    "TRANSIT",
+    "ALIGN",
+    "INSPECT",
+    "REPOSITION",
+    "REINSPECT",
+    "RECENTER",
+    "AISLE_APPROACH",
+    "AISLE_ASCENT",
+    "RETURN_TRANSIT",
+    "LAND",
+    "COMPLETE"
+  ],
+  "localization_states_seen": [
+    "TRACKING"
+  ],
+  "safety_phase": "RELEASED",
+  "inventory": {
+    "match": 1,
+    "wrong_pallet": 0,
+    "missing_pallet": 0,
+    "unexpected_pallet": 0,
+    "unreadable_label": 0,
+    "uninspected": 10,
+    "uncertain": 0,
+    "pending": 0
+  },
+  "issues": [
+    "DISCONTINUED_PRODUCT"
+  ]
+}

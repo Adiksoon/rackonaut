@@ -468,7 +468,7 @@ class Control(Node):
             raise ValueError("Inventory API returned an observation outside this mission's scope.")
         source = self.data / "quality" / job.run
         snapshot = {"mission": job.status, "api": api}
-        export(snapshot, source, self.data / "reports")
+        export(snapshot, source, self.data / "reports", backend=self.backend)
         return {"url": f"/reports/{job.run}", "events": len(api["observations"]),
                 "rows": [row for row in api["summary"]["slots"] if row["slot_id"] in selected],
                 "discrepancies": [row for row in api["discrepancies"] if row["slot_id"] in selected]}

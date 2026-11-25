@@ -12,7 +12,7 @@ from string import Template
 from tempfile import TemporaryDirectory
 from time import monotonic
 from urllib.parse import urlencode, urlsplit
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from ament_index_python.packages import get_package_share_path
 
@@ -114,6 +114,21 @@ def collect_evidence(directory, inspection_id, observations):
     return sorted(bundles.values(), key=lambda bundle: (bundle[0]["slot_id"], bundle[0]["timestamp"]))
 
 
+def fetch_business(base_url, inspection_id, evidence):
+    if evidence:
+        endpoint = f"{base_url.rstrip('/')}/api/business/quality"
+        for report, photos, _, linked in evidence:
+            if not linked:
+                continue
+            bundle = {"report": report, "images": {key: b64encode(data).decode("ascii") for key, data in photos.items()}}
+            request = Request(endpoint, json.dumps(bundle).encode(), {"Content-Type": "application/json"})
+            with urlopen(request, timeout=12):
+                pass
+    query = urlencode({"inspection_id": inspection_id})
+    with urlopen(f"{base_url.rstrip('/')}/api/business/summary?{query}", timeout=6) as response:
+        return json.load(response)
+
+
 def e(value):
     return escape(str(value), quote=True)
 
@@ -130,7 +145,7 @@ def evidence_card(bundle):
     quality = "damage" if damaged else "ok"
     link_state = "Matched to API history" if linked else "Local evidence · awaiting inventory link"
     return f"""
-      <article class="evidence {quality}">
+      <article class="evidence {quality}" id="{e(report['quality_id'])}">
         <div class="evidence-title"><div><span class="eyebrow">LOCATION {slot}</span>
           <h3>{pallet}</h3></div><span class="badge">{e(report['status'])}</span></div>
         <img class="photo" src="{image_url(images['annotated'])}" alt="Annotated carton image at {slot}">
@@ -231,6 +246,38 @@ def energy_history(mission):
   </section>"""
 
 
+def business_report(snapshot, evidence):
+    business = snapshot.get("business")
+    if not business:
+        return ""
+    metrics = business["metrics"]
+    accuracy = (f"{100*metrics['accuracy']:.1f}% ({metrics['matches']}/{metrics['decisive']} conclusive)"
+                if metrics["accuracy"] is not None else "No conclusive locations")
+    photos = {bundle[0]["quality_id"] for bundle in evidence}
+    issues = {item["issue_id"]: item for item in business["issues"]}
+    rows = []
+    for item in issues.values():
+        observations = ", ".join(f"{event['slot_id']} · {event['observation_id']}" for event in item["evidence"])
+        related = " / ".join(f"{issues[key]['type'].replace('_', ' ')} at {issues[key]['slot_id']}"
+                             for key in item["related_issue_ids"])
+        links = " ".join(f'<a href="#{e(quality["quality_id"])}">Camera evidence</a>'
+                         for quality in item["quality"] if quality["quality_id"] in photos)
+        rows.append(f"""<tr><td>{e(item['priority'])}<br>{e(item['type'].replace('_',' '))}<br>
+          <code>{e(item['issue_id'])}</code></td><td>{e(item['slot_id'])}<br>{e(item['hu_id'] or '—')}</td>
+          <td>{e(item['reason'])}<br><strong>{e(item['action'])}</strong></td>
+          <td>{e(observations)}<br>{e(related)} {links}</td><td>{e(item['status'])}</td></tr>""")
+    return f"""<section aria-label="Warehouse Intelligence" class="business">
+      <div class="section-head"><h2>Warehouse Intelligence</h2><p class="subtitle">Mock SAP comparison · synthetic product data</p></div>
+      <p><strong>{e(accuracy)}</strong> inventory accuracy · {metrics['observed']}/{metrics['total']} locations observed ·
+        {metrics['inventory_discrepancies']} stock discrepancies · {metrics['damaged_packages']} damaged packages ·
+        {metrics['discontinued_products']} discontinued products · {metrics['manual_review_locations']} locations for manual review</p>
+      <p class="subtitle">Recommendations require an operator decision. Verification records a review of the evidence.</p>
+      <div class="table-wrap"><table aria-label="Recommended warehouse actions"><thead><tr><th>Issue</th><th>Location / HU</th>
+        <th>Evidence and recommendation</th><th>Observations and related issues</th><th>Review</th></tr></thead>
+        <tbody>{"".join(rows) or '<tr><td colspan="5">No issues from the inspected locations</td></tr>'}</tbody></table></div>
+      </section>"""
+
+
 def render(snapshot, evidence, observations):
     mission, api = snapshot["mission"], snapshot["api"]
     summary = api["summary"]
@@ -251,7 +298,8 @@ def render(snapshot, evidence, observations):
         damaged=len(damage),
         linked=sum(linked for _, _, _, linked in evidence),
         saved=len(evidence),
-        api_source="Mock API" if fixture else "Warehouse API",
+        api_source="Mock API fixture" if fixture else "Mock SAP" if api["health"].get("mode") == "mock_sap" else "Warehouse API",
+        business=business_report(snapshot, evidence),
         comparison=f"{pending} pending" if fixture
         else f"{int(summary['discrepancy_count'])} reported discrepancies · {pending} pending",
         events=len(observations),
@@ -263,11 +311,13 @@ def render(snapshot, evidence, observations):
     )
 
 
-def export(snapshot, directory, output_dir):
+def export(snapshot, directory, output_dir, *, backend=None):
     mission = snapshot["mission"]
     inspection_id = finished_id(mission)
     observations = check_api(mission, snapshot["api"])
     evidence = collect_evidence(directory, inspection_id, observations)
+    if backend and snapshot["api"]["health"].get("mode") == "mock_sap":
+        snapshot["business"] = fetch_business(backend, inspection_id, evidence)
     html = render(snapshot, evidence, observations)
     destination = output_dir / inspection_id
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -308,6 +358,7 @@ def main():
             directory = args.quality_dir.expanduser() / run
         else:
             directory = args.snapshot.parent / "quality" if args.snapshot else log_dir / "quality" / run
-        print(export(snapshot, directory, args.output_dir.expanduser()))
+        backend = None if args.snapshot else args.backend_url or "http://127.0.0.1:8000"
+        print(export(snapshot, directory, args.output_dir.expanduser(), backend=backend))
     except (OSError, KeyError, TypeError, ValueError) as error:
         parser.exit(1, f"Report export failed: {error}\n")

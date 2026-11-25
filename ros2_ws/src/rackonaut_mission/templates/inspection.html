@@ -55,6 +55,8 @@
     table { width:100%; border-collapse:collapse; text-align:left; white-space:nowrap; font-size:.9rem; }
     th,td { padding:9px 13px; border-bottom:1px solid var(--line); }
     thead { color:var(--muted); background:#1d2a37; }
+    .business table { white-space:normal; min-width:760px; }
+    .business p { margin-bottom:12px; }
     tbody tr:last-child th,tbody tr:last-child td { border-bottom:0; }
     .outcome { color:var(--muted); background:#24313b; }
     .outcome.pending,.outcome.uncertain,.outcome.unreadable_label { color:var(--gold); background:#3b322c; }
@@ -84,6 +86,7 @@
     <div class="metric defects"><strong>$damaged</strong><span>Damaged slot–pallet pairs</span></div>
     <div class="metric"><strong>$duration s</strong><span>Mission time</span></div>
   </div>
+$business
 $adaptive_history
 $energy_history
   <section aria-labelledby="quality-title">

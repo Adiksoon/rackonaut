@@ -51,3 +51,7 @@ Check off each item and send your commit, operating system, and smoke result to 
 - [ ] Mock or reference component started.
 - [ ] Smoke test passed.
 - [ ] Ready for development.
+
+## Warehouse backend
+
+From GOAL 17, Adrian owns Mock SAP inventory comparison and warehouse recommendations. The [integration guide](../SAP_BUSINESS_INTELLIGENCE.md) describes the functional profile and the fixture fallback.

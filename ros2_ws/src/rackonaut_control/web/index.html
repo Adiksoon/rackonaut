@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/twin.css">
   <script type="importmap">{"imports":{"three":"/vendor/three.module.min.js"}}</script>
-  <script src="/app.js" defer></script>
+  <script type="module" src="/app.js"></script>
 </head>
 <body>
 <header class="topbar">
@@ -95,6 +95,27 @@
       <div><span>Map match RMS</span><strong id="localization-fit">—</strong><small id="localization-overlap"></small></div>
       <div><span>Matched scan age / rate</span><strong id="localization-rate">—</strong></div>
       <div><span>Measured map</span><strong id="localization-map-size">—</strong><small id="localization-validation"></small></div>
+    </div>
+  </section>
+  <section class="card intelligence-panel" id="intelligence" aria-labelledby="intelligence-title" hidden>
+    <div class="energy-head"><div><h2 id="intelligence-title">Warehouse Intelligence</h2>
+      <p>Mock SAP · simulated warehouse records</p></div>
+      <label>Inspection <select id="intelligence-run"></select></label>
+    </div>
+    <div class="intelligence-metrics" id="intelligence-metrics"></div>
+    <p id="intelligence-status" class="footnote" role="status"></p>
+    <div id="intelligence-content" hidden>
+      <div class="intelligence-filters">
+        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
+        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
+        <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
+        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
+      </div>
+      <div class="intelligence-table">
+        <table aria-label="Warehouse issues"><thead><tr><th>Priority</th><th>Issue</th><th>Location</th><th>HU</th><th>Review</th></tr></thead>
+          <tbody id="intelligence-issues"></tbody></table>
+      </div>
+      <section id="intelligence-detail" aria-label="Issue evidence" hidden></section>
     </div>
   </section>
   <div class="workspace" id="workspace" data-view="plan">

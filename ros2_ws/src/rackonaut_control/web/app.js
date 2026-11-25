@@ -1,3 +1,5 @@
+import { createIntelligence } from "/business.js";
+
 "use strict";
 
 const el = (name) => document.getElementById(name);
@@ -15,7 +17,7 @@ const headings = {
   live: ["Live inspection", "Follow the simulator, camera detections and API confirmations."],
   results: ["Inspection results", "Review the selected locations and open the inspection report."],
 };
-let layout, preview, state, wantedRun, lastRun, lastStage;
+let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let dispatching = false;
 let version = 0;
@@ -595,7 +597,7 @@ function draw() {
   const robot = el("robot-state"), backend = el("api-state");
   robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
   robot.classList.toggle("good", !!state?.robot);
-  backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : "Warehouse API online") : "Inventory API offline";
+  backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : state.backend.mode === "mock_sap" ? "Mock SAP online" : "Warehouse API online") : "Inventory API offline";
   backend.classList.toggle("good", !!state?.backend.online);
   const flightPhase = job?.status?.flight_phase || stage;
   put("run-state", flightPhase ? flightPhase.replaceAll("_", " ") : "AWAITING DISPATCH");
@@ -660,9 +662,11 @@ async function poll() {
       lastStage = job.stage;
     }
     draw();
+    intelligence.update(state);
   } catch (error) {
     notice(error.message);
     state = null;
+    intelligence.update(null);
     draw();
   }
   setTimeout(poll, 350);
@@ -670,6 +674,12 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  intelligence = createIntelligence(api, async (slot) => {
+    focusedLocation = slot;
+    await loadTwin();
+    twin?.focusSlot(slot);
+    el("map-title").scrollIntoView({block: "start", behavior: "smooth"});
+  }, safe, label);
   el("localization-panel").hidden = !layout.localization;
   if (layout.avoidance) {
     el("avoidance-panel").hidden = false;

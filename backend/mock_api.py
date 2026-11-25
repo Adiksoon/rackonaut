@@ -56,9 +56,24 @@ def event_key(observation):
     return observation["inspection_id"], observation["observation_id"]
 
 
-class FixtureStore:
-    def __init__(self, inventory=INVENTORY):
+class InventoryStore:
+    def __init__(self, inventory):
         self.expected = {item["slot_id"]: item["pallet_id"] for item in inventory["locations"]}
+
+    def slots(self, history):
+        latest = {event["slot_id"]: event for event in history}
+        return [
+            {"slot_id": slot, "expected_pallet_id": expected,
+             "observed_pallet_id": event["pallet_id"] if (event := latest.get(slot)) else None,
+             "observation_id": event["observation_id"] if event else None,
+             "outcome": self.outcome(expected, event) if event else "uninspected"}
+            for slot, expected in self.expected.items()
+        ]
+
+
+class FixtureStore(InventoryStore):
+    def __init__(self, inventory=INVENTORY):
+        super().__init__(inventory)
         self.events = {}
         self.fixture_events = {}
         for scenario in FIXTURES["scenarios"]:
@@ -84,26 +99,12 @@ class FixtureStore:
         events = (event for event in self.events.values() if event["inspection_id"] == inspection_id)
         return sorted(events, key=lambda event: (capture_time(event), event["observation_id"]))
 
-    def slots(self, history):
-        latest = {event["slot_id"]: event for event in history}
-        results = []
-        for slot_id, expected_pallet in self.expected.items():
-            event = latest.get(slot_id)
-            outcome = "uninspected"
-            if event is not None:
-                fixture = self.fixture_events.get(event_key(event))
-                outcome = fixture["fixture_outcome"] if fixture else "pending"
-            results.append({
-                "slot_id": slot_id,
-                "expected_pallet_id": expected_pallet,
-                "observed_pallet_id": event["pallet_id"] if event else None,
-                "observation_id": event["observation_id"] if event else None,
-                "outcome": outcome,
-            })
-        return results
+    def outcome(self, _expected, event):
+        fixture = self.fixture_events.get(event_key(event))
+        return fixture["fixture_outcome"] if fixture else "pending"
 
 
-def create_app(inventory=INVENTORY):
+def create_app(inventory=INVENTORY, *, store=None, mode="fixture"):
     app = FastAPI(title=CONTRACT["info"]["title"], version=CONTRACT["info"]["version"], redoc_url=None)
     app.openapi = lambda: CONTRACT
     app.add_middleware(
@@ -112,11 +113,12 @@ def create_app(inventory=INVENTORY):
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type"],
     )
-    store = FixtureStore(inventory)
+    if store is None:
+        store = FixtureStore(inventory)
 
     @app.get("/health")
     async def health():
-        return {"status": "ok", "mode": "fixture"}
+        return {"status": "ok", "mode": mode}
 
     @app.get("/api/inventory/expected")
     async def expected_inventory():

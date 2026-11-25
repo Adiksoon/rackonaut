@@ -6,10 +6,10 @@ The authoring slots below can be created on the owning branch as work begins. Re
 |---|---|---|---|---|
 | Adrian | Warehouse world, then computer vision, and overall integration | `feature/warehouse`, `feature/perception` | `ros2_ws/src/rackonaut_warehouse/`, `ros2_ws/src/rackonaut_perception/` | Reference materials available. Team implementation and acceptance pending. |
 | Michał | Drone selection, camera, teleoperation, and ROS transport | `feature/drone` | `ros2_ws/src/rackonaut_drone/` | Confirm simulator and report smoke result before adopting a drone model. |
-| Vahid, proposed | Inventory comparison and REST API over mock SAP data | `feature/backend` | `backend/` | Fixture API and contracts available for independent work. Confirm assignment. |
+| Adrian | Warehouse backend, Mock SAP comparison and business recommendations | `feature/sap-business-intelligence` | `backend/` and warehouse business integration | Adrian owns the implementation from GOAL 17. Vahid was previously proposed for this scope. |
 | Tharindu, proposed | Dashboard for inspection status and discrepancies | `feature/dashboard` | `dashboard/` | REST examples and a local fixture API available. Confirm assignment and framework. |
 
-Adrian coordinates `contracts/`, reference packages, and integration configuration. Confirm interface changes with Adrian and the owners on both sides. Team onboarding is complete for an individual only when they report the checklist in their role guide.
+The Git history records the existing contributions and earlier assignments. Adrian coordinates `contracts/`, reference packages, and integration configuration. Confirm interface changes with Adrian and the owners on both sides. Team onboarding is complete for an individual only when they report the checklist in their role guide.
 
 ## Git workflow
 
