@@ -147,7 +147,7 @@ def hall(world, source):
                     (.29, .24, 8.7), BLUE)
 
 
-def paint(world, rows, aisle_width):
+def paint(world, rows, aisle_width, pad=(0., 0.)):
     marks = link(world, "safety_markings_and_launch_pad")
     box(marks, "matte_concrete_top", (HALL_CENTER, 0, .007), (39.65, 24.65, .010), (.25, .27, .29))
     for joint in range(-3, 31, 5):
@@ -156,12 +156,13 @@ def paint(world, rows, aisle_width):
         for side in (-1, 1):
             stripe_y = y + side * (aisle_width / 2 - .16)
             box(marks, f"line_{index}_{side}", (14.1, stripe_y, .017), (27.7, .105, .015), YELLOW)
-    box(marks, "takeoff_pad", (0, 0, .016), (2.65, 2.1, .021), (.03, .19, .23))
+    x, y = pad
+    box(marks, "takeoff_pad", (x, y, .016), (2.65, 2.1, .021), (.03, .19, .23))
     for side in (-1, 1):
-        box(marks, f"pad_border_long_{side}", (0, side * 1.035, .028), (2.63, .075, .015), YELLOW)
-        box(marks, f"pad_border_short_{side}", (side * 1.29, 0, .028), (.075, 2.12, .015), YELLOW)
-        box(marks, f"pad_H_leg_{side}", (side * .29, 0, .032), (.10, .65, .016), (.85, .90, .95))
-    box(marks, "pad_H_crossbar", (0, 0, .032), (.59, .11, .016), (.85, .90, .95))
+        box(marks, f"pad_border_long_{side}", (x, y + side * 1.035, .028), (2.63, .075, .015), YELLOW)
+        box(marks, f"pad_border_short_{side}", (x + side * 1.29, y, .028), (.075, 2.12, .015), YELLOW)
+        box(marks, f"pad_H_leg_{side}", (x + side * .29, y, .032), (.10, .65, .016), (.85, .90, .95))
+    box(marks, "pad_H_crossbar", (x, y, .032), (.59, .11, .016), (.85, .90, .95))
     for x in range(4, 25, 3):
         box(marks, f"center_dash_{x}", (x, 0, .017), (.65, .055, .009), (.80, .80, .75))
     box(marks, "dock_area", (-1.5, -9.4, .017), (6.8, 3.9, .015), (.20, .28, .31))
@@ -309,11 +310,15 @@ def signs(world, rows, inspection_y):
         cargo(decor, f"staged_{index}", x, y, .01, random.Random(index + 28), detailed=True)
 
 
-def safety_posts(aisles, rack_end):
+def safety_posts(aisles, rack_end, aerial=None):
     entries = [(name, side, x, y + 2.03, y, yaw)
                for name, y in zip(("B", "A"), aisles)
                for side, x, yaw in (("west", 3.45, -1.5708), ("east", rack_end + .55, 1.5708))]
-    return [*entries, ("T", "pad", -1.6, 1.55, 0., -1.5708)]
+    entries.append(("T", "pad", -1.6, 1.55, 0., -1.5708))
+    if aerial:
+        dx, dy, _ = aerial["nodes"]["dock"]
+        entries.append(("D", "tech", dx + 1.46, dy + .63, dy, 0.))
+    return entries
 
 
 SIGNAL_STACK = (
@@ -328,16 +333,16 @@ SIGNAL_STACK = (
 )
 
 
-def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_view=False):
+def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_view=False, aerial=None):
     # The fields meet at x=3.4, before the front faces at x=4.1.
     fields = {"A": [3.4, -2.4, rack_end + 1.1, 2.4],
               "B": [3.4, -8.4, rack_end + 1.1, -3.6],
               "T": [-1.4, -8.4, 3.4, 2.4]}
-    for name, side, x, y, centre, yaw in safety_posts(aisles, rack_end):
+    for name, side, x, y, centre, yaw in safety_posts(aisles, rack_end, aerial):
         post = link(world, f"safety_{name.lower()}_{side}")
         for part, z, size, color in SIGNAL_STACK:
             box(post, part, (x, y, z), size, color)
-        if name != "T":
+        if name in {"A", "B"}:
             plane_label(post, "aisle", (x, y - .56, 1.63), .88, .34,
                         yaw=yaw, texture={"A": "aisle_1", "B": "aisle_0"}[name])
             plane_label(post, "warning", (x, y - .58, 1.26), 1.05, .43, yaw=yaw, texture="safety_notice")
@@ -369,7 +374,7 @@ def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_vie
         material(part, colour)
     box(body, "brim", (.047, 0, 1.66), (.30, .27, .026), vest)
     box(body, "person_envelope", (0, 0, .89), (.30, .53, 1.77), collision=True)
-    if virtual_sensor:
+    if virtual_sensor or aerial:
         pose = add(worker, "plugin", filename="ignition-gazebo-pose-publisher-system",
                    name="ignition::gazebo::systems::PosePublisher")
         for tag, value in (("publish_link_pose", "false"), ("publish_model_pose", "true"), ("publish_nested_model_pose", "true"),
@@ -378,12 +383,13 @@ def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_vie
 
     overview = link(world, "safety_overview")
     camera = add(overview, "sensor", name="warehouse_access", type="camera")
-    add(camera, "pose", "-5.2 -3.2 7.1 0 0.66 0.03" if dock_view else "-2.3 -3.2 7.4 0 0.59 0.03")
+    view = "-5.2 -3.2 7.1 0 0.66 0.03" if dock_view else "-2.3 -3.2 7.4 0 0.59 0.03"
+    add(camera, "pose", "11.5 1.25 8.15 0 .49 3.14" if aerial else view)
     add(camera, "always_on", "true")
     add(camera, "update_rate", 5 if virtual_sensor else 3)
     add(camera, "topic", "/rackonaut_safety/overview")
     optics = add(camera, "camera")
-    add(optics, "horizontal_fov", 1.56)
+    add(optics, "horizontal_fov", 1.83 if aerial else 1.56)
     image = add(optics, "image")
     add(image, "width", 800)
     add(image, "height", 450)
@@ -493,7 +499,7 @@ def twin_geometry(world, signals):
     ]}
 
 
-def charging_station(world):
+def charging_station(world, offset=(0., 0.)):
     dock = link(world, "rackonaut_dock")
     navy, cyan, steel = (.045, .095, .145), (.08, .68, .72), (.25, .34, .43)
     parts = [
@@ -512,11 +518,108 @@ def charging_station(world):
             (f"home_{side}", (side * .29, 0, .041), (.1, .65, .006), (.85, .90, .95)),
         ])
     parts.append(("home_crossbar", (0, 0, .041), (.59, .11, .006), (.85, .90, .95)))
+    ox, oy = offset
+    if offset != (0., 0.):
+        parts = [(name, (x + ox, y + oy, z), size, color) for name, (x, y, z), size, color in parts]
     for name, point, size, color in parts:
         box(dock, name, point, size, color)
-    plane_label(dock, "branding", (-1.16, .657, .47), .30, .19, texture="rackonaut")
+    plane_label(dock, "branding", (-1.16 + ox, .657 + oy, .47), .30, .19, texture="rackonaut")
     return {"parts": [[*point, *size, *color] for _, point, size, color in parts],
-            "locator": [-1.16, .86, 1.72]}
+            "locator": [-1.16 + ox, .86 + oy, 1.72]}
+
+
+def aerial_infrastructure(world, aisles, rack_height):
+    height, deck, trunk, drop_x = 6.70, .79, 2.1, 5.1
+    dx, dy = -4.7, 10.3
+    if height - .62 <= rack_height or height + .64 >= 7.9:
+        raise ValueError("The overhead corridor does not fit between racks and lights.")
+    nodes = {"dock": [dx, dy, .05], "shaft": [dx, dy, height], "junction": [trunk, dy, height]}
+    gates, aisles_3d = {}, {}
+    edges = [["dock", "shaft", "shaft"], ["shaft", "junction", "tunnel"]]
+    for name, center in zip(("B", "A"), aisles):
+        y = round(center + .45, 3)
+        nodes.update({f"trunk_{name}": [trunk, y, height], f"entry_{name}": [drop_x, y, height],
+                      f"foot_{name}": [drop_x, y, deck]})
+        gates[name] = [drop_x - .8, y - .8, drop_x + .8, y + .8]
+        aisles_3d[name] = [3.58, y - 1.30 if name == "A" else y - 1.55, .61, 15.03, y + 1.12, 3.22]
+        edges.extend([[f"trunk_{name}", f"entry_{name}", "tunnel"],
+                      [f"entry_{name}", f"foot_{name}", name]])
+    edges.extend([["junction", "trunk_A", "tunnel"], ["trunk_A", "trunk_B", "tunnel"]])
+    tech = [dx - 1.48, dy - 1.38, dx + 1.43, dy + 1.42]
+
+    frame = link(world, "protected_flight_infrastructure")
+    parts = []
+    mesh = []
+    steel, edge, wire, cyan = (.12, .18, .23), (.90, .42, .10), (.24, .43, .50), (.06, .72, .80)
+
+    def part(point, size, color, collision=False, screen=False):
+        name = f"screen_{len(mesh)}" if screen else f"steel_{len(parts)}"
+        box(frame, name, point, size, color, collision)
+        if screen:
+            frame.find(f"visual[@name='{name}']").append(ET.Element("transparency"))
+            frame.find(f"visual[@name='{name}']/transparency").text = ".80"
+        (mesh if screen else parts).append([*point, *size, *color])
+
+    for zone, x, y, lower in (("D", dx, dy, .06), *[(n, drop_x, nodes[f"entry_{n}"][1], 1.18) for n in ("A", "B")]):
+        for a in (-1, 1):
+            for b in (-1, 1):
+                part((x + a*.91, y + b*.91, (height + .59 + lower) / 2),
+                     (.10, .10, height + .59 - lower), edge, collision=True)
+        for z in (lower + .06, 2.30, 4.28, height - .6, height + .59):
+            for side in (-1, 1):
+                part((x, y + side*.91, z), (1.84, .08, .08), steel)
+                # Leave the +X exit open on the launch tower and the −X entry on a descent.
+                if z < height - 1.:
+                    part((x + side*.91, y, z), (.08, 1.84, .08), steel)
+        for side in (-1, 1):
+            part((x, y + side*.91, (lower + height - .68) / 2),
+                 (1.78, .035, height - .68 - lower), wire, collision=True, screen=True)
+        # Floor marks show the base of the monitored descent without obstructing the scans.
+        for side in (-1, 1):
+            part((x, y + .95 * side, .025), (1.8, .07, .015), cyan)
+            part((x + .95 * side, y, .025), (.07, 1.8, .015), cyan)
+        plane_label(frame, f"aerial_notice_{zone}", (x - .86, y - .98, 2.20),
+                    .78, .32, texture="safety_notice")
+
+    for first, last, kind in edges:
+        if kind != "tunnel":
+            continue
+        start, end = nodes[first], nodes[last]
+        axis = 0 if start[0] != end[0] else 1
+        along = end[axis] - start[axis]
+        midpoint = [(a + b) / 2 for a, b in zip(start, end)]
+
+        def position(span, side, z):
+            return (midpoint[0] + span, midpoint[1] + side, z) if axis == 0 else (midpoint[0] + side, midpoint[1] + span, z)
+
+        def sizes(length, width, tall):
+            return (length, width, tall) if axis == 0 else (width, length, tall)
+
+        # Set back screens at every node so joins and shaft openings remain clear.
+        length = abs(along) - 1.86
+        if length <= .05:
+            continue
+        for side in (-1, 1):
+            for z in (height - .60, height + .58):
+                part(position(0, side*.91, z), sizes(length, .09, .09), steel)
+            part(position(0, side*.91, height), sizes(length, .032, 1.10), wire, collision=True, screen=True)
+        part(position(0, 0, height - .60), sizes(length, 1.78, .035), wire, collision=True, screen=True)
+        for step in range(max(2, int(length / .66)) + 1):
+            span = -.5*length + length*step/max(2, int(length / .66))
+            for side in (-1, 1):
+                part(position(span, side*.91, height), sizes(.067, .075, 1.24), edge)
+            part(position(span, 0, height - .60), sizes(.067, 1.90, .064), wire)
+            part(position(span, 0, height + .59), sizes(.067, 1.90, .064), steel)
+        part(position(0, -.88, height + .61), sizes(length, .034, .028), cyan)
+        for center in ((-length / 4, length / 4) if length > 3. else (0.,)):
+            direction = 1 if along > 0 else -1
+            for index in range(-3, 4):
+                part(position(center + direction * (.15 - abs(index) * .095), index * .085, height - .57),
+                     sizes(.104, .092, .012), cyan)
+
+    return {"nodes": nodes, "edges": edges, "gates": gates, "inspection_volumes": aisles_3d,
+            "technical": tech, "parts": parts, "screens": mesh,
+            "pad": {"x": dx, "y": dy, "z": .05, "yaw_deg": 0., "width": 2.65, "height": 2.1}}
 
 
 def generate(args):
@@ -531,9 +634,13 @@ def generate(args):
     if 5.5 + (args.bays - .5) * args.bay_pitch >= 32 or args.rack_height >= 8.2:
         raise SystemExit("The selected rack size exceeds the hall envelope.")
     inspection = count // 2 + 1
-    paint(world, aisles, args.aisle_width)
+    aerial = aerial_infrastructure(world, aisles, args.rack_height) if args.aerial else None
+    offset = tuple(aerial["nodes"]["dock"][:2]) if aerial else (0., 0.)
+    paint(world, aisles, args.aisle_width, offset)
     if args.energy:
-        station = charging_station(world)
+        station = charging_station(world, offset)
+        if aerial:
+            aerial["dock"] = station
         if args.dock_layout:
             args.dock_layout.write_text(json.dumps(station, indent=2) + "\n")
     rows = []
@@ -543,13 +650,16 @@ def generate(args):
     signs(world, aisles, positions[inspection])
     rack_end = 5.5 + (args.bays - .5) * args.bay_pitch
     if args.safety:
-        fields = safety_infrastructure(world, aisles, rack_end, not args.laser, args.energy)
+        fields = safety_infrastructure(world, aisles, rack_end, not args.laser, args.energy, aerial)
         if args.layout:
             args.layout.write_text(json.dumps(fields, indent=2) + "\n")
         if args.laser:
             scanners = scanner_infrastructure(world)
             scanner_props(world)
             args.laser.write_text(json.dumps(scanners, indent=2) + "\n")
+    if aerial and args.aerial_layout:
+        aerial["scene"] = twin_geometry(world, safety_posts(aisles, rack_end, aerial))
+        args.aerial_layout.write_text(json.dumps(aerial, separators=(",", ":")) + "\n")
     ET.indent(sdf, space="  ")
     ET.ElementTree(sdf).write(args.output, encoding="utf-8", xml_declaration=True)
     if args.layout and not args.safety:
@@ -671,6 +781,8 @@ def main():
     parser.add_argument("--adaptive", action="store_true", help="stage a recoverable label occlusion")
     parser.add_argument("--energy", action="store_true", help="add the simulated Rackonaut charging station")
     parser.add_argument("--dock-layout", type=Path)
+    parser.add_argument("--aerial", action="store_true")
+    parser.add_argument("--aerial-layout", type=Path)
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -686,6 +798,8 @@ def main():
         parser.error("--adaptive requires --safety")
     if (args.energy and not args.safety) or (args.dock_layout and not args.energy):
         parser.error("Dock layout requires an energy showcase with safety.")
+    if (args.aerial and not args.energy) or (args.aerial_layout and not args.aerial):
+        parser.error("Aerial infrastructure requires an energy showcase.")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")

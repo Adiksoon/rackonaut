@@ -85,9 +85,19 @@ class Control(Node):
         if self.laser_enabled:
             self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
+        self.aerial_enabled = self.declare_parameter("aerial_enabled", False).value
         self.energy_enabled = self.declare_parameter("energy_enabled", False).value
         if self.energy_enabled:
-            self.layout["dock"] = json.loads((warehouse / "config/dock_layout.json").read_text())
+            if self.aerial_enabled:
+                profile = json.loads((warehouse / "config/aerial_layout.json").read_text())
+                self.layout["aerial"] = profile
+                self.layout["pad"] = profile["pad"]
+                self.layout["takeoff_z"] = profile["nodes"]["shaft"][2]
+                self.layout["safety_fields"]["D"] = profile["technical"]
+                self.layout["scene"] = profile.pop("scene")
+                self.layout["dock"] = profile["dock"]
+            else:
+                self.layout["dock"] = json.loads((warehouse / "config/dock_layout.json").read_text())
             self.layout["scene"]["parts"]["dock"] = self.layout["dock"]["parts"]
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
@@ -219,7 +229,10 @@ class Control(Node):
 
     def move_worker(self, request):
         target = request.get("target")
-        if not isinstance(target, str) or target not in {"outside", "A", "B", "T"}:
+        allowed = {"outside", "A", "B", "T"}
+        if self.aerial_enabled:
+            allowed.update(("DA", "DB"))
+        if not isinstance(target, str) or target not in allowed:
             raise ValueError("Choose a marked simulation destination.")
         if not self.safety_enabled or not self.worker_control.get_subscription_count():
             raise RuntimeError("Simulation worker controls are unavailable.")
@@ -270,7 +283,7 @@ class Control(Node):
 
     def preview(self, selection):
         route = plan(self.layout, selection)
-        if self.safety_enabled:
+        if self.safety_enabled and not self.aerial_enabled:
             route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
         if self.energy_enabled:
             route["route"]["energy_crossing_x"] = self.layout["crossing_x"]
@@ -326,6 +339,7 @@ class Control(Node):
                 }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
+                    **({"travel_timeout": "52.0"} if self.aerial_enabled else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                 }))

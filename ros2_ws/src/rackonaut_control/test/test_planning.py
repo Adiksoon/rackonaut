@@ -6,6 +6,7 @@ from xml.etree import ElementTree
 from ament_index_python.packages import get_package_share_path
 
 from rackonaut_control.planning import energy_forecast, plan
+from rackonaut_energy.aerial import Network
 from rackonaut_energy.model import Model
 
 
@@ -64,6 +65,27 @@ class PlanningTests(TestCase):
             plan(self.layout, {"mode": "aisle", "aisles": ["C"]})
         with self.assertRaises(ValueError):
             plan(self.layout, {"mode": "custom", "slots": []})
+
+    def test_aerial_crossing_keeps_ground_transfer_open_and_rejects_diagonal(self):
+        profile = json.loads((self.share / "config/aerial_layout.json").read_text())
+        layout = {**self.layout, "aerial": profile, "pad": profile["pad"], "takeoff_z": 6.7}
+        route = plan(layout, {"mode": "custom", "slots": ["A-01-01", "B-01-01"]})
+        network = Network(profile)
+        pad = [part[:2] for part in profile["scene"]["parts"]["marking"] if part[3:5] == [2.65, 2.1]]
+        self.assertEqual(pad, [[profile["pad"]["x"], profile["pad"]["y"]]])
+        self.assertIn("D", {signal["zone"] for signal in profile["scene"]["signals"]})
+        self.assertEqual(set(route["required_zones"]), {"D", "A", "B"})
+        waypoints = route["route"]["waypoints"]
+        self.assertEqual([p["gate"] for p in waypoints if p.get("phase") == "AISLE_DESCENT"], ["A", "B"])
+        self.assertFalse(network.allows(network.nodes["entry_A"], network.nodes["entry_B"], route["required_zones"]))
+        slot = layout["slots"]["B-02-01"]["viewpoint"]
+        back = network.home(slot, route["required_zones"])
+        self.assertEqual(back[-1].pose, network.nodes["dock"])
+        self.assertIn("AISLE_ASCENT", [leg.phase for leg in back])
+        telemetry = {"model": asdict(Model(hover=.26, movement=.19, climb=.52)), "percent": 100.}
+        for location in layout["slots"]:
+            single = plan(layout, {"mode": "custom", "slots": [location]})
+            self.assertTrue(energy_forecast(layout, single, telemetry)["can_start"], location)
 
     def test_energy_forecast_includes_adaptive_motion_and_blocks_an_empty_battery(self):
         safety = json.loads((self.share / "config/safety_fields.json").read_text())

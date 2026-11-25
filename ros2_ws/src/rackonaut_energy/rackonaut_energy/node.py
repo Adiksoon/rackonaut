@@ -20,7 +20,7 @@ from .model import Model, contact
 STATE = "/rackonaut/energy/state"
 BATTERY = "/rackonaut/drone/battery"
 ODOM_TIMEOUT = .65
-APPROACH = {"RETURN", "RETURN_TO_DOCK", "DOCKING", "LAND"}
+APPROACH = {"RETURN", "RETURN_TO_DOCK", "DOCKING", "LAND", "RETURN_TRANSIT"}
 CHARGE_ALLOWED = {"DOCKING", "CHARGING", "READY_TO_RESUME", "COMPLETE", "COMPLETE_WITH_MISSES"}
 
 
@@ -33,7 +33,9 @@ class Energy(Node):
         if not 0 <= self.level <= 100:
             raise ValueError("initial_percent must be within 0–100.")
         self.events_file = self.declare_parameter("events_file", "").value
-        layout = get_package_share_path("rackonaut_warehouse") / "config/control_layout.json"
+        self.aerial = self.declare_parameter("aerial", False).value
+        layout_name = "aerial_layout.json" if self.aerial else "control_layout.json"
+        layout = get_package_share_path("rackonaut_warehouse") / "config" / layout_name
         pad = json.loads(layout.read_text())["pad"]
         self.dock = pad["x"], pad["y"], pad["z"], radians(pad["yaw_deg"])
         self.mission = {}
@@ -127,6 +129,7 @@ class Energy(Node):
             "simulated": True, "fresh": fresh, "percent": round(self.level, 3),
             "dock": dock, "contact": fresh and self.contact_verified, "charging": charging,
             "cycles": self.cycles, "sim_time": self.stamp, "model": asdict(self.model),
+            "profile": "protected_aerial_demo" if self.aerial else "reference_demo",
         }, separators=(",", ":"))))
         self.light_pub.publish(String(data=dock))
         if not fresh:

@@ -4,6 +4,7 @@ from itertools import groupby
 from math import dist, radians
 
 from rackonaut_energy.model import Model, dock_path, estimate, first_requirement
+from rackonaut_energy.aerial import Leg, Network
 
 
 RETRY_OFFSETS = {
@@ -76,6 +77,7 @@ def plan(layout, selection):
     pad = {key: layout["pad"][key] for key in ("x", "y", "z", "yaw_deg")}
     height = layout["takeoff_z"]
     crossing = layout["crossing_x"]
+    aerial = Network(layout["aerial"]) if "aerial" in layout else None
     waypoints = []
 
     def transfer(y):
@@ -83,22 +85,40 @@ def plan(layout, selection):
         if not waypoints or waypoints[-1] != point:
             waypoints.append(point)
 
+    def add_legs(legs):
+        for leg in legs:
+            x, y, z, _ = leg.pose
+            waypoints.append({"x": x, "y": y, "z": z, "yaw_deg": 0., "phase": leg.phase, "gate": leg.gate})
+
     previous_y = pad["y"]
-    for _, group in groupby(ordered, key=lambda slot: slots[slot]["aisle"]):
+    entry = "shaft"
+    for zone, group in groupby(ordered, key=lambda slot: slots[slot]["aisle"]):
         sequence = list(group)
-        transfer(previous_y)
-        transfer(slots[sequence[0]]["viewpoint"][1])
+        if aerial:
+            add_legs(aerial.path(entry, f"foot_{zone}"))
+        else:
+            transfer(previous_y)
+            transfer(slots[sequence[0]]["viewpoint"][1])
         for slot in sequence:
             x, y, z, yaw = slots[slot]["viewpoint"]
             waypoints.append({"x": x, "y": y, "z": z, "yaw_deg": yaw, "slot_id": slot})
             previous_y = y
-    transfer(previous_y)
-    transfer(pad["y"])
+        if aerial:
+            entry = f"foot_{zone}"
+            add_legs([Leg(aerial.nodes[entry], "AISLE_APPROACH", zone)])
+    if aerial:
+        add_legs(aerial.path(entry, "shaft", returning=True))
+    else:
+        transfer(previous_y)
+        transfer(pad["y"])
     route = {"pad": pad, "takeoff_z": height, "waypoints": waypoints}
     takeoff = {**pad, "z": height}
     points = [[point[axis] for axis in ("x", "y", "z")] for point in (pad, takeoff, *waypoints, takeoff, pad)]
     result = {"mode": mode, "quality": quality, "adaptive": adaptive, "slots": ordered, "points": points, "route": route,
               "distance": round(sum(dist(first, second) for first, second in zip(points, points[1:])), 1)}
+    if aerial:
+        route["aerial"] = {key: layout["aerial"][key] for key in ("nodes", "edges", "gates", "inspection_volumes")}
+        result["required_zones"] = aerial.required(points)
     if adaptive:
         route["retries"] = retries = {}
         safety_path = []
@@ -111,6 +131,8 @@ def plan(layout, selection):
                     for pose in poses:
                         safety_path.extend(([pose["x"], pose["y"], pose["z"]], point))
         result["safety_points"] = safety_path
+        if aerial:
+            result["required_zones"] = aerial.required(safety_path)
     return result
 
 
@@ -139,8 +161,16 @@ def energy_forecast(layout, route, telemetry):
         for value, seconds in sorted(candidates, reverse=True)[:2]:
             optional += value
             retries += seconds
-    minimum = first_requirement(model, dock, height, crossing, slots[0], 4.)
-    returning, _ = estimate(model, slots[-1], dock_path(slots[-1], dock, height, crossing))
+    if "aerial" in route["route"]:
+        network = Network(route["route"]["aerial"])
+        zones = route["required_zones"]
+        out = network.sortie(slots[0], route["slots"][0][0])
+        back = network.home(slots[0], zones)
+        minimum = estimate(model, dock, [leg.pose for leg in [*out, *back]], 4.)[0] + model.reserve
+        returning, _ = estimate(model, slots[-1], [leg.pose for leg in network.home(slots[-1], zones)])
+    else:
+        minimum = first_requirement(model, dock, height, crossing, slots[0], 4.)
+        returning, _ = estimate(model, slots[-1], dock_path(slots[-1], dock, height, crossing))
     level = telemetry["percent"]
     return {"flight_seconds": round(duration - inspection, 1), "inspection_seconds": round(inspection, 1),
             "adaptive_seconds": round(retries, 1), "adaptive_percent": round(optional, 2),

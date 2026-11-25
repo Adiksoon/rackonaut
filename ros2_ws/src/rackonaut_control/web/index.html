@@ -69,6 +69,8 @@
             <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
             <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
             <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
+            <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
+            <button type="button" id="twin-corridor" aria-pressed="true" hidden>Flight corridor</button>
           </div>
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
@@ -96,6 +98,7 @@
         <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#213444" stroke-width="1"/></pattern></defs>
         <g id="floor"></g><g id="map-aisles"></g><g id="safety-fields" aria-hidden="true"></g><g id="racks"></g>
         <g id="laser-fields" aria-hidden="true"></g><g id="laser-returns" aria-hidden="true"></g>
+        <g id="aerial-map" aria-hidden="true"></g>
         <g id="flight-lines"><polyline id="plan-line" /><polyline id="flown-line" /><g id="adaptive-lines"></g></g>
         <g id="positions"></g>
         <g id="drone" visibility="hidden"><circle r="13"/><path d="M-6 -5L9 0-6 5-3 0Z"/></g>
@@ -108,6 +111,7 @@
         <span><i class="legend-key decorative"></i>Decorative zone</span>
         <span id="laser-field-key" hidden><i class="legend-key scan"></i>Laser detection field</span>
         <span id="laser-hit-key" hidden><i class="legend-key hit"></i>Obstacle return</span>
+        <span id="aerial-key" hidden><i class="legend-key aerial"></i>Protected aerial corridor</span>
       </div>
     </section>
     <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">
@@ -176,6 +180,8 @@
           <button type="button" class="chip" data-worker="A">Enter aisle A</button>
           <button type="button" class="chip" data-worker="B">Enter aisle B</button>
           <button type="button" class="chip" data-worker="T">Enter transfer</button>
+          <button type="button" id="worker-descent-a" class="chip" data-worker="DA" hidden>Enter descent A</button>
+          <button type="button" id="worker-descent-b" class="chip" data-worker="DB" hidden>Enter descent B</button>
         </div>
         <div id="obstacle-controls" class="aisle-options" aria-label="Move warehouse obstacles" hidden>
           <button type="button" class="chip" data-obstacle="forklift_a">Drive forklift into A</button>

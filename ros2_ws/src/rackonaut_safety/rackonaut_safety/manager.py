@@ -17,6 +17,7 @@ from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
+from rackonaut_energy.aerial import Network
 from tf2_msgs.msg import TFMessage
 
 from .geometry import overlaps, route_zones
@@ -24,7 +25,7 @@ from .laser import LaserPresence
 
 SAFETY = "/rackonaut/safety"
 TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
-LABELS = {"A": "Aisle A", "B": "Aisle B", "T": "Transfer corridor & pad"}
+LABELS = {"A": "Aisle A", "B": "Aisle B", "T": "Transfer corridor & pad", "D": "Technical dock and shaft"}
 PREPARE_SECONDS = 3.
 CLEAR_SECONDS = .8
 PRESENCE_TIMEOUT = .75
@@ -38,6 +39,11 @@ class Manager(Node):
         config = get_package_share_path("rackonaut_warehouse") / "config"
         self.fields = json.loads((config / "safety_fields.json").read_text())
         self.pad = json.loads((config / "control_layout.json").read_text())["pad"]
+        self.aerial = None
+        if self.declare_parameter("aerial", False).value:
+            profile = json.loads((config / "aerial_layout.json").read_text())
+            self.aerial = Network(profile)
+            self.pad = profile["pad"]
         self.sensor_mode = self.declare_parameter("sensor_mode", "virtual").value
         if self.sensor_mode not in {"virtual", "laser"}:
             raise ValueError("Safety sensor mode must be virtual or laser.")
@@ -47,6 +53,8 @@ class Manager(Node):
             if scanner_config.keys() != self.fields.keys():
                 raise ValueError("Laser calibration must include each reserved zone.")
             self.laser = LaserPresence(scanner_config, PRESENCE_TIMEOUT)
+        if self.aerial:
+            self.fields["D"] = profile["technical"]
         log = self.declare_parameter("events_file", "safety-events.jsonl").value
         self.log = Path(log)
         self.log.parent.mkdir(parents=True, exist_ok=True)
@@ -77,7 +85,7 @@ class Manager(Node):
         if self.laser:
             for zone, scanner in self.laser.configs.items():
                 self.create_subscription(LaserScan, scanner["topic"], partial(self.on_laser, zone), qos_profile_sensor_data)
-        else:
+        if not self.laser or self.aerial:
             self.create_subscription(TFMessage, SAFETY + "/worker_pose", self.on_presence, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odometry, qos_profile_sensor_data)
         self.state = self.create_publisher(String, SAFETY + "/state", latest)
@@ -110,7 +118,8 @@ class Manager(Node):
         self.worker = (xyz.x, xyz.y, xyz.z)
         occupied = self.occupied(self.worker_at)
         now_ns = monotonic_ns()
-        self.occupied_since = {zone: self.occupied_since.get(zone, now_ns) for zone in occupied}
+        self.occupied_since = {zone: self.occupied_since.get(zone, now_ns) for zone in occupied
+                               if not self.laser or zone == "D"}
 
     def on_odometry(self, message):
         stamp = message.header.stamp
@@ -138,14 +147,14 @@ class Manager(Node):
             self.mission, self.mission_at = status, monotonic()
 
     def occupied(self, now):
-        if self.laser:
-            return self.laser.occupied(now)
+        detected = self.laser.occupied(now) if self.laser else []
         if now - self.worker_at > PRESENCE_TIMEOUT:
-            return []
-        return [zone for zone, bounds in self.fields.items() if overlaps(self.worker, bounds, margin=.28)]
+            return detected
+        return [*detected, *(zone for zone, bounds in self.fields.items()
+                            if (not self.laser or zone == "D") and overlaps(self.worker, bounds, margin=.28))]
 
     def sensor_health(self, zone, now):
-        if self.laser:
+        if self.laser and zone != "D":
             return self.laser.health(zone, now)
         if self.worker is None:
             return "UNKNOWN"
@@ -160,7 +169,8 @@ class Manager(Node):
     def blockers(self, now):
         failed = [zone for zone in self.required if self.sensor_health(zone, now) != "FRESH"]
         if failed:
-            reason = ("Laser scan is stale or unknown: " + ", ".join(LABELS[key] for key in failed) + "."
+            reason = ("Safety data is stale or unknown: " + ", ".join(LABELS[key] for key in failed) + "."
+                      if self.aerial else "Laser scan is stale or unknown: " + ", ".join(LABELS[key] for key in failed) + "."
                       if self.laser else "Presence sensor is stale or unknown.")
             return reason, failed, "sensor_fault"
         occupied = [zone for zone in self.required if zone in self.occupied(now)]
@@ -178,7 +188,7 @@ class Manager(Node):
             run = payload["inspection_id"]
             if not re.fullmatch(r"INS-CONTROL-[A-Z0-9-]{1,45}", run):
                 return
-            required = route_zones(payload["points"], self.fields)
+            required = self.aerial.required(payload["points"]) if self.aerial else route_zones(payload["points"], self.fields)
         except (KeyError, TypeError, ValueError):
             return
         if run in self.recent_requests or self.phase in {"PREPARING", "RESERVED", "RECOVERY"}:
@@ -205,11 +215,16 @@ class Manager(Node):
     def recover(self, reason, zones, kind):
         self.phase = "RECOVERY"
         self.message = "Operator recovery required. Access remains restricted."
-        detected = ({key: reading.occupied_since_ns for key, reading in self.laser.readings.items()}
-                    if self.laser else self.occupied_since)
-        first = min((detected[key] for key in zones if detected.get(key) is not None), default=None)
-        timestamp_key = "laser_detection_ns" if self.laser else "presence_sample_ns"
-        details = {timestamp_key: first} if kind == "intrusion" and first is not None else {}
+        details = {}
+        if kind == "intrusion":
+            presence = [self.occupied_since[key] for key in zones if key in self.occupied_since]
+            if presence:
+                details["presence_sample_ns"] = min(presence)
+            if self.laser:
+                hits = [reading.occupied_since_ns for key, reading in self.laser.readings.items()
+                        if key in zones and reading.occupied_since_ns is not None]
+                if hits:
+                    details["laser_detection_ns"] = min(hits)
         self.alarm = self.event(kind, reason, zones, **details)
         self.next_abort = 0.
 
@@ -334,6 +349,18 @@ class Manager(Node):
         }
         if self.laser:
             snapshot["scans"] = dict(self.laser.map_data(now))
+        if self.aerial:
+            snapshot["aerial"] = {
+                "technical_sensor": "virtual_worker_pose",
+                "worker": self.worker if now - self.worker_at <= PRESENCE_TIMEOUT else None,
+                "descents": {
+                    zone: {"bounds": bounds, "source": "aisle_lidar" if self.laser else "virtual_worker_pose",
+                           "cleared": self.phase == "RESERVED" and zone in self.required and health[zone] == "FRESH"
+                           and zone not in present and now - self.clear_since[zone] >= CLEAR_SECONDS
+                           and lights and self.light_state.get(zone) == "RESERVED"}
+                    for zone, bounds in self.aerial.gates.items()
+                },
+            }
         self.state.publish(String(data=json.dumps(snapshot, separators=(",", ":"))))
 
 

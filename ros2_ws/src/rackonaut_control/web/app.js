@@ -243,6 +243,16 @@ function drawMap(job) {
       rect(x, y, endX - x, endY - y, `safety-field access-${(zones[id]?.state || "FAULT").toLowerCase()}`,
         'rx="4"')).join(""));
   }
+  if (layout.aerial) {
+    const { nodes, edges, gates } = layout.aerial;
+    const descents = state?.safety?.aerial?.descents || {};
+    const overhead = edges.filter(([, , kind]) => kind === "tunnel").map(([from, to]) =>
+      `<polyline class="aerial-axis" points="${[nodes[from], nodes[to]].map(([x, y]) => point(x, y).join(",")).join(" ")}"/>`);
+    const access = Object.entries(gates).map(([id, [x, y, endX, endY]]) =>
+      rect(x, y, endX - x, endY - y, `aerial-gate ${descents[id]?.cleared ? "clear" : ""}`, 'rx="3"')
+      + text(x + .25, y - .32, `DESCENT ${id}`, "aerial-caption"));
+    html("aerial-map", overhead.join("") + access.join(""));
+  }
   for (const slot of Object.keys(layout.slots)) {
     const item = el("slot-" + slot);
     item.classList.toggle("selected", selected.has(slot));
@@ -449,14 +459,16 @@ function drawSafety() {
   const source = laser ? "Laser scan" : "Presence feed";
   put("sensor-state", source + (status?.sensor === "FRESH" ? " live" : status?.sensor === "STALE" ? " stale" : " unknown"));
   el("sensor-state").classList.toggle("good", status?.sensor === "FRESH");
-  const byName = { A: "Aisle A", B: "Aisle B", T: "Transfer corridor & pad", C: "Aisle C" };
-  html("safety-zones", ["A", "B", "T", "C"].map(id => {
+  const byName = { A: "Aisle A", B: "Aisle B", T: layout.aerial ? "Ground transfer" : "Transfer corridor & pad",
+                   C: "Aisle C", D: "Technical dock & shaft" };
+  html("safety-zones", (layout.aerial ? ["D", "A", "B", "T", "C"] : ["A", "B", "T", "C"]).map(id => {
     const zone = zones[id];
     const state = zone?.state || (id === "C" ? "UNMONITORED" : "FAULT");
-    const detected = zone?.occupied === true ? (laser ? "Obstacle detected" : "Worker present")
+    const detected = zone?.occupied === true ? (laser && id !== "D" ? "Obstacle detected" : "Worker present")
       : zone?.occupied === false ? "Clear field" : "Unknown presence";
     const age = status?.scans?.[id]?.age_ms;
-    const scanner = laser && zone ? ` · ${label(zone.sensor)}${age == null ? "" : ` ${age} ms`}` : "";
+    const scanner = id === "D" && zone ? ` · Virtual presence · ${label(zone.sensor)}`
+      : laser && zone ? ` · ${label(zone.sensor)}${age == null ? "" : ` ${age} ms`}` : "";
     return `<div class="safety-zone access-${state.toLowerCase()}">
       <strong>${byName[id]}</strong><span class="access-label"><i></i>${label(state)}</span>
       <small>${id === "C" ? "Decorative aisle" : detected + scanner + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
@@ -483,7 +495,8 @@ function draw() {
   robot.classList.toggle("good", !!state?.robot);
   backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : "Warehouse API online") : "Inventory API offline";
   backend.classList.toggle("good", !!state?.backend.online);
-  put("run-state", stage ? stage.replaceAll("_", " ") : "AWAITING DISPATCH");
+  const flightPhase = job?.status?.flight_phase || stage;
+  put("run-state", flightPhase ? flightPhase.replaceAll("_", " ") : "AWAITING DISPATCH");
   el("run-state").classList.toggle("active", !!stage && !terminal.has(stage));
   put("planned-total", preview?.slots.length ?? "—");
   put("plan-distance", preview ? `${preview.distance.toFixed(1)} m planned` : "—");
@@ -553,6 +566,10 @@ async function init() {
   if (layout.laser_fields) {
     for (const id of ["laser-field-key", "laser-hit-key", "obstacle-controls"]) el(id).hidden = false;
     put("sensor-source", "3 simulated GPU LiDARs · Live LaserScan · Dashed fields show measured scope");
+  }
+  if (layout.aerial) {
+    for (const id of ["aerial-key", "worker-descent-a", "worker-descent-b"]) el(id).hidden = false;
+    if (layout.laser_fields) put("sensor-source", "3 simulated GPU LiDARs · Technical dock uses virtual worker presence");
   }
   el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
   drawLayout();

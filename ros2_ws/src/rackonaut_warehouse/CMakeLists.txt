@@ -64,6 +64,19 @@ add_custom_command(OUTPUT "${energy_world}" "${energy_laser_world}" "${energy_la
   VERBATIM)
 add_custom_target(energy_showcase ALL DEPENDS "${energy_world}" "${energy_laser_world}" "${energy_laser_fields}" "${dock_layout}")
 
+set(aerial_world "${CMAKE_CURRENT_BINARY_DIR}/aerial_showcase.sdf")
+set(aerial_laser_world "${CMAKE_CURRENT_BINARY_DIR}/aerial_laser_showcase.sdf")
+set(aerial_laser_fields "${CMAKE_CURRENT_BINARY_DIR}/aerial_laser_fields.json")
+set(aerial_layout "${CMAKE_CURRENT_BINARY_DIR}/aerial_layout.json")
+add_custom_command(OUTPUT "${aerial_world}" "${aerial_laser_world}" "${aerial_laser_fields}" "${aerial_layout}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --aerial-layout "${aerial_layout}" --output "${aerial_world}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --laser "${aerial_laser_fields}" --output "${aerial_laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(aerial_showcase ALL DEPENDS "${aerial_world}" "${aerial_laser_world}" "${aerial_laser_fields}" "${aerial_layout}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
@@ -75,5 +88,7 @@ install(FILES "${laser_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${adaptive_world}" "${adaptive_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${energy_world}" "${energy_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${dock_layout}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${aerial_world}" "${aerial_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${aerial_layout}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

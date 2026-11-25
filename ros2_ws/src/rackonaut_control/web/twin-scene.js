@@ -23,9 +23,11 @@ function block(parent, size, position, material) {
   parent.add(mesh);
   return mesh;
 }
-function boxes(parent, parts, category) {
+function boxes(parent, parts, category, opacity = 1) {
   if (!parts.length) return;
-  const mesh = new T.InstancedMesh(box, solid(0xffffff), parts.length);
+  const material = solid(0xffffff);
+  if (opacity < 1) Object.assign(material, { opacity, transparent: true, depthWrite: false });
+  const mesh = new T.InstancedMesh(box, material, parts.length);
   const transform = new T.Matrix4();
   const color = new T.Color();
   parts.forEach(([x, y, z, width, depth, height, r, g, b], i) => {
@@ -115,6 +117,25 @@ export function makeWarehouse(layout, scene) {
     return [id, scanner];
   }));
   const signals = layout.safety_fields ? source.signals.map(signal => signalView(scene, signal, source.signal_parts)) : [];
+  let aerial = null;
+  if (layout.aerial) {
+    const infrastructure = new T.Group();
+    boxes(infrastructure, layout.aerial.parts, "aerial");
+    boxes(infrastructure, layout.aerial.screens, "aerial", .24);
+    scene.add(infrastructure);
+    const gates = Object.fromEntries(Object.entries(layout.aerial.gates).map(([id, bounds]) => {
+      const shape = footprint(bounds, 0xc597fa, .20, .060, true);
+      infrastructure.add(shape.group);
+      return [id, shape];
+    }));
+    const worker = new T.Group();
+    block(worker, [.40, .85, .34], at([0, 0, .93]), solid(0xffb347));
+    block(worker, [.24, .26, .24], at([0, 0, 1.51]), solid(0xffe4a1));
+    block(worker, [.32, .57, .25], at([0, 0, .31]), solid(0x465f7b));
+    worker.visible = false;
+    scene.add(worker);
+    aerial = { infrastructure, gates, worker };
+  }
 
   const picks = [];
   const slots = {};
@@ -159,7 +180,7 @@ export function makeWarehouse(layout, scene) {
     target.userData.selection = { type: "aisle", id: aisle.id };
     picks.push(target);
   }
-  return { zones, lasers, signals, slots, aisles, picks };
+  return { zones, lasers, signals, slots, aisles, picks, aerial };
 }
 
 export function makeAircraft(scene) {

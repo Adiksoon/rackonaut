@@ -37,6 +37,11 @@ h1 { font-size: clamp(1.85rem, 4vw, 2.7rem); letter-spacing: -.048em; line-heigh
 .run-state, .map-tag { border: 1px solid var(--line); color: #a5bfd0; background: #10202b; padding: 6px 9px;
   border-radius: 6px; font: 650 .7rem/1.25 ui-monospace, monospace; overflow-wrap: anywhere; }
 .run-state.active { color: var(--mint); border-color: #35625b; }
+.aerial-axis { fill: none; stroke: #c597fa; stroke-width: 4; stroke-dasharray: 5 5; opacity: .83; }
+.aerial-gate { fill: #b98bfa33; stroke: #cbabfa; stroke-width: 1.5; }
+.aerial-gate.clear { fill: #38d7a145; stroke: #38d7a1; }
+.aerial-caption { fill: #dfc7fd; font-size: 8px; font-weight: 700; }
+.legend-key.aerial { background: #c597fa; }
 nav { display: flex; gap: 5px; margin: 22px 0 17px; border-bottom: 1px solid var(--line); }
 .tab { border: 0; padding: 9px 14px 11px; color: var(--muted); background: transparent; border-bottom: 2px solid transparent; }
 .tab.active { color: var(--mint); border-bottom-color: var(--mint); }

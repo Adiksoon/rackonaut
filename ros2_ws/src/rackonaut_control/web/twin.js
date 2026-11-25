@@ -169,6 +169,9 @@ export function createTwin(layout, callbacks) {
   scene.fog = new T.Fog(0x081521, 79, 140);
   const warehouse = makeWarehouse(layout, scene);
   const { drone, body, edge } = makeAircraft(scene);
+  const corridor = warehouse.aerial ? path(scene, 0xc597fa, true, true) : null;
+  if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
+    [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
   const planLine = path(scene, 0x83afff, true);
   const flownLine = path(scene, 0x75ffd9);
   const extraLine = path(scene, 0xffb469, false, true);
@@ -224,6 +227,18 @@ export function createTwin(layout, callbacks) {
     ? addMarker("Charging dock", "dock-marker", layout.dock.locator, null)
     : null;
   if (!dockLabel) addMarker("H · Launch pad", "pad-marker", [layout.pad.x - .45, layout.pad.y, .12], null);
+  const gateLabels = {};
+  if (warehouse.aerial) {
+    addMarker("Launch shaft", "aerial-marker", layout.aerial.nodes.shaft, null);
+    for (const id of Object.keys(layout.aerial.gates)) {
+      const entry = at(layout.aerial.nodes["entry_" + id]);
+      gateLabels[id] = addMarker(`Descent ${id}`, "aerial-marker", layout.aerial.nodes["entry_" + id], () => {
+        setFollow(false);
+        const aim = entry.clone().add(new T.Vector3(0, -2.3, 0));
+        cameraTo(aim.clone().add(new T.Vector3(-6.7, 5.6, 6.2)), aim);
+      });
+    }
+  }
   addMarker("Transfer", "pad-marker", [layout.crossing_x, layout.aisles.at(-1).y, .12], null);
   const flightLabel = addMarker("", "aircraft-marker", [0, 0, 0], null);
   const flightAnchor = labels.at(-1).anchor;
@@ -267,7 +282,8 @@ export function createTwin(layout, callbacks) {
     for (const { element, anchor, kind } of labels) {
       projected.copy(anchor).project(camera);
       const within = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < .97 && Math.abs(projected.y) < .97;
-      const show = within && (element !== flightLabel || drone.visible);
+      const show = within && (element !== flightLabel || drone.visible)
+        && (kind !== "aerial-marker" || warehouse.aerial.infrastructure.visible);
       element.style.visibility = show ? "visible" : "hidden";
       if (!show) continue;
       const x = (projected.x + 1) * width / 2;
@@ -369,6 +385,17 @@ export function createTwin(layout, callbacks) {
   });
   byId("twin-laser-key").hidden = byId("twin-returns-key").hidden = !layout.laser_fields;
   byId("twin-access-key").hidden = !layout.safety_fields;
+  if (warehouse.aerial) {
+    for (const [id, target] of [["twin-aerial", warehouse.aerial.infrastructure], ["twin-corridor", corridor]]) {
+      const button = byId(id);
+      button.hidden = false;
+      button.addEventListener("click", () => {
+        target.visible = !target.visible;
+        button.setAttribute("aria-pressed", String(target.visible));
+        queue();
+      });
+    }
+  }
 
   function updateDrone(state) {
     const fresh = Boolean(state?.robot && state.position);
@@ -500,6 +527,17 @@ export function createTwin(layout, callbacks) {
     setPath(extraLine, moves.filter((move) => move.actual).flatMap((move) => [move.from, move.actual]), .088);
     setPath(pendingLine, moves.filter((move) => !move.actual).flatMap((move) => [move.from, move.target]), .088);
     updateDrone(state);
+    if (warehouse.aerial) {
+      const safety = state?.safety?.aerial;
+      warehouse.aerial.worker.visible = !!safety?.worker;
+      if (safety?.worker) warehouse.aerial.worker.position.copy(at([safety.worker[0], safety.worker[1], 0]));
+      for (const [id, area] of Object.entries(warehouse.aerial.gates)) {
+        const cleared = safety?.descents?.[id]?.cleared;
+        gateLabels[id].dataset.cleared = String(!!cleared);
+        gateLabels[id].title = `Focus descent ${id} · ${cleared ? "Cleared" : "Clearance unavailable"}`;
+        tint(area, cleared ? 0x38d7a1 : 0xc597fa, .22);
+      }
+    }
     if (dockLabel) {
       const phase = state?.energy?.dock || "FAULT";
       dockLabel.dataset.dock = phase.toLowerCase();

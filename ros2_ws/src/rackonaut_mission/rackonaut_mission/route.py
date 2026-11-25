@@ -5,6 +5,7 @@ import re
 from dataclasses import dataclass, field, replace
 from math import atan2, cos, hypot, isfinite, radians, sin
 from pathlib import Path
+from rackonaut_energy.aerial import Network
 
 
 @dataclass(frozen=True)
@@ -14,6 +15,8 @@ class Target:
     z: float
     yaw: float
     slot_id: str = ""
+    phase: str = ""
+    gate: str = ""
 
     def inside(self, bounds, margin=0.):
         x1, y1, x2, y2 = bounds
@@ -35,6 +38,7 @@ class Route:
     retries: dict[str, RetryViews] = field(default_factory=dict)
     crossing: float | None = None
     zones: tuple[str, ...] = ()
+    aerial: Network | None = None
 
     @property
     def stops(self):
@@ -42,10 +46,10 @@ class Route:
 
 
 def load_route(path):
-    def target(x, y, z, yaw_deg, slot_id=""):
+    def target(x, y, z, yaw_deg, slot_id="", phase="", gate=""):
         if not all(isfinite(value) for value in (x, y, z, yaw_deg)) or z < 0:
             raise ValueError("Route poses must be finite, with z at or above the floor.")
-        return Target(float(x), float(y), float(z), radians(yaw_deg), slot_id)
+        return Target(float(x), float(y), float(z), radians(yaw_deg), slot_id, phase, gate)
 
     config = json.loads(Path(path).read_text())
     pad = target(**config["pad"])
@@ -86,10 +90,25 @@ def load_route(path):
         retries[stop.slot_id] = RetryViews(entry["zone"], bounds, views)
     crossing = config.get("energy_crossing_x")
     zones = tuple(config.get("energy_zones", ()))
-    if crossing is not None and (not isfinite(crossing) or "T" not in zones
+    aerial = Network(config["aerial"]) if "aerial" in config else None
+    if crossing is not None and (not isfinite(crossing) or ("D" if aerial else "T") not in zones
                                  or any(stop.slot_id[0] not in zones for stop in stops)):
-        raise ValueError("Energy route requires the reserved transfer corridor and inspection aisles.")
-    return Route(pad, replace(pad, z=float(height)), waypoints, retries, crossing, zones)
+        raise ValueError("Energy route requires the reserved access corridor and inspection aisles.")
+    takeoff = replace(pad, z=float(height))
+    if aerial:
+        path = [[p.x, p.y, p.z] for p in (pad, takeoff, *waypoints, takeoff, pad)]
+        if crossing is None or set(aerial.required(path)) != set(zones):
+            raise ValueError("Aerial route does not match the reserved flight envelope.")
+        previous = takeoff
+        for point in waypoints:
+            needs_gate = previous.z > height - .33 and point.z < height - .33
+            if needs_gate or point.phase == "AISLE_DESCENT":
+                if (point.phase != "AISLE_DESCENT" or point.gate not in aerial.gates
+                        or (previous.x, previous.y, previous.z) != aerial.nodes[f"entry_{point.gate}"][:3]
+                        or (point.x, point.y, point.z) != aerial.nodes[f"foot_{point.gate}"][:3]):
+                    raise ValueError("Aerial descent must pass through its assigned gate.")
+            previous = point
+    return Route(pad, takeoff, waypoints, retries, crossing, zones, aerial)
 
 
 def heading_error(target, actual):

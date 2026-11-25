@@ -8,6 +8,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <ignition/msgs/boolean.pb.h>
 #include <ignition/msgs/empty.pb.h>
@@ -50,6 +51,15 @@ class Infrastructure : public rclcpp::Node {
  public:
   Infrastructure() : Node("rackonaut_safety_infrastructure"), worker_(targets.at("outside")) {
     phases_ = {{"A", "FAULT"}, {"B", "FAULT"}, {"T", "FAULT"}};
+    if (declare_parameter("aerial", false)) {
+      active_towers_.emplace("safety_d_tech", "D");
+      phases_.emplace("D", "FAULT");
+      for (const auto &zone : {"A", "B"}) {
+        const auto point = declare_parameter(std::string("descent_") + zone, std::vector<double>{});
+        if (point.size() == 2)
+          worker_targets_.emplace(std::string("D") + zone, Point{point[0], point[1]});
+      }
+    }
     ack_ = create_publisher<std_msgs::msg::String>("/rackonaut/safety/signals_applied", 5);
     control_ = create_subscription<std_msgs::msg::String>(
         "/rackonaut/safety/signals", 5, [this](const std_msgs::msg::String &message) {
@@ -61,7 +71,8 @@ class Infrastructure : public rclcpp::Node {
             if (separator != std::string::npos)
               next.emplace(pair.substr(0, separator), pair.substr(separator + 1));
           }
-          if (next.count("A") && next.count("B") && next.count("T") && next.size() == 3) {
+          if (next.size() == phases_.size() && std::all_of(phases_.begin(), phases_.end(),
+              [&next](const auto &entry) { return next.count(entry.first); })) {
             phases_ = std::move(next);
             command_at_ = std::chrono::steady_clock::now();
           }
@@ -123,7 +134,7 @@ class Infrastructure : public rclcpp::Node {
     if (!transport_.Request(world + "/scene/info", request, 150, scene, ok) || !ok)
       return false;
     for (const auto &model : scene.model()) {
-      if (!towers.count(model.name()))
+      if (!active_towers_.count(model.name()))
         continue;
       for (const auto &link : model.link()) {
         for (const auto &part : link.visual()) {
@@ -132,7 +143,7 @@ class Infrastructure : public rclcpp::Node {
         }
       }
     }
-    return lenses_.size() == towers.size() * lamps.size();
+    return lenses_.size() == active_towers_.size() * lamps.size();
   }
 
   bool set_lens(uint32_t id, const std::string &lamp, bool on) {
@@ -150,15 +161,16 @@ class Infrastructure : public rclcpp::Node {
 
   void update_lamps() {
     auto now = std::chrono::steady_clock::now();
-    if (lenses_.size() != towers.size() * lamps.size() && !discover_lamps())
+    if (lenses_.size() != active_towers_.size() * lamps.size() && !discover_lamps())
       return;
     if (now - command_at_ > 900ms)
-      phases_ = {{"A", "FAULT"}, {"B", "FAULT"}, {"T", "FAULT"}};
+      for (auto &entry : phases_)
+        entry.second = "FAULT";
     const auto clock = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch());
     const bool flash = clock.count() % 800 < 400;
     for (const auto &[key, id] : lenses_) {
       const auto &[tower, lamp] = key;
-      const auto &phase = phases_.at(towers.at(tower));
+      const auto &phase = phases_.at(active_towers_.at(tower));
       bool on = (phase == "OPEN" && lamp == "green")
           || (phase == "PREPARING" && lamp == "yellow")
           || (phase == "RESERVED" && lamp == "red")
@@ -178,8 +190,8 @@ class Infrastructure : public rclcpp::Node {
   }
 
   void select_worker_target(const std::string &choice) {
-    const auto found = targets.find(choice);
-    if (found == targets.end())
+    const auto found = worker_targets_.find(choice);
+    if (found == worker_targets_.end())
       return;
     const auto &point = found->second;
     // Keep the figure in front of the rack faces while it changes aisles.
@@ -235,6 +247,8 @@ class Infrastructure : public rclcpp::Node {
   rclcpp::TimerBase::SharedPtr lights_timer_, movement_timer_;
   rclcpp::TimerBase::SharedPtr dock_timer_;
   Phases phases_;
+  std::map<std::string, std::string> active_towers_ = towers;
+  std::map<std::string, Point> worker_targets_ = targets;
   std::chrono::steady_clock::time_point command_at_;
   std::chrono::steady_clock::time_point dock_at_;
   std::string dock_phase_ = "FAULT";

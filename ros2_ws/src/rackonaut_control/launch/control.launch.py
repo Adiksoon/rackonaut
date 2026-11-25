@@ -33,7 +33,10 @@ def setup(context):
     if enabled("laser_rviz") and not laser:
         raise ValueError("laser_rviz requires safety_sensor:=laser.")
     world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
-    energy = enabled("energy")
+    aerial = enabled("aerial")
+    if aerial and not safety:
+        raise ValueError("aerial:=true requires safety:=true.")
+    energy = enabled("energy") or aerial
     adaptive = enabled("adaptive_world") or energy
     if adaptive:
         if not safety:
@@ -41,7 +44,13 @@ def setup(context):
         world = "adaptive_laser_showcase.sdf" if laser else "adaptive_showcase.sdf"
     if energy:
         world = "energy_laser_showcase.sdf" if laser else "energy_showcase.sdf"
+    if aerial:
+        world = "aerial_laser_showcase.sdf" if laser else "aerial_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
+    profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
+    if profile:
+        dock = profile["nodes"]["dock"]
+        command.extend(["--spawn", str(dock[0]), str(dock[1]), str(dock[2] + .07), "0"])
     if enabled("gazebo_gui"):
         command.append("--gui")
     processes = [ExecuteProcess(cmd=command, cwd=str(root), output="screen", name="control_simulator")]
@@ -68,12 +77,17 @@ def setup(context):
         "safety_sensor": mode,
         "adaptive_world": adaptive,
         "energy_enabled": energy,
+        "aerial_enabled": aerial,
     }]))
     if energy:
+        initial = arg("battery_initial")
+        level = (100. if aerial else 64.) if initial == "auto" else float(initial)
         processes.append(Node(package="rackonaut_energy", executable="manage", output="screen", parameters=[{
-            "initial_percent": float(arg("battery_initial")),
+            "initial_percent": level,
             "charge": float(arg("charge_rate")),
             "events_file": str(Path(data) / "charge-cycles.jsonl"),
+            "aerial": aerial,
+            **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
         target_action=process, on_exit=[EmitEvent(event=Shutdown(reason="A Control Center service stopped"))],
@@ -83,12 +97,16 @@ def setup(context):
         config = get_package_share_path("rackonaut_safety") / "config"
         safety_nodes = [
             Node(package="rackonaut_safety", executable="manage", output="screen",
-                 parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode}]),
+                 parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode,
+                              "aerial": aerial}]),
             Node(package="rackonaut_safety", executable="infrastructure", output="screen",
-                 parameters=[{"laser_props": laser, "energy_dock": energy}]),
+                 parameters=[{"laser_props": laser, "energy_dock": energy, "aerial": aerial,
+                              **({f"descent_{zone}": profile["nodes"][f"foot_{zone}"][:2] for zone in ("A", "B")}
+                                 if profile else {})}]),
             *(Node(package="ros_gz_bridge", executable="parameter_bridge", name=f"safety_{name}_bridge",
                    parameters=[{"config_file": str(config / f"{name}_bridge.yaml")}], output="screen")
-              for name in ("laser" if laser else "presence", "overview")),
+              for name in (("laser", "presence", "overview") if laser and aerial
+                           else ("laser" if laser else "presence", "overview"))),
         ]
         if laser:
             scanners = json.loads((warehouse / "config/laser_fields.json").read_text())
@@ -109,7 +127,7 @@ def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
-                "energy": "false", "battery_initial": "64.0", "charge_rate": "6.0"}
+                "energy": "false", "aerial": "false", "battery_initial": "auto", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

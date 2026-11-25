@@ -22,6 +22,7 @@ from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
+from rackonaut_energy.aerial import Leg
 from rackonaut_energy.model import Model, dock_path, estimate, first_requirement, sortie_path
 
 from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
@@ -34,6 +35,8 @@ from .visualization import make_markers, planned_path, stamped_pose
 MISSION = "/rackonaut/mission"
 TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
 DOCK_WAIT = {"CHARGING", "READY_TO_RESUME"}
+AERIAL_MOTION = {"ENTERING_CORRIDOR", "OVERHEAD_TRANSIT", "AISLE_DESCENT", "AISLE_ASCENT", "AISLE_APPROACH",
+                 "RETURN_TRANSIT"}
 
 
 class Mission(Node):
@@ -72,6 +75,7 @@ class Mission(Node):
             raise ValueError("The minimum scan hold must be below the inspection timeout.")
 
         self.route = load_route(settings["route_file"])
+        self.aerial = self.route.aerial
         self.frame = settings["odom_frame"]
         self.command_topic = settings["cmd_vel_topic"]
         self.autostart = settings["autostart"]
@@ -85,6 +89,7 @@ class Mission(Node):
         self.safety_at, self.safety_permit = -1e6, False
         self.permit_departure = None
         self.safety_phase, self.safety_zones = "", set()
+        self.descents, self.pending_descent = {}, None
         self.adaptive = bool(self.route.retries)
         self.energy_enabled = self.route.crossing is not None
         if self.energy_enabled and (not self.safety_interlock or not self.land):
@@ -161,6 +166,7 @@ class Mission(Node):
             self.safety_phase = state.get("phase", "")
             self.safety_zones = set(state.get("required", ()))
             self.permit_departure = state.get("permit_departure")
+            self.descents = state.get("aerial", {}).get("descents", {})
 
     def on_energy(self, message):
         self.battery, self.battery_at = json.loads(message.data), monotonic()
@@ -179,6 +185,11 @@ class Mission(Node):
                      if self.route.waypoints[index].slot_id), None)
 
     def required_departure(self, index):
+        if self.aerial:
+            slot = self.route.waypoints[index]
+            legs = [*self.outbound(slot), *self.dock_route(slot)]
+            return estimate(self.energy_model, self.coordinates(self.route.pad),
+                            [leg.pose for leg in legs], 4.)[0] + self.energy_model.reserve
         return first_requirement(
             self.energy_model, self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing,
             self.coordinates(self.route.waypoints[index]), 4.,
@@ -231,7 +242,8 @@ class Mission(Node):
             self.sorties.append({"departure": self.departures, "start_percent": self.battery["percent"],
                                  "start_sim_time": self.battery["sim_time"], "completed_before": list(self.completed)})
             self.landed = False
-        self.transition("RESUMING" if resuming else "TAKEOFF", self.route.takeoff, now,
+        target = replace(self.route.takeoff, phase="VERTICAL_TAKEOFF") if self.aerial else self.route.takeoff
+        self.transition("RESUMING" if resuming else target.phase or "TAKEOFF", target, now,
                         "Resuming unfinished inspection" if resuming else "Climbing above the launch pad")
         return ""
 
@@ -273,13 +285,26 @@ class Mission(Node):
 
     def next_stop(self, now):
         if self.stop_index == len(self.route.waypoints):
+            if self.aerial:
+                self.transition("LAND", replace(self.route.pad, z=0.), now, "Descending vertically into the technical dock")
+                return
             self.transition("RETURN", self.route.takeoff, now, "Returning along the clear aisle to the pad")
             return
         stop = self.route.waypoints[self.stop_index]
         if stop.slot_id:
             self.transition("TRANSIT", replace(stop, yaw=self.target.yaw), now, "Flying to the inspection viewpoint")
+        elif stop.phase:
+            self.follow_leg(stop, stop.phase, now)
         else:
             self.transition("CORRIDOR", stop, now, "Following the clear transfer corridor")
+
+    def follow_leg(self, target, stage, now):
+        if target.phase == "AISLE_DESCENT":
+            self.pending_descent = target, stage
+            self.transition("WAITING_FOR_AISLE_CLEARANCE", self.target, now,
+                            f"Holding over descent {target.gate} for fresh Safety clearance")
+        else:
+            self.transition(stage, target, now, "Following the reserved aerial corridor")
 
     def begin_scan(self, now):
         slot = self.target.slot_id
@@ -446,13 +471,55 @@ class Mission(Node):
             self.command = None
 
     def dock_route(self, pose):
-        return dock_path(self.coordinates(pose), self.coordinates(self.route.pad),
-                         self.route.takeoff.z, self.route.crossing)
+        if self.aerial:
+            return self.aerial.home(self.coordinates(pose), self.route.zones)
+        return [Leg(point, "") for point in dock_path(self.coordinates(pose), self.coordinates(self.route.pad),
+                                                     self.route.takeoff.z, self.route.crossing)]
+
+    def outbound(self, slot):
+        if self.aerial:
+            return self.aerial.sortie(self.coordinates(slot), slot.slot_id[0])
+        return [Leg(point, "") for point in sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z,
+                                                       self.route.crossing, self.coordinates(slot))]
 
     def return_cost(self, pose):
         if dist(self.coordinates(pose)[:3], self.coordinates(self.route.pad)[:3]) < .08:
             return 0.
-        return estimate(self.energy_model, self.coordinates(pose), self.dock_route(pose))[0]
+        try:
+            return estimate(self.energy_model, self.coordinates(pose), [leg.pose for leg in self.dock_route(pose)])[0]
+        except ValueError:
+            return float("inf")
+
+    def aerial_remaining_cost(self, remaining, return_percent):
+        if self.stage in TERMINAL:
+            return 0. if self.landed else None
+        if self.stage == "LAND":
+            return return_percent
+        pad = self.coordinates(self.route.pad)
+        origin = self.coordinates(self.pose)
+        return_to_charge = 0.
+        if self.stage in DOCK_WAIT | {"RETURN_TO_DOCK", "DOCKING"}:
+            if return_percent is None:
+                return None
+            return_to_charge = return_percent
+            slot = self.route.waypoints[self.resume_index]
+            legs = [leg.pose for leg in self.outbound(slot)]
+            waypoints = self.route.waypoints[self.resume_index + 1:]
+            origin = pad
+        else:
+            waypoints = self.route.waypoints[self.stop_index:]
+            resuming = self.stage == "RESUMING" or (
+                self.pending_descent and self.pending_descent[1] == "RESUMING")
+            legs = [self.coordinates(point) for point in (self.target, *self.resume_legs)] if resuming else []
+            if self.stage in {"WAITING", "VERTICAL_TAKEOFF"}:
+                legs.append(self.coordinates(self.route.takeoff))
+            if resuming and self.pending_descent:
+                legs.insert(1, self.coordinates(self.pending_descent[0]))
+            if not waypoints and not legs:
+                return return_percent
+        return return_to_charge + estimate(self.energy_model, origin,
+                                           [*legs, *(self.coordinates(p) for p in waypoints), pad],
+                                           len(remaining) * 3.)[0]
 
     def energy_return_needed(self):
         index = self.next_inspection_index()
@@ -474,10 +541,18 @@ class Mission(Node):
             self.interruptions.append({"slot": self.target.slot_id, "stage": self.stage,
                                        "sim_time": self.battery["sim_time"]})
         self.return_reason = "Low battery — returning to charging station"
-        route = self.dock_route(self.pose)
-        self.return_track = [list(self.coordinates(self.pose)[:3]), *(list(point[:3]) for point in route)]
-        self.return_legs = [Target(*point) for point in route[:-1]]
-        self.transition("RETURN_TO_DOCK", self.return_legs.pop(0), now, self.return_reason)
+        try:
+            route = self.dock_route(self.pose)
+        except ValueError:
+            self.finish("ABORTED", "No connected aerial return from current odometry", now)
+            return
+        self.return_track = [list(self.coordinates(self.pose)[:3]), *(list(leg.pose[:3]) for leg in route)]
+        self.return_legs = [Target(*leg.pose, phase=leg.phase, gate=leg.gate) for leg in route[:-1]]
+        self.pending_descent = None
+        if self.return_legs:
+            self.transition("RETURN_TO_DOCK", self.return_legs.pop(0), now, self.return_reason)
+        else:
+            self.transition("DOCKING", replace(self.route.pad, z=0.), now, "Landing in the technical dock")
 
     def close_sortie(self, result):
         self.sorties[-1].update({"result": result, "end_percent": self.battery.get("percent"),
@@ -500,7 +575,11 @@ class Mission(Node):
                 self.last_charge_progress = now, self.battery["percent"]
                 self.transition("CHARGING", self.route.pad, now, "Docking confirmed — charging")
         elif self.resume_legs:
-            self.transition("RESUMING", self.resume_legs.pop(0), now, "Resuming through the transfer corridor")
+            leg = self.resume_legs.pop(0)
+            if self.aerial:
+                self.follow_leg(leg, "RESUMING", now)
+            else:
+                self.transition("RESUMING", leg, now, "Resuming through the transfer corridor")
         else:
             self.next_stop(now)
 
@@ -515,9 +594,8 @@ class Mission(Node):
                 self.finish("ABORTED", "A full battery cannot cover the next stop and safe return", now)
                 return
             if self.battery["percent"] >= target and self.battery.get("dock") == "READY":
-                slot = self.coordinates(self.route.waypoints[self.resume_index])
-                route = sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing, slot)
-                self.resume_legs = [Target(*point) for point in route[1:-1]]
+                route = self.outbound(self.route.waypoints[self.resume_index])
+                self.resume_legs = [Target(*leg.pose, phase=leg.phase, gate=leg.gate) for leg in route[1:-1]]
                 self.sorties[-1]["charged_percent"] = self.battery["percent"]
                 self.sorties[-1]["charge_end_sim_time"] = self.battery["sim_time"]
                 self.transition("READY_TO_RESUME", self.route.pad, now, "Battery ready — requesting departure clearance")
@@ -563,6 +641,14 @@ class Mission(Node):
         self.publish_state(now)
 
     def advance(self, now):
+        if self.stage == "WAITING_FOR_AISLE_CLEARANCE":
+            target, stage = self.pending_descent
+            if now - self.stage_since >= .40 and now - self.safety_at <= .45 and self.descents.get(target.gate, {}).get("cleared"):
+                self.pending_descent = None
+                self.transition(stage, target, now, f"Descending through reserved gate {target.gate}")
+            elif now - self.stage_since > 8.:
+                self.finish("ABORTED", f"Descent {target.gate} clearance timed out", now)
+            return
         if self.adaptive and self.stage in {"REPOSITION", "RECENTER", "REINSPECT", "QUALITY_CLOSEUP"}:
             if self.stage in {"REINSPECT", "QUALITY_CLOSEUP"}:
                 self.scan_adaptive(now)
@@ -587,11 +673,11 @@ class Mission(Node):
         if not self.stable(now, duration=.65 if self.stage == "ALIGN" else .45,
                            touchdown=self.stage in {"LAND", "DOCKING"}):
             return
-        if self.stage == "TAKEOFF":
+        if self.stage in {"TAKEOFF", "VERTICAL_TAKEOFF"}:
             self.next_stop(now)
         elif self.stage in {"RETURN_TO_DOCK", "DOCKING", "RESUMING"}:
             self.advance_energy_motion(now)
-        elif self.stage == "CORRIDOR":
+        elif self.stage in AERIAL_MOTION | {"CORRIDOR"}:
             self.stop_index += 1
             self.next_stop(now)
         elif self.stage == "TRANSIT":
@@ -624,6 +710,9 @@ class Mission(Node):
                 self.finish("ABORTED", "Odometry stopped advancing", now)
             elif self.adaptive and self.safety_phase != "RESERVED":
                 self.finish("ABORTED", "Safety Manager revoked the active reservation", now)
+            elif self.aerial and not self.aerial.allows(self.coordinates(self.pose),
+                                                       self.coordinates(self.target), self.route.zones):
+                self.finish("ABORTED", "Odometry or the active segment left the reserved aerial envelope", now)
             elif self.adaptive and self.stage in {"REPOSITION", "RECENTER", "REINSPECT", "QUALITY_CLOSEUP"} and (
                     now >= self.retry_deadline or self.target.slot_id[0] not in self.safety_zones
                     or not self.pose.inside(self.route.retries[self.target.slot_id].bounds, margin=.10)):
@@ -656,6 +745,17 @@ class Mission(Node):
             "landed": self.landed,
             "detail": self.detail,
         }
+        if self.aerial:
+            phase, gate = self.stage, self.target.gate
+            if self.stage == "WAITING_FOR_AISLE_CLEARANCE":
+                gate = self.pending_descent[0].gate
+            elif self.stage in {"RETURN_TO_DOCK", "RESUMING"}:
+                phase = self.target.phase or self.stage
+            elif self.stage in {"INSPECT", "REINSPECT", "QUALITY_CLOSEUP"}:
+                phase = "INSPECTION"
+            elif self.stage == "LAND":
+                phase = "DOCKING"
+            status.update(flight_phase=phase, descent_gate=gate)
         if self.adaptive:
             status["adaptive"] = {"attempt": self.retry_number + 1, "reason": self.attempt_reason,
                                   "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,
@@ -665,15 +765,20 @@ class Mission(Node):
             remaining = [slot.slot_id for slot in self.route.stops if slot.slot_id not in self.completed]
             return_percent = required = None
             if self.pose and self.energy_model:
-                return_percent = round(self.return_cost(self.pose), 2)
-                poses = [self.coordinates(point) for point in self.route.waypoints[self.stop_index:]]
-                dock = [self.coordinates(self.route.takeoff), self.coordinates(self.route.pad)]
-                if self.stage in DOCK_WAIT and self.resume_index is not None:
-                    slot = self.coordinates(self.route.waypoints[self.resume_index])
-                    poses = [*sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing, slot),
-                             *(self.coordinates(point) for point in self.route.waypoints[self.resume_index+1:])]
-                required = round(estimate(self.energy_model, self.coordinates(self.pose), [*poses, *dock],
-                                          len(remaining) * 3.)[0], 2)
+                predicted_return = self.return_cost(self.pose)
+                return_percent = round(predicted_return, 2) if isfinite(predicted_return) else None
+                if self.aerial:
+                    cost = self.aerial_remaining_cost(remaining, predicted_return if isfinite(predicted_return) else None)
+                else:
+                    poses = [self.coordinates(point) for point in self.route.waypoints[self.stop_index:]]
+                    dock = [self.coordinates(self.route.takeoff), self.coordinates(self.route.pad)]
+                    if self.stage in DOCK_WAIT and self.resume_index is not None:
+                        slot = self.route.waypoints[self.resume_index]
+                        poses = [*(leg.pose for leg in self.outbound(slot)),
+                                 *(self.coordinates(point) for point in self.route.waypoints[self.resume_index+1:])]
+                    cost = estimate(self.energy_model, self.coordinates(self.pose), [*poses, *dock],
+                                    len(remaining) * 3.)[0]
+                required = round(cost, 2) if cost is not None else None
             status["energy"] = {
                 "departures": self.departures, "sorties": self.sorties, "completed": self.completed,
                 "remaining": remaining, "interrupted": self.interruptions,
