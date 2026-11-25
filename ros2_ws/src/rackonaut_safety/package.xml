@@ -16,6 +16,7 @@
   <exec_depend>rackonaut_warehouse</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>tf2_msgs</exec_depend>
   <export><build_type>ament_cmake</build_type></export>

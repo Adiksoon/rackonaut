@@ -1,5 +1,6 @@
 """Start a local Control Center with the reference simulator and an optional fixture API."""
 
+import json
 import os
 from pathlib import Path
 
@@ -25,7 +26,13 @@ def setup(context):
     root = Path(os.environ["RACKONAUT_ROOT"])
     warehouse = get_package_share_path("rackonaut_warehouse")
     safety = enabled("safety")
-    world = "safety_showcase.sdf" if safety else "control_showcase.sdf"
+    mode = arg("safety_sensor")
+    if mode not in {"virtual", "laser"} or (mode == "laser" and not safety):
+        raise ValueError("safety_sensor must be virtual or laser. Laser mode requires safety:=true.")
+    laser = mode == "laser"
+    if enabled("laser_rviz") and not laser:
+        raise ValueError("laser_rviz requires safety_sensor:=laser.")
+    world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     if enabled("gazebo_gui"):
         command.append("--gui")
@@ -50,6 +57,7 @@ def setup(context):
         "backend_url": backend,
         "data_dir": data,
         "safety_enabled": safety,
+        "safety_sensor": mode,
     }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
         target_action=process, on_exit=[EmitEvent(event=Shutdown(reason="A Control Center service stopped"))],
@@ -59,18 +67,32 @@ def setup(context):
         config = get_package_share_path("rackonaut_safety") / "config"
         safety_nodes = [
             Node(package="rackonaut_safety", executable="manage", output="screen",
-                 parameters=[{"events_file": str(Path(data) / "safety-events.jsonl")}]),
-            Node(package="rackonaut_safety", executable="infrastructure", output="screen"),
+                 parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode}]),
+            Node(package="rackonaut_safety", executable="infrastructure", output="screen",
+                 parameters=[{"laser_props": laser}]),
             *(Node(package="ros_gz_bridge", executable="parameter_bridge", name=f"safety_{name}_bridge",
                    parameters=[{"config_file": str(config / f"{name}_bridge.yaml")}], output="screen")
-              for name in ("presence", "overview")),
+              for name in ("laser" if laser else "presence", "overview")),
         ]
+        if laser:
+            scanners = json.loads((warehouse / "config/laser_fields.json").read_text())
+            for zone, scanner in scanners.items():
+                x, y, z, yaw = map(str, scanner["pose"])
+                safety_nodes.append(Node(package="tf2_ros", executable="static_transform_publisher",
+                    name=f"safety_scan_tf_{zone.lower()}", arguments=[
+                        "--x", x, "--y", y, "--z", z, "--yaw", yaw,
+                        "--frame-id", "rackonaut_odom", "--child-frame-id", scanner["frame"],
+                    ]))
+            if enabled("laser_rviz"):
+                safety_nodes.append(Node(package="rviz2", executable="rviz2", output="screen",
+                                         arguments=["-d", str(config / "laser_safety.rviz")]))
     return [*on_exit, *processes, *safety_nodes]
 
 
 def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
-                "gazebo_gui": "false", "data_dir": "", "safety": "false"}
+                "gazebo_gui": "false", "data_dir": "", "safety": "false",
+                "safety_sensor": "virtual", "laser_rviz": "false"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

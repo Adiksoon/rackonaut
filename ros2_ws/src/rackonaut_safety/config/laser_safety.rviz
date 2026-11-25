@@ -1,0 +1,66 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Metre grid
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 30
+      Reference Frame: <Fixed Frame>
+    - Class: rviz_default_plugins/LaserScan
+      Name: Aisle A returns
+      Enabled: true
+      Style: Points
+      Size (Pixels): 4
+      Color Transformer: FlatColor
+      Color: 101; 228; 255
+      Decay Time: 0
+      Topic:
+        Value: /rackonaut/safety/scan/a
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+    - Class: rviz_default_plugins/LaserScan
+      Name: Aisle B returns
+      Enabled: true
+      Style: Points
+      Size (Pixels): 4
+      Color Transformer: FlatColor
+      Color: 116; 255; 157
+      Decay Time: 0
+      Topic:
+        Value: /rackonaut/safety/scan/b
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+    - Class: rviz_default_plugins/LaserScan
+      Name: Transfer returns
+      Enabled: true
+      Style: Points
+      Size (Pixels): 4
+      Color Transformer: FlatColor
+      Color: 255; 209; 115
+      Decay Time: 0
+      Topic:
+        Value: /rackonaut/safety/scan/t
+        Reliability Policy: Best Effort
+        Durability Policy: Volatile
+  Enabled: true
+  Global Options:
+    Background Color: 18; 26; 38
+    Fixed Frame: rackonaut_odom
+    Frame Rate: 24
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Scale: 34
+      Target Frame: <Fixed Frame>
+      Angle: 0
+      X: 8
+      Y: -3
+Window Geometry:
+  Height: 720
+  Width: 1150

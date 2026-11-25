@@ -4,6 +4,7 @@ import json
 import re
 from collections import deque
 from datetime import datetime, timezone
+from functools import partial
 from math import hypot, isfinite
 from pathlib import Path
 from time import monotonic, monotonic_ns
@@ -13,11 +14,13 @@ from ament_index_python.packages import get_package_share_path
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+from sensor_msgs.msg import LaserScan
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from tf2_msgs.msg import TFMessage
 
 from .geometry import overlaps, route_zones
+from .laser import LaserPresence
 
 SAFETY = "/rackonaut/safety"
 TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
@@ -35,6 +38,15 @@ class Manager(Node):
         config = get_package_share_path("rackonaut_warehouse") / "config"
         self.fields = json.loads((config / "safety_fields.json").read_text())
         self.pad = json.loads((config / "control_layout.json").read_text())["pad"]
+        self.sensor_mode = self.declare_parameter("sensor_mode", "virtual").value
+        if self.sensor_mode not in {"virtual", "laser"}:
+            raise ValueError("Safety sensor mode must be virtual or laser.")
+        self.laser = None
+        if self.sensor_mode == "laser":
+            scanner_config = json.loads((config / "laser_fields.json").read_text())
+            if scanner_config.keys() != self.fields.keys():
+                raise ValueError("Laser calibration must include each reserved zone.")
+            self.laser = LaserPresence(scanner_config, PRESENCE_TIMEOUT)
         log = self.declare_parameter("events_file", "safety-events.jsonl").value
         self.log = Path(log)
         self.log.parent.mkdir(parents=True, exist_ok=True)
@@ -61,7 +73,11 @@ class Manager(Node):
         self.create_subscription(String, SAFETY + "/request", self.request, reliable)
         self.create_subscription(String, SAFETY + "/signals_applied", self.on_lights, reliable)
         self.create_subscription(String, "/rackonaut/mission/status", self.on_mission, latest)
-        self.create_subscription(TFMessage, SAFETY + "/worker_pose", self.on_presence, qos_profile_sensor_data)
+        if self.laser:
+            for zone, scanner in self.laser.configs.items():
+                self.create_subscription(LaserScan, scanner["topic"], partial(self.on_laser, zone), qos_profile_sensor_data)
+        else:
+            self.create_subscription(TFMessage, SAFETY + "/worker_pose", self.on_presence, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odometry, qos_profile_sensor_data)
         self.state = self.create_publisher(String, SAFETY + "/state", latest)
         self.signals = self.create_publisher(String, SAFETY + "/signals", reliable)
@@ -105,6 +121,9 @@ class Manager(Node):
             return
         self.odom, self.odom_at, self.odom_stamp = (p.x, p.y, p.z, hypot(v.x, v.y, v.z)), monotonic(), stamp
 
+    def on_laser(self, zone, message):
+        self.laser.accept(zone, message, monotonic(), monotonic_ns)
+
     def on_lights(self, message):
         pairs = [item.split("=") for item in message.data.split()]
         if len(pairs) == len(self.fields) and all(len(pair) == 2 for pair in pairs):
@@ -118,9 +137,18 @@ class Manager(Node):
             self.mission, self.mission_at = status, monotonic()
 
     def occupied(self, now):
+        if self.laser:
+            return self.laser.occupied(now)
         if now - self.worker_at > PRESENCE_TIMEOUT:
             return []
         return [zone for zone, bounds in self.fields.items() if overlaps(self.worker, bounds, margin=.28)]
+
+    def sensor_health(self, zone, now):
+        if self.laser:
+            return self.laser.health(zone, now)
+        if self.worker is None:
+            return "UNKNOWN"
+        return "FRESH" if now - self.worker_at <= PRESENCE_TIMEOUT else "STALE"
 
     def at_pad(self, now):
         if now - self.odom_at > ODOM_TIMEOUT:
@@ -129,8 +157,11 @@ class Manager(Node):
         return hypot(x - self.pad["x"], y - self.pad["y"]) <= .28 and abs(z - self.pad["z"]) <= .12 and speed <= .12
 
     def blockers(self, now):
-        if now - self.worker_at > PRESENCE_TIMEOUT:
-            return "Presence sensor is stale or unknown.", self.required, "sensor_fault"
+        failed = [zone for zone in self.required if self.sensor_health(zone, now) != "FRESH"]
+        if failed:
+            reason = ("Laser scan is stale or unknown: " + ", ".join(LABELS[key] for key in failed) + "."
+                      if self.laser else "Presence sensor is stale or unknown.")
+            return reason, failed, "sensor_fault"
         occupied = [zone for zone in self.required if zone in self.occupied(now)]
         if occupied:
             return "Zone occupied: " + ", ".join(LABELS[key] for key in occupied) + ".", occupied, "intrusion"
@@ -172,8 +203,11 @@ class Manager(Node):
     def recover(self, reason, zones, kind):
         self.phase = "RECOVERY"
         self.message = "Operator recovery required. Access remains restricted."
-        first = min((self.occupied_since[key] for key in zones if key in self.occupied_since), default=None)
-        details = {"presence_sample_ns": first} if kind == "intrusion" and first else {}
+        detected = ({key: reading.occupied_since_ns for key, reading in self.laser.readings.items()}
+                    if self.laser else self.occupied_since)
+        first = min((detected[key] for key in zones if detected.get(key) is not None), default=None)
+        timestamp_key = "laser_detection_ns" if self.laser else "presence_sample_ns"
+        details = {timestamp_key: first} if kind == "intrusion" and first is not None else {}
         self.alarm = self.event(kind, reason, zones, **details)
         self.next_abort = 0.
 
@@ -254,15 +288,15 @@ class Manager(Node):
     def tick(self):
         now = monotonic()
         present = self.occupied(now)
-        fresh = now - self.worker_at <= PRESENCE_TIMEOUT
+        health = {key: self.sensor_health(key, now) for key in self.fields}
         for key in self.fields:
             self.clear_since.setdefault(key, now)
-            if not fresh or key in present:
+            if health[key] != "FRESH" or key in present:
                 self.clear_since[key] = now
         self.supervise(now)
         lights = now - self.light_at <= SIGNAL_TIMEOUT
-        verified = fresh and lights and now - self.odom_at <= ODOM_TIMEOUT
-        phases = {key: self.visual_state(key, verified) for key in self.fields}
+        verified = lights and now - self.odom_at <= ODOM_TIMEOUT
+        phases = {key: self.visual_state(key, verified and health[key] == "FRESH") for key in self.fields}
         self.signals.publish(String(data=" ".join(f"{key}={value}" for key, value in phases.items())))
         permit = (self.phase == "RESERVED" and self.mission.get("stage") == "WAITING"
                   and now - self.mission_at < .7 and self.at_pad(now) and lights
@@ -272,18 +306,21 @@ class Manager(Node):
             self.permit_issued = True
             self.event("start_permitted", "Reserved red signals accepted by Gazebo. Start permitted.", self.required)
         busy = self.phase in {"PREPARING", "RESERVED", "RECOVERY"}
+        sensor = next((problem for problem in ("UNKNOWN", "STALE") if problem in health.values()), "FRESH")
         snapshot = {
             "inspection_id": self.run, "phase": self.phase, "permit": permit,
-            "sensor": "FRESH" if fresh else ("STALE" if self.worker is not None else "UNKNOWN"),
+            "sensor": sensor, "sensor_mode": self.sensor_mode,
             "signals_online": lights, "at_pad": self.at_pad(now),
             "required": self.required if busy else [], "message": self.message, "alarm": self.alarm,
             "countdown": round(max(0., PREPARE_SECONDS - (now - self.prepared_at)), 1) if self.phase == "PREPARING" else 0,
             "zones": {key: {"label": LABELS[key], "state": value, "bounds": self.fields[key],
-                            "occupied": key in present if fresh else None,
+                            "sensor": health[key], "occupied": key in present if health[key] == "FRESH" else None,
                             "signals_acknowledged": lights and self.light_state.get(key) == value}
                       for key, value in phases.items()},
             "events": list(self.events),
         }
+        if self.laser:
+            snapshot["scans"] = dict(self.laser.map_data(now))
         self.state.publish(String(data=json.dumps(snapshot, separators=(",", ":"))))
 
 

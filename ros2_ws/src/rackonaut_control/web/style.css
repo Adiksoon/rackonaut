@@ -232,3 +232,13 @@ thead th { color: var(--muted); font-weight: 550; }
   .safety-banner, .safety-grid { grid-template-columns: 1fr; }
   .safety-zones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+#laser-fields, #laser-returns { pointer-events: none; }
+.laser-outline { fill: #54c6fd; fill-opacity: .055; stroke: #75caf7; stroke-width: 1.2; stroke-dasharray: 4 4; }
+.laser-mount { fill: #18566e; stroke: #a5f6ff; stroke-width: 1.6; }
+.laser-label { fill: #adebff; font: 700 8px ui-monospace, monospace; }
+.laser-beams { fill: none; stroke: #60c8ff; stroke-width: .7; stroke-opacity: .25; }
+.laser-return { fill: #81d7ff; fill-opacity: .66; }
+.laser-hit { fill: #ffb369; fill-opacity: .86; }
+.legend-key.scan { background: repeating-linear-gradient(90deg,#75caf7 0 4px,transparent 4px 7px); }
+.legend-key.hit { width: 8px; height: 8px; background: #ffb369; border-radius: 50%; }

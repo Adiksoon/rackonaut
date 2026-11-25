@@ -99,6 +99,34 @@ function drawLayout() {
   }).join(""));
   for (const row of layout.aisles.filter((row) => row.functional)) mapButton(el("aisle-" + row.id), () => toggleAisle(row.id));
   for (const slot of Object.keys(layout.slots)) mapButton(el("slot-" + slot), () => toggleSlot(slot));
+  if (layout.laser_fields) {
+    html("laser-fields", Object.entries(layout.laser_fields).map(([id, scanner]) => {
+      const [left, bottom, right, top] = scanner.field;
+      const [x, y] = scanner.pose;
+      const [px, py] = point(x, y);
+      return rect(left, bottom, right - left, top - bottom, "laser-outline")
+        + `<circle class="laser-mount" cx="${px}" cy="${py}" r="5"/>`
+        + text(x - .60, y - .30, id, "laser-label");
+    }).join(""));
+  }
+}
+
+function drawScans() {
+  if (!layout.laser_fields) return;
+  const scans = state?.safety?.scans || {};
+  html("laser-returns", Object.entries(scans).map(([zone, scan]) => {
+    const [originX, originY] = point(...layout.laser_fields[zone].pose);
+    const rays = scan.points.filter((_, index) => index % 5 === 0).map(([x, y]) => {
+      const [px, py] = point(x, y);
+      return `M${originX} ${originY}L${px} ${py}`;
+    }).join("");
+    const dots = (points, radius, style) => points.map(([x, y]) => {
+      const [px, py] = point(x, y);
+      return `<circle class="${style}" cx="${px}" cy="${py}" r="${radius}"/>`;
+    }).join("");
+    return `<path class="laser-beams" d="${rays}"/>`
+      + dots(scan.points, 1.12, "laser-return") + dots(scan.hits, 2.4, "laser-hit");
+  }).join(""));
 }
 
 function toggleAisle(id) {
@@ -240,11 +268,13 @@ function drawSafety() {
   el("safety-banner").hidden = el("warehouse-safety").hidden = !enabled;
   if (!enabled) return;
   const status = state?.safety;
+  const laser = !!layout.laser_fields;
   const alarm = status?.alarm;
   const zones = status?.zones || {};
   const awaiting = status?.phase === "PREPARING";
   const selected = (preview?.required_zones || []).map(id => zones[id]).filter(Boolean);
-  const unavailable = !status || status.sensor !== "FRESH" || !status.signals_online;
+  const checked = selected.length ? selected : Object.values(zones);
+  const unavailable = !status || !status.signals_online || checked.some(zone => zone.sensor !== "FRESH");
   const occupied = selected.filter(zone => zone.occupied).map(zone => zone.label);
   let title = "Ready to request inspection";
   let message = "Selected zones clear • Verify access before dispatch.";
@@ -272,7 +302,8 @@ function drawSafety() {
     style = "fault";
   } else if (unavailable || occupied.length) {
     title = "Hold · Selected scope unavailable";
-    message = unavailable ? "Waiting for verified sensor and signal data." : `Worker present · ${occupied.join(", ")}`;
+    message = unavailable ? "Waiting for verified sensor and signal data."
+      : `${laser ? "Obstacle detected" : "Worker present"} · ${occupied.join(", ")}`;
     style = "fault";
   } else if (status.phase === "RELEASED") {
     title = "Inspection completed · Access restored";
@@ -284,16 +315,20 @@ function drawSafety() {
   el("safety-banner").dataset.access = style;
   put("safety-headline", title);
   put("safety-message", message);
-  put("sensor-state", status?.sensor === "FRESH" ? "Presence feed live" : status?.sensor === "STALE" ? "Presence feed stale" : "Presence unknown");
+  const source = laser ? "Laser scan" : "Presence feed";
+  put("sensor-state", source + (status?.sensor === "FRESH" ? " live" : status?.sensor === "STALE" ? " stale" : " unknown"));
   el("sensor-state").classList.toggle("good", status?.sensor === "FRESH");
   const byName = { A: "Aisle A", B: "Aisle B", T: "Transfer corridor & pad", C: "Aisle C" };
   html("safety-zones", ["A", "B", "T", "C"].map(id => {
     const zone = zones[id];
     const state = zone?.state || (id === "C" ? "UNMONITORED" : "FAULT");
-    const detected = zone?.occupied === true ? "Worker present" : zone?.occupied === false ? "Clear field" : "Unknown presence";
+    const detected = zone?.occupied === true ? (laser ? "Obstacle detected" : "Worker present")
+      : zone?.occupied === false ? "Clear field" : "Unknown presence";
+    const age = status?.scans?.[id]?.age_ms;
+    const scanner = laser && zone ? ` · ${label(zone.sensor)}${age == null ? "" : ` ${age} ms`}` : "";
     return `<div class="safety-zone access-${state.toLowerCase()}">
       <strong>${byName[id]}</strong><span class="access-label"><i></i>${label(state)}</span>
-      <small>${id === "C" ? "Decorative aisle" : detected + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
+      <small>${id === "C" ? "Decorative aisle" : detected + scanner + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
   }).join(""));
   const reservations = (status?.required || state?.last_reservation || []).map(id => byName[id]);
   put("zone-reservations", status
@@ -347,6 +382,7 @@ function draw() {
   put("metric-damaged", job?.quality ? new Set(job.evidence.filter((r) => r.status === "DAMAGED").map((r) => r.slot_id + "/" + r.pallet_id)).size : "—");
   put("metric-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
+  drawScans();
   drawSafety();
   drawResults(job);
 }
@@ -376,6 +412,10 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  if (layout.laser_fields) {
+    for (const id of ["laser-field-key", "laser-hit-key", "obstacle-controls"]) el(id).hidden = false;
+    put("sensor-source", "3 simulated GPU LiDARs · Live LaserScan · Dashed fields show measured scope");
+  }
   el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
   drawLayout();
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
@@ -413,6 +453,16 @@ async function init() {
     try {
       await api("/api/simulation/worker", { target });
       put("worker-message", "Movement requested. Watch the live model and presence status.");
+    } catch (error) {
+      put("worker-message", error.message);
+    }
+  });
+  el("obstacle-controls").addEventListener("click", async (event) => {
+    const target = event.target.dataset.obstacle;
+    if (!target) return;
+    try {
+      await api("/api/simulation/obstacle", { target });
+      put("worker-message", "Gazebo movement requested. Watch live returns before dispatch.");
     } catch (error) {
       put("worker-message", error.message);
     }

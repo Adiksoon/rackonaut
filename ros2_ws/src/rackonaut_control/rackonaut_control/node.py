@@ -72,6 +72,7 @@ class Control(Node):
         super().__init__("rackonaut_control")
         self.port = self.declare_parameter("http_port", 8765).value
         self.safety_enabled = self.declare_parameter("safety_enabled", False).value
+        self.laser_enabled = self.declare_parameter("safety_sensor", "virtual").value == "laser"
         self.backend = self.declare_parameter("backend_url", "http://127.0.0.1:8000").value.rstrip("/")
         self.data = Path(self.declare_parameter("data_dir", "control").value).expanduser().resolve()
         self.data.mkdir(parents=True, exist_ok=True)
@@ -80,6 +81,8 @@ class Control(Node):
         self.layout = json.loads((warehouse / "config/control_layout.json").read_text())
         if self.safety_enabled:
             self.layout["safety_fields"] = json.loads((warehouse / "config/safety_fields.json").read_text())
+        if self.laser_enabled:
+            self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
         self.odom_at = 0.
@@ -99,6 +102,8 @@ class Control(Node):
         if self.safety_enabled:
             self.safety_request = self.create_publisher(String, "/rackonaut/safety/request", 5)
             self.worker_control = self.create_publisher(String, "/rackonaut/safety/simulation/worker_target", 5)
+            if self.laser_enabled:
+                self.obstacle_control = self.create_publisher(String, "/rackonaut/safety/simulation/obstacle_target", 5)
             self.create_subscription(String, "/rackonaut/safety/state", self.on_safety, latest)
             self.create_subscription(Image, "/rackonaut/safety/overview", self.on_overview, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odom, qos_profile_sensor_data)
@@ -192,6 +197,15 @@ class Control(Node):
         self.worker_control.publish(String(data=target))
         return {"accepted": True}
 
+    def move_obstacle(self, request):
+        target = request.get("target")
+        if not isinstance(target, str) or target not in {"forklift_a", "pallet_b", "clear"}:
+            raise ValueError("Choose an available simulation obstacle action.")
+        if not self.safety_enabled or not self.laser_enabled or not self.obstacle_control.get_subscription_count():
+            raise RuntimeError("Simulation obstacle controls are unavailable.")
+        self.obstacle_control.publish(String(data=target))
+        return {"accepted": True}
+
     def update_camera(self, message, source):
         now = monotonic()
         if self.camera_type == source and now - self.camera_at < .09:
@@ -260,6 +274,8 @@ class Control(Node):
             route = directory / "route.json"
             route.write_text(json.dumps(planned["route"], indent=2) + "\n")
             common = {"use_sim_time": "true", "inspection_id": run, "backend_url": self.backend}
+            # Lidar rendering reduces the wall-clock rate of the onboard camera.
+            scan_hold = "2.5" if self.laser_enabled else "1.3"
             processes = []
             try:
                 processes.append(self.spawn(directory, "rackonaut_perception", "inspect", {
@@ -267,7 +283,7 @@ class Control(Node):
                     "quality_enabled": str(planned["quality"]).lower(), "quality_dir": self.data / "quality",
                 }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
-                    **common, "route_file": route, "scan_hold_seconds": "1.3" if planned["quality"] else "0.0",
+                    **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
                     "safety_interlock": str(self.safety_enabled).lower(),
                 }))
             except OSError:

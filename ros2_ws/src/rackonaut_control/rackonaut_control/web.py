@@ -71,7 +71,7 @@ def serve(control, port):
                 if not isinstance(selection, dict):
                     raise ValueError("Expected a JSON object.")
                 actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort,
-                           "/api/simulation/worker": control.move_worker}
+                           "/api/simulation/worker": control.move_worker, "/api/simulation/obstacle": control.move_obstacle}
                 action = actions.get(urlsplit(self.path).path)
                 if action:
                     self.json(200, action(selection))

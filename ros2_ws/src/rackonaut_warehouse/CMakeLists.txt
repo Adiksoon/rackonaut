@@ -30,11 +30,22 @@ add_custom_command(OUTPUT "${safety_world}" "${safety_fields}"
   VERBATIM)
 add_custom_target(safety_showcase ALL DEPENDS "${safety_world}" "${safety_fields}")
 
+set(laser_world "${CMAKE_CURRENT_BINARY_DIR}/laser_safety_showcase.sdf")
+set(laser_fields "${CMAKE_CURRENT_BINARY_DIR}/laser_fields.json")
+add_custom_command(OUTPUT "${laser_world}" "${laser_fields}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --laser "${laser_fields}" --output "${laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(laser_safety_showcase ALL DEPENDS "${laser_world}" "${laser_fields}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${control_layout}" "${control_markers}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${safety_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${safety_fields}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${laser_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

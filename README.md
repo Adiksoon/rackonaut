@@ -10,6 +10,8 @@ The [Warehouse Control Center](ros2_ws/src/rackonaut_control/README.md) lets an 
 
 The [Warehouse Safety showcase](ros2_ws/src/rackonaut_safety/README.md) adds aisle reservations, live signal towers and a simulated worker to the Control Center.
 
+The [sensor-based safety showcase](ros2_ws/src/rackonaut_safety/docs/SENSOR_SAFETY.md) adds live GPU LiDAR returns, calibrated fields and movable obstacles.
+
 The [complete demo guide](docs/DEMO_COMPLETE.md) covers the `demo-complete` tag, launch, full inventory, reinspection and team handoff.
 
 | Role | Guide | AI starter prompt | Suggested branch |

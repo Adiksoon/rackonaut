@@ -1,0 +1,15 @@
+- ros_topic_name: /rackonaut/safety/scan/a
+  gz_topic_name: /rackonaut/safety/scan/a
+  ros_type_name: sensor_msgs/msg/LaserScan
+  gz_type_name: gz.msgs.LaserScan
+  direction: GZ_TO_ROS
+- ros_topic_name: /rackonaut/safety/scan/b
+  gz_topic_name: /rackonaut/safety/scan/b
+  ros_type_name: sensor_msgs/msg/LaserScan
+  gz_type_name: gz.msgs.LaserScan
+  direction: GZ_TO_ROS
+- ros_topic_name: /rackonaut/safety/scan/t
+  gz_topic_name: /rackonaut/safety/scan/t
+  ros_type_name: sensor_msgs/msg/LaserScan
+  gz_type_name: gz.msgs.LaserScan
+  direction: GZ_TO_ROS

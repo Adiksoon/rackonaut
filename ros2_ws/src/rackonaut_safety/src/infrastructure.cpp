@@ -35,6 +35,8 @@ const std::map<std::string, Colour> lamps{
 const Colour dark{.065f, .076f, .085f};
 const Colour black{0.f, 0.f, 0.f};
 const std::string world = "/world/rackonaut";
+const Point forklift_park{1.95, 7.9};
+const Point pallet_park{2.0, 9.8};
 
 void colour(ignition::msgs::Color *value, const Colour &rgb) {
   value->set_r(rgb[0]);
@@ -67,8 +69,16 @@ class Infrastructure : public rclcpp::Node {
     worker_control_ = create_subscription<std_msgs::msg::String>(
         "/rackonaut/safety/simulation/worker_target", 5,
         [this](const std_msgs::msg::String &message) { select_worker_target(message.data); });
+    if (declare_parameter("laser_props", false)) {
+      obstacles_ = create_subscription<std_msgs::msg::String>(
+          "/rackonaut/safety/simulation/obstacle_target", 5,
+          [this](const std_msgs::msg::String &message) { select_obstacles(message.data); });
+    }
     lights_timer_ = create_wall_timer(100ms, [this] { update_lamps(); });
-    movement_timer_ = create_wall_timer(65ms, [this] { move_worker(); });
+    movement_timer_ = create_wall_timer(65ms, [this] {
+      step_model("safety_worker", worker_, queue_, .101);
+      step_model("safety_forklift", forklift_, forklift_queue_, .14);
+    });
   }
 
  private:
@@ -142,43 +152,59 @@ class Infrastructure : public rclcpp::Node {
     queue_ = {{3.68, worker_[1]}, {3.68, point[1]}, point};
   }
 
-  void move_worker() {
-    if (queue_.empty())
+  void select_obstacles(const std::string &choice) {
+    if (choice == "forklift_a") {
+      forklift_queue_ = {{2.55, forklift_[1]}, {2.55, .87}, {7.15, .87}};
+    } else if (choice == "pallet_b") {
+      set_pose("safety_pallet", {6.65, -6.10}, 0.);
+    } else if (choice == "clear") {
+      forklift_queue_ = {{2.55, forklift_[1]}, {2.55, forklift_park[1]}, forklift_park};
+      set_pose("safety_pallet", pallet_park, 0.);
+    }
+  }
+
+  void step_model(const std::string &model, Point &current, std::deque<Point> &queue, double metres) {
+    if (queue.empty())
       return;
-    auto [x, y] = queue_.front();
-    const double dx = x - worker_[0], dy = y - worker_[1];
+    auto [x, y] = queue.front();
+    const double dx = x - current[0], dy = y - current[1];
     const double distance = std::hypot(dx, dy);
     if (distance < 1e-6) {
-      queue_.pop_front();
+      queue.pop_front();
       return;
     }
-    const double step = std::min(1., .101 / distance), half = std::atan2(dy, dx) * .5;
-    Point next{worker_[0] + dx * step, worker_[1] + dy * step};
+    const double step = std::min(1., metres / distance);
+    Point next{current[0] + dx * step, current[1] + dy * step};
+    if (set_pose(model, next, std::atan2(dy, dx))) {
+      current = next;
+      if (step == 1.)
+        queue.pop_front();
+    }
+  }
+
+  bool set_pose(const std::string &model, const Point &point, double yaw) {
     ignition::msgs::Pose request;
-    request.set_name("safety_worker");
-    request.mutable_position()->set_x(next[0]);
-    request.mutable_position()->set_y(next[1]);
-    request.mutable_orientation()->set_z(std::sin(half));
-    request.mutable_orientation()->set_w(std::cos(half));
+    request.set_name(model);
+    request.mutable_position()->set_x(point[0]);
+    request.mutable_position()->set_y(point[1]);
+    request.mutable_orientation()->set_z(std::sin(yaw * .5));
+    request.mutable_orientation()->set_w(std::cos(yaw * .5));
     ignition::msgs::Boolean reply;
     bool result = false;
-    if (transport_.Request(world + "/set_pose", request, 100, reply, result) && result && reply.data()) {
-      worker_ = next;
-      if (step == 1.)
-        queue_.pop_front();
-    }
+    return transport_.Request(world + "/set_pose", request, 100, reply, result) && result && reply.data();
   }
 
   ignition::transport::Node transport_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr ack_;
-  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr control_, worker_control_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr control_, worker_control_, obstacles_;
   rclcpp::TimerBase::SharedPtr lights_timer_, movement_timer_;
   Phases phases_;
   std::chrono::steady_clock::time_point command_at_;
   std::map<std::pair<std::string, std::string>, uint32_t> lenses_;
   std::map<uint32_t, bool> applied_;
   Point worker_;
-  std::deque<Point> queue_;
+  Point forklift_ = forklift_park;
+  std::deque<Point> queue_, forklift_queue_;
 };
 
 int main(int argc, char **argv) {

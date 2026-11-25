@@ -43,9 +43,11 @@ def add(parent, tag, value=None, **attributes):
     return item
 
 
-def link(world, name):
+def link(world, name, pose=None):
     model = add(world, "model", name=name)
     add(model, "static", "true")
+    if pose:
+        add(model, "pose", pose)
     return add(model, "link", name="body")
 
 
@@ -299,7 +301,7 @@ def signs(world, rows, inspection_y):
         cargo(decor, f"staged_{index}", x, y, .01, random.Random(index + 28), detailed=True)
 
 
-def safety_infrastructure(world, aisles, rack_end):
+def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True):
     # The fields meet at x=3.4, before the front faces at x=4.1.
     fields = {"A": [3.4, -2.4, rack_end + 1.1, 2.4],
               "B": [3.4, -8.4, rack_end + 1.1, -3.6],
@@ -349,17 +351,18 @@ def safety_infrastructure(world, aisles, rack_end):
         material(part, colour)
     box(body, "brim", (.047, 0, 1.66), (.30, .27, .026), vest)
     box(body, "person_envelope", (0, 0, .89), (.30, .53, 1.77), collision=True)
-    pose = add(worker, "plugin", filename="ignition-gazebo-pose-publisher-system",
-               name="ignition::gazebo::systems::PosePublisher")
-    for tag, value in (("publish_link_pose", "false"), ("publish_model_pose", "true"), ("publish_nested_model_pose", "true"),
-                       ("use_pose_vector_msg", "true"), ("update_frequency", 15)):
-        add(pose, tag, value)
+    if virtual_sensor:
+        pose = add(worker, "plugin", filename="ignition-gazebo-pose-publisher-system",
+                   name="ignition::gazebo::systems::PosePublisher")
+        for tag, value in (("publish_link_pose", "false"), ("publish_model_pose", "true"), ("publish_nested_model_pose", "true"),
+                           ("use_pose_vector_msg", "true"), ("update_frequency", 15)):
+            add(pose, tag, value)
 
     overview = link(world, "safety_overview")
     camera = add(overview, "sensor", name="warehouse_access", type="camera")
     add(camera, "pose", "-2.3 -3.2 7.4 0 0.59 0.03")
     add(camera, "always_on", "true")
-    add(camera, "update_rate", 5)
+    add(camera, "update_rate", 5 if virtual_sensor else 3)
     add(camera, "topic", "/rackonaut_safety/overview")
     optics = add(camera, "camera")
     add(optics, "horizontal_fov", 1.56)
@@ -371,6 +374,68 @@ def safety_infrastructure(world, aisles, rack_end):
     add(clip, "near", .15)
     add(clip, "far", 43)
     return fields
+
+
+def scanner_infrastructure(world):
+    scanners = {
+        "A": {"pose": [3.10, -1.92, .115, .58], "field": [3.50, -1.56, 15.0, 1.60], "arc": [-.92, .96]},
+        "B": {"pose": [3.10, -7.92, .115, .58], "field": [3.50, -7.56, 11.0, -4.40], "arc": [-.92, .96]},
+        "T": {"pose": [2.77, 1.85, .115, -1.5708], "field": [1.45, -7.50, 2.95, 1.05], "arc": [-1.20, 1.20]},
+    }
+    for zone, config in scanners.items():
+        name = f"safety_scan_{zone.lower()}"
+        x, y, z, yaw = config["pose"]
+        config.update(topic=f"/rackonaut/safety/scan/{zone.lower()}", frame=f"{name}/body/scan", samples=512)
+        mount = link(world, name)
+        box(mount, "mount", (x, y, .038), (.13, .13, .076), (.09, .13, .18))
+        box(mount, "scanner", (x, y, .138), (.14, .14, .097), (.055, .22, .29))
+        box(mount, "lens", (x, y, .157), (.15, .15, .027), (.10, .87, .93))
+        lidar = add(mount, "sensor", name="scan", type="gpu_lidar")
+        add(lidar, "pose", numbers((x, y, z, 0, 0, yaw)))
+        add(lidar, "topic", config["topic"])
+        add(lidar, "always_on", "true")
+        add(lidar, "update_rate", 4)
+        add(lidar, "visualize", "true")
+        ray = add(lidar, "lidar")
+        horizontal = add(add(ray, "scan"), "horizontal")
+        for tag, value in (("samples", config["samples"]), ("resolution", 1),
+                           ("min_angle", config["arc"][0]), ("max_angle", config["arc"][1])):
+            add(horizontal, tag, value)
+        limits = add(ray, "range")
+        for tag, value in (("min", .12), ("max", 15), ("resolution", .008)):
+            add(limits, tag, value)
+    return scanners
+
+
+def scanner_props(world):
+    forklift = link(world, "safety_forklift", "1.95 7.9 0 0 0 0")
+    yellow, steel, rubber = (.92, .58, .05), (.16, .20, .25), (.043, .049, .055)
+    box(forklift, "chassis", (-.25, 0, .41), (1.46, .83, .53), yellow, collision=True)
+    box(forklift, "counterweight", (-.91, 0, .55), (.27, .86, .49), yellow)
+    box(forklift, "seat", (-.34, 0, .86), (.40, .41, .16), rubber)
+    box(forklift, "seatback", (-.55, 0, 1.02), (.10, .40, .27), rubber)
+    box(forklift, "roof", (-.23, 0, 1.88), (1.21, .89, .09), steel)
+    for side in (-1, 1):
+        y = side * .41
+        for x in (-.64, .28):
+            part = add(forklift, "visual", name=f"tire_{side}_{x}")
+            add(part, "pose", numbers((x, y, .27, 1.5708, 0, 0)))
+            cylinder = add(add(part, "geometry"), "cylinder")
+            add(cylinder, "radius", .265)
+            add(cylinder, "length", .19)
+            material(part, rubber)
+            box(forklift, f"wheel_collision_{side}_{x}", (x, y, .17), (.32, .20, .34), collision=True)
+            box(forklift, f"cage_{side}_{x}", (x, y, 1.25), (.077, .072, 1.19), steel)
+        box(forklift, f"mast_{side}", (.59, y * .65, 1.03), (.13, .096, 1.82), steel)
+        box(forklift, f"fork_{side}", (1.01, y * .59, .136), (.90, .10, .079), steel, collision=True)
+    box(forklift, "fork_carriage", (.63, 0, .71), (.08, .64, .11), steel)
+    box(forklift, "beacon", (-.20, 0, 1.97), (.12, .15, .10), YELLOW)
+
+    pallet = link(world, "safety_pallet", "2.0 9.8 0 0 0 0")
+    for x in (-.43, 0., .43):
+        box(pallet, f"runner_{x}", (x, 0, .073), (.096, .79, .126), (.48, .30, .15), collision=True)
+    for y in (-.31, -.155, 0., .155, .31):
+        box(pallet, f"deck_{y}", (0, y, .148), (1.02, .121, .038), (.60, .42, .23), collision=True)
 
 
 def generate(args):
@@ -392,9 +457,13 @@ def generate(args):
         rack(world, index, y, args, rng, index == inspection, rows)
     signs(world, aisles, positions[inspection])
     if args.safety:
-        fields = safety_infrastructure(world, aisles, 5.5 + (args.bays - .5) * args.bay_pitch)
+        fields = safety_infrastructure(world, aisles, 5.5 + (args.bays - .5) * args.bay_pitch, not args.laser)
         if args.layout:
             args.layout.write_text(json.dumps(fields, indent=2) + "\n")
+        if args.laser:
+            scanners = scanner_infrastructure(world)
+            scanner_props(world)
+            args.laser.write_text(json.dumps(scanners, indent=2) + "\n")
     ET.indent(sdf, space="  ")
     ET.ElementTree(sdf).write(args.output, encoding="utf-8", xml_declaration=True)
     if args.layout and not args.safety:
@@ -510,6 +579,7 @@ def main():
     parser.add_argument("--quality", action="store_true", help="stage visible carton defects in a separate output world")
     parser.add_argument("--control", action="store_true", help="add the functional aisle B to the three-aisle showcase")
     parser.add_argument("--safety", action="store_true", help="add access control to the control showcase")
+    parser.add_argument("--laser", type=Path, help="add GPU LiDAR and write its calibration and fields")
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -519,6 +589,8 @@ def main():
         parser.error("--layout and --marker-map require --control")
     if args.safety and (not args.control or not args.quality or args.marker_map):
         parser.error("--safety requires --control and --quality and publishes separate zone geometry")
+    if args.laser and not args.safety:
+        parser.error("--laser requires --safety")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")
