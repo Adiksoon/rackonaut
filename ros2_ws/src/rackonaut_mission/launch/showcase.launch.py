@@ -30,12 +30,19 @@ def setup(context):
     root = Path(root_dir)
     share = get_package_share_path("rackonaut_mission")
     backend, run = arg("backend_url"), arg("inspection_id")
-    sim = [str(root / "scripts/robotics/reference"), "--world", arg("world")]
+    quality = enabled("quality")
+    warehouse = get_package_share_path("rackonaut_warehouse")
+    default_world = warehouse / "worlds" / ("quality_showcase.sdf" if quality else "showcase.sdf")
+    sim = [str(root / "scripts/robotics/reference"), "--world", arg("world") or str(default_world)]
     if enabled("gazebo_gui"):
         sim.append("--gui")
     world = ExecuteProcess(cmd=sim, cwd=str(root), name="warehouse_and_reference_drone", output="screen")
     shared = {"use_sim_time": True, "inspection_id": run, "backend_url": backend}
-    vision = Node(package="rackonaut_perception", executable="inspect", output="screen", parameters=[shared])
+    quality_settings = {"quality_enabled": quality}
+    if arg("quality_dir"):
+        quality_settings["quality_dir"] = arg("quality_dir")
+    vision = Node(package="rackonaut_perception", executable="inspect", output="screen",
+                  parameters=[shared, quality_settings])
     mission = Node(package="rackonaut_mission", executable="run_mission", output="screen", parameters=[
         shared,
         {"route_file": arg("route"), "autostart": enabled("autostart"), "land": enabled("land")},
@@ -72,7 +79,6 @@ def setup(context):
 
 def generate_launch_description():
     share = get_package_share_path("rackonaut_mission")
-    warehouse = get_package_share_path("rackonaut_warehouse")
     now = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
     arguments = {
         "inspection_id": f"INS-MISSION-{now}-{uuid4().hex[:4].upper()}",
@@ -85,7 +91,9 @@ def generate_launch_description():
         "autostart": "true",
         "land": "true",
         "route": str(share / "config/showcase.json"),
-        "world": str(warehouse / "worlds/showcase.sdf"),
+        "world": "",
+        "quality": "false",
+        "quality_dir": "",
     }
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in arguments.items()),

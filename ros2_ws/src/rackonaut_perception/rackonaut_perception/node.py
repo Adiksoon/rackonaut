@@ -1,11 +1,14 @@
 """Synchronize ROS frames, publish the overlay and deliver stable readings asynchronously."""
 
+import os
 import re
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from pathlib import Path
 from time import monotonic
 from urllib.parse import urlsplit
 
+import cv2
 import message_filters
 import rclpy
 from ament_index_python.packages import get_package_share_path
@@ -18,6 +21,8 @@ from std_srvs.srv import Trigger
 
 from .observations import StableReadings, observation, post_observation
 from .overlay import OverlayState, render
+from .quality import inspect_carton
+from .quality_evidence import QualityEvidence
 from .vision import Inspector, load_markers
 
 
@@ -34,6 +39,8 @@ class Perception(Node):
             "backend_url": "",
             "stable_frames": 4,
             "uncertain_frames": 8,
+            "quality_enabled": False,
+            "quality_dir": str(Path(os.environ.get("ROS_LOG_DIR", Path.home() / ".ros" / "log")) / "quality"),
         }
         parameters = {name: self.declare_parameter(name, value).value for name, value in defaults.items()}
         run_id = parameters["inspection_id"]
@@ -49,6 +56,8 @@ class Perception(Node):
         locations, pallets = load_markers(parameters["marker_map"])
         self.inspector = Inspector(locations, pallets)
         self.gate = StableReadings(parameters["stable_frames"], parameters["uncertain_frames"])
+        self.quality = QualityEvidence(parameters["quality_dir"], run_id) if parameters["quality_enabled"] else None
+        self.inventory = {}
         self.state = OverlayState(run_id, total=len(locations))
         if self.backend:
             self.state.api_status, self.state.api_detail = "READY", "Waiting for a stable reading"
@@ -114,6 +123,8 @@ class Perception(Node):
             payload = observation(self.state.inspection_id, reading, captured)
             self.gate.record(reading)
             self.inspected.add(payload["slot_id"])
+            if self.quality is not None:
+                self.inventory[payload["slot_id"]] = payload
             self.get_logger().info(
                 f"Observation {payload['slot_id']}: {payload['occupancy']} / {payload['label_status']} / "
                 f"{payload['pallet_id'] or '-'}"
@@ -123,7 +134,24 @@ class Perception(Node):
                 self.pending[future] = payload
                 self.state.api_status, self.state.api_detail = "SENDING", f"{payload['slot_id']} queued"
         self.state.inspected = len(self.inspected)
-        annotated = self.bridge.cv2_to_imgmsg(render(native, result, self.state), "bgr8")
+        if self.quality is None:
+            panel = render(native, result, self.state)
+        else:
+            verdicts = {reading.slot.name: inspect_carton(native, reading) for reading in result.readings
+                        if reading.classification.occupancy != "empty"}
+            ready = self.quality.ready(verdicts, result.readings, self.inventory, now)
+            panel = render(native, result, self.state, verdicts, self.quality.damage_count(ready))
+            for item in ready:
+                try:
+                    path = self.quality.save(item, native, panel, captured, image.header)
+                except (OSError, cv2.error) as error:
+                    self.quality.retry_at = now + 1.
+                    self.get_logger().warning(f"Cannot save quality evidence: {error}", throttle_duration_sec=3.0)
+                    break
+                key, verdict, observation_event = item
+                self.get_logger().info(f"Quality {verdict.status} {key[0]} / {key[1] or '-'} "
+                                       f"{path.name} linked to {observation_event['observation_id']}")
+        annotated = self.bridge.cv2_to_imgmsg(panel, "bgr8")
         annotated.header = image.header
         self.output.publish(annotated)
 

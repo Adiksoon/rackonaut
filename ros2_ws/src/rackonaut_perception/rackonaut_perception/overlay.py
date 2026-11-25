@@ -14,6 +14,8 @@ GREEN = (151, 231, 70)
 AMBER = (65, 191, 255)
 CYAN = (248, 213, 107)
 GRAY = (168, 159, 151)
+RED = (99, 105, 255)
+QUALITY_COLOURS = {"OK": GREEN, "DAMAGED": RED, "UNCERTAIN": AMBER}
 FONT = cv2.FONT_HERSHEY_DUPLEX
 
 
@@ -45,12 +47,30 @@ def crop_polygon(polygon, factor, origin):
     return np.rint(np.clip(polygon * factor + origin, -10000, 10000)).astype(np.int32)
 
 
-def render(image, result, state):
+def draw_quality(view, verdicts, scale, origin):
+    for verdict in verdicts.values():
+        outline = verdict.defect if verdict.defect is not None else verdict.region
+        if outline is None:
+            continue
+        points = crop_polygon(outline, scale, origin)
+        if points is None:
+            continue
+        shade = QUALITY_COLOURS[verdict.status]
+        cv2.polylines(view, [points], True, (15, 15, 19), 5, cv2.LINE_AA)
+        cv2.polylines(view, [points], True, shade, 3, cv2.LINE_AA)
+        x, y = points.min(axis=0)
+        caption = f"CARTON {verdict.status}"
+        text(view, caption, max(6, x), max(18, y - 10), .56, (10, 10, 10), 4)
+        text(view, caption, max(6, x), max(18, y - 10), .56, shade, 1)
+
+
+def render(image, result, state, verdicts=None, damage_count=0):
     canvas = np.full((684, 1200, 3), BACKGROUND, dtype=np.uint8)
     cv2.rectangle(canvas, (0, 0), (1199, 74), PANEL, -1)
     cv2.rectangle(canvas, (0, 0), (7, 73), GREEN, -1)
     text(canvas, "RACKONAUT", 26, 45, 1.14, WHITE, 2)
-    text(canvas, "LIVE INVENTORY INSPECTION", 247, 44, .48, MUTED)
+    subtitle = "LIVE INVENTORY INSPECTION" if verdicts is None else "LIVE INVENTORY + PACKAGE QUALITY"
+    text(canvas, subtitle, 247, 44, .48, MUTED)
     text(canvas, state.inspection_id[:35], 758, 44, .57, CYAN, 1)
     text(canvas, f"{state.fps:04.1f} FPS", 1050, 44, .67, GREEN, 2)
 
@@ -74,6 +94,8 @@ def render(image, result, state):
         x, y = polygon.min(axis=0)
         text(view, tag.name, max(6, x), max(17, y - 8), .48, (10, 10, 10), 3)
         text(view, tag.name, max(6, x), max(17, y - 8), .48, c, 1)
+    if verdicts is not None:
+        draw_quality(view, verdicts, scale, zero)
     # Preserve the camera's aspect ratio inside a fixed presentation frame.
     xv, yv = 22 + (760 - vw) // 2, 94 + (560 - vh) // 2
     cv2.rectangle(canvas, (21, 93), (782, 654), LINE, 1)
@@ -102,7 +124,18 @@ def render(image, result, state):
         text(canvas, reading.classification.occupancy.upper(), x + 207, y + 25, .45, result_colour)
         label = reading.classification.pallet_id or reading.classification.label_status.replace("_", " ")
         text(canvas, f"Label  /  {label}", x + 31, y + 46, .45, result_colour)
-        text(canvas, reading.reason, x + 31, y + 66, .43, MUTED)
-    text(canvas, "CYAN  LOCATION   GREEN  PALLET", x + 17, 622, .41, MUTED)
-    text(canvas, "OUTLINES  LABEL REGION + SHELF BAND", x + 17, 642, .39, MUTED)
+        if verdicts is None:
+            text(canvas, reading.reason, x + 31, y + 66, .43, MUTED)
+        else:
+            verdict = verdicts.get(reading.slot.name)
+            status = verdict.status if verdict is not None else "NO CARTON"
+            text(canvas, f"Quality  /  {status}", x + 31, y + 67, .49, QUALITY_COLOURS.get(status, GRAY))
+    if verdicts is None:
+        text(canvas, "CYAN  LOCATION   GREEN  PALLET", x + 17, 622, .41, MUTED)
+        text(canvas, "OUTLINES  LABEL REGION + SHELF BAND", x + 17, 642, .39, MUTED)
+    else:
+        cv2.line(canvas, (x + 16, 596), (1158, 596), LINE, 1)
+        text(canvas, "PACKAGE QUALITY", x + 17, 619, .42, MUTED)
+        text(canvas, f"{damage_count:02d} DAMAGED", x + 17, 644, .62, RED if damage_count else GRAY, 1)
+        text(canvas, "VISIBLE CARTON FACE", x + 200, 643, .34, MUTED)
     return canvas

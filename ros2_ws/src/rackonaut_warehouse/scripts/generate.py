@@ -16,6 +16,7 @@ ORANGE = (0.91, 0.33, 0.055)
 YELLOW = (0.91, 0.64, 0.09)
 CARTONS = [(0.63, 0.42, 0.23), (0.81, 0.62, 0.41), (0.52, 0.35, 0.23),
            (0.28, 0.41, 0.34), (0.67, 0.68, 0.60), (0.35, 0.46, 0.59)]
+KRAFT = (0.72, 0.52, 0.32)
 
 # The IDs match the existing backend fixture. The physical layout has two
 # levels per bay. The last three cases also have a system-level dimension.
@@ -161,7 +162,40 @@ def paint(world, rows, aisle_width):
         box(marks, f"dock_bar_{index}", (-4.7 + index * .9, -7.38, .027), (.40, .12, .016), YELLOW)
 
 
-def cargo(parent, key, x, y, deck, rng, detailed=False, collision=False):
+def quality_carton(parent, key, x, y, z, shape):
+    """Build the carton above the unchanged skid and behind the pallet placard."""
+    def part(name, offset, size, colour):
+        box(parent, f"{key}_quality_{name}", tuple(a + b for a, b in zip((x, y, z), offset)), size, colour)
+
+    def surface(name, colour):
+        visual = add(parent, "visual", name=f"{key}_quality_{name}")
+        add(visual, "pose", numbers((x, y, z, 0, 0, 0)))
+        add(visual, "cast_shadows", "false")
+        mesh = add(add(visual, "geometry"), "mesh")
+        add(mesh, "uri", f"model://rackonaut_warehouse/meshes/quality/{name}.obj")
+        material(visual, colour)
+
+    if shape == "torn":
+        part("body", (0, .387, .41), (.86, .606, .82), KRAFT)
+        for side in (-1, 1):
+            part(f"side_{side}", (side * .418, .042, .41), (.024, .084, .82), KRAFT)
+        part("lid", (0, .042, .810), (.86, .084, .02), KRAFT)
+        part("cavity", (0, .074, .68), (.69, .012, .27), (.24, .125, .065))
+        for index in range(3):
+            part(f"corrugation_{index}", (0, .066, .612 + .048 * index), (.66, .004, .009), (.34, .19, .095))
+        surface("torn-face", KRAFT)
+        surface("torn-rim", (.93, .71, .45))
+    elif shape == "crushed":
+        surface("crushed-carton", KRAFT)
+        surface("crushed-fold", (.33, .21, .125))
+    else:
+        part("body", (0, .345, .41), (.86, .69, .82), KRAFT)
+
+    for side in (-1, 1):
+        part(f"tape_{side}", (side * .342, -.004, .265), (.027, .008, .53), (.79, .66, .46))
+
+
+def cargo(parent, key, x, y, deck, rng, detailed=False, collision=False, quality_shape=None):
     box(parent, f"{key}_skid", (x, y, deck + .075), (1.08, .84, .12), (.43, .26, .13))
     if detailed:
         for side in (-1, 0, 1):
@@ -170,6 +204,10 @@ def cargo(parent, key, x, y, deck, rng, detailed=False, collision=False):
     width = .86 if detailed else rng.uniform(.70, 1.05)
     height = .82 if detailed else rng.uniform(.46, .91)
     color = rng.choice(CARTONS)
+    if quality_shape is not None:
+        box(parent, f"{key}_load", (x, y, deck + .13 + height / 2), (width, .69, height), collision=collision)
+        quality_carton(parent, key, x, y - .345, deck + .13, quality_shape)
+        return
     box(parent, f"{key}_load", (x, y, deck + .13 + height / 2), (width, .69, height),
         color, collision=collision)
     if detailed or rng.random() < .30:
@@ -217,8 +255,9 @@ def rack(world, index, y, args, rng, inspection, rows):
                    "pallet_id": pallet, "slot_aruco_id": slot_index, "pallet_aruco_id": tag,
                    "scenario": scenario, "slot_label_xyz_m": [round(label_x, 3), round(face - .024, 3), round(deck + .16, 3)]}
             if pallet:
+                shape = {1: "torn", 3: "crushed"}.get(slot_index, "intact") if args.quality else None
                 cargo(parent, f"inspection_{key}", x + .26, face + .47, deck, rng, detailed=True,
-                      collision=True)
+                      collision=True, quality_shape=shape)
                 label = f"pallet_{tag}" if tag is not None else "label_unreadable"
                 plane_label(parent, f"pallet_label_{key}", (x + .26, face + .115, deck + .49),
                             .55, .33, texture=label)
@@ -338,7 +377,10 @@ def main():
     parser.add_argument("--fill", type=float, default=.81)
     parser.add_argument("--seed", type=int, default=26)
     parser.add_argument("--labels", action="store_true")
+    parser.add_argument("--quality", action="store_true", help="stage visible carton defects in a separate output world")
     args = parser.parse_args()
+    if args.quality and args.output.resolve() in (ROOT / "worlds/showcase.sdf", ROOT / "worlds/pilot.sdf"):
+        parser.error("--quality requires a separate --output path")
     if args.bays < 4 or args.levels < 2 or not 0 <= args.fill <= 1:
         parser.error("The fixture needs at least four bays, two levels and fill between zero and one.")
     if args.bay_pitch < 2.65 or args.aisle_width < 3 or args.rack_height < 3.5:

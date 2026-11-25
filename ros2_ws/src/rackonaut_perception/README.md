@@ -64,3 +64,30 @@ ros2 run rackonaut_perception inspect_frame \
 ```
 
 See [acceptance and original captures](docs/VERIFICATION.md).
+
+## Package quality demo
+
+From the repository root, prepare the mock API environment as above, build the packages and enable the quality variant. The same launcher with its default arguments starts the original inventory demo.
+
+```bash
+scripts/robotics/build
+source scripts/robotics/activate.bash
+ros2 launch rackonaut_mission showcase.launch.py quality:=true rviz:=true
+```
+
+The build generates a separate `quality_showcase.sdf` with the same stock, labels, route and collision envelope. It stages an intact kraft carton, a jagged opening with a recessed cavity and a crushed corner with folded surfaces. The original `showcase.sdf` remains the default. For a different camera source, start perception with `-p quality_enabled:=true` and the usual camera parameters. Quality also works in local-only mode.
+
+The upper face above the pallet placard is rectified from the observed location tag. OpenCV measures kraft-colour support and local brightness, then finds connected regions consistent with a dark surface break or a missing piece of the top contour. The observed slot and pallet IDs label the result. Classification uses the image pixels. `OK` means the visible face meets the intact checks. `DAMAGED` means a visible structural defect was detected. `UNCERTAIN` covers an incomplete, poorly supported or ambiguous view. Empty locations display `NO CARTON`. An unreadable pallet label leaves `pallet_id` null.
+
+The ROI and thresholds are tuned to the showcase's kraft carton, near-frontal framing and lighting. This demo checks large tear and crush cues at 320×240. The rear, underside, subtle defects, other materials and physical warehouse conditions require separate validation. Generic object detection provides object categories. PatchCore supplies localization maps but requires a bank of representative normal images and a model runtime. These trade-offs favoured the existing Humble OpenCV stack and local segmentation for the demo. [COCO model classes](https://docs.ultralytics.com/datasets/detect/coco/) · [PatchCore workflow](https://anomalib.readthedocs.io/en/latest/markdown/guides/reference/models/image/patchcore.html)
+
+### Evidence and integration proposal
+
+The panel outlines the carton in green for `OK`, marks the detected region in red for `DAMAGED`, and shows `UNCERTAIN` in amber. The damage count represents distinct slot and pallet pairs with stable damaged captures. A capture requires seven consecutive agreeing frames and a matching local inventory observation. Each stable `OK` or `DAMAGED` result is stored once per slot and pallet within the running inspection. Uncertain views remain visible in the panel.
+
+The default evidence directory is `ros2_ws/log/ros/quality` in an activated Rackonaut shell. Override it with `quality_dir:=/path/to/captures` on the launcher or `-p quality_dir:=/path/to/captures` on the node. Each bundle is stored under `<inspection_id>/<quality_id>/` and contains:
+
+- `camera.png` with the unannotated native-resolution camera frame and `annotated.png` with the corresponding live overlay.
+- `report.json` with the quality version and ID, inspection ID, linked local inventory observation ID and timestamp, slot ID, nullable pallet ID, verdict, UTC capture time, ROS frame and stamp, and the defect polygon in native image pixels when present.
+
+For agreement with Vahid and Tharindu, the proposed integration is an independent `POST /api/quality-observations` with the sidecar fields and uploaded image references. Use `(inspection_id, quality_id)` as the idempotency key and `(inspection_id, observation_id)` for the inventory join. The dashboard could query quality by inspection ID and show the verdict and photos next to its inventory result. The currently implemented interface is the local bundle. Inventory POSTs continue to follow HTTP v1.0. See the [quality verification](docs/VERIFICATION.md#package-quality).

@@ -1,0 +1,26 @@
+{
+  "quality_schema_version": "0.1",
+  "quality_id": "Q-5E797899BF0748F6A8DEAD4763FB9CB0",
+  "inspection_id": "INS-05A-MISSION",
+  "observation_id": "OBS-0890908D58994742BC12FF2C0A7B3CE3",
+  "observation_timestamp": "2026-11-25T09:13:52.745Z",
+  "slot_id": "A-01-05",
+  "pallet_id": null,
+  "status": "OK",
+  "reason": "Visible face intact",
+  "timestamp": "2026-11-25T09:13:54.766Z",
+  "camera": {
+    "frame_id": "rackonaut_camera_optical_frame",
+    "stamp": {
+      "sec": 49,
+      "nanosec": 900000000
+    },
+    "width": 320,
+    "height": 240
+  },
+  "defect_polygon_px": null,
+  "images": {
+    "original": "camera.png",
+    "annotated": "annotated.png"
+  }
+}

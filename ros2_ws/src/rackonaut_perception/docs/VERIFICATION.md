@@ -38,3 +38,30 @@ A short lateral pass started from a prepared pose and used `/rackonaut/drone/cmd
 Seven short headless Gazebo samples gave a median real-time factor of 0.9898 before perception and 0.9907 with perception running. These runs show similar simulation speeds on this workstation. They are short demo checks rather than a performance benchmark.
 
 All twelve stored observations were validated against the OpenAPI `Observation` schema. When a second live node targeted an unused local port, its API state reached `ERROR` and the annotated topic continued publishing. The mock accepts new observations as `pending`. Michał's drone and Vahid's backend still require an integration run.
+
+## Package quality
+
+The 25 November 2026 tests used ROS 2 Humble, Fortress 6.16.0 and OpenCV 4.5.4 with the same native `320×240` RGB stream. The generated quality world passed `ign sdf -k`. Generating the original world without `--quality` produced a byte-identical copy of the tracked `showcase.sdf`.
+
+| Test | Live result | Evidence |
+| --- | --- | --- |
+| Intact kraft carton | A-01-01 / P001, `OK` | [Overlay](evidence/quality/01-intact/annotated.png) · [Report](evidence/quality/01-intact/report.json) |
+| Visible tear | A-01-02 / P003, `DAMAGED` | [Original RGB](evidence/quality/02-torn/camera.png) · [Overlay](evidence/quality/02-torn/annotated.png) · [Report](evidence/quality/02-torn/report.json) |
+| Crushed corner | A-01-04 / P999, `DAMAGED` | [Original RGB](evidence/quality/03-crushed/camera.png) · [Overlay](evidence/quality/03-crushed/annotated.png) · [Report](evidence/quality/03-crushed/report.json) |
+| Cropped carton | A-01-01 / P001, `UNCERTAIN` in the live preview | [Original RGB](evidence/quality/04-uncertain-camera.png) · [Overlay](evidence/quality/04-uncertain-live.png) |
+| Torn carton moved to a different slot | A-01-01 / P001, `DAMAGED` after the move. A-01-02 / P003 read `OK` with the intact carton. | [Moved carton overlay](evidence/quality/05-moved-tear/annotated.png) · [Report](evidence/quality/05-moved-tear/report.json) |
+| Unreadable pallet placard | A-01-05, `OK` on the carton with `pallet_id: null) | [Overlay](evidence/quality/06-unreadable-label/annotated.png) · [Report](evidence/quality/06-unreadable-label/report.json) |
+
+The cropped and moved-carton tests used prepared camera poses. In the second test, only the carton visuals at A-01-01 and A-01-02 were exchanged in a temporary SDF copy. Their location tags, pallet labels, skids and collision entries stayed in place. A separate local-only node saved one torn-carton bundle without a backend, even though the camera continued sending frames.
+
+The five-stop autonomous run `INS-05A-MISSION` completed in **75.6 s**, confirmed all five original inventory cases, and landed at `(0, 0, 0.05)` m without pose resets. It saved four quality bundles, two of them damaged. All four report observation IDs matched API events with the same inspection, slot and pallet. A-01-03 remained explicitly empty and produced no carton report. All 11 API observations passed the existing v1 schema. [Mission status](evidence/quality/mission-status.json) · [API observations](evidence/quality/inventory-observations.json)
+
+The [26-second clip](evidence/quality/07-quality-inspection.mp4) shows 263 consecutive frames from that flight with the intact carton, tear and crushed corner. The annotated stream measured about 9.89 frames/s over the excerpt.
+
+```bash
+scripts/robotics/build
+source scripts/robotics/activate.bash
+ros2 launch rackonaut_mission showcase.launch.py quality:=true gazebo_gui:=false view:=false
+# Run in a second activated terminal from the repository root.
+/usr/bin/python3 -m unittest discover -s ros2_ws/src/rackonaut_perception/test -v
+```
