@@ -2,6 +2,8 @@
 
 `worlds/showcase.sdf` is the presentation scene. It uses the tevy hall, three aisles, four static rack rows, a shipping area and a marked takeoff pad. `worlds/pilot.sdf` has one aisle and retains the same inspection fixture. Both use the Fortress 6 / SDFormat 1.8 contract and the world name `rackonaut`.
 
+See [verification and simulator captures](docs/VERIFICATION.md) for the demo run and native ROS image samples.
+
 ## Run in Fortress
 
 Run these commands from the repository root on Ubuntu 22.04 or WSL2.
