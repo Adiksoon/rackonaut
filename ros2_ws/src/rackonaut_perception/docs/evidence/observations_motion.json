@@ -1,0 +1,12 @@
+[
+    {
+        "schema_version": "1.0",
+        "inspection_id": "INS-G03-MOTION",
+        "observation_id": "OBS-DA2F53BCE0C549248996D1573F59684C",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T08:14:55.084Z"
+    }
+]

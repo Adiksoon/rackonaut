@@ -1,0 +1,92 @@
+[
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-CD859072E72A4A0C909EBDF3987A0721",
+    "slot_id": "A-01-01",
+    "pallet_id": "P001",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:02.111Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-32701FCB7359474FA942189AC27B9FAA",
+    "slot_id": "A-01-02",
+    "pallet_id": "P003",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:05.140Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-7BCE41BE58D1469A8E634BFCA4D6A486",
+    "slot_id": "A-01-03",
+    "pallet_id": null,
+    "occupancy": "empty",
+    "label_status": "not_applicable",
+    "timestamp": "2026-11-25T08:23:05.945Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-A4132E20EAEA42BE8826F963691BF3FA",
+    "slot_id": "A-01-04",
+    "pallet_id": "P999",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:08.976Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-BB6C40501AAA4FEF9E422184D2B64F72",
+    "slot_id": "A-01-05",
+    "pallet_id": null,
+    "occupancy": "occupied",
+    "label_status": "unreadable",
+    "timestamp": "2026-11-25T08:23:09.682Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-AA55DADA40844BD0A32133D7E5F58864",
+    "slot_id": "A-01-08",
+    "pallet_id": "P008",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:12.707Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-F08F3CFFF3434C509D33718BED77B40E",
+    "slot_id": "A-01-08",
+    "pallet_id": "P008",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:14.225Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-9FF9F5762BEA4A9A873B6256F8B4365E",
+    "slot_id": "A-01-01",
+    "pallet_id": "P001",
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "timestamp": "2026-11-25T08:23:14.927Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-G03-FINAL",
+    "observation_id": "OBS-0EB1DA88E27641E8ABD19FFE0FF2ED10",
+    "slot_id": "A-01-07",
+    "pallet_id": null,
+    "occupancy": "uncertain",
+    "label_status": "unknown",
+    "timestamp": "2026-11-25T08:23:18.564Z"
+  }
+]
