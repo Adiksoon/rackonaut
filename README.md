@@ -1,5 +1,7 @@
 # Rackonaut
 
+[![Contract tests](https://github.com/Adiksoon/rackonaut/actions/workflows/contract-tests.yml/badge.svg?branch=main)](https://github.com/Adiksoon/rackonaut/actions/workflows/contract-tests.yml)
+
 Rackonaut is a RobotHack 2026 prototype for inspecting warehouse shelves with a drone. It uses camera images to check which storage locations are occupied, read pallet labels, and flag visible carton damage.
 
 ![Reference drone flying beside labeled storage racks in the Gazebo warehouse](docs/images/gazebo-drone-in-aisle.png)
