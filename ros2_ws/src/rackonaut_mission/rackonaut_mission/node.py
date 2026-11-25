@@ -22,6 +22,7 @@ from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
+from rackonaut_energy.model import Model, dock_path, estimate, first_requirement, sortie_path
 
 from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
                        first_unused, next_issue, reading_issue)
@@ -32,6 +33,7 @@ from .visualization import make_markers, planned_path, stamped_pose
 
 MISSION = "/rackonaut/mission"
 TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
+DOCK_WAIT = {"CHARGING", "READY_TO_RESUME"}
 
 
 class Mission(Node):
@@ -81,8 +83,21 @@ class Mission(Node):
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.safety_interlock = settings["safety_interlock"]
         self.safety_at, self.safety_permit = -1e6, False
+        self.permit_departure = None
         self.safety_phase, self.safety_zones = "", set()
         self.adaptive = bool(self.route.retries)
+        self.energy_enabled = self.route.crossing is not None
+        if self.energy_enabled and (not self.safety_interlock or not self.land):
+            raise ValueError("Energy missions must land with the Safety Manager enabled.")
+        self.battery, self.battery_at, self.energy_model = {}, -1e6, None
+        self.departures = 0
+        self.sorties, self.completed, self.interruptions = [], [], []
+        self.return_legs, self.resume_legs, self.return_track = [], [], []
+        self.return_reason = ""
+        self.resume_index = None
+        self.last_charge_progress = None
+        if self.energy_enabled:
+            self.create_subscription(String, "/rackonaut/energy/state", self.on_energy, latest)
         if self.adaptive and not self.safety_interlock:
             raise ValueError("Adaptive routes require the Safety Manager.")
         self.adaptive_quality = settings["adaptive_quality"] and self.adaptive
@@ -145,6 +160,29 @@ class Mission(Node):
             self.safety_at, self.safety_permit = monotonic(), state.get("permit") is True
             self.safety_phase = state.get("phase", "")
             self.safety_zones = set(state.get("required", ()))
+            self.permit_departure = state.get("permit_departure")
+
+    def on_energy(self, message):
+        self.battery, self.battery_at = json.loads(message.data), monotonic()
+        if self.energy_model is None:
+            self.energy_model = Model(**self.battery["model"])
+
+    @staticmethod
+    def coordinates(pose):
+        return pose.x, pose.y, pose.z, pose.yaw
+
+    def energy_fresh(self, now):
+        return now - self.battery_at <= .80 and self.battery.get("fresh") is True
+
+    def next_inspection_index(self):
+        return next((index for index in range(self.stop_index, len(self.route.waypoints))
+                     if self.route.waypoints[index].slot_id), None)
+
+    def required_departure(self, index):
+        return first_requirement(
+            self.energy_model, self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing,
+            self.coordinates(self.route.waypoints[index]), 4.,
+        )
 
     def on_quality(self, message):
         evidence = json.loads(message.data)
@@ -156,6 +194,15 @@ class Mission(Node):
     def readiness(self, now):
         if self.safety_interlock and (not self.safety_permit or now - self.safety_at > .45):
             return "Waiting for the safety interlock to confirm reserved, clear zones"
+        if self.energy_enabled:
+            if self.permit_departure != self.departures + 1 or not set(self.route.zones) <= self.safety_zones:
+                return "Waiting for current departure clearance"
+            if not self.energy_fresh(now) or not self.battery.get("contact"):
+                return "Waiting for fresh battery and confirmed dock contact"
+            if self.battery["percent"] < self.required_departure(self.next_inspection_index()):
+                return "Insufficient energy to inspect the first remaining location and return"
+            if self.departures and self.battery.get("dock") != "READY":
+                return "Waiting for confirmed charge readiness"
         if self.pose is None or now - self.odom_at > .65:
             return f"Waiting for fresh odometry in {self.frame}"
         if self.count_publishers(self.command_topic):
@@ -170,14 +217,22 @@ class Mission(Node):
         return ""
 
     def start(self, now):
-        if self.stage != "WAITING":
+        resuming = self.energy_enabled and self.stage == "READY_TO_RESUME"
+        if self.stage != "WAITING" and not resuming:
             return f"Mission is {self.stage}. Start a new process with a new inspection ID."
         reason = self.readiness(now)
         if reason:
             return reason
         self.command = self.create_publisher(Twist, self.command_topic, 10)
-        self.started = now
-        self.transition("TAKEOFF", self.route.takeoff, now, "Climbing above the launch pad")
+        if self.started is None:
+            self.started = now
+        if self.energy_enabled:
+            self.departures += 1
+            self.sorties.append({"departure": self.departures, "start_percent": self.battery["percent"],
+                                 "start_sim_time": self.battery["sim_time"], "completed_before": list(self.completed)})
+            self.landed = False
+        self.transition("RESUMING" if resuming else "TAKEOFF", self.route.takeoff, now,
+                        "Resuming unfinished inspection" if resuming else "Climbing above the launch pad")
         return ""
 
     def on_start(self, _request, response):
@@ -228,9 +283,11 @@ class Mission(Node):
 
     def begin_scan(self, now):
         slot = self.target.slot_id
-        self.visits.append(slot)
+        if slot not in self.visits:
+            self.visits.append(slot)
         if self.adaptive:
-            self.retry_number = 0
+            prior = [attempt for attempt in self.attempts if attempt["slot_id"] == slot] if self.energy_enabled else []
+            self.retry_number = min(len(prior), MAX_RETRIES)
             self.first_problem = self.retry_deadline = self.pending_retry = None
             self.closeup_requested = self.closeup_confirmed = False
             self.used_views.clear()
@@ -315,7 +372,8 @@ class Mission(Node):
             self.adaptive_outcome = ("Label recovered successfully" if event["label_status"] == "readable"
                                      else "Occupancy confirmed on reinspection")
         self.attempts.append({
-            "slot_id": slot, "attempt": self.retry_number + 1, "reason": self.attempt_reason,
+            "slot_id": slot, "attempt": sum(row["slot_id"] == slot for row in self.attempts) + 1,
+            "reason": self.attempt_reason,
             "issue": issue, "observation_id": event["observation_id"] if event else None,
             "quality_id": photo["quality_id"] if photo else None,
             "reading": [event["occupancy"], event["label_status"], event["pallet_id"]] if event else None,
@@ -371,16 +429,135 @@ class Mission(Node):
         self.rearm_request = None
         # A previous GET may still be running. Keep one worker/request, and
         # apply the next slot's own UTC cutoff before accepting any event.
+        if self.energy_enabled:
+            self.completed.append(self.target.slot_id)
         self.stop_index += 1
+        if self.energy_enabled and self.energy_return_needed():
+            self.begin_energy_return(now)
+            return
         self.next_stop(now)
 
-    def finish(self, result, detail, now, competing=False):
+    def stop_motion(self, competing=False):
         if self.command is not None:
             if not competing and self.count_publishers(self.command_topic) <= 1:
                 self.command.publish(Twist())
                 self.command.wait_for_all_acked(Duration(seconds=.18))
             self.destroy_publisher(self.command)
             self.command = None
+
+    def dock_route(self, pose):
+        return dock_path(self.coordinates(pose), self.coordinates(self.route.pad),
+                         self.route.takeoff.z, self.route.crossing)
+
+    def return_cost(self, pose):
+        if dist(self.coordinates(pose)[:3], self.coordinates(self.route.pad)[:3]) < .08:
+            return 0.
+        return estimate(self.energy_model, self.coordinates(pose), self.dock_route(pose))[0]
+
+    def energy_return_needed(self):
+        index = self.next_inspection_index()
+        if index is None or not self.energy_model:
+            return False
+        legs = self.route.waypoints[self.stop_index:index + 1]
+        next_cost, _ = estimate(self.energy_model, self.coordinates(self.pose),
+                                [self.coordinates(pose) for pose in legs], 4.)
+        return self.battery["percent"] < next_cost + self.return_cost(legs[-1]) + self.energy_model.reserve
+
+    def begin_energy_return(self, now):
+        self.resume_index = self.next_inspection_index()
+        if self.resume_index is None:
+            return
+        if self.departures > len(self.route.stops):
+            self.finish("ABORTED", "Energy model cannot advance with a full charge", now)
+            return
+        if self.target.slot_id and self.target.slot_id not in self.completed:
+            self.interruptions.append({"slot": self.target.slot_id, "stage": self.stage,
+                                       "sim_time": self.battery["sim_time"]})
+        self.return_reason = "Low battery — returning to charging station"
+        route = self.dock_route(self.pose)
+        self.return_track = [list(self.coordinates(self.pose)[:3]), *(list(point[:3]) for point in route)]
+        self.return_legs = [Target(*point) for point in route[:-1]]
+        self.transition("RETURN_TO_DOCK", self.return_legs.pop(0), now, self.return_reason)
+
+    def close_sortie(self, result):
+        self.sorties[-1].update({"result": result, "end_percent": self.battery.get("percent"),
+                                 "end_sim_time": self.battery.get("sim_time"),
+                                 "completed_after": list(self.completed)})
+
+    def advance_energy_motion(self, now):
+        if self.stage == "RETURN_TO_DOCK":
+            if self.return_legs:
+                self.transition("RETURN_TO_DOCK", self.return_legs.pop(0), now, self.return_reason)
+            else:
+                touchdown = replace(self.route.pad, z=max(0., self.route.pad.z - .05))
+                self.transition("DOCKING", touchdown, now, "Aligning and landing on the dock")
+        elif self.stage == "DOCKING":
+            if self.battery.get("contact"):
+                self.stop_motion()
+                self.landed = True
+                self.close_sortie("DOCKED_FOR_CHARGE")
+                self.stop_index = self.resume_index
+                self.last_charge_progress = now, self.battery["percent"]
+                self.transition("CHARGING", self.route.pad, now, "Docking confirmed — charging")
+        elif self.resume_legs:
+            self.transition("RESUMING", self.resume_legs.pop(0), now, "Resuming through the transfer corridor")
+        else:
+            self.next_stop(now)
+
+    def dock_tick(self, now):
+        if not self.battery.get("contact"):
+            self.finish("ABORTED", "Charging contact was lost", now)
+            return
+        if self.stage == "CHARGING":
+            needed = self.required_departure(self.resume_index)
+            target = max(needed, self.energy_model.ready)
+            if target > 100.:
+                self.finish("ABORTED", "A full battery cannot cover the next stop and safe return", now)
+                return
+            if self.battery["percent"] >= target and self.battery.get("dock") == "READY":
+                slot = self.coordinates(self.route.waypoints[self.resume_index])
+                route = sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing, slot)
+                self.resume_legs = [Target(*point) for point in route[1:-1]]
+                self.sorties[-1]["charged_percent"] = self.battery["percent"]
+                self.sorties[-1]["charge_end_sim_time"] = self.battery["sim_time"]
+                self.transition("READY_TO_RESUME", self.route.pad, now, "Battery ready — requesting departure clearance")
+                return
+            last, level = self.last_charge_progress
+            if self.battery["percent"] > level:
+                self.last_charge_progress = now, self.battery["percent"]
+            elif now - last > 12.:
+                self.finish("ABORTED", "Dock reported no charging progress", now)
+        elif now - self.stage_since > 16.:
+            self.finish("ABORTED", "Fresh departure clearance was not granted", now)
+        else:
+            self.start(now)
+
+    def energy_guard(self, now):
+        if not self.energy_enabled or self.stage in TERMINAL | {"WAITING"}:
+            return False
+        if now - self.safety_at > .65 or self.safety_phase != "RESERVED" or not set(self.route.zones) <= self.safety_zones:
+            self.finish("ABORTED", "Safety clearance lost; automatic restart disabled", now)
+            return True
+        if not self.energy_fresh(now) or now - self.odom_at > .65:
+            self.finish("ABORTED", "Energy or odometry telemetry stopped advancing", now)
+            return True
+        if self.stage in DOCK_WAIT:
+            self.dock_tick(now)
+            return True
+        if self.battery["percent"] <= 0.5:
+            self.finish("ABORTED", "Battery exhausted; operator recovery required", now)
+            return True
+        if (self.stage not in {"RETURN_TO_DOCK", "DOCKING", "RETURN", "LAND"}
+                and self.next_inspection_index() is not None
+                and self.battery["percent"] <= self.return_cost(self.pose) + self.energy_model.reserve):
+            self.begin_energy_return(now)
+            return True
+        return False
+
+    def finish(self, result, detail, now, competing=False):
+        self.stop_motion(competing)
+        if self.energy_enabled and self.sorties and "end_percent" not in self.sorties[-1]:
+            self.close_sortie(result)
         self.ended = now
         self.transition(result, self.target, now, detail)
         self.publish_state(now)
@@ -407,10 +584,13 @@ class Mission(Node):
         if now - self.stage_since >= self.travel_timeout:
             self.finish("ABORTED", f"Motion timed out at {self.stage}", now)
             return
-        if not self.stable(now, duration=.65 if self.stage == "ALIGN" else .45, touchdown=self.stage == "LAND"):
+        if not self.stable(now, duration=.65 if self.stage == "ALIGN" else .45,
+                           touchdown=self.stage in {"LAND", "DOCKING"}):
             return
         if self.stage == "TAKEOFF":
             self.next_stop(now)
+        elif self.stage in {"RETURN_TO_DOCK", "DOCKING", "RESUMING"}:
+            self.advance_energy_motion(now)
         elif self.stage == "CORRIDOR":
             self.stop_index += 1
             self.next_stop(now)
@@ -421,6 +601,8 @@ class Mission(Node):
         elif self.stage == "RETURN" and self.land:
             touchdown = replace(self.route.pad, z=max(0., self.route.pad.z - .05))
             self.transition("LAND", touchdown, now, "Descending onto the launch pad")
+        elif self.energy_enabled and self.stage == "LAND" and not self.battery.get("contact"):
+            return
         else:
             self.landed = self.stage == "LAND"
             result = "COMPLETE_WITH_MISSES" if self.missed else "COMPLETE"
@@ -432,7 +614,8 @@ class Mission(Node):
             self.detail = self.start(now) or self.detail
             if self.stage == "WAITING" and now - self.created > 25.0:
                 self.finish("ABORTED", self.detail, now)
-        if self.command is not None:
+        held_for_energy = self.energy_guard(now)
+        if self.command is not None and not held_for_energy:
             if self.count_publishers(self.command_topic) > 1:
                 self.finish("ABORTED", "Another publisher claimed the command topic", now, competing=True)
             elif self.safety_interlock and now - self.safety_at > .65:
@@ -478,6 +661,26 @@ class Mission(Node):
                                   "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,
                                   "resolved": self.resolved, "manual_review": self.manual_review,
                                   "outcome": self.adaptive_outcome}
+        if self.energy_enabled:
+            remaining = [slot.slot_id for slot in self.route.stops if slot.slot_id not in self.completed]
+            return_percent = required = None
+            if self.pose and self.energy_model:
+                return_percent = round(self.return_cost(self.pose), 2)
+                poses = [self.coordinates(point) for point in self.route.waypoints[self.stop_index:]]
+                dock = [self.coordinates(self.route.takeoff), self.coordinates(self.route.pad)]
+                if self.stage in DOCK_WAIT and self.resume_index is not None:
+                    slot = self.coordinates(self.route.waypoints[self.resume_index])
+                    poses = [*sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z, self.route.crossing, slot),
+                             *(self.coordinates(point) for point in self.route.waypoints[self.resume_index+1:])]
+                required = round(estimate(self.energy_model, self.coordinates(self.pose), [*poses, *dock],
+                                          len(remaining) * 3.)[0], 2)
+            status["energy"] = {
+                "departures": self.departures, "sorties": self.sorties, "completed": self.completed,
+                "remaining": remaining, "interrupted": self.interruptions,
+                "return_reason": self.return_reason, "return_percent": return_percent,
+                "required_percent": required, "reserve_percent": self.energy_model.reserve if self.energy_model else None,
+                "return_path": self.return_track if self.stage in {"RETURN_TO_DOCK", "DOCKING"} else [],
+            }
         self.status_pub.publish(String(data=json.dumps(status, separators=(",", ":"))))
         if self.track.poses:
             self.path_pub.publish(self.track)

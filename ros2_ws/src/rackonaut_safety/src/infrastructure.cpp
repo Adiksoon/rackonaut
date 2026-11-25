@@ -74,6 +74,14 @@ class Infrastructure : public rclcpp::Node {
           "/rackonaut/safety/simulation/obstacle_target", 5,
           [this](const std_msgs::msg::String &message) { select_obstacles(message.data); });
     }
+    if (declare_parameter("energy_dock", false)) {
+      dock_control_ = create_subscription<std_msgs::msg::String>(
+          "/rackonaut/energy/dock_light", 5, [this](const std_msgs::msg::String &message) {
+            dock_phase_ = message.data;
+            dock_at_ = std::chrono::steady_clock::now();
+          });
+      dock_timer_ = create_wall_timer(450ms, [this] { update_dock(); });
+    }
     lights_timer_ = create_wall_timer(100ms, [this] { update_lamps(); });
     movement_timer_ = create_wall_timer(65ms, [this] {
       step_model("safety_worker", worker_, queue_, .101);
@@ -82,6 +90,32 @@ class Infrastructure : public rclcpp::Node {
   }
 
  private:
+  void update_dock() {
+    if (dock_lenses_.size() != lamps.size()) {
+      ignition::msgs::Empty request;
+      ignition::msgs::Scene scene;
+      bool ok = false;
+      if (!transport_.Request(world + "/scene/info", request, 150, scene, ok) || !ok)
+        return;
+      for (const auto &model : scene.model()) {
+        if (model.name() != "rackonaut_dock")
+          continue;
+        for (const auto &link : model.link())
+          for (const auto &part : link.visual())
+            if (lamps.count(part.name()))
+              dock_lenses_[part.name()] = part.id();
+      }
+    }
+    auto phase = std::chrono::steady_clock::now() - dock_at_ > 900ms ? "FAULT" : dock_phase_;
+    const std::string active = phase == "FAULT" ? "red" :
+        phase == "CHARGING" || phase == "APPROACHING" || phase == "DOCKED" ? "yellow" : "green";
+    for (const auto &[lamp, id] : dock_lenses_) {
+      bool on = lamp == active;
+      if ((!applied_.count(id) || applied_.at(id) != on) && set_lens(id, lamp, on))
+        applied_[id] = on;
+    }
+  }
+
   bool discover_lamps() {
     ignition::msgs::Empty request;
     ignition::msgs::Scene scene;
@@ -197,9 +231,14 @@ class Infrastructure : public rclcpp::Node {
   ignition::transport::Node transport_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr ack_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr control_, worker_control_, obstacles_;
+  rclcpp::Subscription<std_msgs::msg::String>::SharedPtr dock_control_;
   rclcpp::TimerBase::SharedPtr lights_timer_, movement_timer_;
+  rclcpp::TimerBase::SharedPtr dock_timer_;
   Phases phases_;
   std::chrono::steady_clock::time_point command_at_;
+  std::chrono::steady_clock::time_point dock_at_;
+  std::string dock_phase_ = "FAULT";
+  std::map<std::string, uint32_t> dock_lenses_;
   std::map<std::pair<std::string, std::string>, uint32_t> lenses_;
   std::map<uint32_t, bool> applied_;
   Point worker_;

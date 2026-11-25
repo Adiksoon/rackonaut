@@ -26,6 +26,8 @@ The [adaptive inspection demonstration](../../../docs/ADAPTIVE_INSPECTION.md) us
 
 Select **3D Digital Twin** above the map for the live warehouse scene. It shares the existing planner and inspection controls. The [Digital Twin guide](../../../docs/DIGITAL_TWIN.md) includes controls, performance measurements and demonstration evidence.
 
+The [energy and charging profile](../../../docs/ENERGY_MANAGEMENT.md) adds a dock, simulated battery telemetry and the option to resume a single inspection after an automatic charging stop.
+
 ## Warehouse and route
 
 The variant `control_showcase.sdf` contains the original eight A slots and adds B-01-01, B-01-02 and B-02-01. The additional slots have ArUco IDs 8–10 and the additional pallets use IDs 25 and 26. The physical B cases are a torn carton, an intact carton and an empty slot. The build publishes the SVG geometry inputs and the marker dictionary from the same generator. These configuration files contain viewpoint geometry and marker identities. The runtime derives inventory and carton quality from the camera.

@@ -30,7 +30,7 @@ from std_srvs.srv import Trigger
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_safety.geometry import route_zones
 
-from .planning import plan
+from .planning import energy_forecast, plan
 from .web import serve
 
 
@@ -85,6 +85,10 @@ class Control(Node):
         if self.laser_enabled:
             self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
+        self.energy_enabled = self.declare_parameter("energy_enabled", False).value
+        if self.energy_enabled:
+            self.layout["dock"] = json.loads((warehouse / "config/dock_layout.json").read_text())
+            self.layout["scene"]["parts"]["dock"] = self.layout["dock"]["parts"]
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
         self.odom_at = 0.
@@ -93,6 +97,7 @@ class Control(Node):
         self.jpeg, self.camera_at, self.frame_number = None, 0., 0
         self.camera_type = "raw"
         self.safety, self.safety_at = None, -1e6
+        self.energy, self.energy_at = None, -1e6
         self.overview_jpeg, self.overview_at = None, -1e6
         self.job = None
         self.history = self.load_history()
@@ -102,6 +107,8 @@ class Control(Node):
         self.health_future = None
         self.next_health = 0.
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        if self.energy_enabled:
+            self.create_subscription(String, "/rackonaut/energy/state", self.on_energy, latest)
         if self.safety_enabled:
             self.safety_request = self.create_publisher(String, "/rackonaut/safety/request", 5)
             self.worker_control = self.create_publisher(String, "/rackonaut/safety/simulation/worker_target", 5)
@@ -184,6 +191,17 @@ class Control(Node):
         with self.lock:
             self.safety, self.safety_at = json.loads(message.data), monotonic()
 
+    def on_energy(self, message):
+        with self.lock:
+            self.energy, self.energy_at = json.loads(message.data), monotonic()
+
+    def energy_state(self):
+        if self.energy is None:
+            return None
+        if monotonic() - self.energy_at > .8:
+            return {**self.energy, "fresh": False, "dock": "FAULT", "charging": False}
+        return self.energy
+
     def on_overview(self, message):
         if monotonic() - self.overview_at < .16:
             return
@@ -254,6 +272,11 @@ class Control(Node):
         route = plan(self.layout, selection)
         if self.safety_enabled:
             route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
+        if self.energy_enabled:
+            route["route"]["energy_crossing_x"] = self.layout["crossing_x"]
+            route["route"]["energy_zones"] = route["required_zones"]
+            telemetry = self.energy_state()
+            route["energy"] = energy_forecast(self.layout, route, telemetry) if telemetry and telemetry["fresh"] else None
         return route
 
     def begin(self, selection):
@@ -263,6 +286,13 @@ class Control(Node):
                 raise RuntimeError("Wait for the running inspection and its report.")
             if not self.at_pad():
                 raise RuntimeError("The drone must be stopped on the launch pad before dispatch.")
+            if self.energy_enabled:
+                telemetry = self.energy_state()
+                if not telemetry or not telemetry["fresh"] or not telemetry["contact"]:
+                    raise RuntimeError("Fresh battery data and confirmed dock position are required.")
+                forecast = energy_forecast(self.layout, planned, telemetry)
+                if not forecast["can_start"]:
+                    raise RuntimeError(f"Insufficient energy for the first stop and safe return ({forecast['minimum_percent']:.1f}% required).")
             if not self.backend_state["online"]:
                 raise RuntimeError("The inventory API is unavailable.")
             missing = set(planned["slots"]) - set(self.backend_state["slots"])
@@ -438,6 +468,7 @@ class Control(Node):
                            "result": job.archive, "error": job.error or job.export_error}
             return {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
                     "position": self.position, "orientation": self.orientation,
+                    "energy": self.energy_state(),
                     "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
                     "camera_type": self.camera_type, "history": self.history[:12],

@@ -1,0 +1,2506 @@
+{
+  "samples": [
+    {
+      "stage": "STARTING",
+      "target": null,
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 63.419,
+      "sim_time": 39.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "AVAILABLE",
+      "departure_permit": null,
+      "return_estimate": null
+    },
+    {
+      "stage": "WAITING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 63.404,
+      "sim_time": 40.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "PREPARING",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "WAITING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 63.396,
+      "sim_time": 40.6,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "PREPARING",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "TAKEOFF",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.114,
+        0
+      ],
+      "percent": 63.38,
+      "sim_time": 41.68,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.58
+    },
+    {
+      "stage": "TAKEOFF",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.372,
+        0
+      ],
+      "percent": 62.869,
+      "sim_time": 42.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.04
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        0,
+        0,
+        0.791,
+        0
+      ],
+      "percent": 61.573,
+      "sim_time": 44,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 1.57
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        0.68,
+        0.001,
+        0.78,
+        0
+      ],
+      "percent": 60.478,
+      "sim_time": 45.6,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 2.98
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        1.536,
+        0.001,
+        0.787,
+        0
+      ],
+      "percent": 59.253,
+      "sim_time": 47.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 4.23
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        2.098,
+        0,
+        0.793,
+        0
+      ],
+      "percent": 58.171,
+      "sim_time": 48.92,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.11
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        2.099,
+        0.429,
+        0.785,
+        0
+      ],
+      "percent": 57.082,
+      "sim_time": 50.64,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.21
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "position": [
+        2.1,
+        0.452,
+        0.791,
+        0
+      ],
+      "percent": 56.763,
+      "sim_time": 51.2,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.24
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "position": [
+        2.449,
+        0.45,
+        0.768,
+        0
+      ],
+      "percent": 56.056,
+      "sim_time": 52.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 7.17
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "position": [
+        3.396,
+        0.451,
+        0.787,
+        0
+      ],
+      "percent": 54.881,
+      "sim_time": 53.88,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 8.61
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "position": [
+        4.296,
+        0.452,
+        0.787,
+        0
+      ],
+      "percent": 53.605,
+      "sim_time": 55.64,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 9.84
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "position": [
+        5.152,
+        0.451,
+        0.787,
+        0
+      ],
+      "percent": 52.446,
+      "sim_time": 57.24,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.12
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "position": [
+        5.459,
+        0.45,
+        0.79,
+        0.053
+      ],
+      "percent": 51.498,
+      "sim_time": 58.76,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "position": [
+        5.459,
+        0.45,
+        0.789,
+        0.168
+      ],
+      "percent": 51.344,
+      "sim_time": 59.04,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "position": [
+        5.46,
+        0.45,
+        0.79,
+        0.913
+      ],
+      "percent": 50.485,
+      "sim_time": 60.6,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "position": [
+        5.46,
+        0.45,
+        0.792,
+        1.524
+      ],
+      "percent": 49.537,
+      "sim_time": 62.32,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "position": [
+        5.46,
+        0.45,
+        0.792,
+        1.565
+      ],
+      "percent": 49.207,
+      "sim_time": 62.92,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "position": [
+        5.46,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "percent": 48.591,
+      "sim_time": 64.04,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "position": [
+        5.46,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "percent": 47.623,
+      "sim_time": 65.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-01",
+      "position": [
+        5.461,
+        0.45,
+        0.79,
+        1.594
+      ],
+      "percent": 47.557,
+      "sim_time": 65.92,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-01",
+      "position": [
+        5.972,
+        0.625,
+        0.815,
+        1.79
+      ],
+      "percent": 46.555,
+      "sim_time": 67.4,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.63
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-01",
+      "position": [
+        6.01,
+        0.631,
+        0.822,
+        1.797
+      ],
+      "percent": 46.132,
+      "sim_time": 68.12,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.7
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-01",
+      "position": [
+        6.009,
+        0.63,
+        0.82,
+        1.798
+      ],
+      "percent": 45.516,
+      "sim_time": 69.24,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.7
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-01",
+      "position": [
+        6.01,
+        0.63,
+        0.82,
+        1.796
+      ],
+      "percent": 44.965,
+      "sim_time": 70.24,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.7
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-01",
+      "position": [
+        5.864,
+        0.564,
+        0.785,
+        1.64
+      ],
+      "percent": 44.601,
+      "sim_time": 70.84,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.43
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.451,
+        0.791,
+        1.572
+      ],
+      "percent": 43.652,
+      "sim_time": 72.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.64
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.451,
+        0.822,
+        1.571
+      ],
+      "percent": 43.537,
+      "sim_time": 72.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        1.604,
+        1.571
+      ],
+      "percent": 41.921,
+      "sim_time": 74.24,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.404,
+        1.571
+      ],
+      "percent": 40.439,
+      "sim_time": 75.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.886,
+        1.571
+      ],
+      "percent": 39.137,
+      "sim_time": 77.44,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.89,
+        1.571
+      ],
+      "percent": 39.067,
+      "sim_time": 77.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.893,
+        1.571
+      ],
+      "percent": 38.821,
+      "sim_time": 78,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.891,
+        1.571
+      ],
+      "percent": 38.249,
+      "sim_time": 79.04,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.45,
+        2.89,
+        1.571
+      ],
+      "percent": 37.919,
+      "sim_time": 79.64,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.63
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.55,
+        2.889,
+        1.571
+      ],
+      "percent": 37.386,
+      "sim_time": 80.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.76
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.583,
+        2.89,
+        1.571
+      ],
+      "percent": 37.152,
+      "sim_time": 80.96,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.83
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.59,
+        2.89,
+        1.571
+      ],
+      "percent": 36.421,
+      "sim_time": 82.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.84
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.59,
+        2.89,
+        1.571
+      ],
+      "percent": 35.981,
+      "sim_time": 83.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.84
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "position": [
+        5.46,
+        0.524,
+        2.889,
+        1.571
+      ],
+      "percent": 35.547,
+      "sim_time": 83.84,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.76
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "position": [
+        5.46,
+        0.459,
+        2.89,
+        1.571
+      ],
+      "percent": 35.124,
+      "sim_time": 84.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.65
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "position": [
+        5.766,
+        0.449,
+        2.48,
+        1.57
+      ],
+      "percent": 34.473,
+      "sim_time": 85.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.02
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "position": [
+        6.661,
+        0.45,
+        1.63,
+        1.571
+      ],
+      "percent": 33.289,
+      "sim_time": 87.2,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 13.24
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "position": [
+        7.512,
+        0.451,
+        0.883,
+        1.571
+      ],
+      "percent": 32.078,
+      "sim_time": 88.88,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 14.61
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "position": [
+        8.235,
+        0.451,
+        0.792,
+        1.571
+      ],
+      "percent": 30.946,
+      "sim_time": 90.52,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.69
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-03",
+      "position": [
+        8.259,
+        0.45,
+        0.792,
+        1.571
+      ],
+      "percent": 30.585,
+      "sim_time": 91.16,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.74
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-03",
+      "position": [
+        8.259,
+        0.45,
+        0.791,
+        1.571
+      ],
+      "percent": 30.364,
+      "sim_time": 91.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.74
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-03",
+      "position": [
+        8.259,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "percent": 29.99,
+      "sim_time": 92.24,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.74
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        8.258,
+        0.45,
+        0.788,
+        1.524
+      ],
+      "percent": 29.352,
+      "sim_time": 93.4,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.74
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        8.169,
+        0.45,
+        0.777,
+        1.357
+      ],
+      "percent": 29.112,
+      "sim_time": 93.8,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.63
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        7.422,
+        0.468,
+        0.784,
+        0.72
+      ],
+      "percent": 28.033,
+      "sim_time": 95.28,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 14.57
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        6.523,
+        0.484,
+        0.789,
+        0.06
+      ],
+      "percent": 26.928,
+      "sim_time": 96.8,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 13.37
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        5.644,
+        0.479,
+        0.787,
+        0.001
+      ],
+      "percent": 25.654,
+      "sim_time": 98.56,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.11
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        4.745,
+        0.47,
+        0.787,
+        0
+      ],
+      "percent": 24.495,
+      "sim_time": 100.16,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 10.65
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        3.867,
+        0.463,
+        0.787,
+        0
+      ],
+      "percent": 23.248,
+      "sim_time": 101.88,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 9.41
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        2.988,
+        0.455,
+        0.787,
+        0
+      ],
+      "percent": 22.06,
+      "sim_time": 103.52,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 8.15
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        2.167,
+        0.45,
+        0.793,
+        0
+      ],
+      "percent": 20.866,
+      "sim_time": 105.2,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.84
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        2.101,
+        0.216,
+        0.772,
+        0
+      ],
+      "percent": 19.943,
+      "sim_time": 106.72,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.99
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        2.053,
+        0.001,
+        0.785,
+        0
+      ],
+      "percent": 18.987,
+      "sim_time": 108.28,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.09
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        1.202,
+        0,
+        0.785,
+        0
+      ],
+      "percent": 17.805,
+      "sim_time": 109.92,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.83
+    },
+    {
+      "stage": "RETURN_TO_DOCK",
+      "target": "PAD",
+      "position": [
+        0.367,
+        -0.001,
+        0.787,
+        0
+      ],
+      "percent": 16.643,
+      "sim_time": 111.52,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 2.61
+    },
+    {
+      "stage": "DOCKING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.782,
+        0
+      ],
+      "percent": 15.594,
+      "sim_time": 113.2,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 1.57
+    },
+    {
+      "stage": "DOCKING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.164,
+        0
+      ],
+      "percent": 14.846,
+      "sim_time": 114.56,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.47
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 14.719,
+      "sim_time": 115.88,
+      "dock": "DOCKED",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 14.713,
+      "sim_time": 116.28,
+      "dock": "DOCKED",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 21.67,
+      "sim_time": 117.68,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 30.07,
+      "sim_time": 119.08,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 40.39,
+      "sim_time": 120.8,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 49.27,
+      "sim_time": 122.28,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 58.63,
+      "sim_time": 123.84,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 68.71,
+      "sim_time": 125.52,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 78.31,
+      "sim_time": 127.12,
+      "dock": "CHARGING",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "CHARGING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 88.39,
+      "sim_time": 128.8,
+      "dock": "READY",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "READY_TO_RESUME",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 90.07,
+      "sim_time": 129.08,
+      "dock": "READY",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": 2,
+      "return_estimate": 3.73
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.056,
+        0
+      ],
+      "percent": 90.79,
+      "sim_time": 129.2,
+      "dock": "READY",
+      "charging": true,
+      "contact": true,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.72
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.521,
+        0
+      ],
+      "percent": 90.009,
+      "sim_time": 130.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 2.69
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        0.009,
+        0,
+        0.79,
+        0
+      ],
+      "percent": 89.008,
+      "sim_time": 131.68,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 1.56
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        0.71,
+        0.001,
+        0.781,
+        0
+      ],
+      "percent": 87.889,
+      "sim_time": 133.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.08
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        1.566,
+        0.001,
+        0.787,
+        0
+      ],
+      "percent": 86.753,
+      "sim_time": 134.84,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 4.27
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        2.096,
+        0,
+        0.793,
+        0
+      ],
+      "percent": 85.719,
+      "sim_time": 136.4,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.1
+    },
+    {
+      "stage": "RESUMING",
+      "target": "PAD",
+      "position": [
+        2.099,
+        0.425,
+        0.785,
+        0
+      ],
+      "percent": 84.653,
+      "sim_time": 138.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.17
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        2.1,
+        0.449,
+        0.79,
+        0
+      ],
+      "percent": 84.4,
+      "sim_time": 138.52,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.24
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        2.467,
+        0.448,
+        0.768,
+        0
+      ],
+      "percent": 83.753,
+      "sim_time": 139.52,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 7.23
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        3.349,
+        0.45,
+        0.787,
+        0
+      ],
+      "percent": 82.461,
+      "sim_time": 141.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 8.48
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        4.206,
+        0.451,
+        0.787,
+        0
+      ],
+      "percent": 81.36,
+      "sim_time": 142.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 9.7
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        5.084,
+        0.452,
+        0.787,
+        0
+      ],
+      "percent": 80.229,
+      "sim_time": 144.36,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.09
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        5.941,
+        0.453,
+        0.787,
+        0
+      ],
+      "percent": 78.983,
+      "sim_time": 146.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 12.31
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        6.819,
+        0.454,
+        0.787,
+        0
+      ],
+      "percent": 77.881,
+      "sim_time": 147.6,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 13.48
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        7.676,
+        0.454,
+        0.787,
+        0
+      ],
+      "percent": 76.635,
+      "sim_time": 149.32,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 14.76
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        8.576,
+        0.454,
+        0.787,
+        0
+      ],
+      "percent": 75.504,
+      "sim_time": 150.88,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 16.15
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        9.411,
+        0.454,
+        0.787,
+        0
+      ],
+      "percent": 74.287,
+      "sim_time": 152.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 17.34
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        10.311,
+        0.453,
+        0.787,
+        0
+      ],
+      "percent": 73.098,
+      "sim_time": 154.2,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 18.63
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "position": [
+        11.032,
+        0.451,
+        0.794,
+        0
+      ],
+      "percent": 71.905,
+      "sim_time": 155.92,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.79
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.793,
+        0.003
+      ],
+      "percent": 71.588,
+      "sim_time": 156.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-05",
+      "position": [
+        11.059,
+        0.45,
+        0.79,
+        0.416
+      ],
+      "percent": 71.037,
+      "sim_time": 157.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.79,
+        1.199
+      ],
+      "percent": 70.157,
+      "sim_time": 159.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.792,
+        1.556
+      ],
+      "percent": 69.385,
+      "sim_time": 160.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.792,
+        1.562
+      ],
+      "percent": 69.209,
+      "sim_time": 160.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "percent": 68.395,
+      "sim_time": 162.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.45,
+        0.79,
+        1.579
+      ],
+      "percent": 68.285,
+      "sim_time": 162.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-05",
+      "position": [
+        11.597,
+        0.63,
+        0.819,
+        1.794
+      ],
+      "percent": 67.156,
+      "sim_time": 164.16,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 20.87
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-05",
+      "position": [
+        11.609,
+        0.631,
+        0.821,
+        1.796
+      ],
+      "percent": 66.972,
+      "sim_time": 164.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 20.91
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-05",
+      "position": [
+        11.609,
+        0.63,
+        0.82,
+        1.798
+      ],
+      "percent": 66.222,
+      "sim_time": 165.84,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 20.91
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-05",
+      "position": [
+        11.61,
+        0.63,
+        0.82,
+        1.793
+      ],
+      "percent": 65.98,
+      "sim_time": 166.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 20.91
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-05",
+      "position": [
+        11.154,
+        0.476,
+        0.78,
+        1.584
+      ],
+      "percent": 65.125,
+      "sim_time": 167.56,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 20.03
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-05",
+      "position": [
+        11.06,
+        0.451,
+        0.795,
+        1.555
+      ],
+      "percent": 64.689,
+      "sim_time": 168.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.85
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-05",
+      "position": [
+        10.81,
+        0.511,
+        0.856,
+        1.439
+      ],
+      "percent": 63.999,
+      "sim_time": 169.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.57
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-05",
+      "position": [
+        10.68,
+        0.531,
+        0.89,
+        1.416
+      ],
+      "percent": 63.495,
+      "sim_time": 170.08,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.41
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-05",
+      "position": [
+        10.681,
+        0.53,
+        0.891,
+        1.414
+      ],
+      "percent": 63.052,
+      "sim_time": 170.88,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.4
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-05",
+      "position": [
+        10.681,
+        0.53,
+        0.886,
+        1.431
+      ],
+      "percent": 62.414,
+      "sim_time": 172.04,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.4
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-05",
+      "position": [
+        10.854,
+        0.487,
+        0.812,
+        1.531
+      ],
+      "percent": 62.008,
+      "sim_time": 172.68,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.57
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        11.06,
+        0.451,
+        0.79,
+        1.569
+      ],
+      "percent": 61.41,
+      "sim_time": 173.64,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.84
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        10.947,
+        0.452,
+        0.774,
+        1.33
+      ],
+      "percent": 61.013,
+      "sim_time": 174.32,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 19.77
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        10.023,
+        0.475,
+        0.787,
+        0.547
+      ],
+      "percent": 59.698,
+      "sim_time": 176.12,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 18.49
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        9.145,
+        0.488,
+        0.789,
+        0.026
+      ],
+      "percent": 58.479,
+      "sim_time": 177.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 17.09
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        8.202,
+        0.484,
+        0.787,
+        0
+      ],
+      "percent": 57.234,
+      "sim_time": 179.52,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 15.77
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        7.281,
+        0.477,
+        0.787,
+        0
+      ],
+      "percent": 56.017,
+      "sim_time": 181.2,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 14.5
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        6.381,
+        0.471,
+        0.787,
+        0
+      ],
+      "percent": 54.741,
+      "sim_time": 182.96,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 13.05
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        5.46,
+        0.465,
+        0.787,
+        0
+      ],
+      "percent": 53.553,
+      "sim_time": 184.6,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 11.72
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        4.561,
+        0.46,
+        0.787,
+        0
+      ],
+      "percent": 52.335,
+      "sim_time": 186.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 10.43
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        3.64,
+        0.455,
+        0.787,
+        0
+      ],
+      "percent": 51.06,
+      "sim_time": 188.04,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 8.97
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        2.718,
+        0.451,
+        0.787,
+        0
+      ],
+      "percent": 49.784,
+      "sim_time": 189.8,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 7.68
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        2.104,
+        0.45,
+        0.794,
+        0
+      ],
+      "percent": 48.663,
+      "sim_time": 191.48,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 6.24
+    },
+    {
+      "stage": "CORRIDOR",
+      "target": "CORRIDOR",
+      "position": [
+        2.101,
+        0.015,
+        0.786,
+        0
+      ],
+      "percent": 47.527,
+      "sim_time": 193.28,
+      "dock": "AVAILABLE",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.12
+    },
+    {
+      "stage": "RETURN",
+      "target": "PAD",
+      "position": [
+        2.1,
+        0,
+        0.79,
+        0
+      ],
+      "percent": 47.322,
+      "sim_time": 193.64,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 5.11
+    },
+    {
+      "stage": "RETURN",
+      "target": "PAD",
+      "position": [
+        1.616,
+        0.001,
+        0.772,
+        0
+      ],
+      "percent": 46.525,
+      "sim_time": 194.84,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 4.52
+    },
+    {
+      "stage": "RETURN",
+      "target": "PAD",
+      "position": [
+        0.695,
+        -0.001,
+        0.787,
+        0
+      ],
+      "percent": 45.235,
+      "sim_time": 196.6,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.15
+    },
+    {
+      "stage": "RETURN",
+      "target": "PAD",
+      "position": [
+        0.014,
+        -0.001,
+        0.794,
+        0
+      ],
+      "percent": 44.057,
+      "sim_time": 198.32,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 2.08
+    },
+    {
+      "stage": "LAND",
+      "target": "PAD",
+      "position": [
+        0.003,
+        0,
+        0.794,
+        0
+      ],
+      "percent": 43.965,
+      "sim_time": 198.48,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 1.57
+    },
+    {
+      "stage": "LAND",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.203,
+        0
+      ],
+      "percent": 43.105,
+      "sim_time": 200.04,
+      "dock": "APPROACHING",
+      "charging": false,
+      "contact": false,
+      "safety_phase": "RESERVED",
+      "departure_permit": null,
+      "return_estimate": 3.34
+    },
+    {
+      "stage": "COMPLETE",
+      "target": "PAD",
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "percent": 42.907,
+      "sim_time": 201.8,
+      "dock": "DOCKED",
+      "charging": false,
+      "contact": true,
+      "safety_phase": "RELEASED",
+      "departure_permit": null,
+      "return_estimate": 3.73
+    }
+  ],
+  "safety_events": [
+    {
+      "time": "2026-11-25T13:02:14.018+00:00",
+      "monotonic_ns": 27992930336313,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "released",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Inspection completed and touchdown confirmed."
+    },
+    {
+      "time": "2026-11-25T13:00:25.018+00:00",
+      "monotonic_ns": 27883930504898,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "start_permitted",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+      "departure": 2
+    },
+    {
+      "time": "2026-11-25T12:58:12.718+00:00",
+      "monotonic_ns": 27751630186544,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "flight_started",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Mission Manager started the flight."
+    },
+    {
+      "time": "2026-11-25T12:58:12.168+00:00",
+      "monotonic_ns": 27751080623535,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "start_permitted",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+      "departure": 1
+    },
+    {
+      "time": "2026-11-25T12:58:11.968+00:00",
+      "monotonic_ns": 27750880446510,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "reserved",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Reserved for drone inspection."
+    },
+    {
+      "time": "2026-11-25T12:58:08.923+00:00",
+      "monotonic_ns": 27747835510009,
+      "inspection_id": "INS-CONTROL-20261125-125808-A2CDCFBA",
+      "event": "preparing",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Warning active. Verifying clear zones."
+    }
+  ],
+  "sorties": [
+    {
+      "departure": 1,
+      "start_percent": 63.386,
+      "start_sim_time": 41.28,
+      "completed_before": [],
+      "result": "DOCKED_FOR_CHARGE",
+      "end_percent": 14.721,
+      "end_sim_time": 115.76,
+      "completed_after": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03"
+      ],
+      "charged_percent": 88.39,
+      "charge_end_sim_time": 128.8
+    },
+    {
+      "departure": 2,
+      "start_percent": 89.35,
+      "start_sim_time": 128.96,
+      "completed_before": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03"
+      ],
+      "result": "COMPLETE",
+      "end_percent": 42.911,
+      "end_sim_time": 201.56,
+      "completed_after": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-05"
+      ]
+    }
+  ],
+  "landed": true
+}

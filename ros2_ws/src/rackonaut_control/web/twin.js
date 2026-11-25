@@ -220,7 +220,10 @@ export function createTwin(layout, callbacks) {
     marker.dataset.slot = id;
     markerForSlot[id] = marker;
   }
-  addMarker("H · Launch pad", "pad-marker", [layout.pad.x - .45, layout.pad.y, .12], null);
+  const dockLabel = layout.dock
+    ? addMarker("Charging dock", "dock-marker", layout.dock.locator, null)
+    : null;
+  if (!dockLabel) addMarker("H · Launch pad", "pad-marker", [layout.pad.x - .45, layout.pad.y, .12], null);
   addMarker("Transfer", "pad-marker", [layout.crossing_x, layout.aisles.at(-1).y, .12], null);
   const flightLabel = addMarker("", "aircraft-marker", [0, 0, 0], null);
   const flightAnchor = labels.at(-1).anchor;
@@ -389,6 +392,7 @@ export function createTwin(layout, callbacks) {
       sourceSnapshot = fresh ? JSON.stringify([position, rot]) : null;
       drone.visible = true;
       flightLabel.textContent = fresh ? `UAV · ${z.toFixed(2)} m` : "UAV · Last pose";
+      if (fresh && state.energy?.fresh) flightLabel.textContent += ` · ${Math.round(state.energy.percent)}%`;
       fill("twin-odom", fresh ? `Live odometry · Z ${z.toFixed(2)} m` : "Odometry stale · Last pose");
     } else {
       if (moving) {
@@ -489,17 +493,29 @@ export function createTwin(layout, callbacks) {
         }
       }
     }
-    setPath(planLine, planning ? preview?.points || [] : job?.planned || []);
+    const returnPath = current?.status?.energy?.return_path;
+    setPath(planLine, planning ? preview?.points || [] : returnPath?.length ? returnPath : job?.planned || []);
     setPath(flownLine, planning ? [] : job?.flown || [], .047);
     const moves = current?.status?.adaptive?.moves || [];
     setPath(extraLine, moves.filter((move) => move.actual).flatMap((move) => [move.from, move.actual]), .088);
     setPath(pendingLine, moves.filter((move) => !move.actual).flatMap((move) => [move.from, move.target]), .088);
     updateDrone(state);
+    if (dockLabel) {
+      const phase = state?.energy?.dock || "FAULT";
+      dockLabel.dataset.dock = phase.toLowerCase();
+      dockLabel.textContent = stageName(phase);
+    }
     updateSafety(state);
     queue();
   }
   return {
     update,
+    focusDock() {
+      if (!dockLabel) return;
+      setFollow(false);
+      const target = at([layout.pad.x, layout.pad.y, .22]);
+      cameraTo(target.clone().add(new T.Vector3(-4.2, 3.3, 3.9)), target);
+    },
     focusSlot(id) { focus = id; if (renderData) update(renderData); },
     setVisible(enabled) {
       const first = !visible && enabled && lastDraw === 0;
@@ -510,4 +526,8 @@ export function createTwin(layout, callbacks) {
       update(renderData);
     },
   };
+}
+
+function stageName(phase) {
+  return "Dock · " + phase.toLowerCase().replace(/^./, (letter) => letter.toUpperCase());
 }

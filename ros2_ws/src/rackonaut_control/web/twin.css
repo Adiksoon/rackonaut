@@ -59,3 +59,7 @@ button.twin-marker { pointer-events: auto; }
   .twin-marker { font-size: .58rem; }
   .twin-marker.sensor-marker, .twin-marker.pad-marker { display: none; }
 }
+.twin-marker.dock-marker { color: #b8ffe5; border-color: #4b937e; z-index: 3; }
+.twin-marker.dock-marker[data-dock="approaching"], .twin-marker.dock-marker[data-dock="docked"],
+.twin-marker.dock-marker[data-dock="charging"] { color: #ffe0a8; border-color: #b48a52; }
+.twin-marker.dock-marker[data-dock="fault"] { color: #ffb0ac; border-color: #bb6765; }

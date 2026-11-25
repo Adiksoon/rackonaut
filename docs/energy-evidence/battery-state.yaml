@@ -1,0 +1,21 @@
+header:
+  stamp:
+    sec: 144
+    nanosec: 0
+  frame_id: rackonaut_base_link
+voltage: .nan
+temperature: .nan
+current: .nan
+charge: .nan
+capacity: .nan
+design_capacity: .nan
+percentage: 0.8049012422561646
+power_supply_status: 2
+power_supply_health: 0
+power_supply_technology: 0
+present: true
+cell_voltage: []
+cell_temperature: []
+location: ''
+serial_number: ''
+---

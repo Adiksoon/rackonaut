@@ -1,7 +1,9 @@
 """Create routes from published camera viewpoints and the front transfer corridor."""
 
 from itertools import groupby
-from math import dist
+from math import dist, radians
+
+from rackonaut_energy.model import Model, dock_path, estimate, first_requirement
 
 
 RETRY_OFFSETS = {
@@ -110,3 +112,38 @@ def plan(layout, selection):
                         safety_path.extend(([pose["x"], pose["y"], pose["z"]], point))
         result["safety_points"] = safety_path
     return result
+
+
+def energy_forecast(layout, route, telemetry):
+    model = Model(**telemetry["model"])
+    def pose(row):
+        return row["x"], row["y"], row["z"], radians(row["yaw_deg"])
+
+    dock = pose(route["route"]["pad"])
+    height, crossing = layout["takeoff_z"], layout["crossing_x"]
+    stops = route["route"]["waypoints"]
+    slots = [pose(row) for row in stops if row.get("slot_id")]
+    inspection = len(slots) * (3.2 if route["quality"] else 2.0)
+    travel = [(dock[0], dock[1], height, dock[3]), *(pose(row) for row in stops),
+              (dock[0], dock[1], height, dock[3]), dock]
+    use, duration = estimate(model, dock, travel, inspection)
+    optional = retries = 0.
+    views = route["route"].get("retries", {})
+    for row in stops:
+        slot = row.get("slot_id")
+        if slot not in views:
+            continue
+        nominal = pose(row)
+        candidates = [estimate(model, nominal, [pose(alt), nominal], 4.0)
+                      for group in views[slot]["views"].values() for alt in group]
+        for value, seconds in sorted(candidates, reverse=True)[:2]:
+            optional += value
+            retries += seconds
+    minimum = first_requirement(model, dock, height, crossing, slots[0], 4.)
+    returning, _ = estimate(model, slots[-1], dock_path(slots[-1], dock, height, crossing))
+    level = telemetry["percent"]
+    return {"flight_seconds": round(duration - inspection, 1), "inspection_seconds": round(inspection, 1),
+            "adaptive_seconds": round(retries, 1), "adaptive_percent": round(optional, 2),
+            "estimated_percent": round(use, 2), "return_percent": round(returning, 2),
+            "reserve_percent": model.reserve, "minimum_percent": round(minimum, 2),
+            "can_start": level >= minimum, "single_cycle": level >= use + optional + model.reserve}

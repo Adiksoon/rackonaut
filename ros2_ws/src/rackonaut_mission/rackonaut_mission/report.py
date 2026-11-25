@@ -201,6 +201,36 @@ def adaptive_history(mission):
   </section>"""
 
 
+def energy_history(mission):
+    energy = mission.get("energy")
+    if energy is None:
+        return ""
+
+    def percent(value):
+        return f"{value:.1f}%" if value is not None else "—"
+
+    rows = []
+    for flight in energy["sorties"]:
+        done = [slot for slot in flight.get("completed_after", []) if slot not in flight["completed_before"]]
+        rows.append("<tr>" + "".join(f"<td>{e(value)}</td>" for value in (
+            flight["departure"], percent(flight["start_percent"]), percent(flight.get("end_percent")),
+            percent(flight.get("charged_percent")), flight.get("result", "—").replace("_", " ").title(),
+            ", ".join(done) or "—",
+        )) + "</tr>")
+    interrupted = ", ".join(item["slot"] for item in energy["interrupted"]) or "None"
+    return f"""
+  <section aria-labelledby="energy-title">
+    <h2 id="energy-title">Simulated energy and dock visits</h2>
+    <p>{energy["departures"]} sorties under this inspection ID · {len(energy["remaining"])} unfinished locations</p>
+    <p>Interrupted observations · {e(interrupted)}</p>
+    <div class="table-wrap"><table aria-label="Flights and dock charging">
+      <thead><tr><th>Departure</th><th>Start battery</th><th>End battery</th><th>After charging</th>
+        <th>Outcome</th><th>Locations finished on this flight</th></tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table></div>
+  </section>"""
+
+
 def render(snapshot, evidence, observations):
     mission, api = snapshot["mission"], snapshot["api"]
     summary = api["summary"]
@@ -228,6 +258,7 @@ def render(snapshot, evidence, observations):
         distinct=int(summary["slots_observed"]),
         rows=inventory_rows(mission, summary, observations),
         adaptive_history=adaptive_history(mission),
+        energy_history=energy_history(mission),
         cards=cards or '<p class="empty">No stable carton captures were archived for this inspection.</p>',
     )
 

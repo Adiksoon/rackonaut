@@ -328,7 +328,7 @@ SIGNAL_STACK = (
 )
 
 
-def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True):
+def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_view=False):
     # The fields meet at x=3.4, before the front faces at x=4.1.
     fields = {"A": [3.4, -2.4, rack_end + 1.1, 2.4],
               "B": [3.4, -8.4, rack_end + 1.1, -3.6],
@@ -378,7 +378,7 @@ def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True):
 
     overview = link(world, "safety_overview")
     camera = add(overview, "sensor", name="warehouse_access", type="camera")
-    add(camera, "pose", "-2.3 -3.2 7.4 0 0.59 0.03")
+    add(camera, "pose", "-5.2 -3.2 7.1 0 0.66 0.03" if dock_view else "-2.3 -3.2 7.4 0 0.59 0.03")
     add(camera, "always_on", "true")
     add(camera, "update_rate", 5 if virtual_sensor else 3)
     add(camera, "topic", "/rackonaut_safety/overview")
@@ -493,6 +493,32 @@ def twin_geometry(world, signals):
     ]}
 
 
+def charging_station(world):
+    dock = link(world, "rackonaut_dock")
+    navy, cyan, steel = (.045, .095, .145), (.08, .68, .72), (.25, .34, .43)
+    parts = [
+        ("landing_surface", (0, 0, .022), (2.47, 1.89, .010), navy),
+        ("backplate", (-1.22, 0, .09), (.14, 2.26, .18), steel),
+        ("charger_console", (-1.16, .86, .41), (.34, .39, .82), navy),
+        ("console_cap", (-1.16, .86, .835), (.38, .43, .07), steel),
+        ("red", (-1.16, .86, .895), (.08, .28, .055), (.075, .083, .09)),
+        ("yellow", (-1.16, .86, .96), (.08, .28, .055), (.075, .083, .09)),
+        ("green", (-1.16, .86, 1.025), (.08, .28, .055), (.075, .083, .09)),
+    ]
+    for side in (-1, 1):
+        parts.extend([
+            (f"guide_{side}", (0, side * 1.10, .057), (2.47, .06, .04), cyan),
+            (f"coupler_{side}", (-.52, side * .51, .034), (.34, .16, .01), steel),
+            (f"home_{side}", (side * .29, 0, .041), (.1, .65, .006), (.85, .90, .95)),
+        ])
+    parts.append(("home_crossbar", (0, 0, .041), (.59, .11, .006), (.85, .90, .95)))
+    for name, point, size, color in parts:
+        box(dock, name, point, size, color)
+    plane_label(dock, "branding", (-1.16, .657, .47), .30, .19, texture="rackonaut")
+    return {"parts": [[*point, *size, *color] for _, point, size, color in parts],
+            "locator": [-1.16, .86, 1.72]}
+
+
 def generate(args):
     sdf, world = world_base()
     hall(world, args.hall)
@@ -506,6 +532,10 @@ def generate(args):
         raise SystemExit("The selected rack size exceeds the hall envelope.")
     inspection = count // 2 + 1
     paint(world, aisles, args.aisle_width)
+    if args.energy:
+        station = charging_station(world)
+        if args.dock_layout:
+            args.dock_layout.write_text(json.dumps(station, indent=2) + "\n")
     rows = []
     rng = random.Random(args.seed)
     for index, y in enumerate(positions):
@@ -513,7 +543,7 @@ def generate(args):
     signs(world, aisles, positions[inspection])
     rack_end = 5.5 + (args.bays - .5) * args.bay_pitch
     if args.safety:
-        fields = safety_infrastructure(world, aisles, rack_end, not args.laser)
+        fields = safety_infrastructure(world, aisles, rack_end, not args.laser, args.energy)
         if args.layout:
             args.layout.write_text(json.dumps(fields, indent=2) + "\n")
         if args.laser:
@@ -639,6 +669,8 @@ def main():
     parser.add_argument("--safety", action="store_true", help="add access control to the control showcase")
     parser.add_argument("--laser", type=Path, help="add GPU LiDAR and write its calibration and fields")
     parser.add_argument("--adaptive", action="store_true", help="stage a recoverable label occlusion")
+    parser.add_argument("--energy", action="store_true", help="add the simulated Rackonaut charging station")
+    parser.add_argument("--dock-layout", type=Path)
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -652,6 +684,8 @@ def main():
         parser.error("--laser requires --safety")
     if args.adaptive and not args.safety:
         parser.error("--adaptive requires --safety")
+    if (args.energy and not args.safety) or (args.dock_layout and not args.energy):
+        parser.error("Dock layout requires an energy showcase with safety.")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")

@@ -33,6 +33,8 @@ class Route:
     takeoff: Target
     waypoints: tuple[Target, ...]
     retries: dict[str, RetryViews] = field(default_factory=dict)
+    crossing: float | None = None
+    zones: tuple[str, ...] = ()
 
     @property
     def stops(self):
@@ -82,7 +84,12 @@ def load_route(path):
                 raise ValueError(f"Unsafe adaptive viewpoint for {stop.slot_id}.")
             views[reason] = poses
         retries[stop.slot_id] = RetryViews(entry["zone"], bounds, views)
-    return Route(pad, replace(pad, z=float(height)), waypoints, retries)
+    crossing = config.get("energy_crossing_x")
+    zones = tuple(config.get("energy_zones", ()))
+    if crossing is not None and (not isfinite(crossing) or "T" not in zones
+                                 or any(stop.slot_id[0] not in zones for stop in stops)):
+        raise ValueError("Energy route requires the reserved transfer corridor and inspection aisles.")
+    return Route(pad, replace(pad, z=float(height)), waypoints, retries, crossing, zones)
 
 
 def heading_error(target, actual):

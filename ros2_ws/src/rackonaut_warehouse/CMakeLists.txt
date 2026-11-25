@@ -51,6 +51,19 @@ add_custom_command(OUTPUT "${adaptive_world}" "${adaptive_laser_world}" "${adapt
   VERBATIM)
 add_custom_target(adaptive_showcase ALL DEPENDS "${adaptive_world}" "${adaptive_laser_world}" "${adaptive_laser_fields}")
 
+set(energy_world "${CMAKE_CURRENT_BINARY_DIR}/energy_showcase.sdf")
+set(energy_laser_world "${CMAKE_CURRENT_BINARY_DIR}/energy_laser_showcase.sdf")
+set(energy_laser_fields "${CMAKE_CURRENT_BINARY_DIR}/energy_laser_fields.json")
+set(dock_layout "${CMAKE_CURRENT_BINARY_DIR}/dock_layout.json")
+add_custom_command(OUTPUT "${energy_world}" "${energy_laser_world}" "${energy_laser_fields}" "${dock_layout}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --dock-layout "${dock_layout}" --output "${energy_world}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --laser "${energy_laser_fields}" --output "${energy_laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(energy_showcase ALL DEPENDS "${energy_world}" "${energy_laser_world}" "${energy_laser_fields}" "${dock_layout}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
@@ -60,5 +73,7 @@ install(FILES "${safety_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${laser_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${adaptive_world}" "${adaptive_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${energy_world}" "${energy_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${dock_layout}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

@@ -1,10 +1,12 @@
 import json
+from dataclasses import asdict
 from unittest import TestCase
 from xml.etree import ElementTree
 
 from ament_index_python.packages import get_package_share_path
 
-from rackonaut_control.planning import plan
+from rackonaut_control.planning import energy_forecast, plan
+from rackonaut_energy.model import Model
 
 
 class PlanningTests(TestCase):
@@ -62,6 +64,16 @@ class PlanningTests(TestCase):
             plan(self.layout, {"mode": "aisle", "aisles": ["C"]})
         with self.assertRaises(ValueError):
             plan(self.layout, {"mode": "custom", "slots": []})
+
+    def test_energy_forecast_includes_adaptive_motion_and_blocks_an_empty_battery(self):
+        safety = json.loads((self.share / "config/safety_fields.json").read_text())
+        layout = {**self.layout, "safety_fields": safety, "adaptive_world": True}
+        route = plan(layout, {"mode": "custom", "slots": ["A-01-01"], "adaptive": True, "quality": True})
+        forecast = energy_forecast(layout, route, {"model": asdict(Model()), "percent": 5.})
+        self.assertFalse(forecast["can_start"])
+        self.assertFalse(forecast["single_cycle"])
+        self.assertGreater(forecast["adaptive_seconds"], 8.)
+        self.assertGreater(forecast["minimum_percent"], forecast["return_percent"] + forecast["reserve_percent"])
 
     def test_adaptive_moves_reserve_out_and_back_legs_in_laser_fields(self):
         selection = {"mode": "full", "adaptive": True}

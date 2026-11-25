@@ -33,11 +33,14 @@ def setup(context):
     if enabled("laser_rviz") and not laser:
         raise ValueError("laser_rviz requires safety_sensor:=laser.")
     world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
-    adaptive = enabled("adaptive_world")
+    energy = enabled("energy")
+    adaptive = enabled("adaptive_world") or energy
     if adaptive:
         if not safety:
             raise ValueError("adaptive_world requires safety:=true.")
         world = "adaptive_laser_showcase.sdf" if laser else "adaptive_showcase.sdf"
+    if energy:
+        world = "energy_laser_showcase.sdf" if laser else "energy_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     if enabled("gazebo_gui"):
         command.append("--gui")
@@ -64,7 +67,14 @@ def setup(context):
         "safety_enabled": safety,
         "safety_sensor": mode,
         "adaptive_world": adaptive,
+        "energy_enabled": energy,
     }]))
+    if energy:
+        processes.append(Node(package="rackonaut_energy", executable="manage", output="screen", parameters=[{
+            "initial_percent": float(arg("battery_initial")),
+            "charge": float(arg("charge_rate")),
+            "events_file": str(Path(data) / "charge-cycles.jsonl"),
+        }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
         target_action=process, on_exit=[EmitEvent(event=Shutdown(reason="A Control Center service stopped"))],
     )) for process in processes]
@@ -75,7 +85,7 @@ def setup(context):
             Node(package="rackonaut_safety", executable="manage", output="screen",
                  parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode}]),
             Node(package="rackonaut_safety", executable="infrastructure", output="screen",
-                 parameters=[{"laser_props": laser}]),
+                 parameters=[{"laser_props": laser, "energy_dock": energy}]),
             *(Node(package="ros_gz_bridge", executable="parameter_bridge", name=f"safety_{name}_bridge",
                    parameters=[{"config_file": str(config / f"{name}_bridge.yaml")}], output="screen")
               for name in ("laser" if laser else "presence", "overview")),
@@ -98,7 +108,8 @@ def setup(context):
 def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
-                "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false"}
+                "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
+                "energy": "false", "battery_initial": "64.0", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

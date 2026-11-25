@@ -65,6 +65,7 @@ class Manager(Node):
         self.alarm = None
         self.reserved_at = self.prepared_at = self.next_abort = 0.
         self.permit_issued = self.airborne = self.abort_logged = False
+        self.energy_permits = set()
         self.abort_future = None
         self.occupied_since = {}
         self.recent_requests = deque(maxlen=20)
@@ -187,6 +188,7 @@ class Manager(Node):
         self.mission, self.mission_at = {}, -1e6
         self.alarm, self.abort_future = None, None
         self.permit_issued = self.airborne = self.abort_logged = False
+        self.energy_permits.clear()
         now = monotonic()
         reason, zones, _ = self.blockers(now)
         if reason or not self.at_pad(now):
@@ -298,17 +300,28 @@ class Manager(Node):
         verified = lights and now - self.odom_at <= ODOM_TIMEOUT
         phases = {key: self.visual_state(key, verified and health[key] == "FRESH") for key in self.fields}
         self.signals.publish(String(data=" ".join(f"{key}={value}" for key, value in phases.items())))
-        permit = (self.phase == "RESERVED" and self.mission.get("stage") == "WAITING"
+        stage = self.mission.get("stage")
+        energy = self.mission.get("energy")
+        departure = energy["departures"] + 1 if energy else None
+        awaiting_departure = stage == "WAITING" or (energy is not None and stage == "READY_TO_RESUME"
+                                                     and self.mission.get("landed") is True)
+        clear_now = all(health[key] == "FRESH" and key not in present for key in self.required)
+        permit = (self.phase == "RESERVED" and awaiting_departure
                   and now - self.mission_at < .7 and self.at_pad(now) and lights
                   and now - self.reserved_at >= .18
+                  and clear_now
                   and all(self.light_state.get(key) == "RESERVED" for key in self.required))
-        if permit and not self.permit_issued:
+        if permit and (not self.permit_issued or (energy and departure not in self.energy_permits)):
             self.permit_issued = True
-            self.event("start_permitted", "Reserved red signals accepted by Gazebo. Start permitted.", self.required)
+            if energy:
+                self.energy_permits.add(departure)
+            details = {"departure": departure} if energy else {}
+            self.event("start_permitted", "Reserved red signals accepted by Gazebo. Start permitted.", self.required, **details)
         busy = self.phase in {"PREPARING", "RESERVED", "RECOVERY"}
         sensor = next((problem for problem in ("UNKNOWN", "STALE") if problem in health.values()), "FRESH")
         snapshot = {
             "inspection_id": self.run, "phase": self.phase, "permit": permit,
+            "permit_departure": departure if permit else None,
             "sensor": sensor, "sensor_mode": self.sensor_mode,
             "signals_online": lights, "at_pad": self.at_pad(now),
             "required": self.required if busy else [], "message": self.message, "alarm": self.alarm,

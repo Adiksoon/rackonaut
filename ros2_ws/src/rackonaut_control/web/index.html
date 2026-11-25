@@ -40,6 +40,17 @@
     <span id="safety-message"></span>
     <a href="#warehouse-safety">Warehouse Safety ↓</a>
   </div>
+  <section class="card energy-panel" id="energy-panel" aria-labelledby="energy-title" hidden>
+    <div class="energy-head"><div><h2 id="energy-title">Drone &amp; Energy</h2><p id="energy-message" role="status">Waiting for simulated battery data</p></div>
+      <div class="energy-actions"><span id="dock-state" class="signal">Dock unavailable</span><button type="button" id="focus-dock" class="chip">Focus dock</button></div></div>
+    <div class="energy-grid">
+      <div class="energy-battery"><span>Simulated battery</span><strong id="battery-value">—</strong><meter id="battery-meter" min="0" max="100" value="0" aria-label="Simulated battery percentage"></meter></div>
+      <div><span>Estimated energy to finish</span><strong id="energy-need">—</strong><small id="energy-budget"></small></div>
+      <div><span>Return budget + reserve</span><strong id="energy-reserve">—</strong></div>
+      <div><span>Charging cycles</span><strong id="energy-cycles">—</strong></div>
+      <div><span>Remaining locations</span><strong id="energy-remaining">—</strong><small id="energy-remaining-ids"></small></div>
+    </div>
+  </section>
   <div class="workspace" id="workspace" data-view="plan">
     <section class="card warehouse" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Top-down view · Rackonaut showcase</p></div>

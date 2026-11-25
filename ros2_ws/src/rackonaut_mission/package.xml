@@ -16,6 +16,7 @@
   <exec_depend>rackonaut_reference</exec_depend>
   <exec_depend>rackonaut_warehouse</exec_depend>
   <exec_depend>rclpy</exec_depend>
+  <exec_depend>rackonaut_energy</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>

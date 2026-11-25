@@ -130,7 +130,7 @@ function drawLayout() {
     + `<path class="corridor-axis" d="M${cx} ${cy1}V${cy2}"/>`
     + text(cross + .35, 8.1, "TRANSFER", "corridor")
     + rect(p.x - p.width / 2, p.y - p.height / 2, p.width, p.height, "pad", 'rx="4"')
-    + text(p.x, p.y - .28, "H", "pad-letter") + text(p.x - 1.5, p.y - 1.8, "LAUNCH PAD", "pad-caption"));
+    + text(p.x, p.y - .28, "H", "pad-letter") + text(p.x - 1.5, p.y - 1.8, layout.dock ? "CHARGING DOCK" : "LAUNCH PAD", "pad-caption"));
   html("map-aisles", layout.aisles.map(({ id, y, functional }) => {
     const left = 4.1, right = f.x + f.width - .8;
     const [x1, y1] = point(left, y + 2.3), [x2, y2] = point(right, y - 2.3);
@@ -252,7 +252,8 @@ function drawMap(job) {
     item.setAttribute("aria-pressed", String(selected.has(slot)));
   }
   const line = (points) => (points || []).map(([x, y]) => point(x, y).join(",")).join(" ");
-  el("plan-line").setAttribute("points", line(view === "plan" ? preview?.points : job?.planned));
+  const returnPath = status.energy?.return_path;
+  el("plan-line").setAttribute("points", line(view === "plan" ? preview?.points : returnPath?.length ? returnPath : job?.planned));
   el("flown-line").setAttribute("points", view === "plan" ? "" : line(job?.flown));
   const moves = status.adaptive?.moves || [];
   html("adaptive-lines", moves.map((move) =>
@@ -347,6 +348,50 @@ function drawAdaptive(job) {
   const observed = adaptive.attempts.filter((attempt) => attempt.observation_id).length;
   put("adaptive-totals", `${observed} observations · ${adaptive.retries} additional attempts · ${adaptive.resolved.length} resolved · ${manual.length} manual checks`);
   put("adaptive-review", manual.map(([slot, reason]) => `${slot} · ${retryReasons[reason] || reason}`).join("  |  "));
+}
+
+function drawEnergy(job) {
+  el("energy-panel").hidden = !layout.dock;
+  if (!layout.dock) return;
+  const telemetry = state?.energy;
+  const forecast = view === "plan" ? preview?.energy : null;
+  const mission = view !== "plan" ? job?.status?.energy : null;
+  const stage = job?.stage;
+  const remaining = mission?.remaining || preview?.slots;
+  const percent = value => Number.isFinite(value) ? `${value.toFixed(1)}%` : "—";
+  const battery = telemetry?.fresh ? telemetry.percent : null;
+  const dock = telemetry?.dock || "FAULT";
+  put("battery-value", percent(battery));
+  el("battery-meter").value = battery ?? 0;
+  el("battery-meter").classList.toggle("low", battery != null && battery < 30);
+  put("dock-state", `Dock · ${label(dock)}`);
+  el("dock-state").classList.toggle("good", dock === "READY" || dock === "CHARGING");
+  el("energy-panel").dataset.dock = dock.toLowerCase();
+  put("energy-cycles", telemetry?.cycles ?? "—");
+  put("energy-need", percent(mission?.required_percent ?? forecast?.estimated_percent));
+  put("energy-budget", forecast ? `${forecast.flight_seconds} sim s flight · ${forecast.inspection_seconds} sim s scan · up to ${forecast.adaptive_percent.toFixed(1)}% adaptive allowance` : "");
+  const returning = mission?.return_percent ?? forecast?.return_percent;
+  const reserve = mission?.reserve_percent ?? forecast?.reserve_percent;
+  put("energy-reserve", returning != null ? `${percent(returning)} + ${percent(reserve)}` : "—");
+  put("energy-remaining", remaining?.length ?? "—");
+  put("energy-remaining-ids", remaining ? remaining.slice(0, 5).join(" · ") + (remaining.length > 5 ? " …" : "") : "");
+  const messages = {
+    RETURN_TO_DOCK: mission?.return_reason, DOCKING: "Aligning and landing on the dock",
+    CHARGING: "Docking confirmed · Accelerated simulated charging",
+    READY_TO_RESUME: "Battery ready — requesting departure clearance",
+    RESUMING: "Resuming unfinished inspection", COMPLETE: "Inspection completed",
+    COMPLETE_WITH_MISSES: "Inspection completed with unconfirmed stops",
+    ABORTED: "Inspection stopped · Automatic departure disabled",
+  };
+  let message = "Waiting for simulated battery data";
+  if (battery != null) {
+    message = mission ? messages[stage] || (telemetry.charging ? "Simulated charging" : "") || "Tracking live simulated energy"
+      : forecast && battery < forecast.minimum_percent ? "Insufficient energy for the first stop and safe return"
+      : forecast && battery >= forecast.estimated_percent + forecast.adaptive_percent + forecast.reserve_percent
+        ? "Battery sufficient for planned inspection"
+        : forecast ? "The route may require a charging stop" : "Select an inspection scope for an energy estimate";
+  }
+  if (el("energy-message").textContent !== message) put("energy-message", message);
 }
 
 function drawSafety() {
@@ -450,6 +495,8 @@ function draw() {
   else if (!state.at_pad) reason = "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
   else if (state?.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
+  else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
+  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Insufficient energy for the first stop and safe return.";
   else if (!state.backend.online) reason = "Waiting for the inventory API.";
   else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
   el("start").disabled = !!reason;
@@ -472,12 +519,14 @@ function draw() {
   drawSafety();
   drawResults(job);
   drawAdaptive(job);
+  drawEnergy(job);
   drawTwin(job);
 }
 
 async function poll() {
   try {
     state = await api("/api/state");
+    if (layout.dock && preview && !preview.energy && state.energy?.fresh) changePlan();
     const job = state.mission;
     if (job && (!wantedRun || job.inspection_id === wantedRun)) {
       if (job.inspection_id !== lastRun) {
@@ -510,6 +559,10 @@ async function init() {
   el("map-2d").addEventListener("click", () => chooseMap(false));
   el("map-3d").addEventListener("click", loadTwin);
   el("map-3d").disabled = !layout.scene;
+  el("focus-dock").addEventListener("click", async () => {
+    if (!show3D) await loadTwin();
+    if (show3D) twin?.focusDock();
+  });
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
   el("quality").addEventListener("change", (event) => { choices.quality = event.target.checked; changePlan(); });
