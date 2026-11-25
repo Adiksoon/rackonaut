@@ -179,13 +179,19 @@ function drawResults(job) {
   const result = job?.result;
   const finished = job && terminal.has(job.stage);
   const reports = job?.evidence || [];
+  const damage = reports.filter(report => report.status === "DAMAGED");
+  const interrupted = job?.stage === "ABORTED";
   put("completion-id", job?.inspection_id || "No inspection selected");
-  put("completion-text", job?.error || (finished ? (status.landed ? "Touchdown confirmed. " : "Touchdown unconfirmed. ")
+  el("completion-text").classList.toggle("warning", interrupted || !!job?.error || (!!finished && !status.landed));
+  put("completion-text", job?.error || (finished ? (interrupted ? "Mission aborted. Touchdown unconfirmed. "
+    : status.landed ? "Touchdown confirmed. " : "Touchdown unconfirmed. ")
     + (result ? `${Object.keys(status.confirmed || {}).length} stops confirmed · ${result.events} API events.` : "Preparing report.")
     : job ? "The mission is still in progress." : "Run an inspection to see its report."));
   const reportLink = el("report-link");
   reportLink.hidden = !result;
   if (result) reportLink.href = result.url;
+  el("damage-link").hidden = !damage.length;
+  put("damage-link", `View ${damage.length} damage ${damage.length === 1 ? "photo" : "photos"} ↓`);
   const review = reviewSlots(job);
   el("review-stops").hidden = !(finished && review.length);
   el("review-stops").disabled = !state?.at_pad || !!state?.busy;
@@ -213,7 +219,7 @@ function drawResults(job) {
       <td>${safe(outcome === "pending" ? "Pending comparison" : label(outcome) || "—")}</td>
       <td>${evidence ? `<span class="label ${evidence.status === "DAMAGED" ? "bad" : "good"}">${safe(evidence.status)}</span>` : "—"}</td></tr>`;
   }).join(""));
-  html("findings", reports.filter((report) => report.status === "DAMAGED").map((report) => {
+  html("findings", damage.map((report) => {
     const photo = `/evidence/${encodeURIComponent(job.inspection_id)}/${encodeURIComponent(report.quality_id)}/annotated.png`;
     return `<a class="finding" target="_blank" rel="noopener" href="${photo}">
       <img src="${photo}" alt="Damage evidence for ${safe(report.slot_id)}">
@@ -260,6 +266,10 @@ function drawSafety() {
     message = status.message;
     if (!unavailable && !occupied.length) message += " Clear now. Request a new inspection when ready.";
     style = "fault";
+  } else if (!status) {
+    title = "Safety Manager offline";
+    message = "Access is unverified. Dispatch is blocked.";
+    style = "fault";
   } else if (unavailable || occupied.length) {
     title = "Hold · Selected scope unavailable";
     message = unavailable ? "Waiting for verified sensor and signal data." : `Worker present · ${occupied.join(", ")}`;
@@ -285,8 +295,10 @@ function drawSafety() {
       <strong>${byName[id]}</strong><span class="access-label"><i></i>${label(state)}</span>
       <small>${id === "C" ? "Decorative aisle" : detected + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
   }).join(""));
-  const reservations = (status?.required || []).map(id => zones[id]?.label).filter(Boolean);
-  put("zone-reservations", reservations.length ? `Restricted scope · ${reservations.join(", ")}` : "No active reservation.");
+  const reservations = (status?.required || state?.last_reservation || []).map(id => byName[id]);
+  put("zone-reservations", status
+    ? (reservations.length ? `Restricted scope · ${reservations.join(", ")}` : "No active reservation.")
+    : (reservations.length ? `Access unverified · Last reservation · ${reservations.join(", ")}` : "Reservation status unverified."));
   html("safety-history", (status?.events || []).slice(0, 12).map(event =>
     `<li><time datetime="${safe(event.time)}">${safe(new Date(event.time).toLocaleTimeString())}</time>
       <div><b>${safe(label(event.event))}</b><span>${safe(event.message)}</span>

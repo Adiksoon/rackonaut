@@ -397,6 +397,7 @@ class Control(Node):
     def snapshot(self):
         with self.lock:
             job = self.job
+            safety = self.safety_status()
             current = None
             if job:
                 current = {"inspection_id": job.run, "stage": self.stage(job), "slots": job.plan["slots"],
@@ -407,7 +408,8 @@ class Control(Node):
                     "position": self.position, "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
                     "camera_type": self.camera_type, "history": self.history[:12],
-                    "safety_enabled": self.safety_enabled, "safety": self.safety_status(),
+                    "safety_enabled": self.safety_enabled, "safety": safety,
+                    "last_reservation": (self.safety or {}).get("required", []) if safety is None else [],
                     "overview": monotonic() - self.overview_at < 1.5}
 
     def close(self):

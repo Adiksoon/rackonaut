@@ -131,6 +131,9 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--mint); cursor:
 #metric-damaged { color: var(--red); }
 .completion { margin: 0 0 12px; border: 1px solid #39564f; background: #172e2e; padding: 11px; border-radius: 8px;
   font-size: .85rem; color: #c4f3e6; }
+.completion.warning { border-color: #71454a; background: #38272e; color: #ffe1df; }
+#damage-link { text-decoration: none; }
+#damage-link:hover { background: #213646; }
 #history-panel { margin-top: 17px; }
 #history-panel h3 { font-size: .9rem; }
 .history-item { display: flex; justify-content: space-between; gap: 5px; border-bottom: 1px solid var(--line);

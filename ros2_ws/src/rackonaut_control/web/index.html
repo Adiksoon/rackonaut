@@ -59,7 +59,7 @@
       <div class="card-head"><div><h2 id="scope-title">Inspection scope</h2><p>Choose a mode, then confirm the selection.</p></div></div>
       <fieldset id="mode-options">
         <legend class="sr-only">Selection mode</legend>
-        <label class="mode"><input name="mode" value="full" type="radio"><span><strong>Full inventory</strong><small>All functional locations</small></span></label>
+        <label class="mode"><input name="mode" value="full" type="radio"><span><strong>Full inventory</strong><small>All 11 inspection locations in A and B</small></span></label>
         <label class="mode"><input name="mode" value="aisle" type="radio" checked><span><strong>Aisle inspection</strong><small>Select one or more aisles</small></span></label>
         <label class="mode"><input name="mode" value="custom" type="radio"><span><strong>Custom inspection</strong><small>Select individual locations</small></span></label>
       </fieldset>
@@ -82,6 +82,7 @@
       <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id">No inspection selected</p></div></div>
       <div id="completion-text" class="completion">Run an inspection to see its report.</div>
       <a id="report-link" class="primary" target="_blank" rel="noopener" hidden>Open HTML Report <span aria-hidden="true">↗</span></a>
+      <a id="damage-link" class="secondary" href="#findings" hidden></a>
       <button type="button" id="review-stops" class="secondary" hidden>Plan reinspection</button>
       <button type="button" id="next-inspection" class="secondary">Plan another inspection</button>
       <section id="history-panel"><h3>Report history</h3><div id="history"></div></section>

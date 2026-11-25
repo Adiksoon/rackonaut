@@ -242,9 +242,9 @@ class Manager(Node):
                            triggering_event_ns=self.alarm["monotonic_ns"])
         self.next_abort = now + .3
 
-    def visual_state(self, key, fresh):
+    def visual_state(self, key, verified):
         if key not in self.required or self.phase not in {"PREPARING", "RESERVED", "RECOVERY"}:
-            return "OPEN" if fresh else "FAULT"
+            return "OPEN" if verified else "FAULT"
         if self.phase == "PREPARING":
             return "PREPARING"
         if self.phase == "RECOVERY" and key in self.alarm["zones"]:
@@ -260,9 +260,10 @@ class Manager(Node):
             if not fresh or key in present:
                 self.clear_since[key] = now
         self.supervise(now)
-        phases = {key: self.visual_state(key, fresh) for key in self.fields}
-        self.signals.publish(String(data=" ".join(f"{key}={value}" for key, value in phases.items())))
         lights = now - self.light_at <= SIGNAL_TIMEOUT
+        verified = fresh and lights and now - self.odom_at <= ODOM_TIMEOUT
+        phases = {key: self.visual_state(key, verified) for key in self.fields}
+        self.signals.publish(String(data=" ".join(f"{key}={value}" for key, value in phases.items())))
         permit = (self.phase == "RESERVED" and self.mission.get("stage") == "WAITING"
                   and now - self.mission_at < .7 and self.at_pad(now) and lights
                   and now - self.reserved_at >= .18
