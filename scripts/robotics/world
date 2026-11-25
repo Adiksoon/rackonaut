@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
+world="$RACKONAUT_WS/src/rackonaut_reference/worlds/reference.sdf"
+export HOME="$RACKONAUT_WS/.gazebo-home"
+mkdir -p -- "$HOME"
+ulimit -c 0
+case "${1:-}" in
+    "") exec ign gazebo -r -s "$world" ;;
+    --gui) exec env LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe ign gazebo -r "$world" ;;
+    *) printf 'Usage: %s [--gui]\n' "$0" >&2; exit 2 ;;
+esac

@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
+cd -- "$RACKONAUT_WS"
+colcon --log-base log build --base-paths src --build-base build --install-base install \
+    --cmake-args -DPython3_EXECUTABLE=/usr/bin/python3 -DCMAKE_BUILD_TYPE=RelWithDebInfo

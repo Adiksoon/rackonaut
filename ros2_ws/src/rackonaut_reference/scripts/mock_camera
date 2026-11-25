@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+"""Publish the synthetic shelf with matching CameraInfo."""
+
+import cv2
+import rclpy
+from ament_index_python.packages import get_package_share_path
+from cv_bridge import CvBridge
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import CameraInfo, Image
+
+FRAME = "rackonaut_camera_optical_frame"
+
+
+class MockCamera(Node):
+    def __init__(self):
+        super().__init__("rackonaut_mock_camera")
+        fixture = get_package_share_path("rackonaut_reference") / "fixtures" / "mock_rack.png"
+        self.image = cv2.imread(str(fixture))
+        if self.image is None:
+            raise RuntimeError(f"Could not read {fixture}")
+
+        self.bridge = CvBridge()
+        self.images = self.create_publisher(Image, "/rackonaut/camera/image_raw", qos_profile_sensor_data)
+        self.calibration = self.create_publisher(
+            CameraInfo, "/rackonaut/camera/camera_info", qos_profile_sensor_data
+        )
+        self.create_timer(0.1, self.publish_frame)
+        self.get_logger().info("Publishing synthetic RGB and calibration at 10 Hz")
+
+    def publish_frame(self):
+        stamp = self.get_clock().now().to_msg()
+        rgb = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
+        image = self.bridge.cv2_to_imgmsg(rgb, encoding="rgb8")
+        image.header.stamp = stamp
+        image.header.frame_id = FRAME
+
+        info = CameraInfo()
+        info.header = image.header
+        info.width = image.width
+        info.height = image.height
+        fx, cx, cy = 320.0, image.width / 2.0, image.height / 2.0
+        info.distortion_model = "plumb_bob"
+        info.d = [0.0] * 5
+        info.k = [fx, 0.0, cx, 0.0, fx, cy, 0.0, 0.0, 1.0]
+        info.r = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        info.p = [fx, 0.0, cx, 0.0, 0.0, fx, cy, 0.0, 0.0, 0.0, 1.0, 0.0]
+        self.images.publish(image)
+        self.calibration.publish(info)
+
+
+def main():
+    rclpy.init()
+    node = MockCamera()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()

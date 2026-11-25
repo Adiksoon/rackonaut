@@ -1,0 +1,165 @@
+{
+  "fixture": true,
+  "inspection_id": "INS-001",
+  "scenarios": [
+    {
+      "name": "correct_pallet",
+      "slot_id": "A-01-01",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-001-1",
+            "slot_id": "A-01-01",
+            "pallet_id": "P001",
+            "occupancy": "occupied",
+            "label_status": "readable",
+            "timestamp": "2026-11-25T12:00:01Z"
+          },
+          "fixture_outcome": "match"
+        }
+      ],
+      "expected_final_outcome": "match"
+    },
+    {
+      "name": "wrong_location",
+      "slot_id": "A-01-02",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-002-1",
+            "slot_id": "A-01-02",
+            "pallet_id": "P003",
+            "occupancy": "occupied",
+            "label_status": "readable",
+            "timestamp": "2026-11-25T12:00:02Z"
+          },
+          "fixture_outcome": "wrong_pallet"
+        }
+      ],
+      "expected_final_outcome": "wrong_pallet"
+    },
+    {
+      "name": "missing_pallet",
+      "slot_id": "A-01-03",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-003-1",
+            "slot_id": "A-01-03",
+            "pallet_id": null,
+            "occupancy": "empty",
+            "label_status": "not_applicable",
+            "timestamp": "2026-11-25T12:00:03Z"
+          },
+          "fixture_outcome": "missing_pallet"
+        }
+      ],
+      "expected_final_outcome": "missing_pallet"
+    },
+    {
+      "name": "unexpected_pallet",
+      "slot_id": "A-01-04",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-004-1",
+            "slot_id": "A-01-04",
+            "pallet_id": "P999",
+            "occupancy": "occupied",
+            "label_status": "readable",
+            "timestamp": "2026-11-25T12:00:04Z"
+          },
+          "fixture_outcome": "unexpected_pallet"
+        }
+      ],
+      "expected_final_outcome": "unexpected_pallet"
+    },
+    {
+      "name": "unreadable_label",
+      "slot_id": "A-01-05",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-005-1",
+            "slot_id": "A-01-05",
+            "pallet_id": null,
+            "occupancy": "occupied",
+            "label_status": "unreadable",
+            "timestamp": "2026-11-25T12:00:05Z"
+          },
+          "fixture_outcome": "unreadable_label"
+        }
+      ],
+      "expected_final_outcome": "unreadable_label"
+    },
+    {
+      "name": "uninspected_slot",
+      "slot_id": "A-01-06",
+      "events": [],
+      "expected_final_outcome": "uninspected"
+    },
+    {
+      "name": "uncertain_observation",
+      "slot_id": "A-01-07",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-007-1",
+            "slot_id": "A-01-07",
+            "pallet_id": null,
+            "occupancy": "uncertain",
+            "label_status": "unknown",
+            "timestamp": "2026-11-25T12:00:07Z"
+          },
+          "fixture_outcome": "uncertain"
+        }
+      ],
+      "expected_final_outcome": "uncertain"
+    },
+    {
+      "name": "repeat_same_slot",
+      "slot_id": "A-01-08",
+      "events": [
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-008-1",
+            "slot_id": "A-01-08",
+            "pallet_id": "P998",
+            "occupancy": "occupied",
+            "label_status": "readable",
+            "timestamp": "2026-11-25T12:00:08Z"
+          },
+          "fixture_outcome": "wrong_pallet"
+        },
+        {
+          "observation": {
+            "schema_version": "1.0",
+            "inspection_id": "INS-001",
+            "observation_id": "OBS-008-2",
+            "slot_id": "A-01-08",
+            "pallet_id": "P008",
+            "occupancy": "occupied",
+            "label_status": "readable",
+            "timestamp": "2026-11-25T12:01:08Z"
+          },
+          "fixture_outcome": "match"
+        }
+      ],
+      "expected_final_outcome": "match"
+    }
+  ]
+}

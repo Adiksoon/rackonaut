@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -eo pipefail
+base="$(dirname -- "${BASH_SOURCE[0]}")"
+source "$base/activate.bash"
+source "$base/processes.bash"
+share="$(ros2 pkg prefix --share rackonaut_reference)" || {
+    printf 'Build the workspace with scripts/robotics/build first.\n' >&2
+    exit 1
+}
+world="$share/worlds/reference.sdf"
+rendering=(-s --headless-rendering)
+software=1
+while (( $# )); do
+    case "$1" in
+        --world) world="${2:?--world requires a path}"; shift ;;
+        --gui) rendering=() ;;
+        --hardware-rendering) software=0 ;;
+        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH]\n' "$0" >&2; exit 2 ;;
+    esac
+    shift
+done
+world="$(realpath -e -- "$world")"
+export HOME="$RACKONAUT_WS/.gazebo-home"
+mkdir -p -- "$HOME"
+ulimit -c 0
+cleanup_reference() {
+    trap '' INT TERM
+    if stop_owned; then
+        printf 'Reference simulator, bridge and TF publisher stopped.\n'
+    else
+        exit 1
+    fi
+}
+trap cleanup_reference EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+if (( software )); then
+    start_owned env LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe ign gazebo -r "${rendering[@]}" -v 3 "$world"
+else
+    start_owned ign gazebo -r "${rendering[@]}" -v 3 "$world"
+fi
+server_pid="${owned_groups[0]}"
+ready=0
+for attempt in {1..30}; do
+    if ign service -l | grep -Fxqs /world/rackonaut/create; then
+        ready=1
+        break
+    fi
+    if ! kill -0 "$server_pid" 2>/dev/null; then break; fi
+    sleep 0.2
+done
+if (( ! ready )); then
+    printf 'Fortress did not expose /world/rackonaut/create.\n' >&2
+    exit 1
+fi
+timeout 10s ros2 run ros_gz_sim create -world rackonaut -file "$share/models/reference_drone.sdf" \
+    -name rackonaut_reference_drone -x 0 -y 0 -z 0.12 -Y 0
+start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -p "config_file:=$share/config/bridge.yaml"
+start_owned ros2 run tf2_ros static_transform_publisher --x 0.23 --roll -1.57079632679 --yaw -1.57079632679 --frame-id rackonaut_base_link --child-frame-id rackonaut_camera_optical_frame --ros-args -p use_sim_time:=true
+wait -n

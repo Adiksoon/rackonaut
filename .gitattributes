@@ -1,0 +1,3 @@
+# Keep executable scripts portable across Linux and Windows checkouts.
+* text=auto eol=lf
+*.png binary

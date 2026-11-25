@@ -1,0 +1,3 @@
+# Starter prompt · Backend
+
+> I am working on Rackonaut's backend on `feature/backend`. Read `README.md`, `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/INTERFACES.md`, `contracts/http.md` and `docs/onboarding/BACKEND.md`. Check Git, my OS and Python version, then set up the documented virtual environment and run the mock and smoke checks. Work in `backend/` and backend-specific tests. Use the shared OpenAPI contract and synthetic inventory, observations and expected results. Implement the smallest comparison change and verify replay and unresolved states. Keep the fixture API usable for dashboard development. Prepare a PR with version, command and result details. Follow `AGENTS.md` and coordinate contract changes with Adrian and the consumers before editing shared files.

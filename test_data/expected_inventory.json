@@ -1,0 +1,37 @@
+{
+  "source": "mock_sap",
+  "locations": [
+    {
+      "slot_id": "A-01-01",
+      "pallet_id": "P001"
+    },
+    {
+      "slot_id": "A-01-02",
+      "pallet_id": "P002"
+    },
+    {
+      "slot_id": "A-01-03",
+      "pallet_id": "P003"
+    },
+    {
+      "slot_id": "A-01-04",
+      "pallet_id": null
+    },
+    {
+      "slot_id": "A-01-05",
+      "pallet_id": "P005"
+    },
+    {
+      "slot_id": "A-01-06",
+      "pallet_id": "P006"
+    },
+    {
+      "slot_id": "A-01-07",
+      "pallet_id": "P007"
+    },
+    {
+      "slot_id": "A-01-08",
+      "pallet_id": "P008"
+    }
+  ]
+}

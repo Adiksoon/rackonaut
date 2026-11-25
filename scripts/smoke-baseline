@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+repo_root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd) || exit 1
+cd -- "$repo_root" || exit 1
+
+status=0
+if [[ -x .venv-backend/bin/python ]]; then
+    .venv-backend/bin/python scripts/api/smoke.py || status=1
+else
+    printf '%s\n' 'API smoke requires the Linux backend venv. See docs/onboarding/BACKEND.md.' >&2
+    status=1
+fi
+
+if ! (scripts/robotics/check && scripts/robotics/build && scripts/robotics/smoke); then
+    status=1
+fi
+
+exit "$status"

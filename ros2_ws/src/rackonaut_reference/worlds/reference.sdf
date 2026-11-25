@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<sdf version="1.8">
+  <world name="rackonaut">
+    <physics name="reference_physics" type="ignored">
+      <max_step_size>0.004</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <gravity>0 0 -9.81</gravity>
+    <scene><ambient>0.65 0.65 0.65 1</ambient><background>0.65 0.72 0.80 1</background></scene>
+    <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <light type="directional" name="reference_light">
+      <pose>0 0 8 0 0 0</pose>
+      <diffuse>0.85 0.85 0.85 1</diffuse>
+      <direction>-0.4 0.1 -1</direction>
+    </light>
+    <model name="floor">
+      <static>true</static>
+      <pose>0 0 -0.1 0 0 0</pose>
+      <link name="floor_link">
+        <collision name="surface"><geometry><box><size>20 20 0.2</size></box></geometry></collision>
+        <visual name="surface_visual">
+          <geometry><box><size>20 20 0.2</size></box></geometry>
+          <material><diffuse>0.35 0.38 0.42 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <model name="reference_rack">
+      <static>true</static>
+      <pose>3 0 1 0 0 0</pose>
+      <link name="rack_link">
+        <collision name="rack_collision">
+          <geometry><box><size>0.36 2.5 2.0</size></box></geometry>
+        </collision>
+        <visual name="left_post">
+          <pose>0 -1.24 0 0 0 0</pose>
+          <geometry><box><size>0.25 0.12 2.0</size></box></geometry>
+          <material><diffuse>0.07 0.36 0.75 1</diffuse></material>
+        </visual>
+        <visual name="right_post">
+          <pose>0 1.24 0 0 0 0</pose>
+          <geometry><box><size>0.25 0.12 2.0</size></box></geometry>
+          <material><diffuse>0.07 0.36 0.75 1</diffuse></material>
+        </visual>
+        <visual name="shelf1">
+          <pose>0 0 -0.60 0 0 0</pose>
+          <geometry><box><size>0.48 2.45 0.08</size></box></geometry>
+          <material><diffuse>0.9 0.36 0.08 1</diffuse></material>
+        </visual>
+        <visual name="shelf2">
+          <pose>0 0 0.48 0 0 0</pose>
+          <geometry><box><size>0.48 2.45 0.08</size></box></geometry>
+          <material><diffuse>0.9 0.36 0.08 1</diffuse></material>
+        </visual>
+        <visual name="synthetic_box">
+          <pose>-0.11 -0.32 -0.35 0 0 0</pose>
+          <geometry><box><size>0.34 0.62 0.40</size></box></geometry>
+          <material><diffuse>0.82 0.59 0.32 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

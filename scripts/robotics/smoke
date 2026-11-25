@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -eo pipefail
+base="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+mock=1
+reference=1
+if (( $# > 1 )); then set -- invalid; fi
+case "${1:-}" in
+    "") ;;
+    --mock) reference=0 ;;
+    --reference) mock=0 ;;
+    *) printf 'Usage: %s [--mock|--reference]\n' "$0" >&2; exit 2 ;;
+esac
+export RACKONAUT_ROS_DOMAIN_ID="${RACKONAUT_SMOKE_DOMAIN_ID:-63}"
+export RACKONAUT_GZ_PARTITION="rackonaut-smoke-$UID-$$"
+source "$base/activate.bash"
+source "$base/processes.bash"
+if ! ros2 pkg prefix rackonaut_reference >/dev/null; then
+    printf 'Build the workspace with scripts/robotics/build first.\n' >&2
+    exit 1
+fi
+
+mkdir -p "$RACKONAUT_WS/log"
+logs="$(mktemp -d "$RACKONAUT_WS/log/smoke.XXXXXXXX")"
+printf 'Smoke logs: %s\n' "$logs"
+trap stop_owned EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+status=0
+if (( mock )); then
+    start_owned "$base/mock" >"$logs/mock.log" 2>&1
+    /usr/bin/python3 "$base/probe.py" --timeout 8 | tee "$logs/mock-probe.log" || status=1
+    if ! stop_owned; then status=1; fi
+fi
+if (( reference )); then
+    start_owned "$base/reference" >"$logs/reference.log" 2>&1
+    /usr/bin/python3 "$base/probe.py" --reference | tee "$logs/reference-probe.log" || status=1
+fi
+if stop_owned && { (( ! reference )) ||
+    grep -Fqs 'Reference simulator, bridge and TF publisher stopped.' "$logs/reference.log"; }; then
+    printf 'CLEAN-01 PASS  owned smoke process groups exited\n'
+else
+    printf 'CLEAN-01 FAIL  owned smoke process group remained\n' >&2
+    status=1
+fi
+exit "$status"

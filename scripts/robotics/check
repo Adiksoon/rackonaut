@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
+for command in ros2 colcon rosdep ign setsid; do
+    command -v "$command"
+done
+ign gazebo --versions
+printf 'ROS_DISTRO=%s ROS_DOMAIN_ID=%s ROS_LOCALHOST_ONLY=%s RMW_IMPLEMENTATION=%s\n' \
+    "$ROS_DISTRO" "$ROS_DOMAIN_ID" "$ROS_LOCALHOST_ONLY" "$RMW_IMPLEMENTATION"
+printf 'AMENT_PREFIX_PATH=%s\n' "$AMENT_PREFIX_PATH"
+printf 'IGN_GAZEBO_RESOURCE_PATH=%s\n' "$IGN_GAZEBO_RESOURCE_PATH"
+/usr/bin/python3 - <<'PY'
+import sys
+
+import cv2
+import numpy as np
+from cv_bridge import CvBridge
+
+image = np.zeros((2, 3, 3), dtype=np.uint8)
+bridge = CvBridge()
+assert bridge.imgmsg_to_cv2(bridge.cv2_to_imgmsg(image, "bgr8"), "bgr8").shape == image.shape
+print(f"{sys.executable} {sys.version.split()[0]} OpenCV={cv2.__version__} NumPy={np.__version__} cv_bridge=round-trip")
+PY

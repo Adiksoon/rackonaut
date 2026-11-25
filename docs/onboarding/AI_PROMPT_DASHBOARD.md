@@ -1,0 +1,3 @@
+# Starter prompt · Dashboard
+
+> I am working on Rackonaut's dashboard on `feature/dashboard`. Read `README.md`, `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/INTERFACES.md`, `contracts/http.md` and `docs/onboarding/DASHBOARD.md`. Check Git, my OS, Python and browser, then start and smoke-test the fixture API. In `dashboard/`, implement the smallest view for inspection progress, discrepancies and review states against the seeded data. Use the OpenAPI contract, preserve framework independence at the API boundary, and record browser and fixture verification. Prepare a PR with run commands, versions and results. Follow `AGENTS.md` and coordinate shared changes before changing contracts or dependencies that affect other modules.

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eo pipefail
+source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
+# Show rosdep's plan. System package installation requires a deliberate command.
+rosdep install --simulate --from-paths "$RACKONAUT_WS/src" --ignore-src --rosdistro humble
