@@ -1,8 +1,8 @@
 # Rackonaut
 
-Rackonaut is a RobotHack 2026 prototype for inspecting warehouse storage locations. A teleoperated drone in Gazebo supplies camera data to ROS 2. Computer vision will turn that data into observations. A backend will compare them with simulated SAP inventory, and a dashboard will present the results.
+Rackonaut is a RobotHack 2026 prototype for inspecting warehouse storage locations. A reference drone flies a five-stop autonomous mission in Gazebo. Computer vision reads its ROS 2 camera stream and sends live inventory observations to the fixture API.
 
-This baseline gives the team a shared ROS workspace, reference simulation, synthetic camera data, a fixture-backed REST API, and contracts. See [test results](docs/TEST_RESULTS.md) for the scope of the available evidence.
+Start with the [stable demo and integration guide](docs/INTEGRATION.md#stable-reference-demo). The team drone, inventory comparison backend and dashboard have separate acceptance checks. See [test results](docs/TEST_RESULTS.md) for the original environment and interface checks.
 
 ## Start here
 

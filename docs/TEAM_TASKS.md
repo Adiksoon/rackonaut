@@ -1,15 +1,17 @@
 # Team tasks
 
-The authoring slots below can be created on the owning branch as work begins. Record major state changes here or in the linked pull request.
+The stable reference demo is pinned at [`demo-baseline`](https://github.com/Adiksoon/rackonaut/tree/demo-baseline), commit `6d10e45`. See the [integration guide](INTEGRATION.md) for the three launch variants and module acceptance checks. GitHub status was checked on 25 November 2026.
 
-| Owner | Scope | Branch | Authoring slot | Initial state |
+| Owner | Scope | Branch | Authoring slot | Integration status |
 |---|---|---|---|---|
-| Adrian | Warehouse world, then computer vision, and overall integration | `feature/warehouse`, `feature/perception` | `ros2_ws/src/rackonaut_warehouse/`, `ros2_ws/src/rackonaut_perception/` | Reference materials available. Team implementation and acceptance pending. |
-| Michał | Drone selection, camera, teleoperation, and ROS transport | `feature/drone` | `ros2_ws/src/rackonaut_drone/` | Confirm simulator and report smoke result before adopting a drone model. |
-| Vahid, proposed | Inventory comparison and REST API over mock SAP data | `feature/backend` | `backend/` | Fixture API and contracts available for independent work. Confirm assignment. |
-| Tharindu, proposed | Dashboard for inspection status and discrepancies | `feature/dashboard` | `dashboard/` | REST examples and a local fixture API available. Confirm assignment and framework. |
+| Adrian | Warehouse, computer vision, mission and integration | `feature/warehouse`, `feature/perception`, `feature/mission`, `integration/demo-baseline` | `ros2_ws/src/rackonaut_warehouse/`, `ros2_ws/src/rackonaut_perception/`, `ros2_ws/src/rackonaut_mission/` | Reference drone and mock API verified in a five-stop mission. Integration branch ready for review. |
+| Michał | Drone selection, camera, teleoperation and ROS transport | `feature/drone` | `ros2_ws/src/rackonaut_drone/` | **BLOCKED** on a published model and launch instructions. Deliver camera, odometry and control evidence. |
+| Vahid | Inventory comparison and REST API over Mock SAP | `feature/backend` | `backend/` | **BLOCKED** on a published backend. Deliver startup instructions and results from the recorded-flight replay. |
+| Tharindu | Dashboard for inspection status and discrepancies | `feature/dashboard` | `dashboard/` | **BLOCKED** on a published dashboard. Deliver startup instructions and a view bound to a selected inspection ID. |
 
 Adrian coordinates `contracts/`, reference packages, and integration configuration. Confirm interface changes with Adrian and the owners on both sides. Team onboarding is complete for an individual only when they report the checklist in their role guide.
+
+For each module, publish the branch and share its PR or commit, OS and versions, launch command, smoke result and current blocker. Keep the branch focused on the owner's module. Coordinate the base with Adrian before rebasing shared work.
 
 ## Git workflow
 
