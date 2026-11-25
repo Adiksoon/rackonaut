@@ -53,6 +53,22 @@ Open the mock API at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs). R
 
 On the integration host, set up both profiles. With manually started reference processes stopped, run `scripts/smoke-baseline` to check the local API and robotics baseline. The individual robotics checks are `scripts/robotics/smoke --mock` and `scripts/robotics/smoke --reference`.
 
+### Run the contract tests locally
+
+After installing the backend dependencies above, run the same contract tests as GitHub Actions from the repository root. They use fixtures and run without starting Gazebo or the API server.
+
+On Ubuntu or WSL:
+
+```bash
+.venv-backend/bin/python -m unittest discover -s tests -v
+```
+
+On Windows PowerShell:
+
+```powershell
+& .\.venv-backend\Scripts\python.exe -m unittest discover -s tests -v
+```
+
 ## Team onboarding
 
 | Role | Guide | AI starter prompt | Suggested branch |
