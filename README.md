@@ -1,17 +1,19 @@
 # Rackonaut
 
-Rackonaut is a RobotHack 2026 prototype for inspecting warehouse storage locations. A teleoperated drone in Gazebo supplies camera data to ROS 2. Computer vision will turn that data into observations. A backend will compare them with simulated SAP inventory, and a dashboard will present the results.
+Rackonaut is a RobotHack 2026 prototype for inspecting warehouse shelves with a drone. It uses camera images to check which storage locations are occupied, read pallet labels, and flag visible carton damage.
 
-This baseline gives the team a shared ROS workspace, reference simulation, synthetic camera data, a fixture-backed REST API, and contracts. See [test results](docs/TEST_RESULTS.md) for the scope of the available evidence.
+![Reference drone flying beside labeled storage racks in the Gazebo warehouse](docs/images/gazebo-drone-in-aisle.png)
+
+*Reference drone during an inspection flight in Gazebo.*
+
+## Project status
+
+- **Development baseline (`main`)** provides the ROS 2 workspace, a Gazebo camera feed, synthetic test data, and a mock inventory REST API. See the [baseline test results](docs/TEST_RESULTS.md).
+- **Simulation demo (`demo-complete`)** runs a browser-launched inspection with the reference drone and a mock inventory API. The recorded full run visited 11 locations and produced an inspection report. The demo also supports reinspection of selected locations. See the [demo guide and run evidence](https://github.com/Adiksoon/rackonaut/blob/demo-complete/docs/DEMO_COMPLETE.md).
 
 ## Start here
 
-| Role | Guide | AI starter prompt | Suggested branch |
-|---|---|---|---|
-| Warehouse and computer vision | [Adrian](docs/onboarding/ADRIAN.md) | [Warehouse prompt](docs/onboarding/AI_PROMPT_WAREHOUSE.md) | `feature/warehouse`, then `feature/perception` |
-| Drone and camera | [Michał](docs/onboarding/MICHAL.md) | [Drone prompt](docs/onboarding/AI_PROMPT_DRONE.md) | `feature/drone` |
-| Warehouse backend | [Backend](docs/onboarding/BACKEND.md) | [Backend prompt](docs/onboarding/AI_PROMPT_BACKEND.md) | `feature/backend` |
-| Dashboard | [Dashboard](docs/onboarding/DASHBOARD.md) | [Dashboard prompt](docs/onboarding/AI_PROMPT_DASHBOARD.md) | `feature/dashboard` |
+Joining the project? See [team onboarding](#team-onboarding) for your role and branch.
 
 Accept the private GitHub invitation before cloning. In WSL, clone under your Linux home directory. For the native Windows backend or dashboard profile, clone in a regular Windows directory.
 
@@ -48,6 +50,15 @@ python -m venv .venv-backend
 Open the mock API at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs). Run the role-specific smoke check before reporting readiness. Press Ctrl+C in the terminal that started the world or API to stop it.
 
 On the integration host, set up both profiles. With manually started reference processes stopped, run `scripts/smoke-baseline` to check the local API and robotics baseline. The individual robotics checks are `scripts/robotics/smoke --mock` and `scripts/robotics/smoke --reference`.
+
+## Team onboarding
+
+| Role | Guide | AI starter prompt | Suggested branch |
+|---|---|---|---|
+| Warehouse and computer vision | [Adrian](docs/onboarding/ADRIAN.md) | [Warehouse prompt](docs/onboarding/AI_PROMPT_WAREHOUSE.md) | `feature/warehouse`, then `feature/perception` |
+| Drone and camera | [Michał](docs/onboarding/MICHAL.md) | [Drone prompt](docs/onboarding/AI_PROMPT_DRONE.md) | `feature/drone` |
+| Warehouse backend | [Backend](docs/onboarding/BACKEND.md) | [Backend prompt](docs/onboarding/AI_PROMPT_BACKEND.md) | `feature/backend` |
+| Dashboard | [Dashboard](docs/onboarding/DASHBOARD.md) | [Dashboard prompt](docs/onboarding/AI_PROMPT_DASHBOARD.md) | `feature/dashboard` |
 
 ## Project references
 
