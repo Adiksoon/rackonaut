@@ -1,0 +1,1648 @@
+{
+  "normal": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+    "terminal": "COMPLETE",
+    "planned": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "final_position": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.0
+    ],
+    "elapsed_wall_s": 317.6,
+    "elapsed_sim_s": 163.2,
+    "energy_consumed_pp": 57.687,
+    "start_percent": 99.914,
+    "dock_percent": 42.227,
+    "landed": true,
+    "camera_observations": 3,
+    "safety_phase": "RELEASED",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:51:09.675+00:00",
+        "monotonic_ns": 34528587225024,
+        "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:51:12.683+00:00",
+        "monotonic_ns": 34531595328109,
+        "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:51:12.883+00:00",
+        "monotonic_ns": 34531795237300,
+        "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:51:13.133+00:00",
+        "monotonic_ns": 34532045223600,
+        "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:56:30.783+00:00",
+        "monotonic_ns": 34849695210080,
+        "inspection_id": "INS-CONTROL-20261125-145109-A6096933",
+        "event": "released",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "avoidance_state": "CLEAR",
+    "avoidance_events": [],
+    "terminal_scan_age_ms": 1042,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECTION",
+      "REPOSITION",
+      "RECENTER",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TRANSIT",
+      "DOCKING",
+      "COMPLETE"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION"
+    ]
+  },
+  "primary": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+    "terminal": "COMPLETE",
+    "planned": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "final_position": [
+      -4.7,
+      10.3,
+      0.05,
+      0.0
+    ],
+    "elapsed_wall_s": 350.9,
+    "elapsed_sim_s": 185.04,
+    "energy_consumed_pp": 63.886,
+    "start_percent": 99.132,
+    "dock_percent": 35.246,
+    "landed": true,
+    "camera_observations": 3,
+    "safety_phase": "RELEASED",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:44:17.539+00:00",
+        "monotonic_ns": 34116452036269,
+        "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:44:20.567+00:00",
+        "monotonic_ns": 34119479303376,
+        "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:44:20.767+00:00",
+        "monotonic_ns": 34119679370318,
+        "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:44:20.967+00:00",
+        "monotonic_ns": 34119879227562,
+        "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:50:11.967+00:00",
+        "monotonic_ns": 34470879414171,
+        "inspection_id": "INS-CONTROL-20261125-144417-83054495",
+        "event": "released",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "avoidance_state": "CLEAR",
+    "avoidance_events": [
+      {
+        "detected": 34274.965455942,
+        "blocked_at": [
+          5.919,
+          0.452,
+          0.787
+        ],
+        "sim_detected": 141.876,
+        "previous_speed": 0.257,
+        "stage": "TRANSIT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          6.004,
+          0.452,
+          0.788
+        ],
+        "reaction_s": 0.9,
+        "stopping_distance": 0.085,
+        "start": 34276.165348576,
+        "replan_s": 0.3,
+        "origin": [
+          6.005,
+          0.452,
+          0.788
+        ],
+        "axis": [
+          0.999999599320016,
+          -0.0008951870236035676
+        ],
+        "offset": [
+          0.0007788127105351039,
+          0.869999651408414,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            6.005,
+            1.253,
+            0.79
+          ],
+          [
+            6.791,
+            1.254,
+            0.79
+          ],
+          [
+            7.579,
+            1.254,
+            0.79
+          ],
+          [
+            7.875,
+            0.515,
+            0.791
+          ]
+        ],
+        "additional_percent": 1.74,
+        "rejoining": true,
+        "rejoined_at": [
+          7.875,
+          0.515,
+          0.791
+        ],
+        "elapsed_s": 24.6,
+        "additional_m": 1.3
+      },
+      {
+        "detected": 34307.46532459,
+        "blocked_at": [
+          7.984,
+          0.454,
+          0.783
+        ],
+        "sim_detected": 159.628,
+        "previous_speed": 0.257,
+        "stage": "AISLE_APPROACH",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          7.906,
+          0.456,
+          0.781
+        ],
+        "reaction_s": 0.8,
+        "stopping_distance": 0.078,
+        "start": 34308.565398924,
+        "replan_s": 0.3,
+        "origin": [
+          7.903,
+          0.455,
+          0.781
+        ],
+        "axis": [
+          -0.9999981791904343,
+          -0.0019083018147086443
+        ],
+        "offset": [
+          0.0016602225787965205,
+          -0.8699984158956778,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            7.905,
+            -0.343,
+            0.782
+          ],
+          [
+            7.119,
+            -0.346,
+            0.782
+          ],
+          [
+            6.333,
+            -0.348,
+            0.782
+          ],
+          [
+            6.036,
+            0.383,
+            0.788
+          ]
+        ],
+        "additional_percent": 1.71,
+        "rejoining": true,
+        "rejoined_at": [
+          6.036,
+          0.383,
+          0.788
+        ],
+        "elapsed_s": 24.6,
+        "additional_m": 1.291
+      },
+      {
+        "detected": 34467.365308433,
+        "blocked_at": [
+          -4.7,
+          10.3,
+          0.315
+        ],
+        "sim_detected": 241.5,
+        "previous_speed": 0.499,
+        "stage": "LAND",
+        "reason": "unobserved space"
+      }
+    ],
+    "terminal_scan_age_ms": 1058,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECTION",
+      "REPOSITION",
+      "RECENTER",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TRANSIT",
+      "DOCKING",
+      "COMPLETE"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "AVOIDING",
+      "RETURNING_TO_ROUTE"
+    ]
+  },
+  "blocked": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+    "terminal": "ABORTED",
+    "planned": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "completed": [
+      "A-01-01"
+    ],
+    "final_position": [
+      6.061,
+      0.452,
+      0.788,
+      1.571
+    ],
+    "elapsed_wall_s": 169.4,
+    "elapsed_sim_s": 87.44,
+    "energy_consumed_pp": 30.335,
+    "start_percent": 99.897,
+    "dock_percent": 69.562,
+    "landed": false,
+    "camera_observations": 2,
+    "safety_phase": "RECOVERY",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:51:10.277+00:00",
+        "monotonic_ns": 34529189714921,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:51:13.324+00:00",
+        "monotonic_ns": 34532236122709,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:51:13.524+00:00",
+        "monotonic_ns": 34532436383708,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:51:14.324+00:00",
+        "monotonic_ns": 34533236084817,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:54:03.824+00:00",
+        "monotonic_ns": 34702736126711,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T14:54:03.873+00:00",
+        "monotonic_ns": 34702786054784,
+        "inspection_id": "INS-CONTROL-20261125-145110-5D2F8D85",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 34702736126711
+      }
+    ],
+    "avoidance_state": "RECOVERY_REQUIRED",
+    "avoidance_events": [
+      {
+        "detected": 34695.406266323,
+        "blocked_at": [
+          5.981,
+          0.452,
+          0.787
+        ],
+        "sim_detected": 90.876,
+        "receipt_to_brake_ms": 208,
+        "previous_speed": 0.257,
+        "stage": "TRANSIT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          6.063,
+          0.452,
+          0.788
+        ],
+        "reaction_s": 0.9,
+        "stopping_distance": 0.082
+      }
+    ],
+    "terminal_scan_age_ms": 984,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECTION",
+      "REPOSITION",
+      "RECENTER",
+      "ABORTED"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "REPLANNING",
+      "RECOVERY_REQUIRED"
+    ]
+  },
+  "dynamic": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+    "terminal": "COMPLETE",
+    "planned": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "completed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "final_position": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.0
+    ],
+    "elapsed_wall_s": 318.7,
+    "elapsed_sim_s": 185.48,
+    "energy_consumed_pp": 64.007,
+    "start_percent": 99.961,
+    "dock_percent": 35.954,
+    "landed": true,
+    "camera_observations": 3,
+    "safety_phase": "RELEASED",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:55:28.467+00:00",
+        "monotonic_ns": 34787379232329,
+        "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:55:31.486+00:00",
+        "monotonic_ns": 34790398904466,
+        "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:55:31.687+00:00",
+        "monotonic_ns": 34790599141908,
+        "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:55:31.936+00:00",
+        "monotonic_ns": 34790848919140,
+        "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T15:00:50.686+00:00",
+        "monotonic_ns": 35109598853170,
+        "inspection_id": "INS-CONTROL-20261125-145528-78CC3273",
+        "event": "released",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "avoidance_state": "CLEAR",
+    "avoidance_events": [
+      {
+        "detected": 34934.504751396,
+        "blocked_at": [
+          5.83,
+          0.451,
+          0.785
+        ],
+        "sim_detected": 86.652,
+        "receipt_to_brake_ms": 316,
+        "previous_speed": 0.256,
+        "stage": "TRANSIT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          5.911,
+          0.452,
+          0.787
+        ],
+        "reaction_s": 0.7,
+        "stopping_distance": 0.081,
+        "start": 34935.504752464,
+        "replan_s": 0.3,
+        "origin": [
+          5.916,
+          0.452,
+          0.787
+        ],
+        "axis": [
+          0.9999997613268723,
+          -0.0006909024520433605
+        ],
+        "offset": [
+          -0.0006010851332777236,
+          -0.8699997923543789,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            5.915,
+            -0.347,
+            0.788
+          ],
+          [
+            6.705,
+            -0.349,
+            0.788
+          ],
+          [
+            7.491,
+            -0.349,
+            0.788
+          ],
+          [
+            7.787,
+            0.385,
+            0.791
+          ]
+        ],
+        "additional_percent": 1.73,
+        "rejoining": true,
+        "rejoined_at": [
+          7.787,
+          0.385,
+          0.791
+        ],
+        "elapsed_s": 22.5,
+        "additional_m": 1.294
+      },
+      {
+        "detected": 34965.004773548,
+        "blocked_at": [
+          8.0,
+          0.455,
+          0.783
+        ],
+        "sim_detected": 104.58,
+        "receipt_to_brake_ms": 240,
+        "previous_speed": 0.258,
+        "stage": "AISLE_APPROACH",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          7.921,
+          0.456,
+          0.781
+        ],
+        "reaction_s": 0.8,
+        "stopping_distance": 0.079,
+        "start": 34966.104817059,
+        "replan_s": 0.3,
+        "origin": [
+          7.919,
+          0.455,
+          0.781
+        ],
+        "axis": [
+          -0.9999982076020244,
+          -0.0018933548897174311
+        ],
+        "offset": [
+          0.001647218754054165,
+          -0.8699984406137612,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            7.922,
+            -0.35,
+            0.782
+          ],
+          [
+            7.136,
+            -0.354,
+            0.782
+          ],
+          [
+            6.349,
+            -0.355,
+            0.782
+          ],
+          [
+            6.051,
+            0.387,
+            0.788
+          ]
+        ],
+        "additional_percent": 1.71,
+        "rejoining": true,
+        "rejoined_at": [
+          6.051,
+          0.387,
+          0.788
+        ],
+        "elapsed_s": 23.0,
+        "additional_m": 1.308
+      }
+    ],
+    "terminal_scan_age_ms": 922,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECTION",
+      "REPOSITION",
+      "RECENTER",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TRANSIT",
+      "DOCKING",
+      "COMPLETE"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "AVOIDING",
+      "RETURNING_TO_ROUTE"
+    ],
+    "fixture-inserted": {
+      "wall": 144.217,
+      "stage": "TRANSIT",
+      "phase": "TRANSIT",
+      "position": [
+        5.464,
+        0.452,
+        0.791,
+        1.572
+      ],
+      "target": [
+        8.26,
+        0.45,
+        0.79,
+        1.571
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Swept path verified by onboard lidar",
+        "direction": [
+          1.0,
+          -0.001,
+          -0.0
+        ],
+        "scan_age_ms": 206,
+        "scan_stamp": 84.992,
+        "origin": [
+          5.473,
+          0.455,
+          0.88
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 1.5,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "energy": 71.149,
+      "sim": 85.2,
+      "completed": [
+        "A-01-01"
+      ],
+      "detail": "Flying to the inspection viewpoint"
+    }
+  },
+  "tunnel": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+    "terminal": "ABORTED",
+    "planned": [
+      "A-01-01"
+    ],
+    "completed": [],
+    "final_position": [
+      -1.894,
+      10.303,
+      6.7,
+      0.0
+    ],
+    "elapsed_wall_s": 47.7,
+    "elapsed_sim_s": 25.28,
+    "energy_consumed_pp": 10.449,
+    "start_percent": 99.933,
+    "dock_percent": 89.484,
+    "landed": false,
+    "camera_observations": 0,
+    "safety_phase": "RECOVERY",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:45:20.578+00:00",
+        "monotonic_ns": 34179491058538,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:45:23.608+00:00",
+        "monotonic_ns": 34182520535621,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:45:23.808+00:00",
+        "monotonic_ns": 34182720619098,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:45:24.608+00:00",
+        "monotonic_ns": 34183520569618,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:46:12.308+00:00",
+        "monotonic_ns": 34231220611729,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T14:46:12.358+00:00",
+        "monotonic_ns": 34231270663560,
+        "inspection_id": "INS-CONTROL-20261125-144520-BC0529EA",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 34231220611729
+      }
+    ],
+    "avoidance_state": "RECOVERY_REQUIRED",
+    "avoidance_events": [
+      {
+        "detected": 34223.993926313,
+        "blocked_at": [
+          -1.97,
+          10.303,
+          6.699
+        ],
+        "sim_detected": 26.252,
+        "previous_speed": 0.257,
+        "stage": "ENTERING_CORRIDOR",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          -1.891,
+          10.303,
+          6.7
+        ],
+        "reaction_s": 0.8,
+        "stopping_distance": 0.079
+      }
+    ],
+    "terminal_scan_age_ms": 979,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "ABORTED"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "BLOCKED",
+      "RECOVERY_REQUIRED"
+    ]
+  },
+  "descent": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+    "terminal": "ABORTED",
+    "planned": [
+      "A-01-01"
+    ],
+    "completed": [],
+    "final_position": [
+      5.1,
+      0.45,
+      4.31,
+      -0.0
+    ],
+    "elapsed_wall_s": 128.8,
+    "elapsed_sim_s": 65.0,
+    "energy_consumed_pp": 24.031,
+    "start_percent": 99.92,
+    "dock_percent": 75.889,
+    "landed": false,
+    "camera_observations": 0,
+    "safety_phase": "RECOVERY",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:47:59.416+00:00",
+        "monotonic_ns": 34338328457120,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:48:02.444+00:00",
+        "monotonic_ns": 34341356722305,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:48:02.644+00:00",
+        "monotonic_ns": 34341556792039,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:48:03.494+00:00",
+        "monotonic_ns": 34342406685631,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:50:12.394+00:00",
+        "monotonic_ns": 34471306669216,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T14:50:12.444+00:00",
+        "monotonic_ns": 34471356696412,
+        "inspection_id": "INS-CONTROL-20261125-144759-548B9CEF",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 34471306669216
+      }
+    ],
+    "avoidance_state": "RECOVERY_REQUIRED",
+    "avoidance_events": [
+      {
+        "detected": 34464.07795031,
+        "blocked_at": [
+          5.1,
+          0.45,
+          4.367
+        ],
+        "sim_detected": 66.752,
+        "receipt_to_brake_ms": 116,
+        "previous_speed": 0.24,
+        "stage": "AISLE_DESCENT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          5.1,
+          0.45,
+          4.321
+        ],
+        "reaction_s": 0.6,
+        "stopping_distance": 0.046
+      }
+    ],
+    "terminal_scan_age_ms": 1105,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "ABORTED"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "BLOCKED",
+      "RECOVERY_REQUIRED"
+    ]
+  },
+  "stale": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+    "terminal": "ABORTED",
+    "planned": [
+      "A-01-01"
+    ],
+    "completed": [],
+    "final_position": [
+      -4.5,
+      10.3,
+      6.687,
+      0.0
+    ],
+    "elapsed_wall_s": 29.1,
+    "elapsed_sim_s": 14.72,
+    "energy_consumed_pp": 7.178,
+    "start_percent": 99.861,
+    "dock_percent": 92.683,
+    "landed": false,
+    "camera_observations": 0,
+    "safety_phase": "RECOVERY",
+    "safety_mode": "virtual",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:48:18.295+00:00",
+        "monotonic_ns": 34357207949470,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:48:21.301+00:00",
+        "monotonic_ns": 34360213430647,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:48:21.501+00:00",
+        "monotonic_ns": 34360413617506,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:48:22.101+00:00",
+        "monotonic_ns": 34361013514856,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T14:48:51.201+00:00",
+        "monotonic_ns": 34390113517706,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T14:48:51.252+00:00",
+        "monotonic_ns": 34390164102103,
+        "inspection_id": "INS-CONTROL-20261125-144818-AB4CBC37",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 34390113517706
+      }
+    ],
+    "avoidance_state": "FAULT",
+    "avoidance_events": [],
+    "terminal_scan_age_ms": 1330,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "ABORTED"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "FAULT"
+    ],
+    "before-loss": {
+      "wall": 32.062,
+      "stage": "ENTERING_CORRIDOR",
+      "phase": "ENTERING_CORRIDOR",
+      "position": [
+        -4.7,
+        10.3,
+        6.698,
+        -0.0
+      ],
+      "target": [
+        2.1,
+        10.3,
+        6.7,
+        0.0
+      ],
+      "avoidance": {
+        "state": "CLEAR",
+        "reason": "Swept path verified by onboard lidar",
+        "direction": [
+          1.0,
+          0.0,
+          0.001
+        ],
+        "scan_age_ms": 36,
+        "scan_stamp": 23.628,
+        "origin": [
+          -4.7,
+          10.3,
+          6.783
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 1.5,
+        "maneuver": [],
+        "extra_percent": null,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "energy": 92.797,
+      "sim": 23.72,
+      "completed": [],
+      "detail": "Following the reserved aerial corridor"
+    }
+  },
+  "worker": {
+    "return_reason": "",
+    "missed": [],
+    "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+    "terminal": "ABORTED",
+    "planned": [
+      "A-01-03"
+    ],
+    "completed": [],
+    "final_position": [
+      5.91,
+      0.153,
+      0.779,
+      0.001
+    ],
+    "elapsed_wall_s": 188.5,
+    "elapsed_sim_s": 71.32,
+    "energy_consumed_pp": 25.876,
+    "start_percent": 99.873,
+    "dock_percent": 73.997,
+    "landed": false,
+    "camera_observations": 0,
+    "safety_phase": "RECOVERY",
+    "safety_mode": "laser",
+    "safety_events": [
+      {
+        "time": "2026-11-25T14:58:50.760+00:00",
+        "monotonic_ns": 34989672704987,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T14:58:53.788+00:00",
+        "monotonic_ns": 34992700803644,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T14:58:53.988+00:00",
+        "monotonic_ns": 34992900929050,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T14:58:54.238+00:00",
+        "monotonic_ns": 34993150686688,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T15:02:02.538+00:00",
+        "monotonic_ns": 35181450814772,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "intrusion",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A.",
+        "laser_detection_ns": 35181435270915
+      },
+      {
+        "time": "2026-11-25T15:02:02.589+00:00",
+        "monotonic_ns": 35181501084263,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "abort_dispatched",
+        "zones": [
+          "A"
+        ],
+        "message": "Called the existing mission Abort service.",
+        "triggering_event_ns": 35181450814772
+      },
+      {
+        "time": "2026-11-25T15:02:02.788+00:00",
+        "monotonic_ns": 35181700677959,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "abort_confirmed",
+        "zones": [
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 35181450814772
+      }
+    ],
+    "avoidance_state": "ABORTED",
+    "avoidance_events": [
+      {
+        "detected": 35177.803485604,
+        "blocked_at": [
+          5.834,
+          0.451,
+          0.788
+        ],
+        "sim_detected": 78.188,
+        "receipt_to_brake_ms": 494,
+        "previous_speed": 0.257,
+        "stage": "TRANSIT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          5.912,
+          0.451,
+          0.789
+        ],
+        "reaction_s": 1.1,
+        "stopping_distance": 0.078,
+        "start": 35179.203623577,
+        "replan_s": 0.3,
+        "origin": [
+          5.915,
+          0.451,
+          0.789
+        ],
+        "axis": [
+          0.999999895665678,
+          -0.000456802619552104
+        ],
+        "offset": [
+          -0.00039741827901033043,
+          -0.86999990922914,
+          0.0
+        ],
+        "steps": 0,
+        "reached": [],
+        "additional_percent": 1.73
+      }
+    ],
+    "terminal_scan_age_ms": 1187,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ABORTED"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "AVOIDING",
+      "ABORTED"
+    ],
+    "worker-inserted": {
+      "wall": 189.864,
+      "stage": "TRANSIT",
+      "phase": "TRANSIT",
+      "position": [
+        5.915,
+        0.451,
+        0.789,
+        0.0
+      ],
+      "target": [
+        8.26,
+        0.45,
+        0.79,
+        0.0
+      ],
+      "avoidance": {
+        "state": "AVOIDING",
+        "reason": "Moving to a measured clearance offset",
+        "direction": [
+          -0.001,
+          -1.0,
+          0.0
+        ],
+        "scan_age_ms": 289,
+        "scan_stamp": 78.852,
+        "origin": [
+          5.908,
+          0.451,
+          0.879
+        ],
+        "obstacle_distance": null,
+        "obstacle_returns": 0,
+        "obstacles": 0,
+        "verified_distance": 0.87,
+        "maneuver": [
+          [
+            5.915,
+            0.451,
+            0.789
+          ],
+          [
+            5.915,
+            -0.419,
+            0.789
+          ]
+        ],
+        "extra_percent": 1.73,
+        "extra_distance": null
+      },
+      "safety": "RESERVED",
+      "alarm": null,
+      "reserved": [
+        "D",
+        "A"
+      ],
+      "zoned": {
+        "A": false,
+        "B": false,
+        "T": false,
+        "D": false
+      },
+      "energy": 74.238,
+      "sim": 79.0,
+      "completed": [],
+      "detail": "Flying to the inspection viewpoint"
+    },
+    "still-stopped": {
+      "stage": "ABORTED",
+      "position": [
+        5.911,
+        0.149,
+        0.778,
+        0.0
+      ],
+      "phase": "RECOVERY",
+      "zone_a_occupied": false,
+      "required": [
+        "D",
+        "A"
+      ],
+      "alarm": {
+        "time": "2026-11-25T15:02:02.538+00:00",
+        "monotonic_ns": 35181450814772,
+        "inspection_id": "INS-CONTROL-20261125-145850-48CC4BB4",
+        "event": "intrusion",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A.",
+        "laser_detection_ns": 35181435270915
+      }
+    },
+    "laser_to_abort_ms": 265.407
+  },
+  "shaft": {
+    "return_reason": "Route blocked; returning via a measured path for operator review",
+    "missed": [
+      "A-01-01"
+    ],
+    "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+    "terminal": "COMPLETE_WITH_MISSES",
+    "planned": [
+      "A-01-01"
+    ],
+    "completed": [],
+    "final_position": [
+      -4.7,
+      10.3,
+      0.05,
+      0.0
+    ],
+    "elapsed_wall_s": 38.9,
+    "elapsed_sim_s": 16.0,
+    "energy_consumed_pp": 5.003,
+    "start_percent": 99.353,
+    "dock_percent": 94.35,
+    "landed": true,
+    "camera_observations": 0,
+    "safety_phase": "RELEASED",
+    "safety_mode": "laser",
+    "safety_events": [
+      {
+        "time": "2026-11-25T15:04:00.456+00:00",
+        "monotonic_ns": 35299368587399,
+        "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T15:04:03.479+00:00",
+        "monotonic_ns": 35302391518805,
+        "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T15:04:03.679+00:00",
+        "monotonic_ns": 35302591883460,
+        "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T15:04:03.879+00:00",
+        "monotonic_ns": 35302791499300,
+        "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T15:04:42.879+00:00",
+        "monotonic_ns": 35341791452632,
+        "inspection_id": "INS-CONTROL-20261125-150400-A8F9088A",
+        "event": "released",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "avoidance_state": "CLEAR",
+    "avoidance_events": [
+      {
+        "detected": 35319.364077992,
+        "blocked_at": [
+          -4.7,
+          10.3,
+          2.391
+        ],
+        "sim_detected": 49.968,
+        "receipt_to_brake_ms": 342,
+        "previous_speed": 0.24,
+        "stage": "VERTICAL_TAKEOFF",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          -4.7,
+          10.3,
+          2.432
+        ],
+        "reaction_s": 0.8,
+        "stopping_distance": 0.041
+      }
+    ],
+    "terminal_scan_age_ms": 1096,
+    "phase_history": [
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "DOCKING",
+      "COMPLETE_WITH_MISSES"
+    ],
+    "avoidance_state_history": [
+      "UNKNOWN",
+      "CLEAR",
+      "CAUTION",
+      "BRAKING",
+      "BLOCKED"
+    ]
+  }
+}

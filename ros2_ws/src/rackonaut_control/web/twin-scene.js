@@ -183,7 +183,7 @@ export function makeWarehouse(layout, scene) {
   return { zones, lasers, signals, slots, aisles, picks, aerial };
 }
 
-export function makeAircraft(scene) {
+export function makeAircraft(scene, lidar = false) {
   const drone = new T.Group();
   scene.add(drone);
   const body = solid(0x9afcdb);
@@ -192,6 +192,11 @@ export function makeAircraft(scene) {
   // Slightly enlarged glyph for readability at warehouse scale. Its origin is the ROS base.
   block(drone, [.61, .21, .43], new T.Vector3(), body);
   block(drone, [.18, .11, .27], new T.Vector3(.31, .03, 0), edge);
+  if (lidar) {
+    const sensor = new T.Mesh(new T.CylinderGeometry(.098, .105, .10, 16), solid(0x62dcfb));
+    sensor.position.set(0, .151, 0);
+    drone.add(sensor);
+  }
   const locator = new T.Mesh(new T.TorusGeometry(.66, .029, 8, 36), edge);
   locator.rotation.x = Math.PI / 2;
   drone.add(locator);

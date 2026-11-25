@@ -22,7 +22,9 @@ from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
-from rackonaut_energy.aerial import Leg
+from rackonaut_avoidance.planner import DETOUR_SCALE, Navigator, sweep
+from rackonaut_avoidance.sensor import MAX_RANGE, Scanner
+from rackonaut_energy.aerial import Leg, interval
 from rackonaut_energy.model import Model, dock_path, estimate, first_requirement, sortie_path
 
 from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
@@ -58,6 +60,7 @@ class Mission(Node):
             "scan_hold_seconds": 0.0,
             "safety_interlock": False,
             "adaptive_quality": False,
+            "obstacle_avoidance": False,
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -76,6 +79,10 @@ class Mission(Node):
 
         self.route = load_route(settings["route_file"])
         self.aerial = self.route.aerial
+        self.navigation = Navigator() if settings["obstacle_avoidance"] else None
+        if self.navigation and not self.aerial:
+            raise ValueError("Local obstacle avoidance requires a reserved aerial route.")
+        self.scanner = Scanner(self) if self.navigation else None
         self.frame = settings["odom_frame"]
         self.command_topic = settings["cmd_vel_topic"]
         self.autostart = settings["autostart"]
@@ -99,6 +106,7 @@ class Mission(Node):
         self.sorties, self.completed, self.interruptions = [], [], []
         self.return_legs, self.resume_legs, self.return_track = [], [], []
         self.return_reason = ""
+        self.obstacle_retreat = False
         self.resume_index = None
         self.last_charge_progress = None
         if self.energy_enabled:
@@ -158,6 +166,8 @@ class Mission(Node):
         yaw = atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z))
         self.pose, self.odom_stamp = Target(p.x, p.y, p.z, yaw), stamp
         self.speed, self.odom_at = hypot(v.x, v.y, v.z), monotonic()
+        if self.scanner:
+            self.scanner.odometry(message)
 
     def on_safety(self, message):
         state = json.loads(message.data)
@@ -216,6 +226,8 @@ class Mission(Node):
                 return "Waiting for confirmed charge readiness"
         if self.pose is None or now - self.odom_at > .65:
             return f"Waiting for fresh odometry in {self.frame}"
+        if self.scanner and self.scanner.current(now) is None:
+            return "Waiting for synchronized onboard lidar"
         if self.count_publishers(self.command_topic):
             return f"A command publisher already owns {self.command_topic}"
         if not self.count_subscribers(self.command_topic):
@@ -265,12 +277,100 @@ class Mission(Node):
         self.settled_since = None
         self.get_logger().info(f"{stage} {target.slot_id or 'PAD'} | {detail}")
 
-    def send_velocity(self):
-        x, y, z, yaw_rate = velocity(self.target, self.pose)
+    def send_velocity(self, target=None, scale=1.):
         command = Twist()
-        command.linear.x, command.linear.y, command.linear.z = x, y, z
-        command.angular.z = yaw_rate
+        if scale:
+            x, y, z, yaw_rate = velocity(target or self.target, self.pose)
+            command.linear.x, command.linear.y, command.linear.z = x * scale, y * scale, z * scale
+            command.angular.z = yaw_rate
         self.command.publish(command)
+
+    def avoidance_budget(self, position, legs, nominal, margin):
+        try:
+            back = self.aerial.home(legs[-1], self.route.zones)
+        except ValueError:
+            return None
+        movement, seconds = estimate(self.energy_model, position, legs, 2.)
+        movement += self.energy_model.hover * seconds * (1 / DETOUR_SCALE - 1)
+        returning = estimate(self.energy_model, legs[-1], [leg.pose for leg in back])[0]
+        reserve = self.energy_model.reserve + self.energy_model.hover * 2 + margin * .9
+        if not self.energy_fresh(monotonic()) or self.battery["percent"] < movement + returning + reserve:
+            return None
+        direct = estimate(self.energy_model, position, [nominal])[0]
+        alternate = estimate(self.energy_model, position, [*legs, nominal], 2.)[0]
+        return round(max(0., alternate - direct), 2)
+
+    def bypass_allowed(self, first, second):
+        return any(interval(first, first, bounds) and interval(second, second, bounds)
+                   for name, bounds in self.aerial.aisles.items() if name in self.safety_zones)
+
+    def skip_blocked_stop(self, currently, now):
+        if self.stage != "TRANSIT" or not self.target.slot_id or self.stop_index + 1 >= len(self.route.waypoints):
+            return False
+        following = self.route.waypoints[self.stop_index + 1]
+        target = self.coordinates(following)
+        if (not following.slot_id or not self.bypass_allowed(currently, target)
+                or dist(currently[:3], target[:3]) > 3.
+                or not self.navigation.confirmed(currently, target, self.bypass_allowed)
+                or self.avoidance_budget(currently, [target], target, 0.) is None):
+            return False
+        self.missed.append(self.target.slot_id)
+        self.manual_review[self.target.slot_id] = "The approach remained blocked by a measured obstacle"
+        self.stop_index += 1
+        self.navigation.set_state("ROUTE_BLOCKED", "Location deferred; next leg is observed and reserved")
+        self.next_stop(now)
+        return True
+
+    def move_with_avoidance(self, now):
+        p, target = self.coordinates(self.pose), self.coordinates(self.target)
+        # Land at the intended contact plane; the controller targets slightly
+        # lower to settle while the exposed volume above the pad stays checked.
+        pad = (hypot(p[0]-self.route.pad.x, p[1]-self.route.pad.y) < .13
+               and hypot(target[0]-self.route.pad.x, target[1]-self.route.pad.y) < .02)
+        goal = (*target[:2], max(self.route.pad.z, target[2]), target[3]) if pad else target
+        may_bypass = self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"} and self.bypass_allowed(p, goal)
+        decision = self.navigation.step(self.scanner.current(now), p, goal, self.stage, self.speed, now,
+                                        may_bypass, self.bypass_allowed, self.avoidance_budget, pad)
+        if decision.fault:
+            self.send_velocity(scale=0.)
+            if (self.navigation.cloud is None or
+                    not (self.skip_blocked_stop(p, now) or self.try_verified_retreat(p, now))):
+                self.finish("ABORTED", decision.fault, now)
+            return
+        if decision.advance:
+            self.send_velocity(scale=decision.scale)
+            self.advance(now)
+        else:
+            if self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"}:
+                # Avoidance has its own bounded wait and maneuver deadlines.
+                self.stage_since = now
+            self.settled_since = None
+            if decision.target:
+                self.send_velocity(Target(*decision.target), decision.scale)
+            else:
+                self.send_velocity(scale=0.)
+
+    def try_verified_retreat(self, position, now):
+        if self.obstacle_retreat or self.stage in {"RETURN_TO_DOCK", "DOCKING", "LAND"} or self.speed > .09:
+            return False
+        try:
+            route = self.dock_route(self.pose)
+        except ValueError:
+            return False
+        cloud = self.navigation.cloud
+        points = [leg.pose for leg in route]
+        if not points or any(dist(p[:3], cloud.origin) + .50 >= MAX_RANGE for p in points):
+            return False
+        for index, (first, second) in enumerate(zip((position, *points), points)):
+            if not sweep(cloud, first, second, dist(first[:3], second[:3]), pad=index == len(points)-1).confirmed:
+                return False
+        if self.battery["percent"] < estimate(self.energy_model, position, points)[0] + self.energy_model.reserve:
+            return False
+        self.obstacle_retreat = True
+        self.return_reason = "Route blocked; returning via a measured path for operator review"
+        self.navigation.set_state("ROUTE_BLOCKED", self.return_reason)
+        self.follow_return(now, route)
+        return True
 
     def stable(self, now, duration=.45, touchdown=False):
         p, goal = self.pose, self.target
@@ -493,7 +593,7 @@ class Mission(Node):
     def aerial_remaining_cost(self, remaining, return_percent):
         if self.stage in TERMINAL:
             return 0. if self.landed else None
-        if self.stage == "LAND":
+        if self.stage == "LAND" or self.obstacle_retreat:
             return return_percent
         pad = self.coordinates(self.route.pad)
         origin = self.coordinates(self.pose)
@@ -546,6 +646,9 @@ class Mission(Node):
         except ValueError:
             self.finish("ABORTED", "No connected aerial return from current odometry", now)
             return
+        self.follow_return(now, route)
+
+    def follow_return(self, now, route):
         self.return_track = [list(self.coordinates(self.pose)[:3]), *(list(leg.pose[:3]) for leg in route)]
         self.return_legs = [Target(*leg.pose, phase=leg.phase, gate=leg.gate) for leg in route[:-1]]
         self.pending_descent = None
@@ -568,6 +671,13 @@ class Mission(Node):
                 self.transition("DOCKING", touchdown, now, "Aligning and landing on the dock")
         elif self.stage == "DOCKING":
             if self.battery.get("contact"):
+                if self.obstacle_retreat:
+                    pending = [slot.slot_id for slot in self.route.stops if slot.slot_id not in self.completed]
+                    self.missed = list(dict.fromkeys([*self.missed, *pending]))
+                    self.manual_review.update({slot: "Flight path blocked by an obstacle" for slot in pending})
+                    self.landed = True
+                    self.finish("COMPLETE_WITH_MISSES", "Returned to dock; remaining locations need operator review", now)
+                    return
                 self.stop_motion()
                 self.landed = True
                 self.close_sortie("DOCKED_FOR_CHARGE")
@@ -633,6 +743,8 @@ class Mission(Node):
         return False
 
     def finish(self, result, detail, now, competing=False):
+        if self.navigation and result == "ABORTED" and self.navigation.mode not in {"FAULT", "RECOVERY_REQUIRED"}:
+            self.navigation.set_state("ABORTED", detail)
         self.stop_motion(competing)
         if self.energy_enabled and self.sorties and "end_percent" not in self.sorties[-1]:
             self.close_sortie(result)
@@ -722,8 +834,11 @@ class Mission(Node):
                     self.track.poses.append(stamped_pose(self.pose, self.frame, self.odom_stamp))
                     self.track.header.stamp = self.odom_stamp
                     self.track_at = now
-                self.send_velocity()
-                self.advance(now)
+                if self.navigation:
+                    self.move_with_avoidance(now)
+                else:
+                    self.send_velocity()
+                    self.advance(now)
         if now - self.status_at >= .25:
             self.publish_state(now)
 
@@ -756,6 +871,10 @@ class Mission(Node):
             elif self.stage == "LAND":
                 phase = "DOCKING"
             status.update(flight_phase=phase, descent_gate=gate)
+        if self.navigation:
+            status["avoidance"] = avoidance = self.navigation.snapshot(now)
+            if avoidance["scan_age_ms"] is None and self.scanner.cloud:
+                avoidance["scan_age_ms"] = round((now-self.scanner.cloud.received)*1000)
         if self.adaptive:
             status["adaptive"] = {"attempt": self.retry_number + 1, "reason": self.attempt_reason,
                                   "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,

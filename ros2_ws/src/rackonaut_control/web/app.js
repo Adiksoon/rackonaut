@@ -404,6 +404,27 @@ function drawEnergy(job) {
   if (el("energy-message").textContent !== message) put("energy-message", message);
 }
 
+function drawAvoidance(job) {
+  if (!layout.avoidance) return;
+  const a = job?.status?.avoidance;
+  const safetyAlarm = state?.safety?.alarm;
+  const mode = safetyAlarm && job?.stage === "ABORTED" && a?.state === "ABORTED"
+    ? "SAFETY_ABORT" : a?.state || "WAITING";
+  el("avoidance-panel").dataset.state = mode.toLowerCase();
+  put("avoidance-state", label(mode));
+  put("avoidance-reason", mode === "SAFETY_ABORT" ? safetyAlarm.message
+    : a?.reason || "Awaiting the first scan from an active inspection.");
+  put("avoidance-range", a?.obstacle_distance == null ? "—" : `${a.obstacle_distance.toFixed(2)} m`);
+  put("avoidance-returns", a?.obstacle_returns ? `${a.obstacles} obstacle cluster(s) · ${a.obstacle_returns} returns` : "");
+  put("avoidance-age", a?.scan_age_ms == null ? "—" : `${a.scan_age_ms} ms`);
+  put("avoidance-coverage", a ? `${a.verified_distance.toFixed(2)} m checked along the active leg` : "");
+  put("avoidance-direction", a?.direction ? a.direction.map(value => value.toFixed(2)).join(" / ") : "—");
+  put("avoidance-maneuver", a?.maneuver?.length ? `${a.maneuver.length - 1} verified leg(s)` : "—");
+  const distance = a?.extra_distance == null ? "—" : `+${a.extra_distance.toFixed(2)} m`;
+  const energy = a?.extra_percent == null ? "—" : `+${a.extra_percent.toFixed(1)} pp`;
+  put("avoidance-cost", `${distance} / ${energy}`);
+}
+
 function drawSafety() {
   const enabled = !!layout.safety_fields;
   el("safety-banner").hidden = el("warehouse-safety").hidden = !enabled;
@@ -533,6 +554,7 @@ function draw() {
   drawResults(job);
   drawAdaptive(job);
   drawEnergy(job);
+  drawAvoidance(job);
   drawTwin(job);
 }
 
@@ -562,6 +584,10 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  if (layout.avoidance) {
+    el("avoidance-panel").hidden = false;
+    el("flight-obstacle-controls").hidden = false;
+  }
   el("adaptive-option").hidden = !layout.adaptive_world;
   if (layout.laser_fields) {
     for (const id of ["laser-field-key", "laser-hit-key", "obstacle-controls"]) el(id).hidden = false;
@@ -620,16 +646,18 @@ async function init() {
       put("worker-message", error.message);
     }
   });
-  el("obstacle-controls").addEventListener("click", async (event) => {
-    const target = event.target.dataset.obstacle;
-    if (!target) return;
-    try {
-      await api("/api/simulation/obstacle", { target });
-      put("worker-message", "Gazebo movement requested. Watch live returns before dispatch.");
-    } catch (error) {
-      put("worker-message", error.message);
-    }
-  });
+  for (const id of ["obstacle-controls", "flight-obstacle-controls"]) {
+    el(id).addEventListener("click", async (event) => {
+      const target = event.target.dataset.obstacle;
+      if (!target) return;
+      try {
+        await api("/api/simulation/obstacle", { target });
+        put("worker-message", "Gazebo movement requested. Watch the live returns.");
+      } catch (error) {
+        put("worker-message", error.message);
+      }
+    });
+  }
   const camera = el("camera");
   camera.onload = camera.onerror = () => { cameraLoading = false; };
   setInterval(() => {

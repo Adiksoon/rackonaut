@@ -36,6 +36,8 @@ button.twin-marker { pointer-events: auto; }
 .twin-key.plan { border-top: 2px dashed #83afff; }
 .twin-key.flown { background: #75ffd9; }
 .twin-key.retry { background: #ffb469; }
+.twin-key.onboard { background: #63dcff; width: 6px; height: 6px; border-radius: 50%; }
+.twin-key.bypass { background: #dd9bff; }
 .twin-key.unverified { border: 1px solid #688699; background: #526b7c77; height: 7px; }
 .twin-detail { background: #0d1924; border: 1px solid #294155; border-radius: 8px; padding: 11px 12px; }
 .twin-detail-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }

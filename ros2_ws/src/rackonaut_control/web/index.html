@@ -51,6 +51,19 @@
       <div><span>Remaining locations</span><strong id="energy-remaining">—</strong><small id="energy-remaining-ids"></small></div>
     </div>
   </section>
+  <section class="card avoidance-panel" id="avoidance-panel" aria-labelledby="avoidance-title" hidden>
+    <div class="energy-head">
+      <div><h2 id="avoidance-title">Obstacle Avoidance</h2><p id="avoidance-reason">Awaiting the first scan from an active inspection.</p></div>
+      <span class="signal" id="avoidance-state" role="status">Waiting</span>
+    </div>
+    <div class="energy-grid">
+      <div><span>Nearest obstacle on path</span><strong id="avoidance-range">—</strong><small id="avoidance-returns"></small></div>
+      <div><span>Onboard scan age</span><strong id="avoidance-age">—</strong><small id="avoidance-coverage"></small></div>
+      <div><span>Flight direction</span><strong id="avoidance-direction">—</strong></div>
+      <div><span>Local maneuver</span><strong id="avoidance-maneuver">—</strong></div>
+      <div><span>Additional distance / energy</span><strong id="avoidance-cost">—</strong></div>
+    </div>
+  </section>
   <div class="workspace" id="workspace" data-view="plan">
     <section class="card warehouse" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Top-down view · Rackonaut showcase</p></div>
@@ -71,6 +84,7 @@
             <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
             <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
             <button type="button" id="twin-corridor" aria-pressed="true" hidden>Flight corridor</button>
+            <button type="button" id="twin-onboard" aria-pressed="true" hidden>Onboard scan</button>
           </div>
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
@@ -83,6 +97,9 @@
           <span><i class="twin-key flown"></i>Flown route</span>
           <span><i class="twin-key retry"></i>Adaptive movement</span>
           <span><i class="twin-key unverified"></i>Unverified bay</span>
+          <span id="twin-onboard-key" hidden><i class="twin-key onboard"></i>Onboard returns</span>
+          <span id="twin-hazard-key" hidden><i class="twin-key returns"></i>Blocked flight volume</span>
+          <span id="twin-bypass-key" hidden><i class="twin-key bypass"></i>Measured bypass</span>
         </div>
         <section id="twin-detail" class="twin-detail" aria-label="Location details">
           <div class="twin-detail-head"><div><h3 id="twin-slot-title">Location details</h3><p id="twin-slot-summary">Select a location marker to view its observations.</p></div>
@@ -187,6 +204,16 @@
           <button type="button" class="chip" data-obstacle="forklift_a">Drive forklift into A</button>
           <button type="button" class="chip" data-obstacle="pallet_b">Leave pallet in B</button>
           <button type="button" class="chip" data-obstacle="clear">Clear forklift and pallet</button>
+        </div>
+        <div id="flight-obstacle-controls" class="aisle-options" aria-label="Flight obstacles in Gazebo" hidden>
+          <button type="button" class="chip" data-obstacle="aisle_box">Place carton in A</button>
+          <button type="button" class="chip" data-obstacle="rack_load">Extend rack load</button>
+          <button type="button" class="chip" data-obstacle="hanging_load">Hang payload in A</button>
+          <button type="button" class="chip" data-obstacle="aisle_block">Block aisle A</button>
+          <button type="button" class="chip" data-obstacle="tunnel_block">Block tunnel</button>
+          <button type="button" class="chip" data-obstacle="descent_block">Block descent A</button>
+          <button type="button" class="chip" data-obstacle="shaft_block">Block launch shaft</button>
+          <button type="button" class="chip" data-obstacle="clear_flight">Remove flight obstacle</button>
         </div>
         <p class="footnote" id="worker-message" role="status"></p>
       </section>

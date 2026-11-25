@@ -80,7 +80,14 @@ class Infrastructure : public rclcpp::Node {
     worker_control_ = create_subscription<std_msgs::msg::String>(
         "/rackonaut/safety/simulation/worker_target", 5,
         [this](const std_msgs::msg::String &message) { select_worker_target(message.data); });
-    if (declare_parameter("laser_props", false)) {
+    laser_props_ = declare_parameter("laser_props", false);
+    for (const auto &key : declare_parameter("avoidance_props", std::vector<std::string>{})) {
+      const auto points = declare_parameter("prop_" + key, std::vector<double>{});
+      if (points.size() == 6) {
+        props_.emplace(key, Prop{{points[0], points[1], points[2]}, {points[3], points[4], points[5]}});
+      }
+    }
+    if (laser_props_ || !props_.empty()) {
       obstacles_ = create_subscription<std_msgs::msg::String>(
           "/rackonaut/safety/simulation/obstacle_target", 5,
           [this](const std_msgs::msg::String &message) { select_obstacles(message.data); });
@@ -101,6 +108,9 @@ class Infrastructure : public rclcpp::Node {
   }
 
  private:
+  using Point3 = std::array<double, 3>;
+  struct Prop { Point3 park; Point3 location; };
+
   void update_dock() {
     if (dock_lenses_.size() != lamps.size()) {
       ignition::msgs::Empty request;
@@ -199,6 +209,19 @@ class Infrastructure : public rclcpp::Node {
   }
 
   void select_obstacles(const std::string &choice) {
+    if (choice == "clear_flight" || props_.count(choice)) {
+      if (!active_prop_.empty()) {
+        if (!set_pose_3d("avoidance_" + active_prop_, props_.at(active_prop_).park, 0.))
+          return;
+        active_prop_.clear();
+      }
+      const auto found = props_.find(choice);
+      if (found != props_.end() && set_pose_3d("avoidance_" + choice, found->second.location, 0.))
+        active_prop_ = choice;
+      return;
+    }
+    if (!laser_props_)
+      return;
     if (choice == "forklift_a") {
       forklift_queue_ = {{2.55, forklift_[1]}, {2.55, .87}, {7.15, .87}};
     } else if (choice == "pallet_b") {
@@ -229,10 +252,15 @@ class Infrastructure : public rclcpp::Node {
   }
 
   bool set_pose(const std::string &model, const Point &point, double yaw) {
+    return set_pose_3d(model, {point[0], point[1], 0.}, yaw);
+  }
+
+  bool set_pose_3d(const std::string &model, const Point3 &point, double yaw) {
     ignition::msgs::Pose request;
     request.set_name(model);
     request.mutable_position()->set_x(point[0]);
     request.mutable_position()->set_y(point[1]);
+    request.mutable_position()->set_z(point[2]);
     request.mutable_orientation()->set_z(std::sin(yaw * .5));
     request.mutable_orientation()->set_w(std::cos(yaw * .5));
     ignition::msgs::Boolean reply;
@@ -241,6 +269,9 @@ class Infrastructure : public rclcpp::Node {
   }
 
   ignition::transport::Node transport_;
+  bool laser_props_;
+  std::map<std::string, Prop> props_;
+  std::string active_prop_;
   rclcpp::Publisher<std_msgs::msg::String>::SharedPtr ack_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr control_, worker_control_, obstacles_;
   rclcpp::Subscription<std_msgs::msg::String>::SharedPtr dock_control_;

@@ -258,6 +258,13 @@ thead th { color: var(--muted); font-weight: 550; }
 .energy-panel { margin: 0 0 12px; padding: 11px 15px; border-left: 3px solid #69d8bc; }
 .energy-panel[data-dock="charging"], .energy-panel[data-dock="approaching"] { border-left-color: #e9bb70; }
 .energy-panel[data-dock="fault"] { border-left-color: #ee9299; }
+.avoidance-panel { margin: 0 0 12px; padding: 11px 15px; border-left: 3px solid #71d4ef; }
+.avoidance-panel[data-state="avoiding"], .avoidance-panel[data-state="returning_to_route"] { border-left-color: #d9a3ff; }
+.avoidance-panel[data-state="fault"], .avoidance-panel[data-state="recovery_required"],
+.avoidance-panel[data-state="safety_abort"], .avoidance-panel[data-state="braking"] { border-left-color: #ff7180; }
+.avoidance-panel[data-state="blocked"], .avoidance-panel[data-state="replanning"] { border-left-color: #f2c278; }
+.avoidance-panel .energy-grid strong { font: 700 .8rem ui-monospace, monospace; }
+#flight-obstacle-controls { margin-top: 8px; }
 .energy-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; }
 .energy-head h2 { font-size: .95rem; }
 .energy-head p { margin-top: 2px; color: #a9c4d3; font-size: .74rem; }

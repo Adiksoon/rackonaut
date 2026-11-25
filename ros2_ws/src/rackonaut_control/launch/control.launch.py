@@ -33,7 +33,8 @@ def setup(context):
     if enabled("laser_rviz") and not laser:
         raise ValueError("laser_rviz requires safety_sensor:=laser.")
     world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
-    aerial = enabled("aerial")
+    avoidance = enabled("avoidance")
+    aerial = enabled("aerial") or avoidance
     if aerial and not safety:
         raise ValueError("aerial:=true requires safety:=true.")
     energy = enabled("energy") or aerial
@@ -46,8 +47,13 @@ def setup(context):
         world = "energy_laser_showcase.sdf" if laser else "energy_showcase.sdf"
     if aerial:
         world = "aerial_laser_showcase.sdf" if laser else "aerial_showcase.sdf"
+    if avoidance:
+        world = "avoidance_laser_showcase.sdf" if laser else "avoidance_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
+    props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
+    if avoidance:
+        command.append("--avoidance")
     if profile:
         dock = profile["nodes"]["dock"]
         command.extend(["--spawn", str(dock[0]), str(dock[1]), str(dock[2] + .07), "0"])
@@ -78,6 +84,7 @@ def setup(context):
         "adaptive_world": adaptive,
         "energy_enabled": energy,
         "aerial_enabled": aerial,
+        "avoidance_enabled": avoidance,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -102,7 +109,10 @@ def setup(context):
             Node(package="rackonaut_safety", executable="infrastructure", output="screen",
                  parameters=[{"laser_props": laser, "energy_dock": energy, "aerial": aerial,
                               **({f"descent_{zone}": profile["nodes"][f"foot_{zone}"][:2] for zone in ("A", "B")}
-                                 if profile else {})}]),
+                                 if profile else {}),
+                              **({"avoidance_props": list(props),
+                                  **{f"prop_{key}": [*row["park"], *row["location"]] for key, row in props.items()}}
+                                 if props else {})}]),
             *(Node(package="ros_gz_bridge", executable="parameter_bridge", name=f"safety_{name}_bridge",
                    parameters=[{"config_file": str(config / f"{name}_bridge.yaml")}], output="screen")
               for name in (("laser", "presence", "overview") if laser and aerial
@@ -127,7 +137,8 @@ def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
-                "energy": "false", "aerial": "false", "battery_initial": "auto", "charge_rate": "6.0"}
+                "energy": "false", "aerial": "false", "avoidance": "false",
+                "battery_initial": "auto", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

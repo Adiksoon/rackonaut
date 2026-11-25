@@ -168,7 +168,7 @@ export function createTwin(layout, callbacks) {
   scene.add(rim);
   scene.fog = new T.Fog(0x081521, 79, 140);
   const warehouse = makeWarehouse(layout, scene);
-  const { drone, body, edge } = makeAircraft(scene);
+  const { drone, body, edge } = makeAircraft(scene, layout.avoidance);
   const corridor = warehouse.aerial ? path(scene, 0xc597fa, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
@@ -183,6 +183,13 @@ export function createTwin(layout, callbacks) {
   beams.renderOrder = 2;
   const lidarReturns = samples(scene, 450, 0x69d5f6, .08, .79);
   const lidarHits = samples(scene, 300, 0xff6575, .15, 1);
+  const onboard = new T.Group();
+  scene.add(onboard);
+  const onboardPoints = layout.avoidance ? samples(onboard, 240, 0x63dcff, .070, .76) : null;
+  const onboardHazards = layout.avoidance ? samples(onboard, 60, 0xff5773, .16, 1) : null;
+  const bypass = layout.avoidance ? path(onboard, 0xdd9bff) : null;
+  const field = layout.avoidance ? path(onboard, 0x4f9cc0, true, true) : null;
+  const direction = layout.avoidance ? path(onboard, 0xf0cc77) : null;
 
   let width = 1, height = 1, raf = 0, lastDraw = 0, visible = false, eco = false;
   let focus = null, detailSignature = "", sampleSignature = "", startedAt = 0, moving = false, transition = null;
@@ -238,6 +245,15 @@ export function createTwin(layout, callbacks) {
         cameraTo(aim.clone().add(new T.Vector3(-6.7, 5.6, 6.2)), aim);
       });
     }
+  }
+  if (layout.avoidance) {
+    const button = byId("twin-onboard");
+    for (const id of ["twin-onboard", "twin-onboard-key", "twin-hazard-key", "twin-bypass-key"]) byId(id).hidden = false;
+    button.addEventListener("click", () => {
+      onboard.visible = !onboard.visible;
+      button.setAttribute("aria-pressed", String(onboard.visible));
+      queue();
+    });
   }
   addMarker("Transfer", "pad-marker", [layout.crossing_x, layout.aisles.at(-1).y, .12], null);
   const flightLabel = addMarker("", "aircraft-marker", [0, 0, 0], null);
@@ -526,6 +542,27 @@ export function createTwin(layout, callbacks) {
     const moves = current?.status?.adaptive?.moves || [];
     setPath(extraLine, moves.filter((move) => move.actual).flatMap((move) => [move.from, move.actual]), .088);
     setPath(pendingLine, moves.filter((move) => !move.actual).flatMap((move) => [move.from, move.target]), .088);
+    if (layout.avoidance) {
+      const a = current?.status?.avoidance;
+      const coordinates = points => (points || []).map(([x, y, z]) => [x, z, -y]);
+      onboardPoints(coordinates(a?.point_cloud));
+      onboardHazards(coordinates(a?.hazard_points));
+      setPath(bypass, a?.maneuver || [], .033);
+      const rays = [];
+      if (a?.origin) {
+        const [x, y, z] = a.origin;
+        const rings = (angle) => [
+          [x + 1.1 * Math.cos(angle), y + 1.1 * Math.sin(angle), z],
+          [x + 1.1 * Math.cos(angle), y, z + 1.1 * Math.sin(angle)],
+        ];
+        for (let i = 0; i < 36; i++) {
+          const begin = rings(i * Math.PI / 18), end = rings((i + 1) * Math.PI / 18);
+          rays.push(begin[0], end[0], begin[1], end[1]);
+        }
+      }
+      setPath(field, rays);
+      setPath(direction, a?.origin ? [a.origin, a.origin.map((v, i) => v + a.direction[i] * a.verified_distance)] : []);
+    }
     updateDrone(state);
     if (warehouse.aerial) {
       const safety = state?.safety?.aerial;

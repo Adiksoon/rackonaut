@@ -86,6 +86,11 @@ class Control(Node):
             self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
         self.aerial_enabled = self.declare_parameter("aerial_enabled", False).value
+        self.avoidance_enabled = self.declare_parameter("avoidance_enabled", False).value
+        self.flight_props = set()
+        if self.avoidance_enabled:
+            self.flight_props = set(json.loads((warehouse / "config/avoidance_layout.json").read_text()))
+            self.layout["avoidance"] = True
         self.energy_enabled = self.declare_parameter("energy_enabled", False).value
         if self.energy_enabled:
             if self.aerial_enabled:
@@ -122,7 +127,7 @@ class Control(Node):
         if self.safety_enabled:
             self.safety_request = self.create_publisher(String, "/rackonaut/safety/request", 5)
             self.worker_control = self.create_publisher(String, "/rackonaut/safety/simulation/worker_target", 5)
-            if self.laser_enabled:
+            if self.laser_enabled or self.avoidance_enabled:
                 self.obstacle_control = self.create_publisher(String, "/rackonaut/safety/simulation/obstacle_target", 5)
             self.create_subscription(String, "/rackonaut/safety/state", self.on_safety, latest)
             self.create_subscription(Image, "/rackonaut/safety/overview", self.on_overview, qos_profile_sensor_data)
@@ -241,9 +246,12 @@ class Control(Node):
 
     def move_obstacle(self, request):
         target = request.get("target")
-        if not isinstance(target, str) or target not in {"forklift_a", "pallet_b", "clear"}:
+        allowed = {"forklift_a", "pallet_b", "clear"} if self.laser_enabled else set()
+        if self.avoidance_enabled:
+            allowed.update(self.flight_props | {"clear_flight"})
+        if not isinstance(target, str) or target not in allowed:
             raise ValueError("Choose an available simulation obstacle action.")
-        if not self.safety_enabled or not self.laser_enabled or not self.obstacle_control.get_subscription_count():
+        if not self.safety_enabled or not self.obstacle_control.get_subscription_count():
             raise RuntimeError("Simulation obstacle controls are unavailable.")
         self.obstacle_control.publish(String(data=target))
         return {"accepted": True}
@@ -339,7 +347,8 @@ class Control(Node):
                 }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
-                    **({"travel_timeout": "52.0"} if self.aerial_enabled else {}),
+                    **({"travel_timeout": "70.0", "obstacle_avoidance": "true"} if self.avoidance_enabled
+                       else {"travel_timeout": "52.0"} if self.aerial_enabled else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                 }))

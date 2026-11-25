@@ -77,6 +77,22 @@ add_custom_command(OUTPUT "${aerial_world}" "${aerial_laser_world}" "${aerial_la
   VERBATIM)
 add_custom_target(aerial_showcase ALL DEPENDS "${aerial_world}" "${aerial_laser_world}" "${aerial_laser_fields}" "${aerial_layout}")
 
+set(avoidance_world "${CMAKE_CURRENT_BINARY_DIR}/avoidance_showcase.sdf")
+set(avoidance_laser_world "${CMAKE_CURRENT_BINARY_DIR}/avoidance_laser_showcase.sdf")
+set(avoidance_laser_fields "${CMAKE_CURRENT_BINARY_DIR}/avoidance_laser_fields.json")
+set(avoidance_layout "${CMAKE_CURRENT_BINARY_DIR}/avoidance_layout.json")
+add_custom_command(OUTPUT "${avoidance_world}" "${avoidance_laser_world}" "${avoidance_laser_fields}" "${avoidance_layout}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --avoidance --avoidance-layout "${avoidance_layout}"
+    --output "${avoidance_world}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --energy --aerial --avoidance --laser "${avoidance_laser_fields}"
+    --output "${avoidance_laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(avoidance_showcase ALL DEPENDS "${avoidance_world}" "${avoidance_laser_world}"
+  "${avoidance_laser_fields}" "${avoidance_layout}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
@@ -90,5 +106,7 @@ install(FILES "${energy_world}" "${energy_laser_world}" DESTINATION share/${PROJ
 install(FILES "${dock_layout}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${aerial_world}" "${aerial_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${aerial_layout}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${avoidance_world}" "${avoidance_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${avoidance_layout}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

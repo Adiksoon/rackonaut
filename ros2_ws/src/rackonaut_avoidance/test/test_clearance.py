@@ -1,0 +1,51 @@
+from math import pi
+from unittest import TestCase
+
+import numpy as np
+from sensor_msgs.msg import PointCloud2, PointField
+
+from rackonaut_avoidance.planner import Navigator, sweep
+from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, HEIGHT, WIDTH, rotation, unpack
+
+
+class ClearanceTests(TestCase):
+    def frame(self, points=(), ranges=None):
+        return Cloud(1., 2., np.array([0., 0., .88]), np.eye(3),
+                     np.full((HEIGHT, WIDTH), 8. if ranges is None else ranges),
+                     np.array(points).reshape(-1, 3), np.empty((0, 3)))
+
+    def test_swept_rotor_volume_detects_an_off_axis_return(self):
+        check = sweep(self.frame([(1.02, .33, .82)]), (0., 0., .79), (2., 0., .79), 1.5)
+        self.assertIsNotNone(check.hit)
+        self.assertLess(check.hit, 1.0)
+        self.assertFalse(check.confirmed)
+
+    def test_unobserved_volume_is_not_clear_and_stale_cloud_fails(self):
+        check = sweep(self.frame(ranges=np.nan), (0., 0., .79), (1., 0., .79), 1.)
+        self.assertIsNone(check.hit)
+        self.assertIsNotNone(check.unknown)
+        nav = Navigator()
+        result = nav.step(None, (0., 0., .79, 0.), (1., 0., .79, 0.), "TRANSIT", .2, 4.,
+                          True, lambda *args: True, lambda *args: 1.)
+        self.assertFalse(result.advance)
+        self.assertEqual(result.scale, 0.)
+        self.assertEqual(nav.mode, "FAULT")
+
+    def test_signed_range_limits_keep_near_beams_blocked(self):
+        pixels = (BEAMS * 2.).astype("<f4")
+        pixels[5, 12] = np.copysign(np.inf, BEAMS[5, 12])
+        pixels[4, 13] = -np.copysign(np.inf, BEAMS[4, 13])
+        msg = PointCloud2(height=HEIGHT, width=WIDTH, point_step=12, row_step=12*WIDTH,
+                          fields=[PointField(name=name, offset=4*i, datatype=PointField.FLOAT32, count=1)
+                                  for i, name in enumerate("xyz")], data=pixels.tobytes())
+        msg.header.frame_id = FRAME
+        health, points, near = unpack(msg)
+        self.assertEqual(health[5, 12], 8.)
+        self.assertTrue(np.isnan(health[4, 13]))
+        self.assertEqual(len(points), WIDTH*HEIGHT-2)
+        np.testing.assert_allclose(near, [BEAMS[4, 13]])
+
+    def test_body_to_world_yaw_preserves_sensor_axes(self):
+        angle = pi / 4
+        matrix = rotation(np.array([0., 0., np.sin(angle), np.cos(angle)]))
+        np.testing.assert_allclose(matrix @ [1., 0., 0.], [0., 1., 0.], atol=1e-7)

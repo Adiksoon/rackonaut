@@ -14,6 +14,8 @@ The [sensor-based safety showcase](ros2_ws/src/rackonaut_safety/docs/SENSOR_SAFE
 
 The [protected aerial infrastructure demo](docs/AERIAL_INFRASTRUCTURE.md) adds an overhead flight corridor, monitored descents and a wall-side charging dock.
 
+The [onboard obstacle avoidance demo](docs/OBSTACLE_AVOIDANCE.md) adds a spatial LiDAR, measured local bypasses and operator recovery for blocked airways.
+
 The [complete demo guide](docs/DEMO_COMPLETE.md) covers the `demo-complete` tag, launch, full inventory, reinspection and team handoff.
 
 | Role | Guide | AI starter prompt | Suggested branch |

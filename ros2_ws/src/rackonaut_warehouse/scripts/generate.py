@@ -400,7 +400,7 @@ def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True, dock_vie
     return fields
 
 
-def scanner_infrastructure(world):
+def scanner_infrastructure(world, flight_profile=False):
     scanners = {
         "A": {"pose": [3.10, -1.92, .115, .58], "field": [3.50, -1.56, 15.0, 1.60], "arc": [-.92, .96]},
         "B": {"pose": [3.10, -7.92, .115, .58], "field": [3.50, -7.56, 11.0, -4.40], "arc": [-.92, .96]},
@@ -418,7 +418,7 @@ def scanner_infrastructure(world):
         add(lidar, "pose", numbers((x, y, z, 0, 0, yaw)))
         add(lidar, "topic", config["topic"])
         add(lidar, "always_on", "true")
-        add(lidar, "update_rate", 4)
+        add(lidar, "update_rate", 5 if flight_profile and zone in {"A", "B"} else 4)
         add(lidar, "visualize", "true")
         ray = add(lidar, "lidar")
         horizontal = add(add(ray, "scan"), "horizontal")
@@ -622,6 +622,29 @@ def aerial_infrastructure(world, aisles, rack_height):
             "pad": {"x": dx, "y": dy, "z": .05, "yaw_deg": 0., "width": 2.65, "height": 2.1}}
 
 
+def avoidance_fixtures(world):
+    """Park movable, collidable demonstration props outside the flight network."""
+    props = {
+        "aisle_box": ((6.95, .45, .82), (.46, .46, .46), (.90, .36, .11)),
+        "rack_load": ((7.30, 1.10, .90), (.65, 1.06, .65), KRAFT),
+        "hanging_load": ((7.30, .45, 2.66), (.58, .64, .82), (.81, .57, .15)),
+        "aisle_block": ((6.95, .45, 1.83), (.34, 3.70, 3.06), (.66, .15, .12)),
+        "tunnel_block": ((-1.00, 10.30, 6.70), (.34, 1.78, 1.14), (.76, .19, .12)),
+        "descent_block": ((5.10, .45, 3.72), (1.57, 1.57, .26), (.76, .19, .12)),
+        "shaft_block": ((-4.70, 10.30, 3.10), (1.57, 1.57, .26), (.76, .19, .12)),
+    }
+    layout = {}
+    for index, (key, (location, size, color)) in enumerate(props.items()):
+        park = (27.5 + (index % 2) * 2., -10.7 + (index // 2) * 2.55, size[2] / 2)
+        model = link(world, f"avoidance_{key}", numbers((*park, 0, 0, 0)))
+        box(model, "load", (0, 0, 0), size, color, collision=True)
+        for side in (-1, 1):
+            box(model, f"stripe_{side}", (side * (size[0] / 2 + .002), 0, 0),
+                (.005, size[1] * .94, min(.10, size[2] / 3)), YELLOW)
+        layout[key] = {"park": park, "location": location, "size": size}
+    return layout
+
+
 def generate(args):
     sdf, world = world_base()
     hall(world, args.hall)
@@ -654,9 +677,13 @@ def generate(args):
         if args.layout:
             args.layout.write_text(json.dumps(fields, indent=2) + "\n")
         if args.laser:
-            scanners = scanner_infrastructure(world)
+            scanners = scanner_infrastructure(world, args.avoidance)
             scanner_props(world)
             args.laser.write_text(json.dumps(scanners, indent=2) + "\n")
+    if args.avoidance:
+        props = avoidance_fixtures(world)
+        if args.avoidance_layout:
+            args.avoidance_layout.write_text(json.dumps(props, indent=2) + "\n")
     if aerial and args.aerial_layout:
         aerial["scene"] = twin_geometry(world, safety_posts(aisles, rack_end, aerial))
         args.aerial_layout.write_text(json.dumps(aerial, separators=(",", ":")) + "\n")
@@ -783,6 +810,8 @@ def main():
     parser.add_argument("--dock-layout", type=Path)
     parser.add_argument("--aerial", action="store_true")
     parser.add_argument("--aerial-layout", type=Path)
+    parser.add_argument("--avoidance", action="store_true")
+    parser.add_argument("--avoidance-layout", type=Path)
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -800,6 +829,8 @@ def main():
         parser.error("Dock layout requires an energy showcase with safety.")
     if (args.aerial and not args.energy) or (args.aerial_layout and not args.aerial):
         parser.error("Aerial infrastructure requires an energy showcase.")
+    if (args.avoidance and not args.aerial) or (args.avoidance_layout and not args.avoidance):
+        parser.error("Obstacle avoidance fixtures require an aerial showcase.")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")
