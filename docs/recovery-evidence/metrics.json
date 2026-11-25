@@ -1,0 +1,754 @@
+{
+  "worker-final": {
+    "source": "sensor_based; diagnostics disabled; virtual warehouse presence",
+    "original_inspection": {
+      "inspection_id": "INS-CONTROL-20261125-164502-741B32D9",
+      "result": "ABORTED",
+      "events": 2,
+      "rows": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": "P001",
+          "observation_id": "OBS-9FBCDC6DF57C4242B998DA27572DADE9",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ],
+      "world_time": 168.7,
+      "energy": 45.127,
+      "physical_dock_contact": true,
+      "charging": true,
+      "safety": "RELEASED"
+    },
+    "procedures": [
+      {
+        "recovery_id": "REC-E258E82B9432",
+        "inspection_id": "INS-CONTROL-20261125-164502-741B32D9",
+        "cause": "ZONE_INTRUSION",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "stopped": {
+          "at": "2026-11-25T16:47:35.525+00:00",
+          "mission_stage": "TRANSIT",
+          "detail": "Safety clearance lost; automatic restart disabled",
+          "energy": 70.86,
+          "position": [
+            5.599727137734865,
+            0.44997311580498595,
+            0.7768497293371077,
+            1.5708977324201752
+          ]
+        },
+        "evaluated_at": "2026-11-25T16:47:35.733+00:00",
+        "authorized_at": "2026-11-25T16:47:49.968+00:00",
+        "accepted_conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "started_at": "2026-11-25T16:47:50.145+00:00",
+        "ended_at": "2026-11-25T16:49:55.925+00:00",
+        "waiting_wall_s": 14.62,
+        "waiting_energy_used": 2.218,
+        "duration_wall_s": 125.6,
+        "energy_authorized": 68.642,
+        "energy_start": 68.622,
+        "end_energy": 44.047,
+        "energy_used": 24.575,
+        "predicted_return_percent": 29.07439144345775,
+        "dock_confirmed": true,
+        "planned": [
+          [
+            5.844502474805674,
+            0.4506249094816155,
+            0.7648444364619709,
+            1.5722468430904868
+          ],
+          [
+            5.1,
+            0.45,
+            0.79,
+            0.0
+          ],
+          [
+            5.1,
+            0.45,
+            6.7,
+            0.0
+          ],
+          [
+            2.1,
+            0.45,
+            6.7,
+            0.0
+          ],
+          [
+            2.1,
+            10.3,
+            6.7,
+            0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            6.7,
+            0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            0.05,
+            0.0
+          ]
+        ],
+        "retry_slots": [
+          "A-01-03"
+        ],
+        "flown_samples": 232,
+        "sampled_return_draw_pp": 25.535
+      }
+    ],
+    "authorization_denials": [
+      {
+        "wall": 154.982,
+        "event": "authorize_denied",
+        "data": {
+          "error": "Review the current return plan after all recovery conditions are satisfied."
+        }
+      }
+    ],
+    "reserved_in_hold": [
+      "D",
+      "A"
+    ],
+    "world_time_monotonic": true,
+    "observed_max_gap_debit_pp": 0.0,
+    "all_samples_without_reference": true,
+    "new_inspection": {
+      "inspection_id": "INS-CONTROL-20261125-165006-F71CB32F",
+      "result": "COMPLETE",
+      "events": 1,
+      "rows": [
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-645019CC56F34379950B498E217A8373",
+          "outcome": "pending"
+        }
+      ],
+      "world_time": 332.6,
+      "energy": 32.413,
+      "physical_dock_contact": true,
+      "charging": true,
+      "safety": "RELEASED"
+    }
+  },
+  "loss": {
+    "source": "sensor_based; diagnostics disabled; virtual warehouse presence",
+    "original_inspection": {
+      "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+      "result": "ABORTED",
+      "events": 0,
+      "rows": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ],
+      "world_time": 80.3,
+      "energy": 75.154,
+      "physical_dock_contact": true,
+      "charging": true,
+      "safety": "RELEASED"
+    },
+    "procedures": [
+      {
+        "recovery_id": "REC-1D3B59405269",
+        "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+        "cause": "LOCALIZATION_LOST",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "stopped": {
+          "at": "2026-11-25T16:45:48.506+00:00",
+          "mission_stage": "ENTERING_CORRIDOR",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "energy": 89.189,
+          "position": [
+            0.1790144147874435,
+            10.30362520408872,
+            6.69760085137157,
+            -9.224516757119838e-05
+          ]
+        },
+        "evaluated_at": "2026-11-25T16:46:04.872+00:00",
+        "authorized_at": "2026-11-25T16:46:35.829+00:00",
+        "accepted_conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "started_at": "2026-11-25T16:46:36.100+00:00",
+        "ended_at": "2026-11-25T16:47:22.681+00:00",
+        "waiting_wall_s": 47.33,
+        "waiting_energy_used": 7.726,
+        "duration_wall_s": 46.4,
+        "energy_authorized": 81.463,
+        "energy_start": 81.4,
+        "end_energy": 74.434,
+        "energy_used": 6.966,
+        "predicted_return_percent": 8.73910235092158,
+        "dock_confirmed": true,
+        "planned": [
+          [
+            0.22621862978252594,
+            10.30426703291702,
+            6.6771699806226765,
+            -0.0008421404278420449
+          ],
+          [
+            -4.7,
+            10.3,
+            6.7,
+            0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            0.05,
+            0.0
+          ]
+        ],
+        "retry_slots": [
+          "A-01-01"
+        ],
+        "flown_samples": 84,
+        "sampled_return_draw_pp": 7.205
+      },
+      {
+        "recovery_id": "REC-DE0E8F69EA6A",
+        "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+        "cause": "LOCALIZATION_LOST",
+        "result": "RECOVERY_FAILED",
+        "detail": "Zone occupied: Aisle A.",
+        "stopped": {
+          "at": "2026-11-25T16:45:48.506+00:00",
+          "mission_stage": "ENTERING_CORRIDOR",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "energy": 89.189,
+          "position": [
+            0.1790144147874435,
+            10.30362520408872,
+            6.69760085137157,
+            -9.224516757119838e-05
+          ]
+        },
+        "evaluated_at": "2026-11-25T16:45:48.720+00:00",
+        "authorized_at": "2026-11-25T16:46:03.288+00:00",
+        "accepted_conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "started_at": "2026-11-25T16:46:03.400+00:00",
+        "ended_at": "2026-11-25T16:46:04.781+00:00",
+        "waiting_wall_s": 14.79,
+        "waiting_energy_used": 2.881,
+        "duration_wall_s": 1.2,
+        "energy_authorized": 86.308,
+        "energy_start": 86.287,
+        "end_energy": 86.107,
+        "energy_used": 0.18,
+        "predicted_return_percent": 8.95474990804435,
+        "dock_confirmed": false,
+        "planned": [
+          [
+            0.5451156677034223,
+            10.303446221820138,
+            6.697962089189176,
+            -0.0008637526571233458
+          ],
+          [
+            -4.7,
+            10.3,
+            6.7,
+            0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            0.05,
+            0.0
+          ]
+        ],
+        "retry_slots": [
+          "A-01-01"
+        ],
+        "flown_samples": 1,
+        "sampled_return_draw_pp": 0.18
+      }
+    ],
+    "authorization_denials": [
+      {
+        "wall": 47.057,
+        "event": "authorize_denied",
+        "data": {
+          "error": "Review the current return plan after all recovery conditions are satisfied."
+        }
+      },
+      {
+        "wall": 52.469,
+        "event": "authorize_denied",
+        "data": {
+          "error": "Review the current return plan after all recovery conditions are satisfied."
+        }
+      }
+    ],
+    "reserved_in_hold": [
+      "D",
+      "A"
+    ],
+    "world_time_monotonic": true,
+    "observed_max_gap_debit_pp": 1.296,
+    "all_samples_without_reference": true,
+    "imu_pause_seconds": 3.14,
+    "lost_after_pause_seconds": 0.454,
+    "tracking_after_resume_seconds": 0.459,
+    "recovery_ready_after_resume_seconds": 7.097,
+    "fresh_scan_route_refusal": 3.407,
+    "contact_retained_sim_seconds": 2.9,
+    "second_intrusion": {
+      "phase": "RECOVERY_FAILED",
+      "recovery_id": "REC-DE0E8F69EA6A",
+      "cause": "LOCALIZATION_LOST",
+      "condition_failures": [
+        "stationary",
+        "fields_clear",
+        "connected_return",
+        "first_leg_observed",
+        "return_budget"
+      ],
+      "recovery_detail": "Zone occupied: Aisle A.",
+      "forecast": null,
+      "leg": 0,
+      "tracking": "TRACKING",
+      "stage": "ABORTED",
+      "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+      "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "reports": {
+        "url": "/reports/INS-CONTROL-20261125-164502-5A30783F",
+        "events": 0,
+        "rows": [
+          {
+            "slot_id": "A-01-01",
+            "expected_pallet_id": "P001",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          }
+        ],
+        "discrepancies": []
+      },
+      "safety": "RECOVERY",
+      "alarm": "mission_aborted",
+      "zones": [
+        "D",
+        "A"
+      ],
+      "permit": null,
+      "position": [
+        0.363,
+        10.305,
+        6.68,
+        -0.001
+      ],
+      "contact": false,
+      "charging": false,
+      "energy": 86.052,
+      "gap_debit": 1.296,
+      "world_time": 36.56,
+      "no_reference": true
+    }
+  },
+  "laser_fault": {
+    "source": "sensor_based; diagnostics disabled; stationary LaserScan in A",
+    "events": [
+      {
+        "time": "2026-11-25T16:33:22.243+00:00",
+        "monotonic_ns": 40661155087928,
+        "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+        "event": "sensor_fault",
+        "zones": [
+          "A"
+        ],
+        "message": "Safety data is stale or unknown: Aisle A."
+      },
+      {
+        "time": "2026-11-25T16:33:22.493+00:00",
+        "monotonic_ns": 40661405100468,
+        "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+        "event": "abort_confirmed",
+        "zones": [
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 40661155087928
+      },
+      {
+        "time": "2026-11-25T16:34:41.643+00:00",
+        "monotonic_ns": 40740555272061,
+        "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+        "event": "recovery_permitted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Approved recovery verified against reserved zones and red signals.",
+        "recovery_id": "REC-46FC5BB884F2"
+      },
+      {
+        "time": "2026-11-25T16:35:02.993+00:00",
+        "monotonic_ns": 40761905094957,
+        "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+        "event": "recovery_revoked",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Safety data is stale or unknown: Aisle A.",
+        "recovery_id": "REC-46FC5BB884F2"
+      }
+    ],
+    "procedures": [
+      {
+        "recovery_id": "REC-46FC5BB884F2",
+        "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+        "cause": "SAFETY_SENSOR_LOST",
+        "trigger": {
+          "time": "2026-11-25T16:33:22.243+00:00",
+          "monotonic_ns": 40661155087928,
+          "inspection_id": "INS-CONTROL-20261125-163245-C27D63D3",
+          "event": "sensor_fault",
+          "zones": [
+            "A"
+          ],
+          "message": "Safety data is stale or unknown: Aisle A."
+        },
+        "stopped": {
+          "at": "2026-11-25T16:33:22.476+00:00",
+          "mission_stage": "VERTICAL_TAKEOFF",
+          "detail": "Stopped by the operator",
+          "energy": 93.661,
+          "position": [
+            -4.701425147486229,
+            10.301845941948073,
+            5.909035054381808,
+            -0.0008622728308920768
+          ]
+        },
+        "evaluated_at": "2026-11-25T16:34:41.050+00:00",
+        "flown": [
+          [
+            -4.699,
+            10.3,
+            6.044,
+            0.001
+          ],
+          [
+            -4.701,
+            10.299,
+            5.914,
+            -0.001
+          ],
+          [
+            -4.7,
+            10.3,
+            5.777,
+            0.0
+          ],
+          [
+            -4.7,
+            10.301,
+            5.641,
+            -0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            5.511,
+            -0.0
+          ],
+          [
+            -4.701,
+            10.3,
+            5.389,
+            -0.0
+          ],
+          [
+            -4.701,
+            10.299,
+            5.23,
+            0.001
+          ],
+          [
+            -4.699,
+            10.299,
+            5.071,
+            0.0
+          ],
+          [
+            -4.699,
+            10.3,
+            4.94,
+            0.001
+          ],
+          [
+            -4.699,
+            10.302,
+            4.809,
+            0.001
+          ],
+          [
+            -4.7,
+            10.301,
+            4.659,
+            -0.0
+          ],
+          [
+            -4.699,
+            10.3,
+            4.529,
+            0.0
+          ],
+          [
+            -4.699,
+            10.3,
+            4.396,
+            -0.0
+          ],
+          [
+            -4.7,
+            10.3,
+            4.259,
+            -0.001
+          ],
+          [
+            -4.701,
+            10.3,
+            4.131,
+            0.0
+          ],
+          [
+            -4.701,
+            10.301,
+            3.997,
+            0.0
+          ],
+          [
+            -4.7,
+            10.301,
+            3.867,
+            0.0
+          ],
+          [
+            -4.699,
+            10.301,
+            3.726,
+            -0.0
+          ],
+          [
+            -4.701,
+            10.3,
+            3.585,
+            -0.0
+          ],
+          [
+            -4.7,
+            10.299,
+            3.447,
+            0.0
+          ],
+          [
+            -4.7,
+            10.298,
+            3.326,
+            -0.0
+          ],
+          [
+            -4.699,
+            10.3,
+            3.203,
+            0.0
+          ],
+          [
+            -4.699,
+            10.299,
+            3.062,
+            -0.001
+          ],
+          [
+            -4.699,
+            10.3,
+            2.921,
+            -0.001
+          ],
+          [
+            -4.7,
+            10.302,
+            2.794,
+            -0.001
+          ],
+          [
+            -4.701,
+            10.3,
+            2.649,
+            0.001
+          ],
+          [
+            -4.701,
+            10.3,
+            2.513,
+            0.001
+          ]
+        ],
+        "zones": [
+          "A",
+          "D"
+        ],
+        "authorized_at": "2026-11-25T16:34:41.516+00:00",
+        "accepted_conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "command_ownership": true
+        },
+        "planned": [
+          [
+            -4.698984653319874,
+            10.300060756846806,
+            6.043224812137773,
+            0.00035957987669656485
+          ],
+          [
+            -4.7,
+            10.3,
+            0.05,
+            0.0
+          ]
+        ],
+        "energy_authorized": 86.189,
+        "predicted_return_percent": 4.432642153750813,
+        "waiting_wall_s": 79.22,
+        "started_at": "2026-11-25T16:34:41.697+00:00",
+        "energy_start": 86.179,
+        "ended_at": "2026-11-25T16:35:03.180+00:00",
+        "result": "RECOVERY_FAILED",
+        "detail": "Safety data is stale or unknown: Aisle A.",
+        "duration_wall_s": 21.3,
+        "end_energy": 84.233,
+        "energy_used": 1.946,
+        "dock_confirmed": false,
+        "last_conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": false,
+          "zone_sensors": false,
+          "fields_clear": false,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "command_ownership": true
+        },
+        "retry_slots": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "phase": "RECOVERY_FAILED",
+        "proposal": "ff2db282fca6",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": false,
+          "zone_sensors": false,
+          "fields_clear": false,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "command_ownership": true
+        },
+        "required_zones": [
+          "A",
+          "D"
+        ],
+        "leg": 0,
+        "energy": 84.233,
+        "return_cost": 1.91,
+        "reserve": 8.0,
+        "wait_per_sim_s": 0.26,
+        "energy_verified": true,
+        "permit_request": false,
+        "navigation": "CLEAR"
+      }
+    ]
+  }
+}

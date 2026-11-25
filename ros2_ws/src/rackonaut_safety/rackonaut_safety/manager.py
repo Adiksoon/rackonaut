@@ -44,6 +44,9 @@ class Manager(Node):
             profile = json.loads((config / "aerial_layout.json").read_text())
             self.aerial = Network(profile)
             self.pad = profile["pad"]
+        self.recovery_enabled = self.declare_parameter("autonomous_recovery", False).value
+        self.recovery_id, self.recovery_revocation = None, None
+        self.energy, self.energy_at = {}, -1e6
         self.sensor_mode = self.declare_parameter("sensor_mode", "virtual").value
         if self.sensor_mode not in {"virtual", "laser"}:
             raise ValueError("Safety sensor mode must be virtual or laser.")
@@ -82,6 +85,8 @@ class Manager(Node):
         self.create_subscription(String, SAFETY + "/request", self.request, reliable)
         self.create_subscription(String, SAFETY + "/signals_applied", self.on_lights, reliable)
         self.create_subscription(String, "/rackonaut/mission/status", self.on_mission, latest)
+        if self.recovery_enabled:
+            self.create_subscription(String, "/rackonaut/energy/state", self.on_energy, latest)
         if self.laser:
             for zone, scanner in self.laser.configs.items():
                 self.create_subscription(LaserScan, scanner["topic"], partial(self.on_laser, zone), qos_profile_sensor_data)
@@ -141,6 +146,9 @@ class Manager(Node):
             if applied.keys() == self.fields.keys():
                 self.light_state, self.light_at = applied, monotonic()
 
+    def on_energy(self, message):
+        self.energy, self.energy_at = json.loads(message.data), monotonic()
+
     def on_mission(self, message):
         status = json.loads(message.data)
         if self.run and status.get("inspection_id") == self.run:
@@ -193,6 +201,7 @@ class Manager(Node):
             return
         if run in self.recent_requests or self.phase in {"PREPARING", "RESERVED", "RECOVERY"}:
             return
+        self.recovery_id, self.recovery_revocation = None, None
         self.recent_requests.append(run)
         self.run, self.required = run, required
         self.mission, self.mission_at = {}, -1e6
@@ -293,12 +302,52 @@ class Manager(Node):
                            triggering_event_ns=self.alarm["monotonic_ns"])
         self.next_abort = now + .3
 
-    def visual_state(self, key, verified):
+    def recovery_permit(self, now, health, present, lights):
+        proposal = self.mission.get("recovery") or {}
+        fresh = self.phase == "RECOVERY" and now-self.mission_at < .65
+        sensors = fresh and all(health[key] == "FRESH" for key in self.required)
+        clear = sensors and all(key not in present and now-self.clear_since[key] >= CLEAR_SECONDS
+                                for key in self.required)
+        red = fresh and lights and all(self.light_state.get(key) == "RESERVED" for key in self.required)
+        state = {"permit": None, "sensors_fresh": sensors, "fields_clear": clear, "signals_confirmed": red,
+                 "revoked": self.recovery_revocation}
+        if self.phase != "RECOVERY":
+            return state
+        requested = proposal.get("recovery_id")
+        valid_id = isinstance(requested, str) and re.fullmatch(r"REC-[A-F0-9]{12}", requested)
+        match = (valid_id and proposal.get("inspection_id") == self.run
+                 and proposal.get("required_zones") == sorted(self.required))
+        phase = proposal.get("phase")
+        if (match and phase == "RECOVERY_COMPLETE" and requested == self.recovery_id
+                and not self.recovery_revocation and fresh and self.at_pad(now)
+                and now-self.energy_at <= .65 and self.energy.get("fresh") is True
+                and self.energy.get("contact_source") == "gazebo_dock_switch"
+                and self.energy.get("switch_engaged") is True and self.energy.get("contact") is True):
+            self.release("Recovery completed and physical dock contact confirmed.")
+            return state
+        problem, _, _ = self.blockers(now)
+        authorized = (match and proposal.get("permit_request") is True and bool(proposal.get("authorized_at"))
+                      and phase in {"RECOVERY_AUTHORIZED", "RETURNING_TO_DOCK", "EMERGENCY_DOCKING"})
+        eligible = fresh and clear and red and not problem and self.mission.get("stage") in TERMINAL
+        if self.recovery_id is not None and not self.recovery_revocation and phase != "RECOVERY_COMPLETE" and (
+                not eligible or not authorized or requested != self.recovery_id):
+            self.recovery_revocation = problem or "Recovery conditions or controller heartbeat changed."
+            self.event("recovery_revoked", self.recovery_revocation, self.required, recovery_id=self.recovery_id)
+        if authorized and eligible and self.recovery_id != requested and phase == "RECOVERY_AUTHORIZED":
+            self.recovery_id, self.recovery_revocation = requested, None
+            self.event("recovery_permitted", "Approved recovery verified against reserved zones and red signals.",
+                       self.required, recovery_id=requested)
+        if authorized and eligible and requested == self.recovery_id and not self.recovery_revocation:
+            state["permit"] = requested
+        state["revoked"] = self.recovery_revocation if requested == self.recovery_id else None
+        return state
+
+    def visual_state(self, key, verified, recovery_clear=False):
         if key not in self.required or self.phase not in {"PREPARING", "RESERVED", "RECOVERY"}:
             return "OPEN" if verified else "FAULT"
         if self.phase == "PREPARING":
             return "PREPARING"
-        if self.phase == "RECOVERY" and key in self.alarm["zones"]:
+        if self.phase == "RECOVERY" and key in self.alarm["zones"] and not recovery_clear:
             return "INTRUSION" if self.alarm["event"] == "intrusion" else "FAULT"
         return "RESERVED"
 
@@ -313,7 +362,17 @@ class Manager(Node):
         self.supervise(now)
         lights = now - self.light_at <= SIGNAL_TIMEOUT
         verified = lights and now - self.odom_at <= ODOM_TIMEOUT
-        phases = {key: self.visual_state(key, verified and health[key] == "FRESH") for key in self.fields}
+        preventing = set(present) | {key for key in health if health[key] != "FRESH"}
+        proposal = self.mission.get("recovery") or {}
+        recovered_signal = (self.recovery_enabled and proposal.get("recovery_id") and verified
+                            and now-self.mission_at < .65 and proposal.get("phase") != "RECOVERY_FAILED")
+        recovery_state = self.recovery_permit(now, health, present, lights) if self.recovery_enabled else None
+        phases = {key: self.visual_state(key, verified and health[key] == "FRESH",
+                                        recovered_signal and key not in preventing) for key in self.fields}
+        if self.recovery_enabled and self.phase == "RECOVERY" and proposal.get("recovery_id"):
+            for key in self.required:
+                if key in preventing:
+                    phases[key] = "INTRUSION" if key in present else "FAULT"
         self.signals.publish(String(data=" ".join(f"{key}={value}" for key, value in phases.items())))
         stage = self.mission.get("stage")
         energy = self.mission.get("energy")
@@ -347,6 +406,8 @@ class Manager(Node):
                       for key, value in phases.items()},
             "events": list(self.events),
         }
+        if self.recovery_enabled:
+            snapshot["recovery"] = recovery_state
         if self.laser:
             snapshot["scans"] = dict(self.laser.map_data(now))
         if self.aerial:

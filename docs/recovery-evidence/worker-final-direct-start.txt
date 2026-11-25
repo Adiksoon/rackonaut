@@ -1,0 +1,4 @@
+requester: making request: std_srvs.srv.Trigger_Request()
+
+response:
+std_srvs.srv.Trigger_Response(success=False, message='Mission is ABORTED. Start a new process with a new inspection ID.')

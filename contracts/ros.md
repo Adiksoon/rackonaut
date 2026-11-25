@@ -53,3 +53,11 @@ The `localization:=sensor_based` profile makes `rackonaut_localization` the owne
 | `/rackonaut/validation/ground_truth` | `nav_msgs/msg/Odometry` | Optional independent validator input, enabled by `localization_diagnostics:=true` |
 
 The estimator uses the IMU rates and specific force. In sensor mode the avoidance module uses the registered pose at the cloud stamp. The Energy Manager uses the active estimated odometry and independently checks the dock contact. [Profile and validation](../docs/SENSOR_LOCALIZATION.md)
+
+## Opt-in autonomous recovery
+
+`recovery:=true` requires `localization:=sensor_based`, the protected aerial scene and Safety. The loopback Control Center publishes evaluate, authorize and abort requests as `std_msgs/msg/String` on `/rackonaut/recovery/operator`. The request targets the interrupted inspection. Approval must also match the current recovery ID and proposal token. The Mission Manager rechecks prerequisites and retains ownership of the motion topic.
+
+The `recovery` field of `/rackonaut/mission/status` carries the recovery procedure ID, parent inspection, proposed path, result and permit request. `/rackonaut/safety/state` reports the separately verified recovery permit for that ID. The original mission stage and result remain terminal throughout the procedure. Safety releases the reservation after the permitted recovery completes with stable position and physical dock contact. `/rackonaut/energy/state` reports whether the budget has been accounted for and the energy charged for odometry gaps in this profile. [Recovery profile](../docs/AUTONOMOUS_RECOVERY.md)
+
+In this profile, Mission Manager owns the `std_msgs/msg/Bool` command on `/rackonaut/drone/flight_enabled`. A profile-local bridge forwards it to the existing simulated flight controller. At touchdown Recovery disables thrust, then checks physical dock contact before completion.

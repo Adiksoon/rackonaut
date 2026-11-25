@@ -19,7 +19,7 @@ from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from rclpy.signals import SignalHandlerOptions
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
 from rackonaut_avoidance.planner import DETOUR_SCALE, Navigator, sweep
@@ -30,6 +30,7 @@ from rackonaut_energy.model import Model, dock_path, estimate, first_requirement
 from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
                        first_unused, next_issue, reading_issue)
 from .confirmation import current_observation, fetch_observations
+from .recovery import ACTIVE as RECOVERY_ACTIVE, FAILED as RECOVERY_FAILED, Recovery
 from .route import Target, heading_error, load_route, velocity
 from .visualization import make_markers, planned_path, stamped_pose
 
@@ -62,6 +63,7 @@ class Mission(Node):
             "adaptive_quality": False,
             "obstacle_avoidance": False,
             "sensor_localization": False,
+            "recovery_dir": "",
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -106,6 +108,7 @@ class Mission(Node):
         self.permit_departure = None
         self.safety_phase, self.safety_zones = "", set()
         self.descents, self.pending_descent = {}, None
+        self.safety_alarm, self.safety_recovery = None, {}
         self.adaptive = bool(self.route.retries)
         self.energy_enabled = self.route.crossing is not None
         if self.energy_enabled and (not self.safety_interlock or not self.land):
@@ -159,6 +162,13 @@ class Mission(Node):
         self.http = ThreadPoolExecutor(max_workers=1, thread_name_prefix="rackonaut-mission-http")
         self.http_request = self.rearm_request = self.capture_after = None
         self.poll_at = 0.0
+        self.recovery = self.flight_enable = None
+        if settings["recovery_dir"]:
+            if not (self.aerial and self.sensor_localization and self.energy_enabled and self.safety_interlock):
+                raise ValueError("Recovery requires aerial sensor localization, Energy and Safety.")
+            self.recovery = Recovery(self, settings["recovery_dir"])
+            self.flight_enable = self.create_publisher(Bool, "/rackonaut/drone/flight_enabled", 5)
+            self.create_subscription(String, "/rackonaut/recovery/operator", self.on_recovery_action, 5)
         self.control_timer = self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_odom(self, message):
@@ -194,6 +204,15 @@ class Mission(Node):
             self.safety_zones = set(state.get("required", ()))
             self.permit_departure = state.get("permit_departure")
             self.descents = state.get("aerial", {}).get("descents", {})
+            self.safety_alarm, self.safety_recovery = state.get("alarm"), state.get("recovery") or {}
+
+    def on_recovery_action(self, message):
+        try:
+            action = json.loads(message.data)
+        except ValueError:
+            return
+        if isinstance(action, dict) and action.get("inspection_id") == self.inspection_id:
+            self.recovery.action(action.get("action"), action.get("recovery_id"), action.get("proposal"), monotonic())
 
     def on_energy(self, message):
         self.battery, self.battery_at = json.loads(message.data), monotonic()
@@ -265,6 +284,10 @@ class Mission(Node):
         reason = self.readiness(now)
         if reason:
             return reason
+        if self.flight_enable is not None:
+            if not self.flight_enable.get_subscription_count():
+                return "Waiting for the simulated flight-enable bridge"
+            self.set_flight_enabled(True)
         self.command = self.create_publisher(Twist, self.command_topic, 10)
         if self.started is None:
             self.started = now
@@ -285,6 +308,10 @@ class Mission(Node):
         return response
 
     def on_abort(self, _request, response):
+        if self.recovery and self.recovery.phase in RECOVERY_ACTIVE | {"RECOVERY_AUTHORIZED"}:
+            self.recovery.finish(monotonic(), RECOVERY_FAILED, "Recovery stopped through the mission Abort service")
+            response.success, response.message = True, self.recovery.record["detail"]
+            return response
         response.success = self.stage not in TERMINAL
         if response.success:
             self.finish("ABORTED", "Stopped by the operator", monotonic())
@@ -583,6 +610,10 @@ class Mission(Node):
             return
         self.next_stop(now)
 
+    def set_flight_enabled(self, enabled):
+        if self.flight_enable is not None:
+            self.flight_enable.publish(Bool(data=enabled))
+
     def stop_motion(self, competing=False):
         if self.command is not None:
             if not competing and self.count_publishers(self.command_topic) <= 1:
@@ -769,9 +800,13 @@ class Mission(Node):
     def finish(self, result, detail, now, competing=False):
         if self.navigation and result == "ABORTED" and self.navigation.mode not in {"FAULT", "RECOVERY_REQUIRED"}:
             self.navigation.set_state("ABORTED", detail)
+        if result in {"COMPLETE", "COMPLETE_WITH_MISSES"} and self.landed and self.battery.get("contact") is True:
+            self.set_flight_enabled(False)
         self.stop_motion(competing)
         if self.energy_enabled and self.sorties and "end_percent" not in self.sorties[-1]:
             self.close_sortie(result)
+        if self.recovery and (result == "ABORTED" or not self.landed):
+            self.recovery.stopped(now, detail, self.stage)
         self.ended = now
         self.transition(result, self.target, now, detail)
         self.publish_state(now)
@@ -836,6 +871,11 @@ class Mission(Node):
             self.detail = self.start(now) or self.detail
             if self.stage == "WAITING" and now - self.created > 25.0:
                 self.finish("ABORTED", self.detail, now)
+        if self.recovery and self.stage in TERMINAL:
+            self.recovery.tick(now)
+            if now-self.status_at >= .20:
+                self.publish_state(now)
+            return
         held_for_energy = self.energy_guard(now)
         if self.command is not None and not held_for_energy:
             if self.count_publishers(self.command_topic) > 1:
@@ -899,6 +939,8 @@ class Mission(Node):
             status["avoidance"] = avoidance = self.navigation.snapshot(now)
             if avoidance["scan_age_ms"] is None and self.scanner.cloud:
                 avoidance["scan_age_ms"] = round((now-self.scanner.cloud.received)*1000)
+        if self.recovery and self.recovery.stop:
+            status["recovery"] = self.recovery.snapshot()
         if self.sensor_localization:
             status["localization"] = self.localization.get("state", "DEGRADED")
         if self.adaptive:
@@ -938,6 +980,8 @@ class Mission(Node):
         self.status_at = now
 
     def close(self):
+        if self.recovery and self.recovery.phase in RECOVERY_ACTIVE | {"RECOVERY_AUTHORIZED"}:
+            self.recovery.finish(monotonic(), RECOVERY_FAILED, "Mission controller stopped")
         if self.command is not None:
             self.finish("ABORTED", "Mission process stopped", monotonic())
         self.http.shutdown(wait=True, cancel_futures=True)

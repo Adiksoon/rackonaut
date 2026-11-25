@@ -1,0 +1,140 @@
+{
+  "recovery_id": "REC-DE0E8F69EA6A",
+  "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+  "cause": "LOCALIZATION_LOST",
+  "trigger": {
+    "time": "2026-11-25T16:45:48.545+00:00",
+    "monotonic_ns": 41407457470271,
+    "inspection_id": "INS-CONTROL-20261125-164502-5A30783F",
+    "event": "mission_aborted",
+    "zones": [
+      "D",
+      "A"
+    ],
+    "message": "Mission aborted. Verify and recover the drone."
+  },
+  "stopped": {
+    "at": "2026-11-25T16:45:48.506+00:00",
+    "mission_stage": "ENTERING_CORRIDOR",
+    "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "energy": 89.189,
+    "position": [
+      0.1790144147874435,
+      10.30362520408872,
+      6.69760085137157,
+      -9.224516757119838e-05
+    ]
+  },
+  "evaluated_at": "2026-11-25T16:45:48.720+00:00",
+  "flown": [
+    [
+      0.546,
+      10.306,
+      6.698,
+      0.001
+    ]
+  ],
+  "zones": [
+    "A",
+    "D"
+  ],
+  "authorized_at": "2026-11-25T16:46:03.288+00:00",
+  "accepted_conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": true,
+    "zone_sensors": true,
+    "fields_clear": true,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "planned": [
+    [
+      0.5451156677034223,
+      10.303446221820138,
+      6.697962089189176,
+      -0.0008637526571233458
+    ],
+    [
+      -4.7,
+      10.3,
+      6.7,
+      0.0
+    ],
+    [
+      -4.7,
+      10.3,
+      0.05,
+      0.0
+    ]
+  ],
+  "energy_authorized": 86.308,
+  "waiting_energy_used": 2.881,
+  "predicted_return_percent": 8.95474990804435,
+  "waiting_wall_s": 14.79,
+  "started_at": "2026-11-25T16:46:03.400+00:00",
+  "energy_start": 86.287,
+  "ended_at": "2026-11-25T16:46:04.781+00:00",
+  "result": "RECOVERY_FAILED",
+  "detail": "Zone occupied: Aisle A.",
+  "duration_wall_s": 1.2,
+  "end_energy": 86.107,
+  "energy_used": 0.18,
+  "dock_confirmed": false,
+  "last_conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": false,
+    "zone_sensors": true,
+    "fields_clear": false,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "retry_slots": [
+    "A-01-01"
+  ],
+  "phase": "RECOVERY_FAILED",
+  "proposal": "718779853096",
+  "conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": false,
+    "zone_sensors": true,
+    "fields_clear": false,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "required_zones": [
+    "A",
+    "D"
+  ],
+  "leg": 0,
+  "energy": 86.107,
+  "return_cost": 8.9,
+  "reserve": 8.0,
+  "wait_per_sim_s": 0.26,
+  "energy_verified": true,
+  "permit_request": false,
+  "navigation": "CLEAR"
+}

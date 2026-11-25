@@ -64,6 +64,26 @@
       <div><span>Additional distance / energy</span><strong id="avoidance-cost">—</strong></div>
     </div>
   </section>
+  <section class="card emergency-panel" id="emergency-panel" aria-labelledby="emergency-title" hidden>
+    <div class="energy-head">
+      <div><h2 id="emergency-title">Emergency &amp; Recovery Center</h2><p id="recovery-detail"></p></div>
+      <span class="signal" id="recovery-phase" role="status"></span>
+    </div>
+    <div class="energy-grid">
+      <div><span>Estimated XYZ</span><strong id="recovery-position">—</strong><small id="recovery-localization"></small></div>
+      <div><span>Reserved zones</span><strong id="recovery-zones">—</strong><small id="recovery-permit"></small></div>
+      <div><span>Battery / return / reserve</span><strong id="recovery-energy">—</strong><small id="recovery-wait"></small></div>
+      <div><span>Return route</span><strong id="recovery-route">—</strong><small id="recovery-retry"></small></div>
+    </div>
+    <ul id="recovery-checks" class="recovery-checks" aria-label="Recovery conditions"></ul>
+    <div class="recovery-actions">
+      <button type="button" class="chip" id="recovery-evaluate" disabled>Evaluate recovery</button>
+      <button type="button" class="primary" id="recovery-authorize" disabled>Authorize return to dock</button>
+      <button type="button" class="danger" id="recovery-abort" disabled>Abort recovery</button>
+      <button type="button" class="chip" id="recovery-replan" disabled>Plan new inspection</button>
+    </div>
+    <p class="footnote" id="recovery-action-message" role="status"></p>
+  </section>
   <section class="card localization-panel" id="localization-panel" aria-labelledby="localization-title" hidden>
     <div class="energy-head">
       <div><h2 id="localization-title">Localization &amp; Spatial Mapping</h2><p id="localization-reason">Waiting for a synchronized scan.</p></div>
@@ -119,6 +139,9 @@
           <span id="twin-onboard-key" hidden><i class="twin-key onboard"></i>Onboard returns</span>
           <span id="twin-hazard-key" hidden><i class="twin-key returns"></i>Blocked flight volume</span>
           <span id="twin-bypass-key" hidden><i class="twin-key bypass"></i>Measured bypass</span>
+          <span id="twin-recovery-key" hidden><i class="twin-key recovery-plan"></i>Return plan</span>
+          <span id="twin-recovery-flown" hidden><i class="twin-key recovery-flown"></i>Recovery flown</span>
+          <span id="twin-recovery-stop" hidden><i class="twin-key returns"></i>Emergency stop</span>
           <span id="twin-mapping-key" hidden><i class="twin-key onboard"></i>Accumulated LiDAR</span>
           <span id="twin-estimate-key" hidden><i class="twin-key estimate"></i>Estimated pose history</span>
           <span id="twin-reference-key" hidden><i class="twin-key reference"></i>Validation reference</span>
@@ -188,6 +211,9 @@
       <button type="button" id="review-stops" class="secondary" hidden>Plan reinspection</button>
       <button type="button" id="next-inspection" class="secondary">Plan another inspection</button>
       <section id="history-panel"><h3>Report history</h3><div id="history"></div></section>
+      <section id="recovery-history" hidden aria-label="Recovery archive">
+        <h3>Recovery history</h3><div id="recovery-history-rows"></div>
+      </section>
     </aside>
   </div>
   <section class="metrics" aria-label="Inspection totals">

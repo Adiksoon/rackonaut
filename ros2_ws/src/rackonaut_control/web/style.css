@@ -282,3 +282,16 @@ thead th { color: var(--muted); font-weight: 550; }
 @media (max-width: 720px) { .energy-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 .energy-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .energy-actions .chip { font-size: .71rem; padding: 5px 8px; }
+
+.emergency-panel { margin-bottom: 16px; border-color: #a06454; }
+.emergency-panel .energy-head p { color: #ffbb9e; letter-spacing: .025em; }
+.emergency-panel[data-phase="RECOVERY_COMPLETE"] { border-color: #348574; }
+.emergency-panel[data-phase="RECOVERY_COMPLETE"] .energy-head p { color: #8ee4c8; }
+.recovery-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.recovery-actions .primary, .recovery-actions .danger, .recovery-actions .chip { width: auto; margin: 0; }
+.recovery-checks { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 6px 12px; padding: 0; list-style: none; }
+.recovery-checks:empty { display: none; }
+.recovery-checks li { color: #ffc6a8; font-size: .82rem; }
+.recovery-checks li[data-ok="true"] { color: #a5e8cf; }
+.twin-key.recovery-plan { background: #ffbd6a; }
+.twin-key.recovery-flown { background: #ff8ada; }

@@ -14,6 +14,7 @@ STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/cs
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
 REPORT = re.compile(fr"/reports/({RUN})$")
+RECOVERY = re.compile(r"/recoveries/(REC-[A-F0-9]{12}\.json)$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")
 
 
@@ -50,6 +51,9 @@ def serve(control, port):
                 elif match := REPORT.fullmatch(path):
                     report = control.data / "reports" / match[1] / "index.html"
                     self.reply(200, report.read_bytes(), "text/html; charset=utf-8")
+                elif control.recovery_enabled and (match := RECOVERY.fullmatch(path)):
+                    archive = control.data / "recoveries" / match[1]
+                    self.reply(200, archive.read_bytes(), "application/json")
                 elif match := PHOTO.fullmatch(path):
                     photo = control.data / "quality" / match[1] / match[2] / f"{match[3]}.png"
                     self.reply(200, photo.read_bytes(), "image/png")
@@ -76,7 +80,11 @@ def serve(control, port):
                     raise ValueError("Expected a JSON object.")
                 actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort,
                            "/api/simulation/worker": control.move_worker, "/api/simulation/obstacle": control.move_obstacle}
-                action = actions.get(urlsplit(self.path).path)
+                path = urlsplit(self.path).path
+                if path in {"/api/recovery/evaluate", "/api/recovery/authorize", "/api/recovery/abort"}:
+                    self.json(200, control.recovery_action(selection, path.rsplit("/", 1)[1]))
+                    return
+                action = actions.get(path)
                 if action:
                     self.json(200, action(selection))
                 else:

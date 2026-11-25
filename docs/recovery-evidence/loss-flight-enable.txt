@@ -1,0 +1,33 @@
+Type: std_msgs/msg/Bool
+
+Publisher count: 1
+
+Node name: rackonaut_mission
+Node namespace: /
+Topic type: std_msgs/msg/Bool
+Endpoint type: PUBLISHER
+GID: 01.0f.b3.f7.d5.7d.26.ed.00.00.00.00.00.00.22.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: rackonaut_flight_enable_bridge
+Node namespace: /
+Topic type: std_msgs/msg/Bool
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.5f.7a.6a.dc.00.00.00.00.00.00.12.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite

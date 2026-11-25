@@ -18,6 +18,8 @@ The [onboard obstacle avoidance demo](docs/OBSTACLE_AVOIDANCE.md) adds a spatial
 
 The [sensor-based localization demo](docs/SENSOR_LOCALIZATION.md) adds LiDAR/IMU navigation and a measured warehouse point cloud with optional reference validation.
 
+The [autonomous recovery demo](docs/AUTONOMOUS_RECOVERY.md) returns an interrupted drone to its dock after a separate operator approval.
+
 The [complete demo guide](docs/DEMO_COMPLETE.md) covers the `demo-complete` tag, launch, full inventory, reinspection and team handoff.
 
 | Role | Guide | AI starter prompt | Suggested branch |

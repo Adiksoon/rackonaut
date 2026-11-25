@@ -175,6 +175,14 @@ export function createTwin(layout, callbacks) {
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
   const planLine = path(scene, 0x83afff, true);
+  const recoveryPlan = layout.recovery ? path(scene, 0xffbd6a, true) : null;
+  const recoveryFlown = layout.recovery ? path(scene, 0xff8ada) : null;
+  const stopped = layout.recovery ? samples(scene, 1, 0xff5773, .48, .95) : null;
+  if (layout.recovery) {
+    recoveryPlan.renderOrder = 7;
+    recoveryFlown.renderOrder = 8;
+    for (const id of ["twin-recovery-key", "twin-recovery-flown", "twin-recovery-stop"]) byId(id).hidden = false;
+  }
   const flownLine = path(scene, 0x75ffd9);
   const extraLine = path(scene, 0xffb469, false, true);
   const pendingLine = path(scene, 0xffb469, true, true);
@@ -562,9 +570,16 @@ export function createTwin(layout, callbacks) {
         }
       }
     }
+    const recovery = state?.recovery;
+    if (recoveryPlan) {
+      setPath(recoveryPlan, recovery?.planned || [], .045);
+      setPath(recoveryFlown, recovery?.flown || [], .065);
+      const stop = recovery?.stopped?.position;
+      stopped(stop ? [[stop[0], stop[2], -stop[1]]] : []);
+    }
     const returnPath = current?.status?.energy?.return_path;
-    setPath(planLine, planning ? preview?.points || [] : returnPath?.length ? returnPath : job?.planned || []);
-    setPath(flownLine, planning ? [] : job?.flown || [], .047);
+    setPath(planLine, planning ? preview?.points || [] : recovery ? [] : returnPath?.length ? returnPath : job?.planned || []);
+    setPath(flownLine, planning || recovery ? [] : job?.flown || [], .047);
     const moves = current?.status?.adaptive?.moves || [];
     setPath(extraLine, moves.filter((move) => move.actual).flatMap((move) => [move.from, move.actual]), .088);
     setPath(pendingLine, moves.filter((move) => !move.actual).flatMap((move) => [move.from, move.target]), .088);
@@ -598,6 +613,8 @@ export function createTwin(layout, callbacks) {
       if (referencePath) setPath(referencePath, state?.localization_validation?.trajectory || [], .035);
     }
     updateDrone(state);
+    if (recovery?.cause && recovery.phase !== "RECOVERY_COMPLETE")
+      flightLabel.textContent += ` · ${recovery.cause.replaceAll("_", " ")}`;
     if (warehouse.aerial) {
       const safety = state?.safety?.aerial;
       warehouse.aerial.worker.visible = !!safety?.worker;

@@ -12,6 +12,7 @@ from nav_msgs.msg import Odometry
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from ros_gz_interfaces.msg import Contacts
+from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import BatteryState
 from std_msgs.msg import String
 
@@ -34,6 +35,10 @@ class Energy(Node):
         if not 0 <= self.level <= 100:
             raise ValueError("initial_percent must be within 0–100.")
         self.events_file = self.declare_parameter("events_file", "").value
+        self.recovery_enabled = self.declare_parameter("autonomous_recovery", False).value
+        self.clock_stamp = self.accounted_stamp = None
+        self.clock_at, self.gap_debit = -1e6, 0.
+        self.maximum_draw = self.model.draw(.65, 0., .60, True)
         self.aerial = self.declare_parameter("aerial", False).value
         self.sensor_localization = self.declare_parameter("sensor_localization", False).value
         layout_name = "aerial_layout.json" if self.aerial else "control_layout.json"
@@ -61,10 +66,28 @@ class Energy(Node):
         self.create_subscription(String, "/rackonaut/mission/status", self.on_mission, latched)
         if self.sensor_localization:
             self.create_subscription(Contacts, "/rackonaut/dock/contacts", self.on_pad_contact, qos_profile_sensor_data)
+        if self.recovery_enabled:
+            self.create_subscription(Clock, "/clock", self.on_clock, qos_profile_sensor_data)
         self.create_timer(.20, self.publish_status)
 
     def on_mission(self, message):
         self.mission = json.loads(message.data)
+
+    def on_clock(self, message):
+        stamp = message.clock.sec + 1e-9*message.clock.nanosec
+        if self.clock_stamp is not None and stamp <= self.clock_stamp:
+            return
+        self.clock_stamp, self.clock_at = stamp, monotonic()
+        if self.stamp is not None and stamp-self.stamp > .30:
+            self.account_gap(stamp)
+
+    def account_gap(self, stamp):
+        dt = max(0., stamp-self.accounted_stamp)
+        if dt and not (self.contact_verified and self.physical_contact()):
+            used = self.maximum_draw*dt
+            self.level = max(0., self.level-used)
+            self.gap_debit += used
+        self.accounted_stamp = max(stamp, self.accounted_stamp)
 
     def on_pad_contact(self, message):
         stamp = message.header.stamp.sec + message.header.stamp.nanosec * 1.e-9
@@ -94,12 +117,21 @@ class Energy(Node):
             return
         if dt > .30:
             self.contact_since = None
+            if self.recovery_enabled and self.accounted_stamp is not None:
+                self.account_gap(stamp)
             dt = 0.
+        if self.recovery_enabled:
+            if self.accounted_stamp is not None:
+                dt = min(dt, max(0., stamp-self.accounted_stamp))
+            self.accounted_stamp = max(stamp, self.accounted_stamp or stamp)
         self.stamp, self.stamp_msg, self.last_at = stamp, msg_stamp, monotonic()
         heading = atan2(2 * (q.w*q.z + q.x*q.y), 1 - 2 * (q.y*q.y + q.z*q.z))
         pose = p.x, p.y, p.z, heading
         speed, rotation = hypot(vx, vy, vz), hypot(angular.x, angular.y, angular.z)
         stage = self.mission.get("stage")
+        recovery = self.mission.get("recovery") or {}
+        if self.recovery_enabled and recovery.get("phase") in {"EMERGENCY_DOCKING", "RECOVERY_COMPLETE"}:
+            stage = "DOCKING"
         if stage not in CHARGE_ALLOWED:
             self.cycle_started = False
         if self.sensor_localization:
@@ -155,6 +187,9 @@ class Energy(Node):
             "dock": dock, "contact": fresh and self.contact_verified and contact_live, "charging": charging,
             "cycles": self.cycles, "sim_time": self.stamp, "model": asdict(self.model),
             "profile": "protected_aerial_demo" if self.aerial else "reference_demo",
+            **({"budget_verified": self.accounted_stamp is not None and monotonic()-self.clock_at < .65,
+                "gap_debit_percent": round(self.gap_debit, 3), "gap_draw_percent_per_sim_s": round(self.maximum_draw, 3)}
+               if self.recovery_enabled else {}),
             **({"contact_source": "gazebo_dock_switch", "switch_engaged": contact_live}
                if self.sensor_localization else {}),
         }, separators=(",", ":"))))

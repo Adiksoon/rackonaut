@@ -38,6 +38,9 @@ def setup(context):
         raise ValueError("Select ground_truth, shadow or sensor_based localization.")
     localizer = localization != "ground_truth"
     diagnostics = enabled("localization_diagnostics")
+    recovery = enabled("recovery")
+    if recovery and localization != "sensor_based":
+        raise ValueError("recovery:=true requires localization:=sensor_based.")
     if diagnostics and not localizer:
         raise ValueError("Localization diagnostics require the localizer.")
     avoidance = enabled("avoidance") or localizer
@@ -93,6 +96,11 @@ def setup(context):
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
                               parameters=[{"mode": localization, "data_dir": data}]))
+    if recovery:
+        localization_nodes.append(Node(
+            package="ros_gz_bridge", executable="parameter_bridge", name="rackonaut_flight_enable_bridge", output="screen",
+            arguments=["/rackonaut_reference/enable@std_msgs/msg/Bool]ignition.msgs.Boolean"],
+            remappings=[("/rackonaut_reference/enable", "/rackonaut/drone/flight_enabled")]))
     if diagnostics:
         localization_nodes.append(Node(package="rackonaut_localization", executable="validate_pose", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"}, parameters=[{"data_dir": data}]))
@@ -108,6 +116,7 @@ def setup(context):
         "avoidance_enabled": avoidance,
         "localization_mode": localization,
         "localization_diagnostics": diagnostics,
+        "autonomous_recovery": recovery,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -118,6 +127,7 @@ def setup(context):
             "events_file": str(Path(data) / "charge-cycles.jsonl"),
             "aerial": aerial,
             "sensor_localization": localization == "sensor_based",
+            "autonomous_recovery": recovery,
             **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
@@ -129,7 +139,7 @@ def setup(context):
         safety_nodes = [
             Node(package="rackonaut_safety", executable="manage", output="screen",
                  parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode,
-                              "aerial": aerial}]),
+                              "aerial": aerial, "autonomous_recovery": recovery}]),
             Node(package="rackonaut_safety", executable="infrastructure", output="screen",
                  parameters=[{"laser_props": laser, "energy_dock": energy, "aerial": aerial,
                               **({f"descent_{zone}": profile["nodes"][f"foot_{zone}"][:2] for zone in ("A", "B")}
@@ -163,7 +173,7 @@ def generate_launch_description():
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
                 "energy": "false", "aerial": "false", "avoidance": "false",
                 "localization": "ground_truth", "localization_diagnostics": "false",
-                "battery_initial": "auto", "charge_rate": "6.0"}
+                "recovery": "false", "battery_initial": "auto", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

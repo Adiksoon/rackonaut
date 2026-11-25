@@ -299,11 +299,17 @@ function drawResults(job) {
   put("damage-link", `View ${damage.length} damage ${damage.length === 1 ? "photo" : "photos"} ↓`);
   const review = reviewSlots(job);
   el("review-stops").hidden = !(finished && review.length);
-  el("review-stops").disabled = !state?.at_pad || !!state?.busy;
-  el("next-inspection").disabled = !!state?.busy;
+  const recoveryPending = layout.recovery && state?.safety?.phase === "RECOVERY";
+  el("review-stops").disabled = !state?.at_pad || !!state?.busy || recoveryPending;
+  el("next-inspection").disabled = !!state?.busy || recoveryPending;
   html("history", state?.history?.length ? state.history.map((item) => `<div class="history-item"><a target="_blank"
     rel="noopener" href="${safe(item.url)}">${safe(item.run)}</a><span>${item.confirmed}/${item.total}</span></div>`).join("")
     : '<p class="footnote">Completed reports will appear here.</p>');
+  const recoveries = state?.recovery_history || [];
+  el("recovery-history").hidden = !recoveries.length;
+  html("recovery-history-rows", recoveries.map((item) => `<div class="history-item"><a target="_blank"
+    rel="noopener" href="${safe(item.url)}">${safe(item.recovery_id)}</a>
+    <span>${safe(item.inspection_id)} · ${safe(item.result.replaceAll("_", " "))}</span></div>`).join(""));
   el("review").hidden = view !== "results" || !job;
   if (view !== "results" || !job) return;
   put("results-note", result ? "Inventory results as returned by the API." : "Waiting for the final API snapshot.");
@@ -443,6 +449,63 @@ function drawLocalization() {
   put("localization-validation", validation ? `Validation RMSE ${(validation.rmse*100).toFixed(1)} cm` : "");
 }
 
+const recoveryChecks = {
+  stable_tracking: "Stable sensor localization", onboard_lidar: "Fresh onboard LiDAR",
+  safety_heartbeat_and_zones: "Safety heartbeat and reserved zones", stationary: "Drone stationary for approval",
+  zone_sensors: "Fresh zone sensors", fields_clear: "Required zones clear", red_signals: "Reserved signals confirmed",
+  in_flight_envelope: "Pose inside flight envelope", connected_return: "Connected return route",
+  first_leg_observed: "Onboard clearance for first leg", energy_telemetry: "Verified battery budget",
+  return_budget: "Sufficient energy and reserve", command_ownership: "Exclusive flight control",
+  flight_enable_bridge: "Flight controller bridge ready",
+};
+
+function drawRecovery() {
+  if (!layout.recovery) return;
+  const r = state?.recovery;
+  const panel = el("emergency-panel");
+  panel.hidden = !r;
+  if (!r) return;
+  const phase = r.phase;
+  const complete = phase === "RECOVERY_COMPLETE";
+  const active = ["RECOVERY_AUTHORIZED", "RETURNING_TO_DOCK", "EMERGENCY_DOCKING"].includes(phase);
+  panel.dataset.phase = phase;
+  put("recovery-phase", phase.replaceAll("_", " "));
+  const trigger = r.stopped?.detail;
+  const noRoute = phase === "RECOVERY_BLOCKED" && r.conditions?.in_flight_envelope && !r.conditions.connected_return;
+  const explanation = r.detail || (noRoute ? "No connected route in the reservation. Physical recovery required." : trigger);
+  put("recovery-detail", [r.cause?.replaceAll("_", " "), explanation].filter(Boolean).join(" · "));
+  put("recovery-position", state.robot && state.localization?.state === "TRACKING" && state.position ? state.position.slice(0, 3).map(x => x.toFixed(2)).join(" / ") + " m" : "Estimate unavailable");
+  put("recovery-localization", state.localization?.state || "No localization heartbeat");
+  put("recovery-zones", (state.safety?.required || state.last_reservation || []).join(" · ") || "Released");
+  const permit = state.safety?.recovery?.permit;
+  put("recovery-permit", permit ? `Safety permit ${permit}` : r.recovery_id || "Waiting for evaluation");
+  const pct = value => value == null ? "—" : `${value.toFixed(1)}%`;
+  put("recovery-energy", r.energy_verified ? [state.energy?.percent, r.return_cost, r.reserve].map(pct).join(" / ") : "Unverified");
+  const energyBlocked = r.conditions?.energy_telemetry && r.return_cost != null && r.conditions.return_budget === false;
+  put("recovery-wait", energyBlocked ? "Return budget insufficient · physical recovery required" :
+      r.wait_per_sim_s != null && !complete ? `${state.energy?.fresh ? "Hover" : "Conservative draw"} ${r.wait_per_sim_s.toFixed(2)} pp per simulation second` : complete ? "Physical contact confirmed" : "");
+  const legs = Math.max(0, (r.planned?.length || 0)-1);
+  put("recovery-route", complete ? "Docked" : active ? `Leg ${Math.min(legs,r.leg + 1)} of ${legs}` :
+      legs ? `${legs} planned corridor legs` : "Awaiting verified route");
+  put("recovery-retry", complete && r.retry_slots?.length ? `Remaining ${r.retry_slots.join(", ")}` : "");
+  const visible = Object.entries(r.conditions || {}).filter(([key]) => !active || !["stationary", "first_leg_observed"].includes(key));
+  const list = el("recovery-checks");
+  const signature = JSON.stringify(visible);
+  if (list.dataset.signature !== signature) {
+    list.replaceChildren(...visible.map(([key, ok]) => {
+      const row = document.createElement("li");
+      row.dataset.ok = String(ok);
+      row.textContent = `${ok ? "✓" : "×"} ${recoveryChecks[key] || key}`;
+      return row;
+    }));
+    list.dataset.signature = signature;
+  }
+  el("recovery-evaluate").disabled = !["RECOVERY_REQUIRED","RECOVERY_FAILED"].includes(phase) || state.safety?.phase !== "RECOVERY" || !trigger;
+  el("recovery-authorize").disabled = phase !== "WAITING_FOR_OPERATOR_APPROVAL";
+  el("recovery-abort").disabled = !r.recovery_id || complete || phase === "RECOVERY_FAILED";
+  el("recovery-replan").disabled = !complete || state.safety?.phase !== "RELEASED" || !state.energy?.contact || state.busy;
+}
+
 function drawSafety() {
   const enabled = !!layout.safety_fields;
   el("safety-banner").hidden = el("warehouse-safety").hidden = !enabled;
@@ -546,7 +609,8 @@ function draw() {
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
     reason = "Waiting for reliable sensor localization.";
   else if (!state?.robot) reason = "Waiting for drone odometry.";
-  else if (!state.at_pad) reason = "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
+  else if (!state.at_pad) reason = layout.recovery ? "Use the Recovery Center to return the drone to the dock." :
+    "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
   else if (state?.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
   else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
@@ -576,6 +640,7 @@ function draw() {
   drawEnergy(job);
   drawAvoidance(job);
   drawLocalization();
+  drawRecovery();
   drawTwin(job);
 }
 
@@ -651,6 +716,26 @@ async function init() {
       await api("/api/abort", { inspection_id: state.mission.inspection_id });
       notice("Abort sent to Mission Manager. Waiting for acknowledgement.");
     } catch (error) { notice(error.message); }
+  });
+  for (const action of ["evaluate", "authorize", "abort"]) {
+    el(`recovery-${action}`).addEventListener("click", async () => {
+      const r = state?.recovery;
+      if (!r) return;
+      try {
+        await api(`/api/recovery/${action}`, {
+          inspection_id: r.inspection_id, recovery_id: r.recovery_id, proposal: r.proposal,
+        });
+        put("recovery-action-message", "Request sent to the flight controller.");
+      } catch (error) { put("recovery-action-message", error.message); }
+    });
+  }
+  el("recovery-replan").addEventListener("click", () => {
+    const slots = state?.recovery?.retry_slots || [];
+    choices.mode = slots.length ? "custom" : "aisle";
+    choices.slots = new Set(slots);
+    choices.aisles.clear();
+    setView("plan");
+    changePlan();
   });
   el("review-stops").addEventListener("click", () => {
     choices.mode = "custom"; choices.slots = new Set(reviewSlots(state.mission)); setView("plan"); changePlan();

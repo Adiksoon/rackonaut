@@ -44,6 +44,8 @@ class Job:
     planned: list = field(default_factory=list)
     flown: list = field(default_factory=list)
     evidence: list = field(default_factory=list)
+    recovery: dict | None = None
+    recovery_at: float = 0.
     quality_uncertain: dict = field(default_factory=dict)
     finished_at: float | None = None
     archive: dict | None = None
@@ -87,6 +89,10 @@ class Control(Node):
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
         self.aerial_enabled = self.declare_parameter("aerial_enabled", False).value
         self.avoidance_enabled = self.declare_parameter("avoidance_enabled", False).value
+        self.recovery_enabled = self.declare_parameter("autonomous_recovery", False).value
+        if self.recovery_enabled:
+            self.layout["recovery"] = True
+            self.recovery_operator = self.create_publisher(String, "/rackonaut/recovery/operator", 5)
         self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
         self.localization_diagnostics = self.declare_parameter("localization_diagnostics", False).value
         self.localization, self.localization_at, self.pose_validation = None, -1e6, None
@@ -121,6 +127,10 @@ class Control(Node):
         self.overview_jpeg, self.overview_at = None, -1e6
         self.job = None
         self.history = self.load_history()
+        self.recovery_history = {}
+        if self.recovery_enabled:
+            for file in sorted((self.data / "recoveries").glob("REC-*.json"), key=lambda path: path.stat().st_mtime)[-12:]:
+                self.remember_recovery(json.loads(file.read_text()))
         self.backend_state = {"online": False, "mode": "", "slots": []}
         self.bridge = CvBridge()
         self.pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="control-io")
@@ -170,6 +180,14 @@ class Control(Node):
         return {"run": run, "stage": status["stage"], "landed": status["landed"],
                 "confirmed": len(status["confirmed"]), "total": status["total"], "url": f"/reports/{run}"}
 
+    def remember_recovery(self, record):
+        if record and record.get("result") in {"RECOVERY_COMPLETE", "RECOVERY_FAILED"}:
+            recovery_id = record["recovery_id"]
+            self.recovery_history[recovery_id] = {
+                "recovery_id": recovery_id, "inspection_id": record["inspection_id"],
+                "result": record["result"], "url": f"/recoveries/{recovery_id}.json",
+            }
+
     def on_odom(self, message):
         if message.header.frame_id != "rackonaut_odom":
             return
@@ -187,6 +205,12 @@ class Control(Node):
         with self.lock:
             if not self.job or status["inspection_id"] != self.job.run:
                 return
+            if self.recovery_enabled:
+                self.job.recovery = status.pop("recovery", None)
+                self.remember_recovery(self.job.recovery)
+                self.job.recovery_at = monotonic()
+                if self.job.finished_at is not None:
+                    return
             self.job.status = status
             if status["stage"] in TERMINAL and self.job.finished_at is None:
                 self.job.finished_at = monotonic()
@@ -368,6 +392,7 @@ class Control(Node):
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
                     **({"travel_timeout": "70.0", "obstacle_avoidance": "true"} if self.avoidance_enabled
                        else {"travel_timeout": "52.0"} if self.aerial_enabled else {}),
+                    **({"recovery_dir": self.data / "recoveries"} if self.recovery_enabled else {}),
                     **({"sensor_localization": "true"} if self.localization_mode == "sensor_based" else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
@@ -398,6 +423,31 @@ class Control(Node):
             if self.stage(self.job) in TERMINAL | {"ERROR"}:
                 raise RuntimeError("This inspection has already ended.")
             self.job.abort_requested = True
+            return {"accepted": True}
+
+    def recovery_action(self, request, action):
+        with self.lock:
+            job = self.job
+            if not self.recovery_enabled or not job or request.get("inspection_id") != job.run:
+                raise RuntimeError("Choose the interrupted inspection in the Recovery Center.")
+            recovery = job.recovery or {}
+            if monotonic()-job.recovery_at > .7 or not self.recovery_operator.get_subscription_count():
+                raise RuntimeError("The mission control owner is unavailable. Physical recovery is required.")
+            phase = recovery.get("phase")
+            if action == "evaluate":
+                safety = self.safety_status()
+                if phase not in {"RECOVERY_REQUIRED", "RECOVERY_FAILED"} or not safety or safety["phase"] != "RECOVERY":
+                    raise RuntimeError("A Safety recovery reservation and a stopped inspection are required.")
+            elif request.get("recovery_id") != recovery.get("recovery_id") or not recovery.get("recovery_id"):
+                raise RuntimeError("Choose the current recovery procedure.")
+            elif action == "authorize" and (phase != "WAITING_FOR_OPERATOR_APPROVAL"
+                    or request.get("proposal") != recovery.get("proposal")):
+                raise RuntimeError("Review the current return plan after all recovery conditions are satisfied.")
+            elif action == "abort" and phase in {"RECOVERY_COMPLETE", "RECOVERY_FAILED"}:
+                raise RuntimeError("This recovery has ended.")
+            payload = {k: recovery.get(k) for k in ("recovery_id", "proposal")}
+            payload.update(action=action, inspection_id=job.run)
+            self.recovery_operator.publish(String(data=json.dumps(payload)))
             return {"accepted": True}
 
     def read_backend(self):
@@ -518,6 +568,14 @@ class Control(Node):
                     "safety_enabled": self.safety_enabled, "safety": safety,
                     "last_reservation": (self.safety or {}).get("required", []) if safety is None else [],
                     "overview": monotonic() - self.overview_at < 1.5}
+            if self.recovery_enabled:
+                recovery = job.recovery if job else None
+                if job and safety and safety["phase"] == "RECOVERY" and monotonic()-job.recovery_at > .85:
+                    recovery = {**(recovery or {}), "phase": "RECOVERY_FAILED", "inspection_id": job.run,
+                                "cause": "COMMUNICATION_FAILURE", "detail": "Mission control heartbeat lost. Physical recovery required.",
+                                "conditions": {}}
+                result["recovery"] = recovery
+                result["recovery_history"] = list(reversed(self.recovery_history.values()))[:12]
             if self.localization_mode != "ground_truth":
                 value = self.localization
                 if value and monotonic() - self.localization_at > .65:
