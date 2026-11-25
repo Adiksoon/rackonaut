@@ -83,6 +83,7 @@ class Control(Node):
             self.layout["safety_fields"] = json.loads((warehouse / "config/safety_fields.json").read_text())
         if self.laser_enabled:
             self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
+        self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
         self.odom_at = 0.
@@ -242,7 +243,7 @@ class Control(Node):
     def preview(self, selection):
         route = plan(self.layout, selection)
         if self.safety_enabled:
-            route["required_zones"] = route_zones(route["points"], self.layout["safety_fields"])
+            route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
         return route
 
     def begin(self, selection):
@@ -281,10 +282,12 @@ class Control(Node):
                 processes.append(self.spawn(directory, "rackonaut_perception", "inspect", {
                     **common, "marker_map": self.marker_map, "mission_scoped": "true",
                     "quality_enabled": str(planned["quality"]).lower(), "quality_dir": self.data / "quality",
+                    "adaptive": str(planned["adaptive"]).lower(),
                 }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
                     "safety_interlock": str(self.safety_enabled).lower(),
+                    "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                 }))
             except OSError:
                 stop_workers(processes)
@@ -292,7 +295,8 @@ class Control(Node):
             self.job = Job(run, planned, processes)
             self.jpeg, self.camera_type, self.camera_at = None, "raw", 0.
             if self.safety_enabled:
-                self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": planned["points"]})))
+                points = planned.get("safety_points", planned["points"])
+                self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": points})))
             return {"inspection_id": run}
 
     @staticmethod
@@ -417,7 +421,8 @@ class Control(Node):
             current = None
             if job:
                 current = {"inspection_id": job.run, "stage": self.stage(job), "slots": job.plan["slots"],
-                           "quality": job.plan["quality"], "mode": job.plan["mode"], "status": job.status,
+                           "quality": job.plan["quality"], "adaptive": job.plan["adaptive"],
+                           "mode": job.plan["mode"], "status": job.status,
                            "planned": job.planned or job.plan["points"], "flown": job.flown,
                            "evidence": job.evidence, "result": job.archive, "error": job.error or job.export_error}
             return {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),

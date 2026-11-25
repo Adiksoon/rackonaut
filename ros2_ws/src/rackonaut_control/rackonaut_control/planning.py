@@ -4,6 +4,43 @@ from itertools import groupby
 from math import dist
 
 
+RETRY_OFFSETS = {
+    "unreadable": ((.55, .18, .03, 13.), (-.46, .28, .04, -10.)),
+    "uncertain": ((-.38, .08, .10, -9.), (.46, .22, .12, 11.)),
+    "missing": ((.32, .04, .12, 9.), (-.34, .12, -.08, -8.)),
+    # The reference camera needs both the left-hand slot tag and the whole carton.
+    "damage": ((0., .14, 0., 0.),),
+}
+
+
+def retry_views(layout, slot, original):
+    location = layout["slots"][slot]
+    aisle = location["aisle"]
+    left, bottom, right, top = layout["safety_fields"][aisle]
+    face = location["label"][1]
+    centre = location["label"][0] + .66
+    bounds = [max(left + .4, centre - 1.12), bottom + .4,
+              min(right - .4, centre + 1.12), min(top - .4, face - 1.40)]
+    if layout.get("laser_fields"):
+        a, b, c, d = layout["laser_fields"][aisle]["field"]
+        bounds = [max(bounds[0], a + .30), max(bounds[1], b + .30),
+                  min(bounds[2], c - .30), min(bounds[3], d - .30)]
+    x, y, z, yaw = location["viewpoint"]
+    views = {}
+    for reason, offsets in RETRY_OFFSETS.items():
+        poses = []
+        for dx, dy, dz, angle in offsets:
+            target = dict(x=round(x + dx, 3), y=round(y + dy, 3),
+                          z=round(z + dz, 3), yaw_deg=yaw + angle, slot_id=slot)
+            if (bounds[0] <= target["x"] <= bounds[2] and bounds[1] <= target["y"] <= bounds[3]
+                    and .62 <= target["z"] <= 3.18):
+                poses.append(target)
+        views[reason] = poses
+    if not (bounds[0] <= original["x"] <= bounds[2] and bounds[1] <= original["y"] <= bounds[3]):
+        raise ValueError(f"The reference viewpoint for {slot} is outside the adaptive flight envelope.")
+    return {"zone": aisle, "bounds": bounds, "views": views}
+
+
 def selection_list(selection, key, choices):
     values = selection.get(key, [])
     if not isinstance(values, list) or any(not isinstance(item, str) or item not in choices for item in values):
@@ -14,8 +51,11 @@ def selection_list(selection, key, choices):
 def plan(layout, selection):
     mode = selection.get("mode")
     quality = selection.get("quality", False)
+    adaptive = selection.get("adaptive", False)
     if not isinstance(quality, bool):
         raise ValueError("Quality inspection must be enabled or disabled.")
+    if not isinstance(adaptive, bool) or (adaptive and not layout.get("adaptive_world")):
+        raise ValueError("Adaptive inspection requires the adaptive warehouse profile.")
     slots = layout["slots"]
     if mode == "full":
         ids = set(slots)
@@ -55,5 +95,18 @@ def plan(layout, selection):
     route = {"pad": pad, "takeoff_z": height, "waypoints": waypoints}
     takeoff = {**pad, "z": height}
     points = [[point[axis] for axis in ("x", "y", "z")] for point in (pad, takeoff, *waypoints, takeoff, pad)]
-    return {"mode": mode, "quality": quality, "slots": ordered, "points": points, "route": route,
-            "distance": round(sum(dist(first, second) for first, second in zip(points, points[1:])), 1)}
+    result = {"mode": mode, "quality": quality, "adaptive": adaptive, "slots": ordered, "points": points, "route": route,
+              "distance": round(sum(dist(first, second) for first, second in zip(points, points[1:])), 1)}
+    if adaptive:
+        route["retries"] = retries = {}
+        safety_path = []
+        for stop, point in zip((pad, takeoff, *waypoints, takeoff, pad), points):
+            safety_path.append(point)
+            slot = stop.get("slot_id")
+            if slot:
+                retries[slot] = retry_views(layout, slot, stop)
+                for poses in retries[slot]["views"].values():
+                    for pose in poses:
+                        safety_path.extend(([pose["x"], pose["y"], pose["z"]], point))
+        result["safety_points"] = safety_path
+    return result

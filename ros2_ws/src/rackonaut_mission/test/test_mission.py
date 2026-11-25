@@ -3,11 +3,22 @@ from math import hypot, pi, radians
 from pathlib import Path
 from unittest import TestCase
 
+from rackonaut_mission.adaptive import next_issue
 from rackonaut_mission.confirmation import current_observation
 from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def test_adaptive_request_depends_on_observation_and_linked_photo(self):
+        readable = {"occupancy": "occupied", "label_status": "readable", "pallet_id": "P999"}
+        damaged = {"status": "DAMAGED"}
+        self.assertEqual(next_issue(None, None, False), "missing")
+        self.assertEqual(next_issue(dict(readable, occupancy="uncertain"), damaged, False), "uncertain")
+        self.assertEqual(next_issue(dict(readable, label_status="unreadable"), damaged, False), "unreadable")
+        self.assertEqual(next_issue(readable, damaged, False), "damage")
+        self.assertIsNone(next_issue(readable, damaged, True))
+        self.assertIsNone(next_issue(readable, None, False))
+
     def test_world_error_rotates_into_body_frame(self):
         pose = Target(0, 0, .79, pi / 2)
         forward, left, up, yaw = velocity(Target(5, 0, 3, pi / 2), pose)

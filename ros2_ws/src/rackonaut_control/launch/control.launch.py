@@ -33,6 +33,11 @@ def setup(context):
     if enabled("laser_rviz") and not laser:
         raise ValueError("laser_rviz requires safety_sensor:=laser.")
     world = "laser_safety_showcase.sdf" if laser else "safety_showcase.sdf" if safety else "control_showcase.sdf"
+    adaptive = enabled("adaptive_world")
+    if adaptive:
+        if not safety:
+            raise ValueError("adaptive_world requires safety:=true.")
+        world = "adaptive_laser_showcase.sdf" if laser else "adaptive_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     if enabled("gazebo_gui"):
         command.append("--gui")
@@ -58,6 +63,7 @@ def setup(context):
         "data_dir": data,
         "safety_enabled": safety,
         "safety_sensor": mode,
+        "adaptive_world": adaptive,
     }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
         target_action=process, on_exit=[EmitEvent(event=Shutdown(reason="A Control Center service stopped"))],
@@ -92,7 +98,7 @@ def setup(context):
 def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
                 "gazebo_gui": "false", "data_dir": "", "safety": "false",
-                "safety_sensor": "virtual", "laser_rviz": "false"}
+                "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

@@ -1,0 +1,250 @@
+{
+  "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+  "mission": {
+    "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+    "stage": "COMPLETE",
+    "target": "PAD",
+    "target_pose": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "elapsed_seconds": 52.1,
+    "total": 1,
+    "planned_slots": [
+      "A-01-01"
+    ],
+    "visited": [
+      "A-01-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "observation_id": "OBS-6501136C9AB2454C9536A94A11B1CAD0",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:09:29.299Z"
+      }
+    },
+    "missed": [],
+    "landed": true,
+    "detail": "Landed on the launch pad",
+    "adaptive": {
+      "attempt": 2,
+      "reason": "unreadable",
+      "attempts": [
+        {
+          "slot_id": "A-01-01",
+          "attempt": 1,
+          "reason": "initial",
+          "issue": "unreadable",
+          "observation_id": "OBS-0AD2FF20975C424F89659D5E81D25D65",
+          "quality_id": null,
+          "reading": [
+            "occupied",
+            "unreadable",
+            null
+          ],
+          "outcome": "Label unreadable \u2014 adjusting viewpoint"
+        },
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "reason": "unreadable",
+          "issue": null,
+          "observation_id": "OBS-6501136C9AB2454C9536A94A11B1CAD0",
+          "quality_id": "Q-636886A92D184387AB2A8AD323B95C1B",
+          "reading": [
+            "occupied",
+            "readable",
+            "P001"
+          ],
+          "outcome": "Label recovered successfully"
+        }
+      ],
+      "moves": [
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "stage": "REPOSITION",
+          "from": [
+            5.460000000125421,
+            0.4500000034972525,
+            0.7899977683240642
+          ],
+          "target": [
+            6.01,
+            0.63,
+            0.82
+          ],
+          "actual": [
+            6.010245299329884,
+            0.6317840173193415,
+            0.8214654136760976
+          ]
+        },
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "stage": "RECENTER",
+          "from": [
+            6.010019942154878,
+            0.6300145513093897,
+            0.8199937028737658
+          ],
+          "target": [
+            5.46,
+            0.45,
+            0.79
+          ],
+          "actual": [
+            5.456702711728122,
+            0.4501239829104227,
+            0.7911748238343739
+          ]
+        }
+      ],
+      "retries": 1,
+      "resolved": [
+        "A-01-01"
+      ],
+      "manual_review": {},
+      "outcome": "Label recovered successfully"
+    }
+  },
+  "safety": {
+    "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+    "phase": "RELEASED",
+    "permit": false,
+    "sensor": "FRESH",
+    "sensor_mode": "virtual",
+    "signals_online": true,
+    "at_pad": true,
+    "required": [],
+    "message": "Inspection completed and touchdown confirmed.",
+    "alarm": null,
+    "countdown": 0,
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "OPEN",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:09:51.998+00:00",
+        "monotonic_ns": 24850910451143,
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "event": "released",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      },
+      {
+        "time": "2026-11-25T12:08:59.698+00:00",
+        "monotonic_ns": 24798610623043,
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:08:59.498+00:00",
+        "monotonic_ns": 24798410894292,
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:08:59.298+00:00",
+        "monotonic_ns": 24798210630927,
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:08:56.289+00:00",
+        "monotonic_ns": 24795201889099,
+        "inspection_id": "INS-CONTROL-20261125-120856-522D597F",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "result": {
+    "url": "/reports/INS-CONTROL-20261125-120856-522D597F",
+    "events": 2,
+    "rows": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": "P001",
+        "observation_id": "OBS-6501136C9AB2454C9536A94A11B1CAD0",
+        "outcome": "pending"
+      }
+    ],
+    "discrepancies": []
+  }
+}

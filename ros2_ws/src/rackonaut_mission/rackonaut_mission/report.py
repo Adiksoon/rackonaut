@@ -165,12 +165,40 @@ def inventory_rows(mission, summary, observations):
                 confirmed = "Missed"
             elif slot not in mission["confirmed"]:
                 confirmed = "Unconfirmed"
+            if slot in mission.get("adaptive", {}).get("manual_review", {}):
+                confirmed = "Manual verification"
         label = observation.get("label_status", "uninspected").replace("_", " ").capitalize()
         occupancy = observation.get("occupancy", "uninspected").capitalize()
         rows.append(f"<tr><th scope='row'>{e(slot)}</th><td>{e(location['observed_pallet_id'] or '—')}</td>"
                     f"<td>{e(occupancy)}</td><td>{e(label)}</td><td>{confirmed}</td>"
                     f"<td><span class='outcome {e(outcome)}'>{e(comparison)}</span></td></tr>")
     return "".join(rows)
+
+
+def adaptive_history(mission):
+    adaptive = mission.get("adaptive")
+    if adaptive is None:
+        return ""
+    rows = []
+    for attempt in adaptive["attempts"]:
+        reading = " / ".join(value for value in (attempt["reading"] or []) if value)
+        rows.append("<tr>" + "".join(f"<td>{e(value)}</td>" for value in (
+            attempt["slot_id"], attempt["attempt"], attempt["reason"].capitalize(), reading or "—",
+            attempt["outcome"], attempt["observation_id"] or "—", attempt["quality_id"] or "—",
+        )) + "</tr>")
+    manual = ", ".join(adaptive["manual_review"]) or "None"
+    return f"""
+  <section aria-labelledby="adaptive-title">
+    <h2 id="adaptive-title">Adaptive inspection</h2>
+    <p>{len(mission["visited"])} locations · {adaptive["retries"]} additional attempts ·
+       {len(adaptive["resolved"])} resolved · {len(adaptive["manual_review"])} manual checks</p>
+    <p>Manual verification · {e(manual)}</p>
+    <div class="table-wrap"><table aria-label="All adaptive inspection attempts">
+      <thead><tr><th>Location</th><th>Attempt</th><th>Viewpoint</th><th>Reading</th>
+        <th>Outcome</th><th>Observation ID</th><th>Quality ID</th></tr></thead>
+      <tbody>{"".join(rows)}</tbody>
+    </table></div>
+  </section>"""
 
 
 def render(snapshot, evidence, observations):
@@ -199,6 +227,7 @@ def render(snapshot, evidence, observations):
         events=len(observations),
         distinct=int(summary["slots_observed"]),
         rows=inventory_rows(mission, summary, observations),
+        adaptive_history=adaptive_history(mission),
         cards=cards or '<p class="empty">No stable carton captures were archived for this inspection.</p>',
     )
 

@@ -39,6 +39,18 @@ add_custom_command(OUTPUT "${laser_world}" "${laser_fields}"
   VERBATIM)
 add_custom_target(laser_safety_showcase ALL DEPENDS "${laser_world}" "${laser_fields}")
 
+set(adaptive_world "${CMAKE_CURRENT_BINARY_DIR}/adaptive_showcase.sdf")
+set(adaptive_laser_world "${CMAKE_CURRENT_BINARY_DIR}/adaptive_laser_showcase.sdf")
+set(adaptive_laser_fields "${CMAKE_CURRENT_BINARY_DIR}/adaptive_laser_fields.json")
+add_custom_command(OUTPUT "${adaptive_world}" "${adaptive_laser_world}" "${adaptive_laser_fields}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --output "${adaptive_world}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --adaptive --laser "${adaptive_laser_fields}" --output "${adaptive_laser_world}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(adaptive_showcase ALL DEPENDS "${adaptive_world}" "${adaptive_laser_world}" "${adaptive_laser_fields}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
@@ -47,5 +59,6 @@ install(FILES "${safety_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${safety_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES "${laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${laser_fields}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${adaptive_world}" "${adaptive_laser_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

@@ -10,12 +10,13 @@ import numpy as np
 
 
 class QualityEvidence:
-    def __init__(self, directory, inspection_id):
+    def __init__(self, directory, inspection_id, per_observation=False):
         self.directory = Path(directory).expanduser() / inspection_id
         self.frames = {}
         self.saved = set()
         self.last_frame = None
         self.retry_at = 0.
+        self.per_observation = per_observation
 
     def ready(self, verdicts, findings, inventory, now):
         if self.last_frame is not None and now - self.last_frame > .6:
@@ -30,18 +31,19 @@ class QualityEvidence:
             key = (slot, classification.pallet_id, verdict.status)
             frames[key] = self.frames.get(key, 0) + 1
             observation = inventory.get(slot)
+            capture_key = (*key, observation["observation_id"]) if self.per_observation and observation else key
             # Keep uncertain views in the preview. A capture represents a
             # stable verdict backed by a matching local inventory observation.
-            if (verdict.status != "UNCERTAIN" and frames[key] >= 7 and key not in self.saved
+            if (verdict.status != "UNCERTAIN" and frames[key] >= 7 and capture_key not in self.saved
                     and now >= self.retry_at and observation and observation["occupancy"] == "occupied"
                     and observation["pallet_id"] == classification.pallet_id):
-                ready.append((key, verdict, observation))
+                ready.append((capture_key, verdict, observation))
         self.frames = frames
         return ready
 
     def damage_count(self, ready=()):
         keys = self.saved | {key for key, _, _ in ready}
-        return len({(slot, pallet) for slot, pallet, status in keys if status == "DAMAGED"})
+        return len({key[:2] for key in keys if key[2] == "DAMAGED"})
 
     def save(self, item, image, annotated, captured, header):
         key, verdict, observation = item

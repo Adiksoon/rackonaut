@@ -45,7 +45,7 @@
         <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#213444" stroke-width="1"/></pattern></defs>
         <g id="floor"></g><g id="map-aisles"></g><g id="safety-fields" aria-hidden="true"></g><g id="racks"></g>
         <g id="laser-fields" aria-hidden="true"></g><g id="laser-returns" aria-hidden="true"></g>
-        <g id="flight-lines"><polyline id="plan-line" /><polyline id="flown-line" /></g>
+        <g id="flight-lines"><polyline id="plan-line" /><polyline id="flown-line" /><g id="adaptive-lines"></g></g>
         <g id="positions"></g>
         <g id="drone" visibility="hidden"><circle r="13"/><path d="M-6 -5L9 0-6 5-3 0Z"/></g>
       </svg>
@@ -53,6 +53,7 @@
         <span><i class="legend-key selected"></i>Selected location</span>
         <span><i class="legend-key planned"></i>Planned route</span>
         <span><i class="legend-key flown"></i>Flown route</span>
+        <span id="adaptive-key" hidden><i class="legend-key adaptive"></i>Adaptive movement</span>
         <span><i class="legend-key decorative"></i>Decorative zone</span>
         <span id="laser-field-key" hidden><i class="legend-key scan"></i>Laser detection field</span>
         <span id="laser-hit-key" hidden><i class="legend-key hit"></i>Obstacle return</span>
@@ -69,6 +70,7 @@
       <div id="aisle-options" class="aisle-options"></div>
       <div id="slot-options" class="slot-options" hidden></div>
       <label class="quality"><span><strong>Package quality</strong><small>Check visible damage and save photos</small></span><input id="quality" type="checkbox" checked></label>
+      <label class="quality" id="adaptive-option" hidden><span><strong>Adaptive inspection</strong><small>Adjust the viewpoint when a reading needs another look</small></span><input id="adaptive" type="checkbox"></label>
       <div class="plan-totals"><span><strong id="planned-total">—</strong> planned stops</span><span id="plan-distance">—</span></div>
       <button type="button" id="start" class="primary" disabled>Start Inspection <span aria-hidden="true">→</span></button>
       <p id="dispatch-help" class="footnote">Waiting for robot and inventory API.</p>
@@ -78,6 +80,9 @@
       <div class="video"><img id="camera" alt="Live image from the simulated drone camera" hidden><span id="no-camera">Waiting for camera stream</span></div>
       <div class="live-detail"><div><small>ACTIVE TARGET</small><strong id="active-target">—</strong></div><div><small>POSITION · METRES</small><strong id="position-value">—</strong></div></div>
       <p id="live-detail" class="footnote">Start an inspection to monitor progress.</p>
+      <div id="adaptive-progress" class="adaptive-progress" hidden>
+        <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
+      </div>
       <button type="button" id="abort" class="danger" disabled>Abort inspection</button>
       <p class="footnote">Abort stops motion and holds position.</p>
     </aside>
@@ -97,6 +102,10 @@
     <div><small>CONFIRMED</small><strong id="metric-confirmed">—</strong><span>Accepted by the inventory API</span></div>
     <div><small>DAMAGED</small><strong id="metric-damaged">—</strong><span>Stable carton findings</span></div>
     <div><small>ELAPSED</small><strong id="metric-time">—</strong><span>Mission duration</span></div>
+  </section>
+  <section class="card adaptive-summary" id="adaptive-summary" aria-labelledby="adaptive-title" hidden>
+    <div class="card-head"><div><h2 id="adaptive-title">Adaptive inspection</h2><p id="adaptive-totals"></p></div></div>
+    <p id="adaptive-review" class="footnote"></p>
   </section>
   <section id="warehouse-safety" class="card safety" aria-labelledby="safety-title" hidden>
     <div class="card-head">

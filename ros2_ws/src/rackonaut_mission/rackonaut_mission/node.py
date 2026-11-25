@@ -23,6 +23,8 @@ from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
 
+from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
+                       first_unused, next_issue, reading_issue)
 from .confirmation import current_observation, fetch_observations
 from .route import Target, heading_error, load_route, velocity
 from .visualization import make_markers, planned_path, stamped_pose
@@ -50,6 +52,7 @@ class Mission(Node):
             "inspection_timeout": 8.0,
             "scan_hold_seconds": 0.0,
             "safety_interlock": False,
+            "adaptive_quality": False,
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -78,6 +81,14 @@ class Mission(Node):
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.safety_interlock = settings["safety_interlock"]
         self.safety_at, self.safety_permit = -1e6, False
+        self.safety_phase, self.safety_zones = "", set()
+        self.adaptive = bool(self.route.retries)
+        if self.adaptive and not self.safety_interlock:
+            raise ValueError("Adaptive routes require the Safety Manager.")
+        self.adaptive_quality = settings["adaptive_quality"] and self.adaptive
+        self.evidence = {}
+        if self.adaptive_quality:
+            self.create_subscription(String, "/rackonaut/perception/quality_evidence", self.on_quality, 10)
         if self.safety_interlock:
             self.create_subscription(String, "/rackonaut/safety/state", self.on_safety, latest)
         self.status_pub = self.create_publisher(String, f"{MISSION}/status", latest)
@@ -100,6 +111,13 @@ class Mission(Node):
         self.stop_index = 0
         self.visits, self.confirmed, self.missed = [], {}, []
         self.landed = False
+        self.attempts, self.moves, self.resolved, self.manual_review = [], [], [], {}
+        self.retry_number = self.total_retries = 0
+        self.adaptive_outcome = ""
+        self.attempt_reason = "initial"
+        self.attempt_event = self.first_problem = self.retry_deadline = self.pending_retry = None
+        self.closeup_requested = self.closeup_confirmed = False
+        self.used_views = set()
 
         self.http = ThreadPoolExecutor(max_workers=1, thread_name_prefix="rackonaut-mission-http")
         self.http_request = self.rearm_request = self.capture_after = None
@@ -125,6 +143,15 @@ class Mission(Node):
         state = json.loads(message.data)
         if state.get("inspection_id") == self.inspection_id:
             self.safety_at, self.safety_permit = monotonic(), state.get("permit") is True
+            self.safety_phase = state.get("phase", "")
+            self.safety_zones = set(state.get("required", ()))
+
+    def on_quality(self, message):
+        evidence = json.loads(message.data)
+        if evidence.get("inspection_id") == self.inspection_id:
+            observation_id = evidence["observation_id"]
+            if self.evidence.get(observation_id, {}).get("status") != "DAMAGED":
+                self.evidence[observation_id] = evidence
 
     def readiness(self, now):
         if self.safety_interlock and (not self.safety_permit or now - self.safety_at > .45):
@@ -202,41 +229,144 @@ class Mission(Node):
     def begin_scan(self, now):
         slot = self.target.slot_id
         self.visits.append(slot)
+        if self.adaptive:
+            self.retry_number = 0
+            self.first_problem = self.retry_deadline = self.pending_retry = None
+            self.closeup_requested = self.closeup_confirmed = False
+            self.used_views.clear()
+            self.adaptive_outcome = ""
+            self.begin_adaptive_scan(now, "initial")
+            return
         self.transition("INSPECT", self.target, now, "Waiting for a fresh camera observation in the API")
         self.capture_after = datetime.now(timezone.utc)
         self.rearm_request = self.rearm_client.call_async(Trigger.Request())
         self.poll_at = now
 
-    def scan(self, now):
-        slot = self.target.slot_id
-        if slot in self.confirmed:
-            if now - self.stage_since >= self.scan_hold:
-                self.end_scan(now)
-            return
-        if self.rearm_request.done() and self.rearm_request.result().success:
+    def capture(self, now):
+        if self.rearm_request is None or (self.rearm_request.done() and self.rearm_request.result().success):
             if self.http_request is not None and self.http_request.done():
                 events, problem = self.http_request.result()
                 self.http_request = None
-                self.detail = problem or "Waiting for a fresh camera observation in the API"
+                if problem:
+                    self.detail = problem
+                elif not self.adaptive:
+                    self.detail = "Waiting for a fresh camera observation in the API"
                 seen = {event["observation_id"] for event in self.confirmed.values()}
-                event = current_observation(events, self.inspection_id, slot, self.capture_after, seen)
+                event = current_observation(events, self.inspection_id, self.target.slot_id, self.capture_after, seen)
                 if event is not None:
-                    self.confirmed[slot] = event
-                    self.get_logger().info(f"CONFIRMED {slot} {event['occupancy']} "
+                    self.confirmed[self.target.slot_id] = event
+                    self.get_logger().info(f"CONFIRMED {self.target.slot_id} {event['occupancy']} "
                                            f"{event.get('pallet_id') or '-'} {event['observation_id']}")
-                    if now - self.stage_since >= self.scan_hold:
-                        self.end_scan(now)
-                    return
+                    return event
             if self.http_request is None and now >= self.poll_at:
                 self.http_request = self.http.submit(fetch_observations, self.backend, self.inspection_id)
                 self.poll_at = now + .45
+        return None
+
+    def scan(self, now):
+        slot = self.target.slot_id
+        if slot in self.confirmed or self.capture(now) is not None:
+            if now - self.stage_since >= self.scan_hold:
+                self.end_scan(now)
+            return
         if now - self.stage_since >= self.inspection_timeout:
             self.missed.append(slot)
             self.get_logger().warning(f"MISSED {slot} | No fresh API confirmation within the hold")
             self.end_scan(now)
 
+    def begin_adaptive_scan(self, now, reason):
+        self.attempt_reason = reason
+        self.attempt_event = None
+        stage = {"initial": "INSPECT", "damage": "QUALITY_CLOSEUP"}.get(reason, "REINSPECT")
+        detail = RETRY_TEXT.get(reason, "Inspecting from the reference viewpoint")
+        self.capture_after = datetime.now(timezone.utc)
+        self.poll_at = now
+        self.transition(stage, self.target, now, detail)
+        self.publish_state(now)
+
+    def scan_adaptive(self, now):
+        if self.attempt_event is None:
+            self.attempt_event = self.capture(now)
+        event = self.attempt_event
+        photo = self.evidence.get(event["observation_id"]) if event else None
+        elapsed = now - self.stage_since
+        budget_low = self.retry_deadline is not None and now >= self.retry_deadline - RETURN_MARGIN
+        if not budget_low:
+            if event is None and elapsed < self.inspection_timeout:
+                return
+            if event and elapsed < self.scan_hold:
+                return
+            if (self.adaptive_quality and event and event["occupancy"] == "occupied"
+                    and not photo and elapsed < QUALITY_SECONDS):
+                return
+        self.evaluate_attempt(now, event, photo)
+
+    def evaluate_attempt(self, now, event, photo):
+        slot = self.target.slot_id
+        issue = next_issue(event, photo, self.closeup_requested)
+        confirmed_closeup = self.attempt_reason == "damage" and photo and photo["status"] == "DAMAGED"
+        self.closeup_confirmed = self.closeup_confirmed or bool(confirmed_closeup)
+        if not self.retry_number:
+            self.first_problem = reading_issue(event)
+        self.adaptive_outcome = (RETRY_TEXT[issue] if issue else "Additional damage evidence saved"
+                                 if confirmed_closeup else "Reading confirmed")
+        if self.retry_number and self.first_problem and reading_issue(event) is None and slot not in self.resolved:
+            self.resolved.append(slot)
+            self.adaptive_outcome = ("Label recovered successfully" if event["label_status"] == "readable"
+                                     else "Occupancy confirmed on reinspection")
+        self.attempts.append({
+            "slot_id": slot, "attempt": self.retry_number + 1, "reason": self.attempt_reason,
+            "issue": issue, "observation_id": event["observation_id"] if event else None,
+            "quality_id": photo["quality_id"] if photo else None,
+            "reading": [event["occupancy"], event["label_status"], event["pallet_id"]] if event else None,
+            "outcome": self.adaptive_outcome,
+        })
+        envelope = self.route.retries[slot]
+        retry = first_unused(envelope.views, issue, self.used_views)
+        if issue and retry and self.retry_number < MAX_RETRIES and (
+                self.retry_deadline is None or now + 10 < self.retry_deadline):
+            self.pending_retry = issue, retry
+            if self.retry_deadline is None:
+                self.retry_deadline = now + RETRY_SECONDS
+            if self.retry_number:
+                self.move_adaptive("RECENTER", self.route.waypoints[self.stop_index], now, RETRY_TEXT[issue])
+            else:
+                self.start_retry(now)
+            return
+        if issue or (self.closeup_requested and not self.closeup_confirmed):
+            self.manual_review[slot] = issue or "damage_closeup_unconfirmed"
+            self.adaptive_outcome = f"Manual verification required for {slot}"
+            self.attempts[-1]["outcome"] = self.adaptive_outcome
+        if slot not in self.confirmed:
+            self.missed.append(slot)
+        if self.retry_number:
+            self.move_adaptive("RECENTER", self.route.waypoints[self.stop_index], now, self.adaptive_outcome)
+        else:
+            self.end_scan(now)
+
+    def start_retry(self, now):
+        reason, pose = self.pending_retry
+        self.pending_retry = None
+        self.total_retries += 1
+        self.retry_number += 1
+        self.attempt_reason = reason
+        self.closeup_requested |= reason == "damage"
+        self.used_views.add(pose)
+        self.move_adaptive("REPOSITION", pose, now, RETRY_TEXT[reason])
+
+    def move_adaptive(self, stage, target, now, detail):
+        zone = self.route.retries[target.slot_id].zone
+        if self.safety_phase != "RESERVED" or zone not in self.safety_zones:
+            self.finish("ABORTED", "Adaptive viewpoint lacks an active safety reservation", now)
+            return
+        self.moves.append({"slot_id": target.slot_id, "attempt": self.retry_number + 1,
+                           "stage": stage, "from": [self.pose.x, self.pose.y, self.pose.z],
+                           "target": [target.x, target.y, target.z], "actual": None})
+        self.transition(stage, target, now, detail)
+        self.publish_state(now)
+
     def end_scan(self, now):
-        if not self.rearm_request.done():
+        if self.rearm_request is not None and not self.rearm_request.done():
             self.rearm_client.remove_pending_request(self.rearm_request)
         self.rearm_request = None
         # A previous GET may still be running. Keep one worker/request, and
@@ -256,8 +386,23 @@ class Mission(Node):
         self.publish_state(now)
 
     def advance(self, now):
+        if self.adaptive and self.stage in {"REPOSITION", "RECENTER", "REINSPECT", "QUALITY_CLOSEUP"}:
+            if self.stage in {"REINSPECT", "QUALITY_CLOSEUP"}:
+                self.scan_adaptive(now)
+            elif self.stable(now, duration=.35):
+                self.moves[-1]["actual"] = [self.pose.x, self.pose.y, self.pose.z]
+                if self.stage == "REPOSITION":
+                    self.begin_adaptive_scan(now, self.attempt_reason)
+                elif self.pending_retry:
+                    self.start_retry(now)
+                else:
+                    self.end_scan(now)
+            return
         if self.stage == "INSPECT":
-            self.scan(now)
+            if self.adaptive:
+                self.scan_adaptive(now)
+            else:
+                self.scan(now)
             return
         if now - self.stage_since >= self.travel_timeout:
             self.finish("ABORTED", f"Motion timed out at {self.stage}", now)
@@ -294,6 +439,12 @@ class Mission(Node):
                 self.finish("ABORTED", "Safety Manager heartbeat stopped", now)
             elif now - self.odom_at > .65:
                 self.finish("ABORTED", "Odometry stopped advancing", now)
+            elif self.adaptive and self.safety_phase != "RESERVED":
+                self.finish("ABORTED", "Safety Manager revoked the active reservation", now)
+            elif self.adaptive and self.stage in {"REPOSITION", "RECENTER", "REINSPECT", "QUALITY_CLOSEUP"} and (
+                    now >= self.retry_deadline or self.target.slot_id[0] not in self.safety_zones
+                    or not self.pose.inside(self.route.retries[self.target.slot_id].bounds, margin=.10)):
+                self.finish("ABORTED", "Adaptive motion exceeded its time or reserved envelope", now)
             else:
                 if not self.track.poses or now - self.track_at >= .20:
                     self.track.poses.append(stamped_pose(self.pose, self.frame, self.odom_stamp))
@@ -322,6 +473,11 @@ class Mission(Node):
             "landed": self.landed,
             "detail": self.detail,
         }
+        if self.adaptive:
+            status["adaptive"] = {"attempt": self.retry_number + 1, "reason": self.attempt_reason,
+                                  "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,
+                                  "resolved": self.resolved, "manual_review": self.manual_review,
+                                  "outcome": self.adaptive_outcome}
         self.status_pub.publish(String(data=json.dumps(status, separators=(",", ":"))))
         if self.track.poses:
             self.path_pub.publish(self.track)

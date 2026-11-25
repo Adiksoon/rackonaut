@@ -5,7 +5,11 @@ const label = (value) => String(value || "").toLowerCase().replaceAll("_", " ").
 const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const terminal = new Set(["COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", "ERROR"]);
-const choices = { mode: "aisle", aisles: new Set(["A"]), slots: new Set(), quality: true };
+const choices = { mode: "aisle", aisles: new Set(["A"]), slots: new Set(), quality: true, adaptive: false };
+const inspectionStages = ["INSPECT", "REINSPECT", "QUALITY_CLOSEUP", "REPOSITION", "RECENTER"];
+const retryReasons = { initial: "Reference view", unreadable: "Unreadable label",
+  uncertain: "Uncertain occupancy", missing: "No reading", damage: "Damage close-up",
+  damage_closeup_unconfirmed: "Close-up unconfirmed" };
 const headings = {
   plan: ["Mission planning", "Choose which locations the drone should inspect."],
   live: ["Live inspection", "Follow the simulator, camera detections and API confirmations."],
@@ -143,12 +147,14 @@ function toggleSlot(slot) {
   changePlan();
 }
 function selection() {
-  return { mode: choices.mode, aisles: [...choices.aisles], slots: [...choices.slots], quality: choices.quality };
+  return { mode: choices.mode, aisles: [...choices.aisles], slots: [...choices.slots],
+    quality: choices.quality, adaptive: choices.adaptive };
 }
 function changePlan() {
   notice();
   for (const radio of document.querySelectorAll("input[name='mode']")) radio.checked = radio.value === choices.mode;
   el("quality").checked = choices.quality;
+  el("adaptive").checked = choices.adaptive;
   el("aisle-options").hidden = choices.mode !== "aisle";
   el("slot-options").hidden = choices.mode !== "custom";
   html("aisle-options", layout.aisles.map((row) => `<button class="chip" type="button" data-aisle="${row.id}"
@@ -170,7 +176,7 @@ function drawMap(job) {
   const selected = new Set(drawing?.slots || []);
   const selectedAisles = new Set([...selected].map((slot) => layout.slots[slot].aisle));
   const status = view === "plan" ? {} : job?.status || {};
-  const current = status.stage === "INSPECT" ? status.target : null;
+  const current = inspectionStages.includes(status.stage) ? status.target : null;
   for (const row of layout.aisles) {
     const item = el("aisle-" + row.id);
     item.classList.toggle("selected", selectedAisles.has(row.id));
@@ -193,6 +199,11 @@ function drawMap(job) {
   const line = (points) => (points || []).map(([x, y]) => point(x, y).join(",")).join(" ");
   el("plan-line").setAttribute("points", line(view === "plan" ? preview?.points : job?.planned));
   el("flown-line").setAttribute("points", view === "plan" ? "" : line(job?.flown));
+  const moves = status.adaptive?.moves || [];
+  html("adaptive-lines", moves.map((move) =>
+    `<polyline class="adaptive-line ${move.actual ? "" : "seeking"}" points="${line([move.from, move.actual || move.target])}"/>`
+  ).join(""));
+  el("adaptive-key").hidden = !moves.length;
   const drone = el("drone");
   const position = state?.robot && state.position;
   drone.setAttribute("visibility", position ? "visible" : "hidden");
@@ -238,20 +249,23 @@ function drawResults(job) {
     const row = rows.get(slot);
     const evidence = captures.get(slot);
     const stopped = status.missed?.includes(slot);
-    const progress = !selected.has(slot) ? "Outside scope" : observed ? "Confirmed" : stopped ? "Missed"
+    const manual = status.adaptive?.manual_review?.[slot];
+    const progress = !selected.has(slot) ? "Outside scope" : manual ? "Manual verification" : observed ? "Confirmed" : stopped ? "Missed"
       : status.visited?.includes(slot) ? "Visited" : "Planned";
     const outcome = row?.outcome;
     const reading = observed ? `${label(observed.occupancy)} · ${label(observed.label_status)}` : "—";
-    return `<tr><th scope="row">${slot}</th><td><span class="label ${observed ? "good" : stopped ? "warn" : ""}">${progress}</span></td>
+    return `<tr><th scope="row">${slot}</th><td><span class="label ${stopped || manual ? "warn" : observed ? "good" : ""}">${progress}</span></td>
       <td>${safe(observed?.pallet_id || "—")}</td><td>${safe(reading)}</td>
       <td>${safe(outcome === "pending" ? "Pending comparison" : label(outcome) || "—")}</td>
       <td>${evidence ? `<span class="label ${evidence.status === "DAMAGED" ? "bad" : "good"}">${safe(evidence.status)}</span>` : "—"}</td></tr>`;
   }).join(""));
   html("findings", damage.map((report) => {
     const photo = `/evidence/${encodeURIComponent(job.inspection_id)}/${encodeURIComponent(report.quality_id)}/annotated.png`;
+    const attempt = status.adaptive?.attempts.find((item) => item.quality_id === report.quality_id);
+    const angle = attempt ? ` · ${retryReasons[attempt.reason]}` : "";
     return `<a class="finding" target="_blank" rel="noopener" href="${photo}">
-      <img src="${photo}" alt="Damage evidence for ${safe(report.slot_id)}">
-      <strong>${safe(report.slot_id)} · ${safe(report.pallet_id || "Unreadable pallet")}</strong><small>${safe(report.reason)}</small></a>`;
+      <img src="${photo}" alt="Damage evidence for ${safe(report.slot_id + angle)}">
+      <strong>${safe(report.slot_id)} · ${safe((report.pallet_id || "Unreadable pallet") + angle)}</strong><small>${safe(report.reason)}</small></a>`;
   }).join(""));
 }
 
@@ -260,7 +274,24 @@ function reviewSlots(job) {
   const status = job.status;
   const problems = Object.values(status.confirmed || {}).filter((event) =>
     event.occupancy === "uncertain" || event.label_status === "unreadable").map((event) => event.slot_id);
-  return [...new Set([...(status.missed || []), ...problems, ...(job.result?.discrepancies || []).map((row) => row.slot_id)])];
+  return [...new Set([...(status.missed || []), ...problems, ...Object.keys(status.adaptive?.manual_review || {}),
+    ...(job.result?.discrepancies || []).map((row) => row.slot_id)])];
+}
+
+function drawAdaptive(job) {
+  const adaptive = view !== "plan" && job?.status?.adaptive;
+  el("adaptive-summary").hidden = !adaptive;
+  el("adaptive-progress").hidden = !adaptive || !inspectionStages.includes(job.status.stage);
+  if (!adaptive) return;
+  const move = adaptive.moves.at(-1);
+  const moving = move && ["REPOSITION", "RECENTER"].includes(job.status.stage);
+  const waypoint = moving ? ` · Target ${move.target.map((value) => value.toFixed(2)).join(" / ")} m` : "";
+  put("adaptive-attempt", `Attempt ${adaptive.attempt} of 3 · ${retryReasons[adaptive.reason] || "Reference view"}${waypoint}`);
+  put("adaptive-outcome", moving && job.status.stage === "REPOSITION" ? "" : adaptive.outcome);
+  const manual = Object.entries(adaptive.manual_review);
+  const observed = adaptive.attempts.filter((attempt) => attempt.observation_id).length;
+  put("adaptive-totals", `${observed} observations · ${adaptive.retries} additional attempts · ${adaptive.resolved.length} resolved · ${manual.length} manual checks`);
+  put("adaptive-review", manual.map(([slot, reason]) => `${slot} · ${retryReasons[reason] || reason}`).join("  |  "));
 }
 
 function drawSafety() {
@@ -385,6 +416,7 @@ function draw() {
   drawScans();
   drawSafety();
   drawResults(job);
+  drawAdaptive(job);
 }
 
 async function poll() {
@@ -412,6 +444,7 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  el("adaptive-option").hidden = !layout.adaptive_world;
   if (layout.laser_fields) {
     for (const id of ["laser-field-key", "laser-hit-key", "obstacle-controls"]) el(id).hidden = false;
     put("sensor-source", "3 simulated GPU LiDARs · Live LaserScan · Dashed fields show measured scope");
@@ -421,6 +454,7 @@ async function init() {
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
   el("quality").addEventListener("change", (event) => { choices.quality = event.target.checked; changePlan(); });
+  el("adaptive").addEventListener("change", (event) => { choices.adaptive = event.target.checked; changePlan(); });
   el("aisle-options").addEventListener("click", (event) => {
     if (event.target.dataset.aisle && !event.target.disabled) toggleAisle(event.target.dataset.aisle);
   });

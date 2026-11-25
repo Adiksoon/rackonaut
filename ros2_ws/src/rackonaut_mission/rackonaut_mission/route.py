@@ -2,7 +2,7 @@
 
 import json
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from math import atan2, cos, hypot, isfinite, radians, sin
 from pathlib import Path
 
@@ -15,12 +15,24 @@ class Target:
     yaw: float
     slot_id: str = ""
 
+    def inside(self, bounds, margin=0.):
+        x1, y1, x2, y2 = bounds
+        return x1 - margin <= self.x <= x2 + margin and y1 - margin <= self.y <= y2 + margin
+
+
+@dataclass(frozen=True)
+class RetryViews:
+    zone: str
+    bounds: tuple
+    views: dict
+
 
 @dataclass(frozen=True)
 class Route:
     pad: Target
     takeoff: Target
     waypoints: tuple[Target, ...]
+    retries: dict[str, RetryViews] = field(default_factory=dict)
 
     @property
     def stops(self):
@@ -46,7 +58,31 @@ def load_route(path):
         raise ValueError("An inspection route must list each slot at most once.")
     if any(point.z <= pad.z for point in waypoints):
         raise ValueError("Waypoints must be above the pad altitude.")
-    return Route(pad, replace(pad, z=float(height)), waypoints)
+    retries = {}
+    configured = config.get("retries", {})
+    if configured and set(configured) != {stop.slot_id for stop in stops}:
+        raise ValueError("Adaptive viewpoints must match the planned locations.")
+    for stop in stops:
+        if stop.slot_id not in configured:
+            continue
+        entry = configured[stop.slot_id]
+        bounds = tuple(entry["bounds"])
+        if (len(bounds) != 4 or not all(map(isfinite, bounds)) or not stop.inside(bounds)
+                or entry["zone"] != stop.slot_id[0]):
+            raise ValueError(f"Invalid adaptive envelope for {stop.slot_id}.")
+        views = {}
+        for reason, rows in entry["views"].items():
+            poses = tuple(target(**row) for row in rows)
+            if (reason not in {"missing", "uncertain", "unreadable", "damage"} or len(poses) > 2
+                    or any(p.slot_id != stop.slot_id or not p.inside(bounds)
+                           or not .62 <= p.z <= 3.18
+                           or hypot(p.x - stop.x, p.y - stop.y) > .75
+                           or abs(p.z - stop.z) > .18 or abs(heading_error(p.yaw, stop.yaw)) > .35
+                           for p in poses)):
+                raise ValueError(f"Unsafe adaptive viewpoint for {stop.slot_id}.")
+            views[reason] = poses
+        retries[stop.slot_id] = RetryViews(entry["zone"], bounds, views)
+    return Route(pad, replace(pad, z=float(height)), waypoints, retries)
 
 
 def heading_error(target, actual):

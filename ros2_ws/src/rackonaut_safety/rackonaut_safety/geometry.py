@@ -25,7 +25,9 @@ def crosses(start, end, bounds):
 
 
 def route_zones(points, fields):
-    if (not isinstance(points, list) or not 3 <= len(points) <= 64
+    # A complete request includes the outbound and return legs of each
+    # adaptive viewpoint. The expanded path reserves their union up front.
+    if (not isinstance(points, list) or not 3 <= len(points) <= 224
             or any(not isinstance(p, list) or len(p) != 3
                    or not all(isinstance(v, (int, float)) and isfinite(v) for v in p) for p in points)):
         raise ValueError("Safety needs the complete planned flight path.")

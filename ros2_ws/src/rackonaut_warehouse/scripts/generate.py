@@ -280,6 +280,13 @@ def rack(world, index, y, args, rng, inspection, rows):
                 label = f"pallet_{tag}" if tag is not None else "label_unreadable"
                 plane_label(parent, f"pallet_label_{key}", (x + .26, face + .115, deck + .49),
                             .55, .33, texture=label)
+                if args.adaptive and slot_id == "A-01-01":
+                    # A hanging placard masks the pallet tag head-on. Its setback
+                    # from the label lets an offset camera see around it.
+                    box(parent, "hanging_placard_a01", (x + .06, face - .72, deck + .42),
+                        (.165, .045, .16), (.23, .29, .34), collision=True)
+                    box(parent, "placard_stem_a01", (x + .06, face - .72, deck + .70),
+                        (.025, .035, .42), BLUE)
                 if scenario == "uncertain_candidate":
                     box(parent, "partially_occluded_pallet_07", (x + .43, face + .09, deck + .54),
                         (.33, .052, .64), (.34, .33, .29))
@@ -580,6 +587,7 @@ def main():
     parser.add_argument("--control", action="store_true", help="add the functional aisle B to the three-aisle showcase")
     parser.add_argument("--safety", action="store_true", help="add access control to the control showcase")
     parser.add_argument("--laser", type=Path, help="add GPU LiDAR and write its calibration and fields")
+    parser.add_argument("--adaptive", action="store_true", help="stage a recoverable label occlusion")
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -591,6 +599,8 @@ def main():
         parser.error("--safety requires --control and --quality and publishes separate zone geometry")
     if args.laser and not args.safety:
         parser.error("--laser requires --safety")
+    if args.adaptive and not args.safety:
+        parser.error("--adaptive requires --safety")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")

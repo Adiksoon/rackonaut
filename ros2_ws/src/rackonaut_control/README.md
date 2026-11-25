@@ -22,6 +22,8 @@ Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The launcher starts the ext
 
 The default archive is `ros2_ws/log/ros/control/reports/<inspection_id>/`. It includes the HTML, the ROS and API snapshot and any stable photo evidence. `data_dir:=/absolute/path` selects a different archive root.
 
+The [adaptive inspection demonstration](../../../docs/ADAPTIVE_INSPECTION.md) uses a separate warehouse profile and an opt-in checkbox. The guide includes the tested route, browser recording and safety observations.
+
 ## Warehouse and route
 
 The variant `control_showcase.sdf` contains the original eight A slots and adds B-01-01, B-01-02 and B-02-01. The additional slots have ArUco IDs 8–10 and the additional pallets use IDs 25 and 26. The physical B cases are a torn carton, an intact carton and an empty slot. The build publishes the SVG geometry inputs and the marker dictionary from the same generator. These configuration files contain viewpoint geometry and marker identities. The runtime derives inventory and carton quality from the camera.

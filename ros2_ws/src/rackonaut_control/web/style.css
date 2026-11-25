@@ -83,6 +83,8 @@ nav { display: flex; gap: 5px; margin: 22px 0 17px; border-bottom: 1px solid var
 #flight-lines polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
 #plan-line { stroke: #7aafe6; stroke-width: 2.5; stroke-dasharray: 7 6; opacity: .9; }
 #flown-line { stroke: #70efc8; stroke-width: 2.8; }
+.adaptive-line { fill: none; stroke: #ffbf80; stroke-width: 3.5; stroke-linecap: round; }
+.adaptive-line.seeking { stroke-dasharray: 4 4; }
 #drone { pointer-events: none; transition: transform .30s linear; }
 #drone circle { fill: #143c43; stroke: #a6ffe8; stroke-width: 1.2; }
 #drone path { fill: #c5fff1; }
@@ -91,6 +93,7 @@ nav { display: flex; gap: 5px; margin: 22px 0 17px; border-bottom: 1px solid var
 .legend-key { display: inline-block; width: 14px; height: 3px; background: var(--mint); border-radius: 2px; }
 .legend-key.selected { height: 8px; width: 8px; border-radius: 50%; }
 .legend-key.planned { background: repeating-linear-gradient(90deg,#7aafe6 0 5px,transparent 5px 8px); }
+.legend-key.adaptive { background: #ffbf80; }
 .legend-key.decorative { background: #607688; }
 .controls { padding: 0 15px 13px; }
 .controls .card-head { padding-inline: 0; }
@@ -107,7 +110,12 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--mint); cursor:
 .chip { border: 1px solid #324759; border-radius: 6px; padding: 5px 8px; color: var(--muted); background: #122330; font-size: .76rem; }
 .chip[aria-pressed="true"] { border-color: #5dd4b4; background: #1d4d45; color: #cbfff0; }
 .quality { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 0 10px; border-bottom: 1px solid var(--line); }
-#quality { width: 17px; height: 17px; }
+#quality, #adaptive { width: 17px; height: 17px; }
+.adaptive-progress { border-left: 2px solid #ffbf80; padding: 6px 9px; margin-bottom: 9px; }
+.adaptive-progress p { margin: 0 0 3px; font-size: .76rem; color: var(--muted); }
+.adaptive-progress strong { color: #ffbf80; font-size: .82rem; }
+.adaptive-summary { margin-bottom: 13px; padding: 11px 14px; }
+.adaptive-summary .footnote { margin: 0; color: #ffbf80; }
 .plan-totals { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding: 8px 0 9px; color: var(--muted); font-size: .77rem; }
 .plan-totals strong { color: var(--text); font-size: 1.12rem; }
 .primary, .secondary, .danger { color: #09241f; width: 100%; border: 1px solid transparent; border-radius: 8px; display: flex;

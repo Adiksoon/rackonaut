@@ -41,3 +41,26 @@ class PlanningTests(TestCase):
             plan(self.layout, {"mode": "aisle", "aisles": ["C"]})
         with self.assertRaises(ValueError):
             plan(self.layout, {"mode": "custom", "slots": []})
+
+    def test_adaptive_moves_reserve_out_and_back_legs_in_laser_fields(self):
+        selection = {"mode": "full", "adaptive": True}
+        with self.assertRaises(ValueError):
+            plan(self.layout, selection)
+        safety = json.loads((self.share / "config/safety_fields.json").read_text())
+        laser = json.loads((self.share / "config/laser_fields.json").read_text())
+        planned = plan({**self.layout, "adaptive_world": True, "safety_fields": safety, "laser_fields": laser}, selection)
+        reserved = list(zip(planned["safety_points"], planned["safety_points"][1:]))
+        for waypoint in planned["route"]["waypoints"]:
+            slot = waypoint.get("slot_id")
+            if slot is None:
+                continue
+            entry = planned["route"]["retries"][slot]
+            a, b, c, d = laser[entry["zone"]]["field"]
+            original = [waypoint[key] for key in ("x", "y", "z")]
+            self.assertTrue(entry["views"]["unreadable"])
+            for candidates in entry["views"].values():
+                for view in candidates:
+                    alternate = [view[key] for key in ("x", "y", "z")]
+                    self.assertTrue(a < alternate[0] < c and b < alternate[1] < d)
+                    self.assertIn((original, alternate), reserved)
+                    self.assertIn((alternate, original), reserved)

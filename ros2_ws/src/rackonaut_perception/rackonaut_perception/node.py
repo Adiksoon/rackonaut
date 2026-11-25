@@ -43,6 +43,7 @@ class Perception(Node):
             "uncertain_frames": 8,
             "quality_enabled": False,
             "mission_scoped": False,
+            "adaptive": False,
             "quality_dir": str(Path(os.environ.get("ROS_LOG_DIR", Path.home() / ".ros" / "log")) / "quality"),
         }
         parameters = {name: self.declare_parameter(name, value).value for name, value in defaults.items()}
@@ -58,13 +59,18 @@ class Perception(Node):
                 raise ValueError("backend_url must be the HTTP(S) base URL.")
         locations, pallets = load_markers(parameters["marker_map"])
         self.inspector = Inspector(locations, pallets)
-        self.gate = StableReadings(parameters["stable_frames"], parameters["uncertain_frames"])
+        self.adaptive = parameters["adaptive"]
+        self.gate = StableReadings(parameters["stable_frames"], parameters["uncertain_frames"], self.adaptive)
         self.mission_scoped = parameters["mission_scoped"]
         self.scan_slot = None
+        self.scan_attempt = None
         if self.mission_scoped:
             qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
             self.create_subscription(String, "/rackonaut/mission/status", self.on_mission_status, qos)
-        self.quality = QualityEvidence(parameters["quality_dir"], run_id) if parameters["quality_enabled"] else None
+        self.quality = QualityEvidence(parameters["quality_dir"], run_id, self.adaptive) if parameters["quality_enabled"] else None
+        self.quality_events = None
+        if self.adaptive and self.quality:
+            self.quality_events = self.create_publisher(String, "/rackonaut/perception/quality_evidence", 10)
         self.inventory = {}
         self.state = OverlayState(run_id, total=len(locations))
         if self.backend:
@@ -93,7 +99,17 @@ class Perception(Node):
         if status["inspection_id"] != self.state.inspection_id:
             return
         self.state.total = status["total"]
-        self.scan_slot = status["target"] if status["stage"] == "INSPECT" else None
+        scan_stages = {"INSPECT", "REINSPECT", "QUALITY_CLOSEUP"} if self.adaptive else {"INSPECT"}
+        self.scan_slot = status["target"] if status["stage"] in scan_stages else None
+        if self.adaptive:
+            key = (self.scan_slot, status["adaptive"]["attempt"]) if self.scan_slot else None
+            if key != self.scan_attempt:
+                self.scan_attempt = key
+                self.gate.rearm()
+                if key:
+                    self.inventory.pop(self.scan_slot, None)
+                if self.quality:
+                    self.quality.frames.clear()
 
     def rearm(self, request, response):
         self.gate.rearm()
@@ -135,7 +151,8 @@ class Perception(Node):
         eligible = result.readings
         if self.mission_scoped:
             eligible = [reading for reading in eligible if reading.slot.name == self.scan_slot]
-        for reading in self.gate.update(eligible, now):
+        readings = [] if self.adaptive and self.scan_slot in self.gate.recorded else self.gate.update(eligible, now)
+        for reading in readings:
             if self.backend and len(self.pending) >= 8:
                 break
             payload = observation(self.state.inspection_id, reading, captured)
@@ -167,6 +184,12 @@ class Perception(Node):
                     self.get_logger().warning(f"Cannot save quality evidence: {error}", throttle_duration_sec=3.0)
                     break
                 key, verdict, observation_event = item
+                if self.quality_events:
+                    self.quality_events.publish(String(data=json.dumps({
+                        "inspection_id": self.state.inspection_id, "slot_id": key[0],
+                        "observation_id": observation_event["observation_id"], "status": verdict.status,
+                        "quality_id": path.name,
+                    })))
                 self.get_logger().info(f"Quality {verdict.status} {key[0]} / {key[1] or '-'} "
                                        f"{path.name} linked to {observation_event['observation_id']}")
         annotated = self.bridge.cv2_to_imgmsg(panel, "bgr8")

@@ -10,9 +10,10 @@ from uuid import uuid4
 
 
 class StableReadings:
-    def __init__(self, stable_frames=4, uncertain_frames=8):
+    def __init__(self, stable_frames=4, uncertain_frames=8, include_framing=False):
         self.stable_frames = stable_frames
         self.uncertain_frames = uncertain_frames
+        self.include_framing = include_framing
         self.tracks = {}
         self.recorded = {}
         self.last_frame = None
@@ -26,7 +27,7 @@ class StableReadings:
         for reading in readings:
             slot, classification = reading.slot.name, reading.classification
             uncertain = classification.occupancy == "uncertain"
-            if uncertain and reading.reason not in (
+            if uncertain and not self.include_framing and reading.reason not in (
                 "Shelf edge unclear", "Shelf partly obscured", "Pallet association ambiguous"
             ):
                 continue

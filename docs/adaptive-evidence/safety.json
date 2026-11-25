@@ -1,0 +1,614 @@
+{
+  "recovered": {
+    "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+    "stage": "RECENTER",
+    "target": "A-01-01",
+    "landed": false,
+    "position": [
+      6.01,
+      0.63,
+      0.82,
+      1.797
+    ],
+    "phase": "RESERVED",
+    "required": [
+      "A",
+      "T"
+    ],
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "RESERVED",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "RESERVED",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "sensor": "FRESH",
+    "sensor_mode": "laser",
+    "scan_age_ms": {
+      "A": 73,
+      "B": 26,
+      "T": 304
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:05:08.871+00:00",
+        "monotonic_ns": 24567783074413,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:05:08.671+00:00",
+        "monotonic_ns": 24567583516997,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:05:08.471+00:00",
+        "monotonic_ns": 24567383276009,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:05:05.448+00:00",
+        "monotonic_ns": 24564360453245,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "landed": {
+    "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+    "stage": "COMPLETE",
+    "target": "PAD",
+    "landed": true,
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "phase": "RELEASED",
+    "required": [],
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "OPEN",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "sensor": "FRESH",
+    "sensor_mode": "laser",
+    "scan_age_ms": {
+      "A": 151,
+      "B": 104,
+      "T": 56
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:07:35.771+00:00",
+        "monotonic_ns": 24714683225340,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "released",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      },
+      {
+        "time": "2026-11-25T12:05:08.871+00:00",
+        "monotonic_ns": 24567783074413,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:05:08.671+00:00",
+        "monotonic_ns": 24567583516997,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:05:08.471+00:00",
+        "monotonic_ns": 24567383276009,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:05:05.448+00:00",
+        "monotonic_ns": 24564360453245,
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "before_abort": {
+    "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+    "stage": "REPOSITION",
+    "target": "A-01-01",
+    "landed": false,
+    "position": [
+      5.46,
+      0.45,
+      0.79,
+      1.571
+    ],
+    "phase": "RESERVED",
+    "required": [
+      "A",
+      "T"
+    ],
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "RESERVED",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "RESERVED",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "sensor": "FRESH",
+    "sensor_mode": "laser",
+    "scan_age_ms": {
+      "A": 351,
+      "B": 300,
+      "T": 253
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:07:42.271+00:00",
+        "monotonic_ns": 24721183298878,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:07:41.721+00:00",
+        "monotonic_ns": 24720633365280,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:07:41.521+00:00",
+        "monotonic_ns": 24720433210550,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:07:38.505+00:00",
+        "monotonic_ns": 24717417910455,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "abort_ack": {
+    "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+    "stage": "ABORTED",
+    "target": "A-01-01",
+    "landed": false,
+    "position": [
+      5.488,
+      0.463,
+      0.791,
+      1.64
+    ],
+    "phase": "RECOVERY",
+    "required": [
+      "A",
+      "T"
+    ],
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "FAULT",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": false
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "FAULT",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": false
+      }
+    },
+    "sensor": "FRESH",
+    "sensor_mode": "laser",
+    "scan_age_ms": {
+      "A": 268,
+      "B": 222,
+      "T": 176
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:08:19.571+00:00",
+        "monotonic_ns": 24758483099028,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "abort_confirmed",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 24758433172559
+      },
+      {
+        "time": "2026-11-25T12:08:19.521+00:00",
+        "monotonic_ns": 24758433172559,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T12:07:42.271+00:00",
+        "monotonic_ns": 24721183298878,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:07:41.721+00:00",
+        "monotonic_ns": 24720633365280,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:07:41.521+00:00",
+        "monotonic_ns": 24720433210550,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:07:38.505+00:00",
+        "monotonic_ns": 24717417910455,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "held_after_abort": {
+    "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+    "stage": "ABORTED",
+    "target": "A-01-01",
+    "landed": false,
+    "position": [
+      5.535,
+      0.485,
+      0.79,
+      1.652
+    ],
+    "phase": "RECOVERY",
+    "required": [
+      "A",
+      "T"
+    ],
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "FAULT",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "FAULT",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "sensor": "FRESH",
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "sensor": "FRESH",
+    "sensor_mode": "laser",
+    "scan_age_ms": {
+      "A": 74,
+      "B": 26,
+      "T": 333
+    },
+    "events": [
+      {
+        "time": "2026-11-25T12:08:19.571+00:00",
+        "monotonic_ns": 24758483099028,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "abort_confirmed",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 24758433172559
+      },
+      {
+        "time": "2026-11-25T12:08:19.521+00:00",
+        "monotonic_ns": 24758433172559,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      {
+        "time": "2026-11-25T12:07:42.271+00:00",
+        "monotonic_ns": 24721183298878,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T12:07:41.721+00:00",
+        "monotonic_ns": 24720633365280,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T12:07:41.521+00:00",
+        "monotonic_ns": 24720433210550,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T12:07:38.505+00:00",
+        "monotonic_ns": 24717417910455,
+        "inspection_id": "INS-CONTROL-20261125-120738-4E5F7759",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "post_abort_dispatch": {
+    "error": "The drone must be stopped on the launch pad before dispatch."
+  }
+}
