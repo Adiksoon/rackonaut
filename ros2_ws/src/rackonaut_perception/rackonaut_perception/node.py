@@ -1,5 +1,6 @@
 """Synchronize ROS frames, publish the overlay and deliver stable readings asynchronously."""
 
+import json
 import os
 import re
 from concurrent.futures import ThreadPoolExecutor
@@ -15,8 +16,9 @@ from ament_index_python.packages import get_package_share_path
 from cv_bridge import CvBridge
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from rclpy.qos import qos_profile_sensor_data
+from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from sensor_msgs.msg import CameraInfo, Image
+from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
 from .observations import StableReadings, observation, post_observation
@@ -40,6 +42,7 @@ class Perception(Node):
             "stable_frames": 4,
             "uncertain_frames": 8,
             "quality_enabled": False,
+            "mission_scoped": False,
             "quality_dir": str(Path(os.environ.get("ROS_LOG_DIR", Path.home() / ".ros" / "log")) / "quality"),
         }
         parameters = {name: self.declare_parameter(name, value).value for name, value in defaults.items()}
@@ -56,6 +59,11 @@ class Perception(Node):
         locations, pallets = load_markers(parameters["marker_map"])
         self.inspector = Inspector(locations, pallets)
         self.gate = StableReadings(parameters["stable_frames"], parameters["uncertain_frames"])
+        self.mission_scoped = parameters["mission_scoped"]
+        self.scan_slot = None
+        if self.mission_scoped:
+            qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+            self.create_subscription(String, "/rackonaut/mission/status", self.on_mission_status, qos)
         self.quality = QualityEvidence(parameters["quality_dir"], run_id) if parameters["quality_enabled"] else None
         self.inventory = {}
         self.state = OverlayState(run_id, total=len(locations))
@@ -79,6 +87,13 @@ class Perception(Node):
         self.last_frame = None
         self.preview_service = self.create_service(Trigger, "~/rearm", self.rearm)
         self.get_logger().info(f"Inspecting {parameters['image_topic']} as {run_id}")
+
+    def on_mission_status(self, message):
+        status = json.loads(message.data)
+        if status["inspection_id"] != self.state.inspection_id:
+            return
+        self.state.total = status["total"]
+        self.scan_slot = status["target"] if status["stage"] == "INSPECT" else None
 
     def rearm(self, request, response):
         self.gate.rearm()
@@ -117,7 +132,10 @@ class Perception(Node):
             self.get_logger().warning(f"Cannot convert camera frame: {error}", throttle_duration_sec=3.0)
             return
         result = self.inspector.inspect(native)
-        for reading in self.gate.update(result.readings, now):
+        eligible = result.readings
+        if self.mission_scoped:
+            eligible = [reading for reading in eligible if reading.slot.name == self.scan_slot]
+        for reading in self.gate.update(eligible, now):
             if self.backend and len(self.pending) >= 8:
                 break
             payload = observation(self.state.inspection_id, reading, captured)
@@ -139,7 +157,7 @@ class Perception(Node):
         else:
             verdicts = {reading.slot.name: inspect_carton(native, reading) for reading in result.readings
                         if reading.classification.occupancy != "empty"}
-            ready = self.quality.ready(verdicts, result.readings, self.inventory, now)
+            ready = self.quality.ready(verdicts, eligible, self.inventory, now)
             panel = render(native, result, self.state, verdicts, self.quality.damage_count(ready))
             for item in ready:
                 try:

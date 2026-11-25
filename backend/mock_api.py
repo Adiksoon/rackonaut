@@ -57,7 +57,8 @@ def event_key(observation):
 
 
 class FixtureStore:
-    def __init__(self):
+    def __init__(self, inventory=INVENTORY):
+        self.expected = {item["slot_id"]: item["pallet_id"] for item in inventory["locations"]}
         self.events = {}
         self.fixture_events = {}
         for scenario in FIXTURES["scenarios"]:
@@ -74,7 +75,7 @@ class FixtureStore:
             if previous != observation:
                 raise error(409, "observation_conflict", "This inspection already has this observation_id.")
             return 200
-        if observation["slot_id"] not in EXPECTED_BY_SLOT:
+        if observation["slot_id"] not in self.expected:
             raise error(404, "unknown_slot", "slot_id does not exist in the expected inventory.")
         self.events[key] = observation
         return 201
@@ -86,7 +87,7 @@ class FixtureStore:
     def slots(self, history):
         latest = {event["slot_id"]: event for event in history}
         results = []
-        for slot_id, expected_pallet in EXPECTED_BY_SLOT.items():
+        for slot_id, expected_pallet in self.expected.items():
             event = latest.get(slot_id)
             outcome = "uninspected"
             if event is not None:
@@ -102,7 +103,7 @@ class FixtureStore:
         return results
 
 
-def create_app():
+def create_app(inventory=INVENTORY):
     app = FastAPI(title=CONTRACT["info"]["title"], version=CONTRACT["info"]["version"], redoc_url=None)
     app.openapi = lambda: CONTRACT
     app.add_middleware(
@@ -111,7 +112,7 @@ def create_app():
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type"],
     )
-    store = FixtureStore()
+    store = FixtureStore(inventory)
 
     @app.get("/health")
     async def health():
@@ -119,7 +120,7 @@ def create_app():
 
     @app.get("/api/inventory/expected")
     async def expected_inventory():
-        return INVENTORY
+        return inventory
 
     @app.post("/api/observations")
     async def submit_observation(request: Request):

@@ -20,7 +20,11 @@ class Target:
 class Route:
     pad: Target
     takeoff: Target
-    stops: tuple[Target, ...]
+    waypoints: tuple[Target, ...]
+
+    @property
+    def stops(self):
+        return tuple(point for point in self.waypoints if point.slot_id)
 
 
 def load_route(path):
@@ -32,16 +36,17 @@ def load_route(path):
     config = json.loads(Path(path).read_text())
     pad = target(**config["pad"])
     height = config["takeoff_z"]
-    stops = tuple(target(**item) for item in config["waypoints"])
+    waypoints = tuple(target(**item) for item in config["waypoints"])
+    stops = tuple(point for point in waypoints if point.slot_id)
     if pad.slot_id or not isfinite(height) or height <= pad.z:
         raise ValueError("The takeoff altitude must be above the pad.")
     if not stops or any(not re.fullmatch(r"[A-Z]-[0-9]{2}-[0-9]{2}", stop.slot_id) for stop in stops):
         raise ValueError("Each inspection waypoint requires a valid slot_id.")
     if len({stop.slot_id for stop in stops}) != len(stops):
         raise ValueError("An inspection route must list each slot at most once.")
-    if any(stop.z <= pad.z for stop in stops):
-        raise ValueError("Inspection waypoints must be above the pad altitude.")
-    return Route(pad, replace(pad, z=float(height)), stops)
+    if any(point.z <= pad.z for point in waypoints):
+        raise ValueError("Waypoints must be above the pad altitude.")
+    return Route(pad, replace(pad, z=float(height)), waypoints)
 
 
 def heading_error(target, actual):

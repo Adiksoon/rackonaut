@@ -151,12 +151,20 @@ def evidence_card(bundle):
 
 def inventory_rows(mission, summary, observations):
     rows = []
+    planned = mission.get("planned_slots")
     for location in summary["slots"]:
         slot = location["slot_id"]
         observation = observations.get(location["observation_id"], {})
         confirmed = "Confirmed" if slot in mission["confirmed"] else "—"
         outcome = location["outcome"]
         comparison = "Pending comparison" if outcome == "pending" else outcome.replace("_", " ").capitalize()
+        if planned is not None:
+            if slot not in planned:
+                confirmed = "Outside scope"
+            elif slot in mission["missed"]:
+                confirmed = "Missed"
+            elif slot not in mission["confirmed"]:
+                confirmed = "Unconfirmed"
         label = observation.get("label_status", "uninspected").replace("_", " ").capitalize()
         occupancy = observation.get("occupancy", "uninspected").capitalize()
         rows.append(f"<tr><th scope='row'>{e(slot)}</th><td>{e(location['observed_pallet_id'] or '—')}</td>"

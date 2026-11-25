@@ -48,6 +48,7 @@ class Mission(Node):
             "land": True,
             "travel_timeout": 38.0,
             "inspection_timeout": 8.0,
+            "scan_hold_seconds": 0.0,
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -60,6 +61,9 @@ class Mission(Node):
         self.travel_timeout, self.inspection_timeout = settings["travel_timeout"], settings["inspection_timeout"]
         if not all(isfinite(value) and value > 0 for value in (self.travel_timeout, self.inspection_timeout)):
             raise ValueError("Mission timeouts must be finite and positive.")
+        self.scan_hold = settings["scan_hold_seconds"]
+        if not 0. <= self.scan_hold < self.inspection_timeout:
+            raise ValueError("The minimum scan hold must be below the inspection timeout.")
 
         self.route = load_route(settings["route_file"])
         self.frame = settings["odom_frame"]
@@ -174,11 +178,14 @@ class Mission(Node):
         return False
 
     def next_stop(self, now):
-        if self.stop_index == len(self.route.stops):
+        if self.stop_index == len(self.route.waypoints):
             self.transition("RETURN", self.route.takeoff, now, "Returning along the clear aisle to the pad")
             return
-        stop = self.route.stops[self.stop_index]
-        self.transition("TRANSIT", replace(stop, yaw=self.target.yaw), now, "Flying to the inspection viewpoint")
+        stop = self.route.waypoints[self.stop_index]
+        if stop.slot_id:
+            self.transition("TRANSIT", replace(stop, yaw=self.target.yaw), now, "Flying to the inspection viewpoint")
+        else:
+            self.transition("CORRIDOR", stop, now, "Following the clear transfer corridor")
 
     def begin_scan(self, now):
         slot = self.target.slot_id
@@ -190,6 +197,10 @@ class Mission(Node):
 
     def scan(self, now):
         slot = self.target.slot_id
+        if slot in self.confirmed:
+            if now - self.stage_since >= self.scan_hold:
+                self.end_scan(now)
+            return
         if self.rearm_request.done() and self.rearm_request.result().success:
             if self.http_request is not None and self.http_request.done():
                 events, problem = self.http_request.result()
@@ -201,7 +212,8 @@ class Mission(Node):
                     self.confirmed[slot] = event
                     self.get_logger().info(f"CONFIRMED {slot} {event['occupancy']} "
                                            f"{event.get('pallet_id') or '-'} {event['observation_id']}")
-                    self.end_scan(now)
+                    if now - self.stage_since >= self.scan_hold:
+                        self.end_scan(now)
                     return
             if self.http_request is None and now >= self.poll_at:
                 self.http_request = self.http.submit(fetch_observations, self.backend, self.inspection_id)
@@ -242,8 +254,11 @@ class Mission(Node):
             return
         if self.stage == "TAKEOFF":
             self.next_stop(now)
+        elif self.stage == "CORRIDOR":
+            self.stop_index += 1
+            self.next_stop(now)
         elif self.stage == "TRANSIT":
-            self.transition("ALIGN", self.route.stops[self.stop_index], now, "Turning toward the rack and settling")
+            self.transition("ALIGN", self.route.waypoints[self.stop_index], now, "Turning toward the rack and settling")
         elif self.stage == "ALIGN":
             self.begin_scan(now)
         elif self.stage == "RETURN" and self.land:
@@ -280,12 +295,13 @@ class Mission(Node):
         status = {
             "inspection_id": self.inspection_id,
             "stage": self.stage,
-            "target": self.target.slot_id or "PAD",
+            "target": self.target.slot_id or ("CORRIDOR" if self.stage == "CORRIDOR" else "PAD"),
             "target_pose": [round(value, 3) for value in (self.target.x, self.target.y, self.target.z, self.target.yaw)],
             "position": [round(value, 3) for value in (self.pose.x, self.pose.y, self.pose.z, self.pose.yaw)]
             if self.pose is not None else None,
             "elapsed_seconds": round(elapsed, 1),
             "total": len(self.route.stops),
+            "planned_slots": [stop.slot_id for stop in self.route.stops],
             "visited": self.visits,
             "confirmed": self.confirmed,
             "missed": self.missed,

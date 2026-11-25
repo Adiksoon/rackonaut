@@ -21,7 +21,7 @@ def stamped_pose(pose, frame, stamp=None):
 def planned_path(route, frame, land):
     path = Path()
     path.header.frame_id = frame
-    points = (route.pad, route.takeoff, *route.stops, route.takeoff)
+    points = (route.pad, route.takeoff, *route.waypoints, route.takeoff)
     if land:
         points += (route.pad,)
     path.poses = [stamped_pose(point, frame) for point in points]

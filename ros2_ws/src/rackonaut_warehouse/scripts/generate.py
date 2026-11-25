@@ -26,6 +26,11 @@ STOCK = (
     ("P005", None, "unreadable_label"), ("P006", 23, "uninspected"),
     ("P007", None, "uncertain_candidate"), ("P008", 24, "repeat_final_state"),
 )
+CONTROL_B_STOCK = (
+    ("P021", 25, "torn"),
+    ("P022", 26, "intact"),
+    (None, None, "empty"),
+)
 
 
 def numbers(values):
@@ -225,28 +230,32 @@ def rack(world, index, y, args, rng, inspection, rows):
     count = 4 if args.profile == "pilot" else args.bays
     levels = [.45 + level * (top - 1.50) / (args.levels - 1) for level in range(args.levels)]
     face = y - DEPTH / 2
+    aisle_b = args.control and index == 1
+    collision_row = inspection or aisle_b
     for post in range(count + 1):
         x = x_first + (post - .5) * pitch
         for edge in (-1, 1):
             box(parent, f"post_{post}_{edge}", (x, y + edge * DEPTH / 2, top / 2),
-                (.12, .12, top), BLUE, collision=inspection)
+                (.12, .12, top), BLUE, collision=collision_row)
         box(parent, f"guard_{post}", (x, face - .04, .23), (.19, .18, .46), YELLOW)
     for bay in range(count):
         x = x_first + bay * pitch
         for level, deck in enumerate(levels):
             key = f"b{bay + 1}_l{level + 1}"
             box(parent, f"deck_{key}", (x, y, deck - .052), (pitch - .1, DEPTH, .105),
-                ORANGE, collision=inspection)
+                ORANGE, collision=collision_row)
             box(parent, f"beam_{key}", (x, face - .025, deck - .054),
                 (pitch - .15, .11, .13), ORANGE)
-            if not inspection or bay >= 4 or level >= 2:
+            local_index = bay * 2 + level
+            in_scope = level < 2 and ((inspection and bay < 4) or (aisle_b and local_index < len(CONTROL_B_STOCK)))
+            if not in_scope:
                 for place in (-1, 1):
                     if rng.random() < args.fill:
                         cargo(parent, f"decor_{key}_{place}", x + place * .56, y, deck, rng)
                 continue
-            slot_index = bay * 2 + level
-            pallet, tag, scenario = STOCK[slot_index]
-            slot_id = f"A-01-{slot_index + 1:02}"
+            slot_index = local_index + (len(STOCK) if aisle_b else 0)
+            pallet, tag, scenario = (CONTROL_B_STOCK if aisle_b else STOCK)[local_index]
+            slot_id = f"B-{bay + 1:02d}-{level + 1:02d}" if aisle_b else f"A-01-{local_index + 1:02d}"
             label_x = x - .66
             box(parent, f"label_mount_{key}", (label_x, face + .035, deck + .16),
                 (.61, .11, .40), BLUE)
@@ -254,8 +263,16 @@ def rack(world, index, y, args, rng, inspection, rows):
             row = {"slot_id": slot_id, "physical_bay": bay + 1, "physical_level": level + 1,
                    "pallet_id": pallet, "slot_aruco_id": slot_index, "pallet_aruco_id": tag,
                    "scenario": scenario, "slot_label_xyz_m": [round(label_x, 3), round(face - .024, 3), round(deck + .16, 3)]}
+            if args.control:
+                pose = [x - .04, face - 1.95, deck + .34, 90.]
+                # Use the verified view of the partly obstructed A-01-07.
+                if slot_id == "A-01-07":
+                    pose = [13.4, -.33, .87, 90.]
+                row["viewpoint"] = [round(value, 3) for value in pose]
             if pallet:
-                shape = {1: "torn", 3: "crushed"}.get(slot_index, "intact") if args.quality else None
+                shape = None
+                if args.quality:
+                    shape = scenario if aisle_b else {1: "torn", 3: "crushed"}.get(local_index, "intact")
                 cargo(parent, f"inspection_{key}", x + .26, face + .47, deck, rng, detailed=True,
                       collision=True, quality_shape=shape)
                 label = f"pallet_{tag}" if tag is not None else "label_unreadable"
@@ -265,7 +282,7 @@ def rack(world, index, y, args, rng, inspection, rows):
                     box(parent, "partially_occluded_pallet_07", (x + .43, face + .09, deck + .54),
                         (.33, .052, .64), (.34, .33, .29))
             rows.append(row)
-    if not inspection:
+    if not collision_row:
         first_x = x_first - pitch / 2
         last_x = x_first + (count - .5) * pitch
         box(parent, "row_collision", ((first_x + last_x) / 2, y, top / 2),
@@ -302,6 +319,27 @@ def generate(args):
     signs(world, aisles, positions[inspection])
     ET.indent(sdf, space="  ")
     ET.ElementTree(sdf).write(args.output, encoding="utf-8", xml_declaration=True)
+    if args.layout:
+        layout = {
+            "floor": {"x": HALL_CENTER - 20, "y": -12.5, "width": 40, "height": 25},
+            "racks": [{"x": 5.5 - args.bay_pitch / 2, "y": y - DEPTH / 2,
+                       "width": args.bays * args.bay_pitch, "height": DEPTH,
+                       "bays": args.bays} for y in positions],
+            "aisles": [{"id": name, "y": y, "functional": name != "C"} for name, y in zip(("B", "A", "C"), aisles)],
+            "pad": {"x": 0., "y": 0., "z": .05, "yaw_deg": 0., "width": 2.65, "height": 2.1},
+            "takeoff_z": .79,
+            "crossing_x": 2.1,
+            "slots": {item["slot_id"]: {"label": item["slot_label_xyz_m"], "viewpoint": item["viewpoint"],
+                                     "aisle": item["slot_id"][0], "bay": item["physical_bay"],
+                                     "level": item["physical_level"]} for item in sorted(rows, key=lambda r: r["slot_id"])},
+        }
+        args.layout.write_text(json.dumps(layout, indent=2) + "\n")
+    if args.marker_map:
+        marker_map = {"dictionary": "DICT_4X4_50",
+                      "locations": {str(item["slot_aruco_id"]): item["slot_id"] for item in rows},
+                      "pallets": {str(item["pallet_aruco_id"]): item["pallet_id"] for item in rows
+                                  if item["pallet_aruco_id"] is not None}}
+        args.marker_map.write_text(json.dumps(marker_map, indent=2) + "\n")
     if args.truth:
         expected_data = json.loads((REPO / "test_data/expected_inventory.json").read_text())
         expected = {item["slot_id"]: item["pallet_id"] for item in expected_data["locations"]}
@@ -313,7 +351,7 @@ def generate(args):
         args.truth.write_text(json.dumps(truth, indent=2) + "\n")
 
 
-def write_labels():
+def write_labels(control=False):
     import cv2
     import numpy as np
 
@@ -344,6 +382,13 @@ def write_labels():
         text(image, "RACKONAUT", (315, 278), .71, accent, 2)
         save(name, image)
 
+    if control:
+        for i, (pallet, marker, _) in enumerate(CONTROL_B_STOCK):
+            slot = len(STOCK) + i
+            card(f"slot_{slot:02}", "LOCATION", f"B-{i // 2 + 1:02d}-{i % 2 + 1:02d}", print_blue, slot)
+            if marker is not None:
+                card(f"pallet_{marker}", "PALLET", pallet, print_orange, marker)
+        return
     for index in range(len(STOCK)):
         card(f"slot_{index:02}", "LOCATION", f"A-01-{index + 1:02}", print_blue, index)
     for pallet, marker, _ in STOCK:
@@ -378,15 +423,23 @@ def main():
     parser.add_argument("--seed", type=int, default=26)
     parser.add_argument("--labels", action="store_true")
     parser.add_argument("--quality", action="store_true", help="stage visible carton defects in a separate output world")
+    parser.add_argument("--control", action="store_true", help="add the functional aisle B to the three-aisle showcase")
+    parser.add_argument("--layout", type=Path)
+    parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
-    if args.quality and args.output.resolve() in (ROOT / "worlds/showcase.sdf", ROOT / "worlds/pilot.sdf"):
-        parser.error("--quality requires a separate --output path")
+    if (args.quality or args.control) and args.output.resolve() in (ROOT / "worlds/showcase.sdf", ROOT / "worlds/pilot.sdf"):
+        parser.error("--quality and --control require a separate --output path")
+    if (args.layout or args.marker_map) and not args.control:
+        parser.error("--layout and --marker-map require --control")
+    if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
+                         or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
+        parser.error("--control uses the default three-aisle geometry and separate layout data")
     if args.bays < 4 or args.levels < 2 or not 0 <= args.fill <= 1:
         parser.error("The fixture needs at least four bays, two levels and fill between zero and one.")
     if args.bay_pitch < 2.65 or args.aisle_width < 3 or args.rack_height < 3.5:
         parser.error("Rack or aisle dimensions would leave too little clearance for the inspection fixture.")
     if args.labels:
-        write_labels()
+        write_labels(args.control)
     generate(args)
 
 

@@ -11,9 +11,19 @@ add_custom_command(OUTPUT "${quality_world}"
   DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
   VERBATIM)
 add_custom_target(quality_showcase ALL DEPENDS "${quality_world}")
+set(control_world "${CMAKE_CURRENT_BINARY_DIR}/control_showcase.sdf")
+set(control_layout "${CMAKE_CURRENT_BINARY_DIR}/control_layout.json")
+set(control_markers "${CMAKE_CURRENT_BINARY_DIR}/control_markers.json")
+add_custom_command(OUTPUT "${control_world}" "${control_layout}" "${control_markers}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --quality --control --output "${control_world}" --layout "${control_layout}" --marker-map "${control_markers}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(control_showcase ALL DEPENDS "${control_world}" "${control_layout}" "${control_markers}")
 
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
-install(FILES "${quality_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${control_layout}" "${control_markers}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()
