@@ -1,0 +1,40 @@
+digraph ROS {
+graph [rankdir=LR, bgcolor="#101c27",pad=0.36, dpi=150, nodesep=0.34,ranksep=1.0,
+  labelloc=t, labeljust=l, fontsize=24, fontname="DejaVu Sans",fontcolor="#edf7fb",
+  label="Rackonaut · active ROS 2 mission\nSensors, control, safety and perception"];
+node [shape=box,style="rounded,filled",fillcolor="#213c50",color="#5f8fa9",fontcolor="#efffff",fontname="DejaVu Sans",fontsize=12,margin="0.14,0.09"];
+edge [color="#688b9e",penwidth=1.35,arrowsize=.75,fontname="DejaVu Sans",fontcolor="#b7d2df",fontsize=9];
+"rackonaut_control" [label="Control Center"];
+"rackonaut_energy" [label="Energy Manager"];
+"rackonaut_lidar_bridge" [label="Onboard LiDAR bridge"];
+"rackonaut_localization" [label="Localization Manager"];
+"rackonaut_localization_sensors_bridge" [label="IMU and dock bridge"];
+"rackonaut_localization_validation" [label="Independent validator"];
+"rackonaut_mission" [label="Mission Manager"];
+"rackonaut_perception" [label="Perception"];
+"rackonaut_safety" [label="Safety Manager"];
+"rackonaut_validation_bridge" [label="Gazebo validation bridge"];
+"ros_gz_bridge" [label="RGB / velocity bridge"];
+"rackonaut_energy" -> "rackonaut_control" [label="Energy state"];
+"rackonaut_energy" -> "rackonaut_mission" [label="Energy state"];
+"rackonaut_energy" -> "rackonaut_safety" [label="Energy state"];
+"rackonaut_lidar_bridge" -> "rackonaut_localization" [label="LiDAR points"];
+"rackonaut_lidar_bridge" -> "rackonaut_mission" [label="LiDAR points"];
+"rackonaut_localization" -> "rackonaut_control" [label="Sensor odometry"];
+"rackonaut_localization" -> "rackonaut_energy" [label="Sensor odometry"];
+"rackonaut_localization" -> "rackonaut_localization_validation" [label="Pose at scan time"];
+"rackonaut_localization" -> "rackonaut_mission" [label="Pose at scan time / Sensor odometry"];
+"rackonaut_localization" -> "rackonaut_safety" [label="Sensor odometry"];
+"rackonaut_localization_sensors_bridge" -> "rackonaut_localization" [label="IMU"];
+"rackonaut_mission" -> "rackonaut_control" [label="Mission status"];
+"rackonaut_mission" -> "rackonaut_energy" [label="Mission status"];
+"rackonaut_mission" -> "rackonaut_perception" [label="Mission status"];
+"rackonaut_mission" -> "rackonaut_safety" [label="Mission status"];
+"rackonaut_mission" -> "ros_gz_bridge" [label="Velocity command"];
+"rackonaut_perception" -> "rackonaut_control" [label="Annotated image"];
+"rackonaut_safety" -> "rackonaut_control" [label="Safety state"];
+"rackonaut_safety" -> "rackonaut_mission" [label="Safety state"];
+"rackonaut_validation_bridge" -> "rackonaut_localization_validation" [label="Validation reference"];
+"ros_gz_bridge" -> "rackonaut_control" [label="RGB image"];
+"ros_gz_bridge" -> "rackonaut_perception" [label="RGB image"];
+}

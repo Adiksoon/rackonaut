@@ -1,0 +1,95 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Name: root
+  Enabled: true
+  Global Options:
+    Background Color: 16; 27; 38
+    Fixed Frame: rackonaut_odom
+    Frame Rate: 15
+  Displays:
+  - Class: rviz_default_plugins/Image
+    Name: 01 Native camera input
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/camera/image_raw
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Normalize Range: false
+    Transport Hint: raw
+  - Class: rviz_default_plugins/Image
+    Name: 02 Perception overlay
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/perception/annotated
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Normalize Range: false
+    Transport Hint: raw
+  - Class: rviz_default_plugins/Camera
+    Name: "Optical calibration \xB7 camera_info"
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/camera/image_raw
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+    Image Rendering: background
+    Transport Hint: raw
+  Tools:
+  - Class: rviz_default_plugins/MoveCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Warehouse overview
+      Distance: 13
+      Focal Point:
+        X: 5.0
+        Y: 0.0
+        Z: 2.0
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    Saved:
+    - Class: rviz_default_plugins/Orbit
+      Name: Inspection aisle A
+      Distance: 10
+      Focal Point:
+        X: 6.0
+        Y: 0.5
+        Z: 1.8
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    - Class: rviz_default_plugins/Orbit
+      Name: Follow aircraft
+      Distance: 7
+      Focal Point:
+        X: 0.5
+        Y: 0.0
+        Z: 0.0
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: rackonaut_base_link
+      Yaw: 4.72
+Window Geometry:
+  Height: 900
+  Width: 1480
+  X: 75
+  Y: 85
+  Hide Left Dock: false
+  Hide Right Dock: true

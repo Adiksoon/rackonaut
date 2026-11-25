@@ -1,0 +1,99 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Name: root
+  Enabled: true
+  Global Options:
+    Background Color: 16; 27; 38
+    Fixed Frame: rackonaut_odom
+    Frame Rate: 12
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Metre grid
+    Enabled: true
+    Value: true
+    Cell Size: 1
+    Color: 71; 91; 109
+    Alpha: 0.35
+    Plane Cell Count: 42
+    Plane: XY
+    Reference Frame: <Fixed Frame>
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Model reference
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/engineering/reference
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: "Sensor vs Gazebo \xB7 validation only"
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/engineering/validation
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Current drone estimate
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/engineering/aircraft
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  Tools:
+  - Class: rviz_default_plugins/MoveCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Warehouse overview
+      Distance: 33
+      Focal Point:
+        X: 8.5
+        Y: 2.4
+        Z: 2.8
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    Saved:
+    - Class: rviz_default_plugins/Orbit
+      Name: Inspection aisle A
+      Distance: 10
+      Focal Point:
+        X: 6.0
+        Y: 0.5
+        Z: 1.8
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    - Class: rviz_default_plugins/Orbit
+      Name: Follow aircraft
+      Distance: 7
+      Focal Point:
+        X: 0.5
+        Y: 0.0
+        Z: 0.0
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: rackonaut_base_link
+      Yaw: 4.72
+Window Geometry:
+  Height: 900
+  Width: 1480
+  X: 75
+  Y: 85
+  Hide Left Dock: false
+  Hide Right Dock: true

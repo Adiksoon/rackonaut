@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -eo pipefail
+kind="${1:-help}"
+if (( $# )); then shift; fi
+if [[ "$kind" == evidence ]]; then
+    evidence_domain="${RACKONAUT_EVIDENCE_DOMAIN_ID:-193}"
+    live_domain="${RACKONAUT_ROS_DOMAIN_ID:-62}"
+    if [[ ! "$evidence_domain" =~ ^[0-9]{1,3}$ || ! "$live_domain" =~ ^[0-9]{1,3}$ ]] ||
+       (( 10#$evidence_domain > 232 || 10#$evidence_domain == 10#$live_domain )); then
+        printf 'Select a valid ROS domain distinct from the live domain using RACKONAUT_EVIDENCE_DOMAIN_ID.\n' >&2
+        exit 2
+    fi
+    export RACKONAUT_ROS_DOMAIN_ID="$((10#$evidence_domain))"
+fi
+source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
+case "$kind" in
+    live)
+        export LP_NUM_THREADS="${LP_NUM_THREADS:-4}"
+        exec ros2 launch rackonaut_control control.launch.py api_profile:=mock_sap safety:=true \
+            localization:=sensor_based recovery:=true "$@"
+        ;;
+    tools)
+        exec ros2 launch rackonaut_showcase tools.launch.py "$@"
+        ;;
+    evidence)
+        mode="${1:-rviz}"
+        if (( $# )); then shift; fi
+        case "$mode" in
+            rviz) exec ros2 launch rackonaut_showcase tools.launch.py view:=navigation adapter:=false "$@" ;;
+            play)
+                bag="$RACKONAUT_ROOT/docs/engineering-evidence/avoidance-bag"
+                # Humble decompresses file-compressed bags next to the input.
+                replay_dir="$(mktemp -d)"
+                trap 'rm -rf -- "$replay_dir"' EXIT
+                cp -R -- "$bag" "$replay_dir/"
+                ros2 bag play "$replay_dir/avoidance-bag" --clock --loop --topics \
+                    /rackonaut/drone/lidar/points /rackonaut/localization/measured_map \
+                    /rackonaut/drone/odom /rackonaut/localization/estimate /rackonaut/mission/plan \
+                    /rackonaut/mission/path /rackonaut/mission/markers /rackonaut/engineering/navigation \
+                    /rackonaut/engineering/aircraft /rackonaut/engineering/reference /tf /tf_static
+                ;;
+            *) printf 'Evidence modes: rviz or play.\n' >&2; exit 2 ;;
+        esac
+        ;;
+    help|-h|--help)
+        printf 'Usage: %s live [launch arguments] | tools [view:=...] | evidence rviz | evidence play\n' "$0"
+        ;;
+    *) printf 'Unknown checkpoint mode: %s\n' "$kind" >&2; exit 2 ;;
+esac

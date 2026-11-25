@@ -1,0 +1,602 @@
+[
+  {
+    "topic": "/clock",
+    "types": [
+      "rosgraph_msgs/msg/Clock"
+    ],
+    "publishers": [
+      {
+        "node": "ros_gz_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "static_transform_publisher_x4Jv6gHzzQGZBuLF",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "static_transform_publisher_42SvkcaSKk9v0IfD",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "static_transform_publisher_lj9iz3NHS9xIDaSL",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rviz",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "transform_listener_impl_6552e5f14c50",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_perception",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_energy",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/tf",
+    "types": [
+      "tf2_msgs/msg/TFMessage"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "transform_listener_impl_6552e5f14c50",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/tf_static",
+    "types": [
+      "tf2_msgs/msg/TFMessage"
+    ],
+    "publishers": [
+      {
+        "node": "static_transform_publisher_x4Jv6gHzzQGZBuLF",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "static_transform_publisher_42SvkcaSKk9v0IfD",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "static_transform_publisher_lj9iz3NHS9xIDaSL",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "transform_listener_impl_6552e5f14c50",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/drone/lidar/points",
+    "types": [
+      "sensor_msgs/msg/PointCloud2"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_lidar_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rviz",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_localization",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/drone/imu",
+    "types": [
+      "sensor_msgs/msg/Imu"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization_sensors_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/camera/image_raw",
+    "types": [
+      "sensor_msgs/msg/Image"
+    ],
+    "publishers": [
+      {
+        "node": "ros_gz_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_perception",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/camera/camera_info",
+    "types": [
+      "sensor_msgs/msg/CameraInfo"
+    ],
+    "publishers": [
+      {
+        "node": "ros_gz_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_perception",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/localization/estimate",
+    "types": [
+      "nav_msgs/msg/Odometry"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_localization_validation",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/localization/measured_map",
+    "types": [
+      "sensor_msgs/msg/PointCloud2"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rviz",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/localization/state",
+    "types": [
+      "std_msgs/msg/String"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/drone/odom",
+    "types": [
+      "nav_msgs/msg/Odometry"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_energy",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_safety",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/drone/cmd_vel",
+    "types": [
+      "geometry_msgs/msg/Twist"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "ros_gz_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      },
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/mission/plan",
+    "types": [
+      "nav_msgs/msg/Path"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rviz",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/mission/path",
+    "types": [
+      "nav_msgs/msg/Path"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rviz",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/mission/markers",
+    "types": [
+      "visualization_msgs/msg/MarkerArray"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rviz",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/mission/status",
+    "types": [
+      "std_msgs/msg/String"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_perception",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_energy",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_safety",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/safety/state",
+    "types": [
+      "std_msgs/msg/String"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_safety",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/energy/state",
+    "types": [
+      "std_msgs/msg/String"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_energy",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_mission",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_safety",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/perception/annotated",
+    "types": [
+      "sensor_msgs/msg/Image"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_perception",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/validation/ground_truth",
+    "types": [
+      "nav_msgs/msg/Odometry"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_validation_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_localization_validation",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/localization/validation",
+    "types": [
+      "std_msgs/msg/String"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization_validation",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_engineering",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      },
+      {
+        "node": "rackonaut_control",
+        "reliability": "RELIABLE",
+        "durability": "TRANSIENT_LOCAL"
+      }
+    ]
+  },
+  {
+    "topic": "/rackonaut/dock/contacts",
+    "types": [
+      "ros_gz_interfaces/msg/Contacts"
+    ],
+    "publishers": [
+      {
+        "node": "rackonaut_localization_sensors_bridge",
+        "reliability": "RELIABLE",
+        "durability": "VOLATILE"
+      }
+    ],
+    "subscribers": [
+      {
+        "node": "rackonaut_energy",
+        "reliability": "BEST_EFFORT",
+        "durability": "VOLATILE"
+      }
+    ]
+  }
+]
