@@ -22,6 +22,27 @@ class PlanningTests(TestCase):
             placard = world.find(f".//visual[@name='slot_{int(marker):02d}']/pose")
             self.assertEqual([float(value) for value in placard.text.split()[:3]], self.layout["slots"][slot]["label"])
 
+    def test_twin_uses_physical_bays_but_excludes_functional_stock(self):
+        scene = self.layout["scene"]
+        world = ElementTree.parse(self.share / "worlds/control_showcase.sdf")
+        decks = [
+            part for part in world.findall(".//model/link/visual") if part.attrib["name"].startswith("deck_")
+        ]
+        decor = [
+            part for model in world.findall("world/model") for part in model.findall("link/visual")
+            if part.attrib["name"].startswith(("decor_", "staged_")) and part.find("geometry/box") is not None
+        ]
+        self.assertEqual(len(scene["parts"]["deck"]), len(decks))
+        self.assertEqual(len(scene["parts"]["decor"]), len(decor))
+        self.assertEqual(len(scene["shell"]), 4)
+        self.assertEqual({post["zone"] for post in scene["signals"]}, {"A", "B", "T"})
+        deck_centers = {tuple(round(value, 3) for value in part[:3]) for part in scene["parts"]["deck"]}
+        for slot in self.layout["slots"].values():
+            x, y, deck = slot["bay_center"]
+            self.assertIn((x, y, round(deck - .052, 3)), deck_centers)
+        excluded = ("inspection_", "scenario", "pallet_id", "damage")
+        self.assertFalse(any(term in json.dumps(self.layout) for term in excluded))
+
     def test_crossings_use_the_front_corridor_in_both_directions(self):
         route = plan(self.layout, {"mode": "custom", "slots": ["A-01-02", "B-01-02"], "quality": True})
         self.assertEqual(route["slots"], ["A-01-02", "B-01-02"])

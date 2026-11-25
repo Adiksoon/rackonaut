@@ -6,6 +6,8 @@
   <title>Rackonaut | Control Center</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%2369e4bf'/%3E%3Cpath fill='none' stroke='%230b2220' stroke-width='3' d='M11 13h18v14H11zM20 9v22M8 20h24'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/twin.css">
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.min.js"}}</script>
   <script src="/app.js" defer></script>
 </head>
 <body>
@@ -40,7 +42,45 @@
   </div>
   <div class="workspace" id="workspace" data-view="plan">
     <section class="card warehouse" aria-labelledby="map-title">
-      <div class="card-head"><div><h2 id="map-title">Warehouse floor</h2><p>Top-down view · Rackonaut showcase</p></div><div class="map-tag">ZONE A / B / C</div></div>
+      <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Top-down view · Rackonaut showcase</p></div>
+        <div class="map-mode" role="group" aria-label="Warehouse view">
+          <button type="button" id="map-2d" aria-pressed="true">2D Warehouse Map</button>
+          <button type="button" id="map-3d" aria-pressed="false">3D Digital Twin</button>
+        </div>
+      </div>
+      <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
+      <section id="twin-panel" aria-label="Interactive digital twin" hidden>
+        <div class="twin-viewport" id="twin-viewport">
+          <div class="twin-markers" id="twin-markers"></div>
+          <div class="twin-toolbar" role="group" aria-label="3D camera controls">
+            <button type="button" id="twin-iso" aria-pressed="true">Isometric</button>
+            <button type="button" id="twin-top" aria-pressed="false">Top</button>
+            <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
+            <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
+            <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
+          </div>
+          <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
+          <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
+        </div>
+        <div class="twin-legend">
+          <span id="twin-access-key"><i class="twin-key reserve"></i>Access zones</span>
+          <span id="twin-laser-key"><i class="twin-key field"></i>LiDAR field</span>
+          <span id="twin-returns-key"><i class="twin-key returns"></i>Obstacle return</span>
+          <span><i class="twin-key plan"></i>Planned route</span>
+          <span><i class="twin-key flown"></i>Flown route</span>
+          <span><i class="twin-key retry"></i>Adaptive movement</span>
+          <span><i class="twin-key unverified"></i>Unverified bay</span>
+        </div>
+        <section id="twin-detail" class="twin-detail" aria-label="Location details">
+          <div class="twin-detail-head"><div><h3 id="twin-slot-title">Location details</h3><p id="twin-slot-summary">Select a location marker to view its observations.</p></div>
+            <div class="twin-slot-actions" id="twin-slot-actions" hidden>
+              <button type="button" id="twin-focus" class="chip">Focus rack</button>
+              <button type="button" id="twin-reinspect" class="chip">Plan reinspection</button>
+            </div>
+          </div>
+          <div id="twin-slot-record" hidden></div>
+        </section>
+      </section>
       <svg id="warehouse-map" viewBox="0 0 900 530" aria-label="Interactive warehouse map" role="group">
         <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#213444" stroke-width="1"/></pattern></defs>
         <g id="floor"></g><g id="map-aisles"></g><g id="safety-fields" aria-hidden="true"></g><g id="racks"></g>
@@ -49,7 +89,7 @@
         <g id="positions"></g>
         <g id="drone" visibility="hidden"><circle r="13"/><path d="M-6 -5L9 0-6 5-3 0Z"/></g>
       </svg>
-      <div class="map-legend">
+      <div class="map-legend" id="map-legend">
         <span><i class="legend-key selected"></i>Selected location</span>
         <span><i class="legend-key planned"></i>Planned route</span>
         <span><i class="legend-key flown"></i>Flown route</span>

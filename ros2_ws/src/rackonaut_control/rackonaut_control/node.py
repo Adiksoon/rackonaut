@@ -44,6 +44,7 @@ class Job:
     planned: list = field(default_factory=list)
     flown: list = field(default_factory=list)
     evidence: list = field(default_factory=list)
+    quality_uncertain: dict = field(default_factory=dict)
     finished_at: float | None = None
     archive: dict | None = None
     error: str = ""
@@ -88,6 +89,7 @@ class Control(Node):
         self.lock = RLock()
         self.odom_at = 0.
         self.position, self.speed = None, 0.
+        self.orientation = None
         self.jpeg, self.camera_at, self.frame_number = None, 0., 0
         self.camera_type = "raw"
         self.safety, self.safety_at = None, -1e6
@@ -113,6 +115,7 @@ class Control(Node):
         self.create_subscription(RosPath, "/rackonaut/mission/path", self.on_path, latest)
         self.create_subscription(Image, "/rackonaut/camera/image_raw", self.on_raw, qos_profile_sensor_data)
         self.create_subscription(Image, "/rackonaut/perception/annotated", self.on_annotated, 1)
+        self.create_subscription(String, "/rackonaut/perception/quality_uncertain", self.on_quality_uncertain, 5)
         self.start_client = self.create_client(Trigger, "/rackonaut/mission/start")
         self.abort_client = self.create_client(Trigger, "/rackonaut/mission/abort")
         self.timer = self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
@@ -138,6 +141,7 @@ class Control(Node):
         yaw = atan2(2 * (q.w * q.z + q.x * q.y), 1 - 2 * (q.y * q.y + q.z * q.z))
         with self.lock:
             self.position = [round(value, 3) for value in (p.x, p.y, p.z, yaw)]
+            self.orientation = [q.x, q.y, q.z, q.w]
             self.speed = hypot(v.x, v.y, v.z)
             self.odom_at = monotonic()
 
@@ -169,6 +173,12 @@ class Control(Node):
     def on_annotated(self, message):
         if self.job and self.job.status:
             self.update_camera(message, "annotated")
+
+    def on_quality_uncertain(self, message):
+        finding = json.loads(message.data)
+        with self.lock:
+            if self.job and finding["inspection_id"] == self.job.run and finding["slot_id"] in self.job.plan["slots"]:
+                self.job.quality_uncertain[finding["slot_id"]] = finding
 
     def on_safety(self, message):
         with self.lock:
@@ -424,9 +434,11 @@ class Control(Node):
                            "quality": job.plan["quality"], "adaptive": job.plan["adaptive"],
                            "mode": job.plan["mode"], "status": job.status,
                            "planned": job.planned or job.plan["points"], "flown": job.flown,
-                           "evidence": job.evidence, "result": job.archive, "error": job.error or job.export_error}
+                           "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
+                           "result": job.archive, "error": job.error or job.export_error}
             return {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
-                    "position": self.position, "backend": self.backend_state, "mission": current,
+                    "position": self.position, "orientation": self.orientation,
+                    "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
                     "camera_type": self.camera_type, "history": self.history[:12],
                     "safety_enabled": self.safety_enabled, "safety": safety,

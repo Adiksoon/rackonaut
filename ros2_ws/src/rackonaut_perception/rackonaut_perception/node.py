@@ -71,6 +71,10 @@ class Perception(Node):
         self.quality_events = None
         if self.adaptive and self.quality:
             self.quality_events = self.create_publisher(String, "/rackonaut/perception/quality_evidence", 10)
+        self.uncertain_events = None
+        self.uncertain_observations = set()
+        if self.mission_scoped and self.quality:
+            self.uncertain_events = self.create_publisher(String, "/rackonaut/perception/quality_uncertain", 5)
         self.inventory = {}
         self.state = OverlayState(run_id, total=len(locations))
         if self.backend:
@@ -131,6 +135,17 @@ class Perception(Node):
                 self.state.api_status, self.state.api_detail = "ERROR", f"{slot} / {message}"
                 self.get_logger().warning(f"{message} for {slot}. Live vision continues. Rearm to record again.")
 
+    def publish_uncertain(self, verdicts):
+        for (slot, pallet, verdict), count in self.quality.frames.items():
+            event = self.inventory.get(slot)
+            if (verdict == "UNCERTAIN" and count >= 4 and event and event["pallet_id"] == pallet
+                    and event["observation_id"] not in self.uncertain_observations):
+                self.uncertain_observations.add(event["observation_id"])
+                self.uncertain_events.publish(String(data=json.dumps({
+                    "inspection_id": event["inspection_id"], "slot_id": slot,
+                    "observation_id": event["observation_id"], "reason": verdicts[slot].reason,
+                })))
+
     def on_frame(self, image, info):
         if (image.header.frame_id != info.header.frame_id or not image.header.frame_id
                 or (image.width, image.height) != (info.width, info.height) or info.k[0] <= 0):
@@ -175,6 +190,8 @@ class Perception(Node):
             verdicts = {reading.slot.name: inspect_carton(native, reading) for reading in result.readings
                         if reading.classification.occupancy != "empty"}
             ready = self.quality.ready(verdicts, eligible, self.inventory, now)
+            if self.uncertain_events:
+                self.publish_uncertain(verdicts)
             panel = render(native, result, self.state, verdicts, self.quality.damage_count(ready))
             for item in ready:
                 try:

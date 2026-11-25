@@ -7,7 +7,11 @@ from urllib.parse import urlsplit
 
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
-          "/app.js": ("app.js", "text/javascript")}
+          "/twin.css": ("twin.css", "text/css"),
+          **{f"/{name}": (name, "text/javascript") for name in (
+              "app.js", "twin.js", "twin-scene.js", "vendor/three.module.min.js",
+              "vendor/three.core.min.js", "vendor/OrbitControls.js")},
+          "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
 REPORT = re.compile(fr"/reports/({RUN})$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")

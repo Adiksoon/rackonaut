@@ -1,0 +1,2282 @@
+{
+  "real_forklift": {
+    "robot": true,
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "orientation": [
+      -2.841465449468562e-17,
+      -1.708381781590155e-18,
+      -5.251308265614071e-19,
+      1
+    ],
+    "mission": null,
+    "safety": {
+      "phase": "AVAILABLE",
+      "required": [],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": true,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "OPEN",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": true,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": null,
+      "events": []
+    },
+    "scans": {
+      "A": {
+        "age_ms": 13,
+        "points": 120,
+        "hits": [
+          [
+            4.842,
+            0.581
+          ],
+          [
+            4.825,
+            0.576
+          ],
+          [
+            4.812,
+            0.576
+          ],
+          [
+            4.798,
+            0.577
+          ],
+          [
+            4.773,
+            0.578
+          ],
+          [
+            4.76,
+            0.579
+          ],
+          [
+            4.747,
+            0.579
+          ],
+          [
+            4.734,
+            0.58
+          ],
+          [
+            4.705,
+            0.576
+          ],
+          [
+            4.693,
+            0.577
+          ],
+          [
+            4.681,
+            0.577
+          ],
+          [
+            4.656,
+            0.579
+          ],
+          [
+            4.644,
+            0.579
+          ],
+          [
+            4.631,
+            0.58
+          ],
+          [
+            4.616,
+            0.576
+          ],
+          [
+            4.592,
+            0.578
+          ],
+          [
+            4.58,
+            0.578
+          ],
+          [
+            4.568,
+            0.579
+          ],
+          [
+            4.542,
+            0.576
+          ],
+          [
+            4.53,
+            0.577
+          ],
+          [
+            4.518,
+            0.578
+          ],
+          [
+            4.507,
+            0.579
+          ],
+          [
+            4.481,
+            0.576
+          ],
+          [
+            4.47,
+            0.577
+          ],
+          [
+            4.458,
+            0.578
+          ],
+          [
+            4.435,
+            0.58
+          ],
+          [
+            4.422,
+            0.577
+          ],
+          [
+            4.411,
+            0.578
+          ],
+          [
+            4.4,
+            0.578
+          ],
+          [
+            4.375,
+            0.576
+          ],
+          [
+            4.364,
+            0.577
+          ],
+          [
+            4.353,
+            0.578
+          ],
+          [
+            4.329,
+            0.577
+          ],
+          [
+            4.319,
+            0.578
+          ],
+          [
+            4.308,
+            0.579
+          ],
+          [
+            4.297,
+            0.58
+          ],
+          [
+            4.274,
+            0.578
+          ],
+          [
+            4.263,
+            0.579
+          ],
+          [
+            4.251,
+            0.577
+          ],
+          [
+            4.229,
+            0.579
+          ],
+          [
+            4.217,
+            0.577
+          ],
+          [
+            4.207,
+            0.578
+          ],
+          [
+            4.196,
+            0.579
+          ],
+          [
+            4.174,
+            0.578
+          ],
+          [
+            4.164,
+            0.579
+          ],
+          [
+            4.152,
+            0.577
+          ],
+          [
+            4.131,
+            0.579
+          ],
+          [
+            4.12,
+            0.578
+          ],
+          [
+            4.11,
+            0.579
+          ],
+          [
+            4.098,
+            0.577
+          ],
+          [
+            4.078,
+            0.579
+          ],
+          [
+            4.067,
+            0.578
+          ],
+          [
+            4.057,
+            0.579
+          ],
+          [
+            4.035,
+            0.578
+          ],
+          [
+            4.024,
+            0.577
+          ],
+          [
+            4.014,
+            0.578
+          ],
+          [
+            4.004,
+            0.577
+          ],
+          [
+            3.984,
+            0.579
+          ],
+          [
+            3.973,
+            0.578
+          ],
+          [
+            3.963,
+            0.579
+          ],
+          [
+            3.87,
+            0.364
+          ],
+          [
+            3.861,
+            0.365
+          ],
+          [
+            3.851,
+            0.364
+          ],
+          [
+            3.842,
+            0.365
+          ],
+          [
+            3.824,
+            0.365
+          ],
+          [
+            3.814,
+            0.365
+          ],
+          [
+            3.805,
+            0.366
+          ],
+          [
+            3.787,
+            0.364
+          ],
+          [
+            3.778,
+            0.365
+          ],
+          [
+            3.769,
+            0.365
+          ],
+          [
+            3.76,
+            0.366
+          ],
+          [
+            3.741,
+            0.365
+          ],
+          [
+            3.732,
+            0.366
+          ],
+          [
+            3.723,
+            0.365
+          ],
+          [
+            3.705,
+            0.366
+          ],
+          [
+            3.696,
+            0.365
+          ],
+          [
+            3.687,
+            0.365
+          ],
+          [
+            3.678,
+            0.365
+          ],
+          [
+            3.66,
+            0.365
+          ],
+          [
+            3.651,
+            0.365
+          ],
+          [
+            3.643,
+            0.365
+          ],
+          [
+            3.625,
+            0.365
+          ],
+          [
+            3.616,
+            0.365
+          ],
+          [
+            3.607,
+            0.365
+          ],
+          [
+            3.598,
+            0.365
+          ],
+          [
+            3.581,
+            0.365
+          ],
+          [
+            3.572,
+            0.365
+          ],
+          [
+            3.563,
+            0.365
+          ],
+          [
+            3.546,
+            0.365
+          ],
+          [
+            3.537,
+            0.365
+          ],
+          [
+            3.528,
+            0.365
+          ],
+          [
+            3.52,
+            0.365
+          ],
+          [
+            3.502,
+            0.365
+          ],
+          [
+            3.541,
+            1.185
+          ],
+          [
+            3.53,
+            1.185
+          ],
+          [
+            3.506,
+            1.185
+          ]
+        ]
+      },
+      "B": {
+        "age_ms": 314,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 268,
+        "points": 120,
+        "hits": [
+          [
+            2.048,
+            0.802
+          ],
+          [
+            2.055,
+            0.803
+          ],
+          [
+            2.063,
+            0.803
+          ],
+          [
+            2.069,
+            0.802
+          ],
+          [
+            2.084,
+            0.803
+          ],
+          [
+            2.09,
+            0.801
+          ],
+          [
+            2.097,
+            0.802
+          ],
+          [
+            2.112,
+            0.803
+          ],
+          [
+            2.118,
+            0.802
+          ],
+          [
+            2.125,
+            0.802
+          ],
+          [
+            2.132,
+            0.803
+          ],
+          [
+            2.145,
+            0.803
+          ],
+          [
+            2.151,
+            0.801
+          ],
+          [
+            2.158,
+            0.802
+          ],
+          [
+            2.171,
+            0.802
+          ],
+          [
+            2.178,
+            0.803
+          ],
+          [
+            2.184,
+            0.802
+          ],
+          [
+            2.198,
+            0.803
+          ],
+          [
+            2.204,
+            0.802
+          ],
+          [
+            2.21,
+            0.803
+          ],
+          [
+            2.216,
+            0.802
+          ],
+          [
+            2.229,
+            0.802
+          ],
+          [
+            2.234,
+            0.801
+          ],
+          [
+            2.236,
+            0.792
+          ],
+          [
+            2.236,
+            0.767
+          ],
+          [
+            2.234,
+            0.75
+          ],
+          [
+            2.236,
+            0.741
+          ],
+          [
+            2.234,
+            0.723
+          ],
+          [
+            2.234,
+            0.695
+          ],
+          [
+            2.236,
+            0.684
+          ],
+          [
+            2.234,
+            0.665
+          ],
+          [
+            2.233,
+            0.633
+          ],
+          [
+            2.235,
+            0.622
+          ],
+          [
+            2.237,
+            0.61
+          ],
+          [
+            2.236,
+            0.576
+          ],
+          [
+            2.233,
+            0.552
+          ],
+          [
+            2.235,
+            0.539
+          ],
+          [
+            2.237,
+            0.526
+          ],
+          [
+            2.236,
+            0.487
+          ],
+          [
+            2.233,
+            0.46
+          ],
+          [
+            2.235,
+            0.445
+          ],
+          [
+            2.234,
+            0.401
+          ],
+          [
+            2.235,
+            0.385
+          ],
+          [
+            2.265,
+            0.311
+          ],
+          [
+            2.273,
+            0.31
+          ],
+          [
+            2.288,
+            0.309
+          ],
+          [
+            2.297,
+            0.31
+          ],
+          [
+            2.304,
+            0.31
+          ],
+          [
+            2.32,
+            0.31
+          ],
+          [
+            2.328,
+            0.31
+          ],
+          [
+            2.336,
+            0.309
+          ],
+          [
+            2.351,
+            0.31
+          ],
+          [
+            2.359,
+            0.31
+          ],
+          [
+            2.355,
+            0.265
+          ],
+          [
+            2.357,
+            0.24
+          ],
+          [
+            2.36,
+            0.189
+          ],
+          [
+            2.356,
+            0.136
+          ],
+          [
+            2.357,
+            0.107
+          ],
+          [
+            2.361,
+            0.047
+          ],
+          [
+            2.356,
+            -0.016
+          ],
+          [
+            2.358,
+            -0.05
+          ],
+          [
+            2.36,
+            -0.085
+          ],
+          [
+            2.356,
+            -0.197
+          ],
+          [
+            2.358,
+            -0.238
+          ],
+          [
+            2.36,
+            -0.281
+          ],
+          [
+            2.356,
+            -0.417
+          ],
+          [
+            2.358,
+            -0.467
+          ],
+          [
+            2.36,
+            -0.52
+          ],
+          [
+            2.745,
+            0.31
+          ],
+          [
+            2.752,
+            0.31
+          ],
+          [
+            2.759,
+            0.31
+          ],
+          [
+            2.766,
+            0.31
+          ],
+          [
+            2.781,
+            0.31
+          ],
+          [
+            2.788,
+            0.31
+          ],
+          [
+            2.795,
+            0.31
+          ],
+          [
+            2.81,
+            0.31
+          ],
+          [
+            2.817,
+            0.31
+          ],
+          [
+            2.824,
+            0.31
+          ],
+          [
+            2.832,
+            0.31
+          ],
+          [
+            2.865,
+            0.46
+          ],
+          [
+            2.866,
+            0.535
+          ],
+          [
+            2.867,
+            0.603
+          ],
+          [
+            2.864,
+            0.769
+          ],
+          [
+            2.866,
+            0.802
+          ],
+          [
+            2.871,
+            0.802
+          ],
+          [
+            2.881,
+            0.802
+          ],
+          [
+            2.886,
+            0.802
+          ],
+          [
+            2.891,
+            0.802
+          ],
+          [
+            2.896,
+            0.802
+          ],
+          [
+            2.906,
+            0.802
+          ],
+          [
+            2.911,
+            0.802
+          ],
+          [
+            2.916,
+            0.802
+          ],
+          [
+            2.926,
+            0.802
+          ],
+          [
+            2.931,
+            0.802
+          ],
+          [
+            2.936,
+            0.802
+          ],
+          [
+            2.946,
+            0.802
+          ]
+        ]
+      }
+    }
+  },
+  "before_operator_abort": {
+    "robot": true,
+    "position": [
+      5.46,
+      0.45,
+      2.89,
+      1.571
+    ],
+    "orientation": [
+      5.995722162201239e-10,
+      1.1693117654151873e-09,
+      0.7071067811866109,
+      0.7071067811864842
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+      "stage": "REPOSITION",
+      "slots": [
+        "A-01-01",
+        "A-01-02"
+      ]
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "RESERVED",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "RESERVED",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": null,
+      "events": [
+        {
+          "time": "2026-11-25T12:33:27.937+00:00",
+          "monotonic_ns": 26266849138736,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T12:33:27.687+00:00",
+          "monotonic_ns": 26266599640307,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T12:33:27.487+00:00",
+          "monotonic_ns": 26266399340342,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:33:24.480+00:00",
+          "monotonic_ns": 26263393004101,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 322,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 275,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 229,
+        "points": 120,
+        "hits": []
+      }
+    }
+  },
+  "after_operator_abort": {
+    "robot": true,
+    "position": [
+      5.46,
+      0.491,
+      2.889,
+      1.571
+    ],
+    "orientation": [
+      0.0009811785709172446,
+      -0.0010151653149921547,
+      0.7071065861516195,
+      0.7071055667642545
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+      "stage": "ABORTED",
+      "slots": [
+        "A-01-01",
+        "A-01-02"
+      ]
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": false
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": false
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": {
+        "time": "2026-11-25T12:34:25.937+00:00",
+        "monotonic_ns": 26324849279367,
+        "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "events": [
+        {
+          "time": "2026-11-25T12:34:25.987+00:00",
+          "monotonic_ns": 26324899355102,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 26324849279367
+        },
+        {
+          "time": "2026-11-25T12:34:25.937+00:00",
+          "monotonic_ns": 26324849279367,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "mission_aborted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission aborted. Verify and recover the drone."
+        },
+        {
+          "time": "2026-11-25T12:33:27.937+00:00",
+          "monotonic_ns": 26266849138736,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T12:33:27.687+00:00",
+          "monotonic_ns": 26266599640307,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T12:33:27.487+00:00",
+          "monotonic_ns": 26266399340342,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:33:24.480+00:00",
+          "monotonic_ns": 26263393004101,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 207,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 162,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 117,
+        "points": 120,
+        "hits": []
+      }
+    }
+  },
+  "scan_loss": {
+    "robot": true,
+    "position": [
+      5.46,
+      0.524,
+      2.889,
+      1.571
+    ],
+    "orientation": [
+      -0.0006579274503602767,
+      0.0006578483592506692,
+      0.7071079112799343,
+      0.7071050389951516
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+      "stage": "ABORTED",
+      "slots": [
+        "A-01-01",
+        "A-01-02"
+      ]
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "STALE",
+      "sensor_mode": "laser",
+      "alarm": {
+        "time": "2026-11-25T12:34:25.937+00:00",
+        "monotonic_ns": 26324849279367,
+        "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "events": [
+        {
+          "time": "2026-11-25T12:34:25.987+00:00",
+          "monotonic_ns": 26324899355102,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 26324849279367
+        },
+        {
+          "time": "2026-11-25T12:34:25.937+00:00",
+          "monotonic_ns": 26324849279367,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "mission_aborted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission aborted. Verify and recover the drone."
+        },
+        {
+          "time": "2026-11-25T12:33:27.937+00:00",
+          "monotonic_ns": 26266849138736,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T12:33:27.687+00:00",
+          "monotonic_ns": 26266599640307,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T12:33:27.487+00:00",
+          "monotonic_ns": 26266399340342,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:33:24.480+00:00",
+          "monotonic_ns": 26263393004101,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 1414,
+        "points": 0,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 1368,
+        "points": 0,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 1321,
+        "points": 0,
+        "hits": []
+      }
+    }
+  },
+  "odom_loss": {
+    "robot": false,
+    "position": [
+      5.46,
+      0.524,
+      2.889,
+      1.571
+    ],
+    "orientation": [
+      -0.00020705695477418577,
+      0.00020313446016949265,
+      0.7071081914598921,
+      0.7071053114169976
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+      "stage": "ABORTED",
+      "slots": [
+        "A-01-01",
+        "A-01-02"
+      ]
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": {
+        "time": "2026-11-25T12:34:25.937+00:00",
+        "monotonic_ns": 26324849279367,
+        "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "events": [
+        {
+          "time": "2026-11-25T12:34:25.987+00:00",
+          "monotonic_ns": 26324899355102,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 26324849279367
+        },
+        {
+          "time": "2026-11-25T12:34:25.937+00:00",
+          "monotonic_ns": 26324849279367,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "mission_aborted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission aborted. Verify and recover the drone."
+        },
+        {
+          "time": "2026-11-25T12:33:27.937+00:00",
+          "monotonic_ns": 26266849138736,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T12:33:27.687+00:00",
+          "monotonic_ns": 26266599640307,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T12:33:27.487+00:00",
+          "monotonic_ns": 26266399340342,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:33:24.480+00:00",
+          "monotonic_ns": 26263393004101,
+          "inspection_id": "INS-CONTROL-20261125-123324-F1E1EF4B",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 289,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 244,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 198,
+        "points": 120,
+        "hits": []
+      }
+    }
+  },
+  "preparing": {
+    "robot": true,
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "orientation": [
+      -2.841465449468562e-17,
+      -1.708381781590155e-18,
+      -5.251308265614071e-19,
+      1
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+      "stage": "STARTING",
+      "slots": [
+        "A-01-01"
+      ]
+    },
+    "safety": {
+      "phase": "PREPARING",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "PREPARING",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "PREPARING",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": null,
+      "events": [
+        {
+          "time": "2026-11-25T12:35:42.315+00:00",
+          "monotonic_ns": 26401227736213,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 40,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 410,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 362,
+        "points": 120,
+        "hits": []
+      }
+    }
+  },
+  "reserved": {
+    "robot": true,
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "orientation": [
+      -2.841465449468562e-17,
+      -1.708381781590155e-18,
+      -5.251308265614071e-19,
+      1
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+      "stage": "WAITING",
+      "slots": [
+        "A-01-01"
+      ]
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "RESERVED",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "RESERVED",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": null,
+      "events": [
+        {
+          "time": "2026-11-25T12:35:45.355+00:00",
+          "monotonic_ns": 26404267824321,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:35:42.315+00:00",
+          "monotonic_ns": 26401227736213,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 39,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 396,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 351,
+        "points": 120,
+        "hits": []
+      }
+    }
+  },
+  "intrusion": {
+    "robot": true,
+    "position": [
+      3.254,
+      0.45,
+      0.787,
+      0
+    ],
+    "orientation": [
+      1.3864944571687924e-05,
+      -0.0440237749787418,
+      1.4471989166906865e-06,
+      0.999030483540062
+    ],
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+      "stage": "ABORTED",
+      "slots": [
+        "A-01-01"
+      ]
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "required": [
+        "A",
+        "T"
+      ],
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "RESERVED",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "INTRUSION",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": true,
+          "signals_acknowledged": true
+        }
+      },
+      "sensor": "FRESH",
+      "sensor_mode": "laser",
+      "alarm": {
+        "time": "2026-11-25T12:36:03.155+00:00",
+        "monotonic_ns": 26422067897058,
+        "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+        "event": "intrusion",
+        "zones": [
+          "T"
+        ],
+        "message": "Zone occupied: Transfer corridor & pad.",
+        "laser_detection_ns": 26422029563735
+      },
+      "events": [
+        {
+          "time": "2026-11-25T12:36:03.405+00:00",
+          "monotonic_ns": 26422317631815,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "abort_confirmed",
+          "zones": [
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 26422067897058
+        },
+        {
+          "time": "2026-11-25T12:36:03.205+00:00",
+          "monotonic_ns": 26422117907117,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "abort_dispatched",
+          "zones": [
+            "T"
+          ],
+          "message": "Called the existing mission Abort service.",
+          "triggering_event_ns": 26422067897058
+        },
+        {
+          "time": "2026-11-25T12:36:03.155+00:00",
+          "monotonic_ns": 26422067897058,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "intrusion",
+          "zones": [
+            "T"
+          ],
+          "message": "Zone occupied: Transfer corridor & pad.",
+          "laser_detection_ns": 26422029563735
+        },
+        {
+          "time": "2026-11-25T12:35:45.805+00:00",
+          "monotonic_ns": 26404717776469,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T12:35:45.556+00:00",
+          "monotonic_ns": 26404468067477,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T12:35:45.355+00:00",
+          "monotonic_ns": 26404267824321,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T12:35:42.315+00:00",
+          "monotonic_ns": 26401227736213,
+          "inspection_id": "INS-CONTROL-20261125-123542-F589E393",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "scans": {
+      "A": {
+        "age_ms": 102,
+        "points": 120,
+        "hits": []
+      },
+      "B": {
+        "age_ms": 53,
+        "points": 120,
+        "hits": []
+      },
+      "T": {
+        "age_ms": 7,
+        "points": 120,
+        "hits": [
+          [
+            2.235,
+            1.042
+          ],
+          [
+            2.234,
+            1.033
+          ],
+          [
+            2.236,
+            1.027
+          ],
+          [
+            2.235,
+            1.017
+          ],
+          [
+            2.235,
+            1.007
+          ],
+          [
+            2.234,
+            0.997
+          ],
+          [
+            2.236,
+            0.991
+          ],
+          [
+            2.235,
+            0.981
+          ],
+          [
+            2.234,
+            0.97
+          ],
+          [
+            2.235,
+            0.963
+          ],
+          [
+            2.235,
+            0.952
+          ],
+          [
+            2.236,
+            0.945
+          ],
+          [
+            2.235,
+            0.934
+          ],
+          [
+            2.234,
+            0.922
+          ],
+          [
+            2.236,
+            0.915
+          ],
+          [
+            2.235,
+            0.902
+          ],
+          [
+            2.236,
+            0.895
+          ],
+          [
+            2.235,
+            0.882
+          ],
+          [
+            2.234,
+            0.869
+          ],
+          [
+            2.235,
+            0.861
+          ],
+          [
+            2.234,
+            0.847
+          ],
+          [
+            2.236,
+            0.839
+          ],
+          [
+            2.264,
+            0.76
+          ],
+          [
+            2.27,
+            0.76
+          ],
+          [
+            2.277,
+            0.761
+          ],
+          [
+            2.283,
+            0.76
+          ],
+          [
+            2.289,
+            0.761
+          ],
+          [
+            2.295,
+            0.76
+          ],
+          [
+            2.301,
+            0.759
+          ],
+          [
+            2.307,
+            0.76
+          ],
+          [
+            2.313,
+            0.76
+          ],
+          [
+            2.319,
+            0.761
+          ],
+          [
+            2.325,
+            0.76
+          ],
+          [
+            2.331,
+            0.759
+          ],
+          [
+            2.337,
+            0.76
+          ],
+          [
+            2.343,
+            0.76
+          ],
+          [
+            2.349,
+            0.761
+          ],
+          [
+            2.355,
+            0.76
+          ],
+          [
+            2.359,
+            0.757
+          ],
+          [
+            2.357,
+            0.735
+          ],
+          [
+            2.358,
+            0.722
+          ],
+          [
+            2.36,
+            0.709
+          ],
+          [
+            2.357,
+            0.685
+          ],
+          [
+            2.359,
+            0.672
+          ],
+          [
+            2.36,
+            0.658
+          ],
+          [
+            2.357,
+            0.631
+          ],
+          [
+            2.359,
+            0.616
+          ],
+          [
+            2.356,
+            0.588
+          ],
+          [
+            2.357,
+            0.572
+          ],
+          [
+            2.359,
+            0.556
+          ],
+          [
+            2.36,
+            0.539
+          ],
+          [
+            2.357,
+            0.507
+          ],
+          [
+            2.359,
+            0.489
+          ],
+          [
+            2.36,
+            0.471
+          ],
+          [
+            2.357,
+            0.435
+          ],
+          [
+            2.358,
+            0.415
+          ],
+          [
+            2.36,
+            0.395
+          ],
+          [
+            2.356,
+            0.355
+          ],
+          [
+            2.358,
+            0.333
+          ],
+          [
+            2.359,
+            0.31
+          ],
+          [
+            2.355,
+            0.265
+          ],
+          [
+            2.357,
+            0.24
+          ],
+          [
+            2.358,
+            0.215
+          ],
+          [
+            2.36,
+            0.189
+          ],
+          [
+            2.356,
+            0.136
+          ],
+          [
+            2.357,
+            0.107
+          ],
+          [
+            2.359,
+            0.078
+          ],
+          [
+            2.361,
+            0.047
+          ],
+          [
+            2.356,
+            -0.016
+          ],
+          [
+            2.358,
+            -0.05
+          ],
+          [
+            2.36,
+            -0.085
+          ],
+          [
+            2.361,
+            -0.122
+          ],
+          [
+            2.742,
+            0.76
+          ],
+          [
+            2.747,
+            0.76
+          ],
+          [
+            2.752,
+            0.76
+          ],
+          [
+            2.757,
+            0.76
+          ],
+          [
+            2.762,
+            0.76
+          ],
+          [
+            2.767,
+            0.76
+          ],
+          [
+            2.773,
+            0.76
+          ],
+          [
+            2.778,
+            0.76
+          ],
+          [
+            2.783,
+            0.76
+          ],
+          [
+            2.788,
+            0.76
+          ],
+          [
+            2.793,
+            0.76
+          ],
+          [
+            2.798,
+            0.76
+          ],
+          [
+            2.803,
+            0.76
+          ],
+          [
+            2.808,
+            0.76
+          ],
+          [
+            2.814,
+            0.76
+          ],
+          [
+            2.819,
+            0.76
+          ],
+          [
+            2.824,
+            0.76
+          ],
+          [
+            2.829,
+            0.76
+          ],
+          [
+            2.834,
+            0.76
+          ],
+          [
+            2.839,
+            0.76
+          ],
+          [
+            2.866,
+            0.857
+          ],
+          [
+            2.867,
+            0.896
+          ],
+          [
+            2.864,
+            0.965
+          ],
+          [
+            2.865,
+            1.026
+          ]
+        ]
+      }
+    }
+  }
+}

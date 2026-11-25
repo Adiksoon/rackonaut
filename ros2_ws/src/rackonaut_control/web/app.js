@@ -21,10 +21,63 @@ let dispatching = false;
 let version = 0;
 let cameraLoading = false;
 let overviewLoading = false;
+let twin = null, twinLoading = false, show3D = false, focusedLocation = null;
 
 function put(id, value) { el(id).textContent = value; }
 function html(id, value) { if (el(id).innerHTML !== value) el(id).innerHTML = value; }
 function notice(value = "") { put("notice", value); el("notice").hidden = !value; }
+
+function chooseMap(use3D) {
+  show3D = use3D;
+  el("warehouse-map").hidden = el("map-legend").hidden = use3D;
+  el("twin-panel").hidden = !use3D;
+  el("map-2d").setAttribute("aria-pressed", String(!use3D));
+  el("map-3d").setAttribute("aria-pressed", String(use3D));
+  put("map-title", use3D ? "Warehouse Digital Twin" : "Warehouse floor");
+  put("map-caption", use3D ? "Live warehouse geometry and mission telemetry" : "Top-down view · Rackonaut showcase");
+  twin?.setVisible(use3D);
+  drawTwin(state?.mission);
+}
+function twinError(message) {
+  chooseMap(false);
+  put("twin-error", message);
+  el("twin-error").hidden = false;
+}
+async function loadTwin() {
+  el("twin-error").hidden = true;
+  if (twin) { chooseMap(true); return; }
+  if (twinLoading) return;
+  twinLoading = true;
+  el("map-3d").disabled = true;
+  try {
+    const { createTwin } = await import("/twin.js");
+    twin = createTwin(layout, {
+      onAisle: toggleAisle,
+      onSlot: toggleSlot,
+      onReinspect: (id) => {
+        choices.mode = "custom";
+        choices.slots = new Set([id]);
+        setView("plan");
+        changePlan();
+      },
+      onError: (message) => { twinError(message); twin = null; el("map-3d").disabled = true; },
+    });
+    if (focusedLocation) twin.focusSlot(focusedLocation);
+    chooseMap(true);
+  } catch (error) {
+    twinError("3D view could not start. Use the 2D Warehouse Map.");
+    console.warn(error);
+  } finally {
+    twinLoading = false;
+    el("map-3d").disabled = false;
+  }
+}
+function drawTwin(job) {
+  if (!twin || !show3D) return;
+  const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
+    || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
+  twin.update({ state, view, preview, job, selection: new Set(selected) });
+}
 
 async function api(url, data) {
   const response = await fetch(url, data === undefined ? { cache: "no-store" } : {
@@ -140,6 +193,8 @@ function toggleAisle(id) {
   changePlan();
 }
 function toggleSlot(slot) {
+  focusedLocation = slot;
+  twin?.focusSlot(slot);
   if (view !== "plan") return;
   if (choices.mode !== "custom") choices.slots.clear();
   choices.mode = "custom";
@@ -417,6 +472,7 @@ function draw() {
   drawSafety();
   drawResults(job);
   drawAdaptive(job);
+  drawTwin(job);
 }
 
 async function poll() {
@@ -451,6 +507,9 @@ async function init() {
   }
   el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
   drawLayout();
+  el("map-2d").addEventListener("click", () => chooseMap(false));
+  el("map-3d").addEventListener("click", loadTwin);
+  el("map-3d").disabled = !layout.scene;
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
   el("quality").addEventListener("change", (event) => { choices.quality = event.target.checked; changePlan(); });

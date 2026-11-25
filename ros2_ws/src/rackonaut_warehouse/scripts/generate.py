@@ -266,6 +266,7 @@ def rack(world, index, y, args, rng, inspection, rows):
                    "pallet_id": pallet, "slot_aruco_id": slot_index, "pallet_aruco_id": tag,
                    "scenario": scenario, "slot_label_xyz_m": [round(label_x, 3), round(face - .024, 3), round(deck + .16, 3)]}
             if args.control:
+                row["bay_center_xyz_m"] = [round(value, 3) for value in (x, y, deck)]
                 pose = [x - .04, face - 1.95, deck + .34, 90.]
                 # Use the verified view of the partly obstructed A-01-07.
                 if slot_id == "A-01-07":
@@ -308,24 +309,34 @@ def signs(world, rows, inspection_y):
         cargo(decor, f"staged_{index}", x, y, .01, random.Random(index + 28), detailed=True)
 
 
+def safety_posts(aisles, rack_end):
+    entries = [(name, side, x, y + 2.03, y, yaw)
+               for name, y in zip(("B", "A"), aisles)
+               for side, x, yaw in (("west", 3.45, -1.5708), ("east", rack_end + .55, 1.5708))]
+    return [*entries, ("T", "pad", -1.6, 1.55, 0., -1.5708)]
+
+
+SIGNAL_STACK = (
+    ("foot", .065, (.40, .40, .13), (.13, .15, .17)),
+    ("pole", .88, (.13, .13, 1.65), (.16, .19, .22)),
+    ("housing", 2.04, (.35, .35, .72), (.055, .063, .077)),
+    # The lenses are visible from either approach and in an overhead view.
+    ("red", 2.27, (.39, .39, .17), (.075, .083, .09)),
+    ("yellow", 2.04, (.39, .39, .17), (.075, .083, .09)),
+    ("green", 1.81, (.39, .39, .17), (.075, .083, .09)),
+    ("cap", 2.41, (.45, .45, .07), (.105, .12, .14)),
+)
+
+
 def safety_infrastructure(world, aisles, rack_end, virtual_sensor=True):
     # The fields meet at x=3.4, before the front faces at x=4.1.
     fields = {"A": [3.4, -2.4, rack_end + 1.1, 2.4],
               "B": [3.4, -8.4, rack_end + 1.1, -3.6],
               "T": [-1.4, -8.4, 3.4, 2.4]}
-    entries = [(name, side, x, y + 2.03, y, yaw)
-               for name, y in zip(("B", "A"), aisles)
-               for side, x, yaw in (("west", 3.45, -1.5708), ("east", rack_end + .55, 1.5708))]
-    entries.append(("T", "pad", -1.6, 1.55, 0., -1.5708))
-    for name, side, x, y, centre, yaw in entries:
+    for name, side, x, y, centre, yaw in safety_posts(aisles, rack_end):
         post = link(world, f"safety_{name.lower()}_{side}")
-        box(post, "foot", (x, y, .065), (.40, .40, .13), (.13, .15, .17))
-        box(post, "pole", (x, y, .88), (.13, .13, 1.65), (.16, .19, .22))
-        box(post, "housing", (x, y, 2.04), (.35, .35, .72), (.055, .063, .077))
-        for segment, z in (("red", 2.27), ("yellow", 2.04), ("green", 1.81)):
-            # The same lens is visible from either approach and in an overhead view.
-            box(post, segment, (x, y, z), (.39, .39, .17), (.075, .083, .09))
-        box(post, "cap", (x, y, 2.41), (.45, .45, .07), (.105, .12, .14))
+        for part, z, size, color in SIGNAL_STACK:
+            box(post, part, (x, y, z), size, color)
         if name != "T":
             plane_label(post, "aisle", (x, y - .56, 1.63), .88, .34,
                         yaw=yaw, texture={"A": "aisle_1", "B": "aisle_0"}[name])
@@ -445,6 +456,43 @@ def scanner_props(world):
         box(pallet, f"deck_{y}", (0, y, .148), (1.02, .121, .038), (.60, .42, .23), collision=True)
 
 
+def twin_geometry(world, signals):
+    """Export static display geometry without inventory or defect ground truth."""
+    parts = {}
+    for model in world.findall("model"):
+        name = model.attrib["name"]
+        for component in model.findall("link/visual"):
+            part = component.attrib["name"]
+            if name.startswith("rack_row_"):
+                category = next((key for key in ("post", "guard", "deck", "beam", "label_mount", "decor")
+                                 if part.startswith(key + "_")), None)
+            elif name == "safety_markings_and_launch_pad":
+                category = "marking"
+            elif name == "signs_and_shipping_staging":
+                category = "decor" if part.startswith("staged_") else None
+            else:
+                continue
+            size = component.findtext("geometry/box/size")
+            if category and size:
+                xyz = list(map(float, component.findtext("pose").split()[:3]))
+                dimensions = list(map(float, size.split()))
+                color = list(map(float, component.findtext("material/diffuse").split()[:3]))
+                parts.setdefault(category, []).append([*xyz, *dimensions, *color])
+    shell = []
+    for part in world.findall("model[@name='warehouse_shell']/link/collision"):
+        if not part.attrib["name"].startswith(("side_", "end_")):
+            continue
+        coordinates = part.findtext("pose").split()[:3]
+        dimensions = part.findtext("geometry/box/size").split()
+        shell.append(list(map(float, coordinates + dimensions)))
+    return {"parts": parts, "shell": shell, "signal_parts": [
+        [name, center, *size] for name, center, size, _ in SIGNAL_STACK
+    ], "signals": [
+        {"zone": zone, "position": [x, y, 0.]}
+        for zone, _, x, y, _, _ in signals
+    ]}
+
+
 def generate(args):
     sdf, world = world_base()
     hall(world, args.hall)
@@ -463,8 +511,9 @@ def generate(args):
     for index, y in enumerate(positions):
         rack(world, index, y, args, rng, index == inspection, rows)
     signs(world, aisles, positions[inspection])
+    rack_end = 5.5 + (args.bays - .5) * args.bay_pitch
     if args.safety:
-        fields = safety_infrastructure(world, aisles, 5.5 + (args.bays - .5) * args.bay_pitch, not args.laser)
+        fields = safety_infrastructure(world, aisles, rack_end, not args.laser)
         if args.layout:
             args.layout.write_text(json.dumps(fields, indent=2) + "\n")
         if args.laser:
@@ -483,7 +532,9 @@ def generate(args):
             "pad": {"x": 0., "y": 0., "z": .05, "yaw_deg": 0., "width": 2.65, "height": 2.1},
             "takeoff_z": .79,
             "crossing_x": 2.1,
+            "scene": twin_geometry(world, safety_posts(aisles, rack_end)),
             "slots": {item["slot_id"]: {"label": item["slot_label_xyz_m"], "viewpoint": item["viewpoint"],
+                                     "bay_center": item["bay_center_xyz_m"], "bay_width": args.bay_pitch,
                                      "aisle": item["slot_id"][0], "bay": item["physical_bay"],
                                      "level": item["physical_level"]} for item in sorted(rows, key=lambda r: r["slot_id"])},
         }
