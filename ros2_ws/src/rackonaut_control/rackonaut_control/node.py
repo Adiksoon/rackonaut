@@ -121,7 +121,7 @@ class Control(Node):
         self.position, self.speed = None, 0.
         self.orientation = None
         self.jpeg, self.camera_at, self.frame_number = None, 0., 0
-        self.camera_type = "raw"
+        self.perception_frame_seen = False
         self.safety, self.safety_at = None, -1e6
         self.energy, self.energy_at = None, -1e6
         self.overview_jpeg, self.overview_at = None, -1e6
@@ -228,12 +228,11 @@ class Control(Node):
         self.receive_path(message, "flown")
 
     def on_raw(self, message):
-        if not self.job or not self.job.status or self.job.error:
-            self.update_camera(message, "raw")
+        self.update_camera(message)
 
     def on_annotated(self, message):
         if self.job and self.job.status:
-            self.update_camera(message, "annotated")
+            self.perception_frame_seen = True
 
     def on_quality_uncertain(self, message):
         finding = json.loads(message.data)
@@ -295,9 +294,9 @@ class Control(Node):
         self.obstacle_control.publish(String(data=target))
         return {"accepted": True}
 
-    def update_camera(self, message, source):
+    def update_camera(self, message):
         now = monotonic()
-        if self.camera_type == source and now - self.camera_at < .09:
+        if now - self.camera_at < .09:
             return
         try:
             image = self.bridge.imgmsg_to_cv2(message, desired_encoding="bgr8")
@@ -306,7 +305,7 @@ class Control(Node):
             return
         if ok:
             with self.lock:
-                self.jpeg, self.camera_type, self.camera_at = encoded.tobytes(), source, now
+                self.jpeg, self.camera_at = encoded.tobytes(), now
                 self.frame_number += 1
 
     def at_pad(self):
@@ -401,7 +400,7 @@ class Control(Node):
                 stop_workers(processes)
                 raise
             self.job = Job(run, planned, processes)
-            self.jpeg, self.camera_type, self.camera_at = None, "raw", 0.
+            self.perception_frame_seen = False
             if self.safety_enabled:
                 points = planned.get("safety_points", planned["points"])
                 self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": points})))
@@ -500,7 +499,7 @@ class Control(Node):
             stop_workers(job.processes)
             job.error = "A mission worker stopped. Check the dispatch logs."
             return
-        ready_to_start = stage == "WAITING" and self.camera_type == "annotated"
+        ready_to_start = stage == "WAITING" and self.perception_frame_seen
         if self.safety_enabled:
             status = self.safety_status()
             matching = status and status["inspection_id"] == job.run
@@ -545,7 +544,7 @@ class Control(Node):
         with self.lock:
             if overview:
                 return self.overview_jpeg if monotonic() - self.overview_at < 1.5 else None
-            return self.jpeg
+            return self.jpeg if monotonic() - self.camera_at < 2 else None
 
     def snapshot(self):
         with self.lock:
@@ -564,7 +563,7 @@ class Control(Node):
                     "energy": self.energy_state(),
                     "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
-                    "camera_type": self.camera_type, "history": self.history[:12],
+                    "camera_type": "raw", "history": self.history[:12],
                     "safety_enabled": self.safety_enabled, "safety": safety,
                     "last_reservation": (self.safety or {}).get("required", []) if safety is None else [],
                     "overview": monotonic() - self.overview_at < 1.5}
@@ -592,6 +591,8 @@ class Control(Node):
 
 
 def main():
+    # Camera frames are processed serially. Keep OpenCV from competing with ROS and Gazebo for cores.
+    cv2.setNumThreads(1)
     rclpy.init(signal_handler_options=SignalHandlerOptions.NO)
     signal.signal(signal.SIGTERM, signal.default_int_handler)
     control = server = None
