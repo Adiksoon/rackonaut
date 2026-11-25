@@ -1,0 +1,228 @@
+{
+  "inspection_id": "INS-MISSION-G04-LIVE",
+  "odom_samples": 1868,
+  "path_length_m": 29.597,
+  "max_odom_step_m": 0.0297,
+  "max_height_m": 2.895,
+  "start_xyz_m": [
+    0.0,
+    0.0,
+    0.05
+  ],
+  "end_xyz_m": [
+    0.0,
+    0.0,
+    0.05
+  ],
+  "transitions": [
+    {
+      "stage": "TAKEOFF",
+      "target": "PAD",
+      "elapsed_seconds": 0.1,
+      "position": [
+        0.0,
+        0.0,
+        0.05,
+        -0.0
+      ]
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "elapsed_seconds": 2.8,
+      "position": [
+        0.0,
+        0.0,
+        0.794,
+        0.0
+      ]
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "elapsed_seconds": 14.5,
+      "position": [
+        5.462,
+        0.45,
+        0.792,
+        0.0
+      ]
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "elapsed_seconds": 19.3,
+      "position": [
+        5.46,
+        0.45,
+        0.792,
+        1.567
+      ]
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "elapsed_seconds": 19.9,
+      "position": [
+        5.46,
+        0.45,
+        0.791,
+        1.57
+      ]
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-02",
+      "elapsed_seconds": 25.3,
+      "position": [
+        5.46,
+        0.45,
+        2.893,
+        1.571
+      ]
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-02",
+      "elapsed_seconds": 26.2,
+      "position": [
+        5.46,
+        0.45,
+        2.892,
+        1.571
+      ]
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "elapsed_seconds": 26.8,
+      "position": [
+        5.46,
+        0.45,
+        2.89,
+        1.571
+      ]
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-03",
+      "elapsed_seconds": 33.7,
+      "position": [
+        8.262,
+        0.45,
+        0.791,
+        1.571
+      ]
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-03",
+      "elapsed_seconds": 34.3,
+      "position": [
+        8.259,
+        0.45,
+        0.79,
+        1.571
+      ]
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-04",
+      "elapsed_seconds": 35.2,
+      "position": [
+        8.26,
+        0.45,
+        0.793,
+        1.571
+      ]
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-04",
+      "elapsed_seconds": 40.6,
+      "position": [
+        8.26,
+        0.45,
+        2.894,
+        1.571
+      ]
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-04",
+      "elapsed_seconds": 41.5,
+      "position": [
+        8.26,
+        0.45,
+        2.892,
+        1.571
+      ]
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-05",
+      "elapsed_seconds": 42.1,
+      "position": [
+        8.26,
+        0.45,
+        2.89,
+        1.571
+      ]
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-05",
+      "elapsed_seconds": 48.7,
+      "position": [
+        11.063,
+        0.45,
+        0.792,
+        1.571
+      ]
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-05",
+      "elapsed_seconds": 49.6,
+      "position": [
+        11.059,
+        0.45,
+        0.79,
+        1.571
+      ]
+    },
+    {
+      "stage": "RETURN",
+      "target": "PAD",
+      "elapsed_seconds": 50.2,
+      "position": [
+        11.06,
+        0.45,
+        0.79,
+        1.571
+      ]
+    },
+    {
+      "stage": "LAND",
+      "target": "PAD",
+      "elapsed_seconds": 72.7,
+      "position": [
+        -0.002,
+        -0.0,
+        0.792,
+        0.0
+      ]
+    },
+    {
+      "stage": "COMPLETE",
+      "target": "PAD",
+      "elapsed_seconds": 75.3,
+      "position": [
+        0.0,
+        0.0,
+        0.05,
+        0.0
+      ]
+    }
+  ]
+}

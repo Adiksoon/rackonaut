@@ -1,0 +1,33 @@
+{
+  "start_with_another_publisher": "std_srvs.srv.Trigger_Response(success=False, message='A command publisher already owns /rackonaut/drone/cmd_vel')",
+  "status": {
+    "inspection_id": "INS-MISSION-G04-STOP",
+    "stage": "ABORTED",
+    "target": "A-01-01",
+    "target_pose": [
+      5.46,
+      0.45,
+      0.79,
+      0.0
+    ],
+    "position": [
+      1.387,
+      0.116,
+      0.788,
+      -0.001
+    ],
+    "elapsed_seconds": 5.5,
+    "total": 5,
+    "visited": [],
+    "confirmed": {},
+    "missed": [],
+    "landed": false,
+    "detail": "Stopped by the operator"
+  },
+  "later_odometry_position": {
+    "x": 1.3866607309611,
+    "y": 0.11597631428557816,
+    "z": 0.7878296162168166
+  },
+  "command_publishers_after_abort": 0
+}

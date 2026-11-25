@@ -1,0 +1,75 @@
+Panels: []
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.3
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 79; 101; 128
+      Enabled: true
+      Line Style:
+        Line Width: 0.025
+        Value: Lines
+      Name: Floor
+      Plane: XY
+      Plane Cell Count: 20
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 0.65
+      Class: rviz_default_plugins/Path
+      Color: 66; 137; 218
+      Enabled: true
+      Line Style: Billboards
+      Line Width: 0.045
+      Name: Planned route
+      Topic:
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Value: /rackonaut/mission/plan
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/Path
+      Color: 55; 238; 168
+      Enabled: true
+      Line Style: Billboards
+      Line Width: 0.085
+      Name: Actual flight
+      Topic:
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Value: /rackonaut/mission/path
+      Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: Mission progress
+      Topic:
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        Value: /rackonaut/mission/markers
+      Value: true
+  Enabled: true
+  Global Options:
+    Background Color: 18; 26; 38
+    Fixed Frame: rackonaut_odom
+    Frame Rate: 24
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 14.0
+      Focal Point:
+        X: 5.45
+        Y: 0.0
+        Z: 1.65
+      Near Clip Distance: 0.01
+      Pitch: 0.57
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 4.58
+    Saved: ~
+Window Geometry:
+  Height: 690
+  Width: 1140
