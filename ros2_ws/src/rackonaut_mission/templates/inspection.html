@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rackonaut inspection · $inspection_id</title>
+  <style>
+    :root { color-scheme: dark; --base:#101820; --card:#1a2631; --line:#344453;
+      --ink:#f2f6fa; --muted:#aabcca; --mint:#8df2ca; --gold:#ffce85; --red:#ff9f9c; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--base); color:var(--ink);
+      font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+    main { width:min(1180px, calc(100% - 48px)); margin:36px auto 64px; }
+    header { padding:34px 38px; border:1px solid var(--line); border-radius:22px;
+      background:linear-gradient(116deg,#263945,#17202b 67%); }
+    .eyebrow { color:var(--muted); font-size:.75rem; font-weight:700; letter-spacing:.12em; }
+    header .eyebrow { color:var(--mint); }
+    h1,h2,h3,p,dl { margin:0; }
+    h1 { font-size:clamp(2rem,4.6vw,4rem); line-height:1.05; margin:10px 0 8px; letter-spacing:-.055em; }
+    h2 { font-size:clamp(1.45rem,3vw,2.05rem); line-height:1.2; }
+    h3 { font-size:1.28rem; line-height:1.2; }
+    header p, .subtitle { color:var(--muted); }
+    .hero-sub { display:flex; flex-wrap:wrap; align-items:center; gap:10px 20px; }
+    .mission-id { overflow-wrap:anywhere; }
+    .pill,.badge,.outcome { display:inline-block; border-radius:999px; font-size:.8rem; font-weight:650; padding:3px 10px; }
+    .pill { background:#253a3d; color:var(--mint); }
+    .metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:14px; }
+    .metric { padding:15px 18px; border:1px solid var(--line); border-radius:13px; background:var(--card); }
+    .metric strong { font-size:1.8rem; line-height:1.2; display:block; font-variant-numeric:tabular-nums; }
+    .metric span { color:var(--muted); font-size:.83rem; }
+    .metric.defects strong { color:var(--red); }
+    section { margin-top:36px; }
+    .section-head { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; margin-bottom:14px; }
+    .subtitle { font-size:.94rem; }
+    .gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .evidence { min-width:0; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--card); }
+    .evidence.ok { order:1; }
+    .evidence-title { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 17px; }
+    .evidence.damage .badge { color:var(--red); background:#482f38; }
+    .evidence.ok .badge { color:var(--mint); background:#233b3a; }
+    img { display:block; max-width:100%; }
+    .photo { width:100%; height:auto; border-block:1px solid var(--line); }
+    .original { margin-top:10px; border:1px solid var(--line); border-radius:7px; image-rendering:pixelated; }
+    .evidence-copy { padding:15px 18px 18px; }
+    dl { display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; margin-top:10px; }
+    dt,.link-state { color:var(--muted); font-size:.83rem; }
+    dd { margin:0; overflow-wrap:anywhere; font-size:.85rem; font-variant-numeric:tabular-nums; }
+    .link-state { margin:8px 0 4px; }
+    code { display:block; color:var(--muted); font-size:.74rem; overflow-wrap:anywhere; }
+    details { margin-top:12px; }
+    summary { color:var(--mint); font-weight:650; cursor:pointer; }
+    summary:focus-visible { outline:2px solid var(--mint); outline-offset:3px; }
+    .comparison { margin-bottom:12px; padding:11px 15px; border-radius:9px; color:var(--gold); background:#352d24; }
+    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:13px; }
+    table { width:100%; border-collapse:collapse; text-align:left; white-space:nowrap; font-size:.9rem; }
+    th,td { padding:9px 13px; border-bottom:1px solid var(--line); }
+    thead { color:var(--muted); background:#1d2a37; }
+    tbody tr:last-child th,tbody tr:last-child td { border-bottom:0; }
+    .outcome { color:var(--muted); background:#24313b; }
+    .outcome.pending,.outcome.uncertain,.outcome.unreadable_label { color:var(--gold); background:#3b322c; }
+    .outcome.match { color:var(--mint); background:#233b3a; }
+    .outcome.wrong_pallet,.outcome.missing_pallet,.outcome.unexpected_pallet { color:var(--red); background:#482f38; }
+    footer { color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); margin-top:30px; padding-top:14px; }
+    @media(max-width:720px) { main { width:calc(100% - 30px); margin-top:15px; }
+      header { padding:23px; } .metrics { grid-template-columns:repeat(2,1fr); } .gallery { grid-template-columns:1fr; } }
+    @media print { body { print-color-adjust:exact; -webkit-print-color-adjust:exact; } main { width:100%; }
+      .evidence, .metric { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">RACKONAUT · SIMULATED WAREHOUSE</div>
+    <h1>Inspection report</h1>
+    <div class="hero-sub">
+      <p class="mission-id">$inspection_id</p>
+      <span class="pill">$status</span>
+      <p>$landed · $detail</p>
+    </div>
+  </header>
+  <div class="metrics" aria-label="Mission totals">
+    <div class="metric"><strong>$planned</strong><span>Planned stops</span></div>
+    <div class="metric"><strong>$confirmed</strong><span>API-confirmed stops</span></div>
+    <div class="metric defects"><strong>$damaged</strong><span>Damaged slot–pallet pairs</span></div>
+    <div class="metric"><strong>$duration s</strong><span>Mission time</span></div>
+  </div>
+  <section aria-labelledby="quality-title">
+    <div class="section-head">
+      <h2 id="quality-title">Carton evidence</h2>
+      <p class="subtitle">$saved saved captures · $linked matched to inventory history</p>
+    </div>
+    <div class="gallery">$cards</div>
+  </section>
+  <section aria-labelledby="inventory-title">
+    <div class="section-head">
+      <h2 id="inventory-title">Inventory observations</h2>
+      <p class="subtitle">$events API events across $distinct observed locations</p>
+    </div>
+    <p class="comparison"><strong>$api_source</strong> · $comparison</p>
+    <div class="table-wrap">
+      <table aria-label="Latest API observation by location">
+        <thead><tr><th>Location</th><th>Pallet</th><th>Occupancy</th><th>Label</th><th>Mission stop</th><th>API comparison</th></tr></thead>
+        <tbody>$rows</tbody>
+      </table>
+    </div>
+  </section>
+  <footer>Quality photos and inventory observations have separate capture timestamps. The table shows the latest result returned for each location.</footer>
+</main>
+</body>
+</html>

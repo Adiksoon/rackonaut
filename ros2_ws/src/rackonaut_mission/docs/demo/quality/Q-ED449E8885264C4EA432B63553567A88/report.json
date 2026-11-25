@@ -1,0 +1,43 @@
+{
+  "quality_schema_version": "0.1",
+  "quality_id": "Q-ED449E8885264C4EA432B63553567A88",
+  "inspection_id": "INS-MISSION-20261125-093207-0F98",
+  "observation_id": "OBS-EBA6C4E247464544A038EB133C690A8F",
+  "observation_timestamp": "2026-11-25T09:33:15.855Z",
+  "slot_id": "A-01-02",
+  "pallet_id": "P003",
+  "status": "DAMAGED",
+  "reason": "Dark surface break",
+  "timestamp": "2026-11-25T09:33:15.948Z",
+  "camera": {
+    "frame_id": "rackonaut_camera_optical_frame",
+    "stamp": {
+      "sec": 63,
+      "nanosec": 0
+    },
+    "width": 320,
+    "height": 240
+  },
+  "defect_polygon_px": [
+    [
+      159,
+      37
+    ],
+    [
+      250,
+      37
+    ],
+    [
+      250,
+      65
+    ],
+    [
+      159,
+      65
+    ]
+  ],
+  "images": {
+    "original": "camera.png",
+    "annotated": "annotated.png"
+  }
+}

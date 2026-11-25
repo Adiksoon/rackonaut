@@ -48,3 +48,34 @@ source scripts/robotics/activate.bash
 - [Uninterrupted 26-second excerpt](evidence/04_continuous_inspection.mp4) comes from 257 consecutive annotated camera frames, recorded during the first three inspection approaches and encoded at the measured 9.89 frames/s.
 
 Integration with Michał's drone and Vahid's backend remains to be validated. See the [launch and handoff guide](../README.md).
+
+## Demonstration package
+
+On 25 November 2026, the quality showcase ran under Ubuntu 22.04 WSL2, ROS 2 Humble and Gazebo Fortress 6.16.0. Inspection `INS-MISSION-20261125-093207-0F98` took **75.8 s**, confirmed **5/5 stops**, found **two damaged cartons**, and landed on the launch pad at `(0.0, 0.0, 0.05)` m. The mock stored ten inventory events across five locations. It returned five pending comparisons and three uninspected locations. The four photo bundles all linked to accepted inventory events.
+
+The presentation stills, three-view recording, report and snapshots below come from that single uninterrupted flight. The external Gazebo camera was repositioned while the drone flew its route. The three views were recorded in parallel and aligned using the host wall-clock times at which the frame files were written. See the [media manifest](demo/media-index.json) for the run ID, timing and alignment data.
+
+| Moment | Original source or export |
+| --- | --- |
+| Warehouse and pad | [Gazebo view](demo/media/01-warehouse.png) |
+| Takeoff | [Gazebo view](demo/media/02-takeoff.png) |
+| Autonomous flight in the aisle | [Gazebo view](demo/media/03-autonomous-flight.png) |
+| Correct pallet and intact carton | [A-01-01 / P001](demo/quality/Q-95F31DACF9364E9283DF2519D5272D8A/annotated.png) |
+| Empty slot | [A-01-03](demo/media/04-empty-slot.png) |
+| Unreadable pallet label | [A-01-05](demo/quality/Q-1C6780676A5342E79ED4F528F53EEFE8/annotated.png) |
+| Tear | [A-01-02 / P003](demo/quality/Q-ED449E8885264C4EA432B63553567A88/annotated.png) |
+| Crushed corner | [A-01-04 / P999](demo/quality/Q-8A8C125575EE4937925658A9BCDE5FBE/annotated.png) |
+| Planned and flown route | [Final RViz view](demo/media/05-route-complete.png) |
+| Return, landing and touchdown | [Return](demo/media/06-return.png) · [Landing](demo/media/07-landing.png) · [Touchdown](demo/media/08-touchdown.png) |
+| Parallel recording, 1920×1080 | [Gazebo, perception and RViz](demo/media/09-continuous-views.mp4) |
+| Report and raw results | [Standalone HTML](demo/index.html) · [Report preview](demo/media/10-report-preview.png) · [ROS and API snapshot](demo/run.json) |
+
+The live exporter ran after landing and returned four quality captures with four verified links. For example, the torn-carton inventory observation was captured at `09:33:15.855Z` and its quality photo at `09:33:15.948Z`. The HTML rendered all eight embedded images and its four counters in Chrome at desktop and mobile widths. Offline regeneration after Ctrl+C produced byte-identical HTML. The launch process groups stopped and the mock port closed. A separate restart with the same evidence root produced a fresh ID, empty API history and no inherited captures. See the [export and launch instructions](../README.md#presentation-and-report-export).
+
+### Quality evidence handoff
+
+The [real torn-carton sidecar](demo/quality/Q-ED449E8885264C4EA432B63553567A88/report.json) links a quality event to inventory via `(inspection_id, observation_id)`. The sidecar includes its own `quality_id`, slot, nullable pallet, verdict, reason, linked observation timestamp, separate photo timestamp, ROS camera stamp and native-pixel defect polygon. Its two files are the [original image](demo/quality/Q-ED449E8885264C4EA432B63553567A88/camera.png) and [annotated image](demo/quality/Q-ED449E8885264C4EA432B63553567A88/annotated.png).
+
+The proposed addition for Vahid is `POST /api/quality-observations` with three multipart parts, the JSON sidecar and two PNGs. The server can store the images with that quality record and return its JSON plus two retrievable URLs. Use `(inspection_id, quality_id)` for idempotency. An identical retry returns the existing record. A reused identity with changed metadata or images returns a conflict. If the inventory event has not arrived yet, retain a pending link until the exact event becomes available. The join verifies the slot, pallet and observation timestamp.
+
+Tharindu can request `GET /api/quality-observations?inspection_id=...` and show the independent carton verdict and photo links beside inventory. `OK` and `DAMAGED` are persisted stable verdicts. `UNCERTAIN` indicates inadequate evidence and currently appears in the live preview only. Distinguish a missing quality record from an intact carton and keep quality totals separate from SAP comparisons. The existing [HTTP v1 inventory contract](../../../../contracts/http.md) continues to govern inventory. These quality routes are a proposal for team review.

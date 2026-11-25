@@ -71,7 +71,10 @@ def render(image, result, state, verdicts=None, damage_count=0):
     text(canvas, "RACKONAUT", 26, 45, 1.14, WHITE, 2)
     subtitle = "LIVE INVENTORY INSPECTION" if verdicts is None else "LIVE INVENTORY + PACKAGE QUALITY"
     text(canvas, subtitle, 247, 44, .48, MUTED)
-    text(canvas, state.inspection_id[:35], 758, 44, .57, CYAN, 1)
+    run_width = cv2.getTextSize(state.inspection_id, FONT, .57, 1)[0][0]
+    run_scale = .57 * min(1., 410 / max(run_width, 1))
+    run_width = cv2.getTextSize(state.inspection_id, FONT, run_scale, 1)[0][0]
+    text(canvas, state.inspection_id, 1026 - run_width, 44, run_scale, CYAN, 1)
     text(canvas, f"{state.fps:04.1f} FPS", 1050, 44, .67, GREEN, 2)
 
     scale = min(760 / image.shape[1], 560 / image.shape[0])

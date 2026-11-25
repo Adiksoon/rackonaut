@@ -1,0 +1,80 @@
+{
+  "inspection_id": "INS-MISSION-20261125-093207-0F98",
+  "takeoff_started_utc": "2026-11-25T09:32:49.252354Z",
+  "mission_completed_utc": "2026-11-25T09:34:05.207301Z",
+  "stills": {
+    "01-warehouse.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": -1.97
+    },
+    "02-takeoff.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": 2.01
+    },
+    "03-autonomous-flight.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": 14.67
+    },
+    "06-return.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": 71.16
+    },
+    "07-landing.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": 74.59
+    },
+    "08-touchdown.png": {
+      "source": "Gazebo GUI viewport",
+      "seconds_since_takeoff": 77.09
+    },
+    "04-empty-slot.png": {
+      "source": "ROS annotated camera",
+      "seconds_since_takeoff": 35.21
+    },
+    "05-route-complete.png": {
+      "source": "RViz",
+      "seconds_since_takeoff": 77.23
+    },
+    "10-report-preview.png": {
+      "source": "Chrome rendering of this inspection HTML"
+    }
+  },
+  "video": {
+    "file": "media/09-continuous-views.mp4",
+    "views": [
+      "camera",
+      "gui",
+      "rviz"
+    ],
+    "fps": 6,
+    "frames": 460,
+    "max_wallclock_frame_offset_seconds": {
+      "camera": 0.06,
+      "gui": 0.025,
+      "rviz": 0.025
+    },
+    "seconds_since_takeoff_at_start": -0.2
+  },
+  "quality_evidence": [
+    {
+      "slot_id": "A-01-05",
+      "bundle": "quality/Q-1C6780676A5342E79ED4F528F53EEFE8",
+      "quality_timestamp": "2026-11-25T09:33:38.738Z"
+    },
+    {
+      "slot_id": "A-01-04",
+      "bundle": "quality/Q-8A8C125575EE4937925658A9BCDE5FBE",
+      "quality_timestamp": "2026-11-25T09:33:29.432Z"
+    },
+    {
+      "slot_id": "A-01-01",
+      "bundle": "quality/Q-95F31DACF9364E9283DF2519D5272D8A",
+      "quality_timestamp": "2026-11-25T09:33:08.707Z"
+    },
+    {
+      "slot_id": "A-01-02",
+      "bundle": "quality/Q-ED449E8885264C4EA432B63553567A88",
+      "quality_timestamp": "2026-11-25T09:33:15.948Z"
+    }
+  ]
+}

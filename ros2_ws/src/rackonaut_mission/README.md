@@ -16,6 +16,35 @@ The launch file starts the mock on `127.0.0.1:8000`, the Fortress warehouse and 
 
 Use a different mock port if the default is occupied. Pass both `mock_port:=18085` and `backend_url:=http://127.0.0.1:18085`. To use a running external backend, pass `mock:=false backend_url:=http://host:port`. To select an explicit fresh run ID, add `inspection_id:=INS-MISSION-DEMO-001`.
 
+## Presentation and report export
+
+Use the [`demo-quality` tag](https://github.com/Adiksoon/rackonaut/tree/demo-quality) for the extended showcase. From that checkout, prepare the mock API virtualenv, build and launch the quality world.
+
+```bash
+python3.10 scripts/api/setup.py
+scripts/robotics/build
+source scripts/robotics/activate.bash
+ros2 launch rackonaut_mission showcase.launch.py quality:=true rviz:=true
+```
+
+Leave the launcher running after touchdown. In a second shell activated from the same checkout and using the same ROS domain, export the finished inspection.
+
+```bash
+source scripts/robotics/activate.bash
+ros2 run rackonaut_mission export_report
+```
+
+Open the printed `index.html` path. The report is a self-contained English HTML file with embedded images and the backend's reported state. It makes no further requests when opened. The default export directory is `ros2_ws/log/ros/reports/<inspection_id>/`, which also contains the received ROS and API data in `run.json` and the original quality bundles in `quality/`. There is one archive per inspection ID under the output directory. The exporter validates the mission confirmations and quality references against that inspection's API history.
+
+- For a running team backend, launch with `quality:=true rviz:=true mock:=false backend_url:=http://host:port`. Export with `--backend-url http://host:port` in the second shell.
+- For an inventory-only fallback, omit `quality:=true`. Export uses the same command and can show a finished mission without carton evidence.
+- If the launcher received `quality_dir:=/path/to/captures`, export with `--quality-dir /path/to/captures`. Use `--output-dir /path/to/reports` to change the archive destination.
+- For an offline replay, run `ros2 run rackonaut_mission export_report --snapshot /path/to/run.json --output-dir /tmp/rackonaut-reports`. The exported snapshot and its sibling `quality/` directory supply the data and images.
+
+The launcher assigns a fresh inspection ID unless one is explicitly supplied. Keep the automatically generated ID for successive demos. The exporter reads only finished statuses and collects evidence beneath that exact ID. The mock provides pending comparisons. A team backend can supply real outcomes through the existing summary and discrepancies routes.
+
+[Sample HTML report](docs/demo/index.html) · [Single-flight media and integration proposal](docs/VERIFICATION.md#demonstration-package)
+
 ## Progress and operator controls
 
 The ROS topics below are relative to `/rackonaut/mission` and use reliable, transient-local delivery. The RViz setup shows the planned route in blue, the observed path in green, a heading arrow, the launch pad, and live counts and stage. In RViz, green means the API accepted a usable observation. Amber flags an unreadable label, uncertainty or a missed location. In the existing vision window, the operator can see what the camera actually detected.
