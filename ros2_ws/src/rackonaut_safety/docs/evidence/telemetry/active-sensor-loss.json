@@ -1,0 +1,305 @@
+{
+  "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+  "paused_presence_bridge_ns": 19428645657698,
+  "aborted": {
+    "robot": true,
+    "at_pad": false,
+    "busy": true,
+    "position": [
+      -0.0,
+      0.0,
+      0.743,
+      0.0
+    ],
+    "backend": {
+      "online": true,
+      "mode": "fixture",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08",
+        "B-01-01",
+        "B-01-02",
+        "B-02-01"
+      ]
+    },
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+      "stage": "ABORTED",
+      "slots": [
+        "A-01-01"
+      ],
+      "quality": false,
+      "mode": "custom",
+      "status": {
+        "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+        "stage": "ABORTED",
+        "target": "PAD",
+        "target_pose": [
+          0.0,
+          0.0,
+          0.79,
+          0.0
+        ],
+        "position": [
+          -0.0,
+          0.0,
+          0.704,
+          0.0
+        ],
+        "elapsed_seconds": 1.8,
+        "total": 1,
+        "planned_slots": [
+          "A-01-01"
+        ],
+        "visited": [],
+        "confirmed": {},
+        "missed": [],
+        "landed": false,
+        "detail": "Stopped by the operator"
+      },
+      "planned": [
+        [
+          0.0,
+          0.0,
+          0.05
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          5.46,
+          0.45,
+          0.79
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.05
+        ]
+      ],
+      "flown": [
+        [
+          0.0,
+          0.0,
+          0.05
+        ],
+        [
+          0.0,
+          0.0,
+          0.06
+        ],
+        [
+          0.0,
+          0.0,
+          0.16
+        ],
+        [
+          0.0,
+          0.0,
+          0.29
+        ],
+        [
+          0.0,
+          0.0,
+          0.39
+        ],
+        [
+          -0.0,
+          0.0,
+          0.49
+        ],
+        [
+          -0.0,
+          0.0,
+          0.61
+        ]
+      ],
+      "evidence": [],
+      "result": null,
+      "error": ""
+    },
+    "camera": 135,
+    "camera_type": "annotated",
+    "history": [],
+    "safety_enabled": true,
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+      "phase": "RECOVERY",
+      "permit": false,
+      "sensor": "STALE",
+      "signals_online": true,
+      "at_pad": false,
+      "required": [
+        "A",
+        "T"
+      ],
+      "message": "Operator recovery required. Access remains restricted.",
+      "alarm": {
+        "time": "2026-11-25T10:39:30.483+00:00",
+        "monotonic_ns": 19429395960688,
+        "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+        "event": "sensor_fault",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Presence sensor is stale or unknown."
+      },
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "occupied": null,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T10:39:30.733+00:00",
+          "monotonic_ns": 19429645786173,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 19429395960688
+        },
+        {
+          "time": "2026-11-25T10:39:30.533+00:00",
+          "monotonic_ns": 19429445968207,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "abort_dispatched",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Called the existing mission Abort service.",
+          "triggering_event_ns": 19429395960688
+        },
+        {
+          "time": "2026-11-25T10:39:30.483+00:00",
+          "monotonic_ns": 19429395960688,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "sensor_fault",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Presence sensor is stale or unknown."
+        },
+        {
+          "time": "2026-11-25T10:39:28.783+00:00",
+          "monotonic_ns": 19427695708747,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T10:39:28.583+00:00",
+          "monotonic_ns": 19427495818111,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted."
+        },
+        {
+          "time": "2026-11-25T10:39:28.383+00:00",
+          "monotonic_ns": 19427295782610,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T10:39:25.358+00:00",
+          "monotonic_ns": 19424270400396,
+          "inspection_id": "INS-CONTROL-20261125-103925-EFC584E0",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    },
+    "overview": true
+  },
+  "restored_phase": "RECOVERY"
+}

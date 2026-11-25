@@ -1,0 +1,5 @@
+- ros_topic_name: /rackonaut/safety/overview
+  gz_topic_name: /rackonaut_safety/overview
+  ros_type_name: sensor_msgs/msg/Image
+  gz_type_name: gz.msgs.Image
+  direction: GZ_TO_ROS

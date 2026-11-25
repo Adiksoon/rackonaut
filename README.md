@@ -8,6 +8,8 @@ This baseline gives the team a shared ROS workspace, reference simulation, synth
 
 The [Warehouse Control Center](ros2_ws/src/rackonaut_control/README.md) lets an operator select an inspection in the browser, follow the reference drone and open the resulting HTML report.
 
+The [Warehouse Safety showcase](ros2_ws/src/rackonaut_safety/README.md) adds aisle reservations, live signal towers and a simulated worker to the Control Center.
+
 | Role | Guide | AI starter prompt | Suggested branch |
 |---|---|---|---|
 | Warehouse and computer vision | [Adrian](docs/onboarding/ADRIAN.md) | [Warehouse prompt](docs/onboarding/AI_PROMPT_WAREHOUSE.md) | `feature/warehouse`, then `feature/perception` |

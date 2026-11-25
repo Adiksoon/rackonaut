@@ -299,6 +299,80 @@ def signs(world, rows, inspection_y):
         cargo(decor, f"staged_{index}", x, y, .01, random.Random(index + 28), detailed=True)
 
 
+def safety_infrastructure(world, aisles, rack_end):
+    # The fields meet at x=3.4, before the front faces at x=4.1.
+    fields = {"A": [3.4, -2.4, rack_end + 1.1, 2.4],
+              "B": [3.4, -8.4, rack_end + 1.1, -3.6],
+              "T": [-1.4, -8.4, 3.4, 2.4]}
+    entries = [(name, side, x, y + 2.03, y, yaw)
+               for name, y in zip(("B", "A"), aisles)
+               for side, x, yaw in (("west", 3.45, -1.5708), ("east", rack_end + .55, 1.5708))]
+    entries.append(("T", "pad", -1.6, 1.55, 0., -1.5708))
+    for name, side, x, y, centre, yaw in entries:
+        post = link(world, f"safety_{name.lower()}_{side}")
+        box(post, "foot", (x, y, .065), (.40, .40, .13), (.13, .15, .17))
+        box(post, "pole", (x, y, .88), (.13, .13, 1.65), (.16, .19, .22))
+        box(post, "housing", (x, y, 2.04), (.35, .35, .72), (.055, .063, .077))
+        for segment, z in (("red", 2.27), ("yellow", 2.04), ("green", 1.81)):
+            # The same lens is visible from either approach and in an overhead view.
+            box(post, segment, (x, y, z), (.39, .39, .17), (.075, .083, .09))
+        box(post, "cap", (x, y, 2.41), (.45, .45, .07), (.105, .12, .14))
+        if name != "T":
+            plane_label(post, "aisle", (x, y - .56, 1.63), .88, .34,
+                        yaw=yaw, texture={"A": "aisle_1", "B": "aisle_0"}[name])
+            plane_label(post, "warning", (x, y - .58, 1.26), 1.05, .43, yaw=yaw, texture="safety_notice")
+        for stripe in range(9):
+            box(post, f"threshold_{stripe}", (x, centre - 1.9 + .46 * stripe, .032),
+                (.52, .36, .015), YELLOW if stripe % 2 == 0 else (.065, .074, .084))
+
+    worker = add(world, "model", name="safety_worker")
+    add(worker, "static", "true")
+    add(worker, "pose", "3.68 3.9 0 0 0 0")
+    body = add(worker, "link", name="body")
+    navy, fabric, vest = (.06, .10, .16), (.16, .23, .31), (.90, .63, .045)
+    silver, boots = (.84, .89, .92), (.04, .05, .07)
+    for side in (-1, 1):
+        y = side * .12
+        box(body, f"boot_{side}", (.043, y, .088), (.30, .16, .15), boots)
+        box(body, f"leg_{side}", (0, y, .45), (.17, .17, .64), navy)
+        box(body, f"sleeve_{side}", (0, side * .27, 1.19), (.19, .11, .43), fabric)
+        box(body, f"arm_band_{side}", (0, side * .28, 1.10), (.20, .115, .06), silver)
+        box(body, f"hand_{side}", (0, side * .28, .95), (.10, .10, .13), (.56, .36, .23))
+        box(body, f"vest_band_{side}", (0, y, 1.25), (.264, .055, .32), silver)
+    box(body, "vest", (0, 0, 1.20), (.252, .41, .44), vest)
+    box(body, "reflective_belt", (0, 0, 1.06), (.266, .421, .058), silver)
+    for name, z, size, colour in (("head", 1.58, (.125, .108, .142), (.58, .38, .25)),
+                                  ("hard_hat", 1.69, (.154, .13, .091), (.98, .75, .065))):
+        part = add(body, "visual", name=name)
+        add(part, "pose", f"0 0 {z} 0 0 0")
+        add(add(add(part, "geometry"), "ellipsoid"), "radii", numbers(size))
+        material(part, colour)
+    box(body, "brim", (.047, 0, 1.66), (.30, .27, .026), vest)
+    box(body, "person_envelope", (0, 0, .89), (.30, .53, 1.77), collision=True)
+    pose = add(worker, "plugin", filename="ignition-gazebo-pose-publisher-system",
+               name="ignition::gazebo::systems::PosePublisher")
+    for tag, value in (("publish_link_pose", "false"), ("publish_model_pose", "true"), ("publish_nested_model_pose", "true"),
+                       ("use_pose_vector_msg", "true"), ("update_frequency", 15)):
+        add(pose, tag, value)
+
+    overview = link(world, "safety_overview")
+    camera = add(overview, "sensor", name="warehouse_access", type="camera")
+    add(camera, "pose", "-2.3 -3.2 7.4 0 0.59 0.03")
+    add(camera, "always_on", "true")
+    add(camera, "update_rate", 5)
+    add(camera, "topic", "/rackonaut_safety/overview")
+    optics = add(camera, "camera")
+    add(optics, "horizontal_fov", 1.56)
+    image = add(optics, "image")
+    add(image, "width", 800)
+    add(image, "height", 450)
+    add(image, "format", "R8G8B8")
+    clip = add(optics, "clip")
+    add(clip, "near", .15)
+    add(clip, "far", 43)
+    return fields
+
+
 def generate(args):
     sdf, world = world_base()
     hall(world, args.hall)
@@ -317,9 +391,13 @@ def generate(args):
     for index, y in enumerate(positions):
         rack(world, index, y, args, rng, index == inspection, rows)
     signs(world, aisles, positions[inspection])
+    if args.safety:
+        fields = safety_infrastructure(world, aisles, 5.5 + (args.bays - .5) * args.bay_pitch)
+        if args.layout:
+            args.layout.write_text(json.dumps(fields, indent=2) + "\n")
     ET.indent(sdf, space="  ")
     ET.ElementTree(sdf).write(args.output, encoding="utf-8", xml_declaration=True)
-    if args.layout:
+    if args.layout and not args.safety:
         layout = {
             "floor": {"x": HALL_CENTER - 20, "y": -12.5, "width": 40, "height": 25},
             "racks": [{"x": 5.5 - args.bay_pitch / 2, "y": y - DEPTH / 2,
@@ -351,7 +429,7 @@ def generate(args):
         args.truth.write_text(json.dumps(truth, indent=2) + "\n")
 
 
-def write_labels(control=False):
+def write_labels(control=False, safety=False):
     import cv2
     import numpy as np
 
@@ -382,6 +460,13 @@ def write_labels(control=False):
         text(image, "RACKONAUT", (315, 278), .71, accent, 2)
         save(name, image)
 
+    if safety:
+        image = np.full((240, 620, 3), (24, 26, 31), np.uint8)
+        cv2.rectangle(image, (4, 4), (615, 235), (23, 187, 245), 13)
+        text(image, "DRONE INSPECTION", (42, 98), 1.67, (23, 187, 245), 4)
+        text(image, "RED  /  DO NOT ENTER", (45, 172), 1.32, (240, 242, 249), 3)
+        save("safety_notice", image)
+        return
     if control:
         for i, (pallet, marker, _) in enumerate(CONTROL_B_STOCK):
             slot = len(STOCK) + i
@@ -424,6 +509,7 @@ def main():
     parser.add_argument("--labels", action="store_true")
     parser.add_argument("--quality", action="store_true", help="stage visible carton defects in a separate output world")
     parser.add_argument("--control", action="store_true", help="add the functional aisle B to the three-aisle showcase")
+    parser.add_argument("--safety", action="store_true", help="add access control to the control showcase")
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
@@ -431,6 +517,8 @@ def main():
         parser.error("--quality and --control require a separate --output path")
     if (args.layout or args.marker_map) and not args.control:
         parser.error("--layout and --marker-map require --control")
+    if args.safety and (not args.control or not args.quality or args.marker_map):
+        parser.error("--safety requires --control and --quality and publishes separate zone geometry")
     if args.control and (args.profile != "showcase" or args.aisles != 3 or args.aisle_width != 4.8
                          or args.bay_pitch != 2.8 or args.rack_height != 5.7 or args.levels != 3 or args.truth):
         parser.error("--control uses the default three-aisle geometry and separate layout data")
@@ -439,7 +527,7 @@ def main():
     if args.bay_pitch < 2.65 or args.aisle_width < 3 or args.rack_height < 3.5:
         parser.error("Rack or aisle dimensions would leave too little clearance for the inspection fixture.")
     if args.labels:
-        write_labels(args.control)
+        write_labels(args.control, args.safety)
     generate(args)
 
 

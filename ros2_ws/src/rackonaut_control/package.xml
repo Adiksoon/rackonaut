@@ -15,6 +15,7 @@
   <exec_depend>rackonaut_mission</exec_depend>
   <exec_depend>rackonaut_perception</exec_depend>
   <exec_depend>rackonaut_reference</exec_depend>
+  <exec_depend>rackonaut_safety</exec_depend>
   <exec_depend>rackonaut_warehouse</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>

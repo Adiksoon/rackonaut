@@ -28,6 +28,7 @@ from std_msgs.msg import String
 from std_srvs.srv import Trigger
 
 from rackonaut_mission.report import TERMINAL, export, fetch_api
+from rackonaut_safety.geometry import route_zones
 
 from .planning import plan
 from .web import serve
@@ -70,18 +71,23 @@ class Control(Node):
     def __init__(self):
         super().__init__("rackonaut_control")
         self.port = self.declare_parameter("http_port", 8765).value
+        self.safety_enabled = self.declare_parameter("safety_enabled", False).value
         self.backend = self.declare_parameter("backend_url", "http://127.0.0.1:8000").value.rstrip("/")
         self.data = Path(self.declare_parameter("data_dir", "control").value).expanduser().resolve()
         self.data.mkdir(parents=True, exist_ok=True)
         self.web = get_package_share_path("rackonaut_control") / "web"
         warehouse = get_package_share_path("rackonaut_warehouse")
         self.layout = json.loads((warehouse / "config/control_layout.json").read_text())
+        if self.safety_enabled:
+            self.layout["safety_fields"] = json.loads((warehouse / "config/safety_fields.json").read_text())
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
         self.odom_at = 0.
         self.position, self.speed = None, 0.
         self.jpeg, self.camera_at, self.frame_number = None, 0., 0
         self.camera_type = "raw"
+        self.safety, self.safety_at = None, -1e6
+        self.overview_jpeg, self.overview_at = None, -1e6
         self.job = None
         self.history = self.load_history()
         self.backend_state = {"online": False, "mode": "", "slots": []}
@@ -90,6 +96,11 @@ class Control(Node):
         self.health_future = None
         self.next_health = 0.
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        if self.safety_enabled:
+            self.safety_request = self.create_publisher(String, "/rackonaut/safety/request", 5)
+            self.worker_control = self.create_publisher(String, "/rackonaut/safety/simulation/worker_target", 5)
+            self.create_subscription(String, "/rackonaut/safety/state", self.on_safety, latest)
+            self.create_subscription(Image, "/rackonaut/safety/overview", self.on_overview, qos_profile_sensor_data)
         self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odom, qos_profile_sensor_data)
         self.create_subscription(String, "/rackonaut/mission/status", self.on_status, latest)
         self.create_subscription(RosPath, "/rackonaut/mission/plan", self.on_plan, latest)
@@ -153,6 +164,34 @@ class Control(Node):
         if self.job and self.job.status:
             self.update_camera(message, "annotated")
 
+    def on_safety(self, message):
+        with self.lock:
+            self.safety, self.safety_at = json.loads(message.data), monotonic()
+
+    def on_overview(self, message):
+        if monotonic() - self.overview_at < .16:
+            return
+        try:
+            image = self.bridge.imgmsg_to_cv2(message, desired_encoding="bgr8")
+            ok, encoded = cv2.imencode(".jpg", image, [cv2.IMWRITE_JPEG_QUALITY, 83])
+        except (CvBridgeError, cv2.error, RuntimeError):
+            return
+        if ok:
+            with self.lock:
+                self.overview_jpeg, self.overview_at = encoded.tobytes(), monotonic()
+
+    def safety_status(self):
+        return self.safety if monotonic() - self.safety_at <= .65 else None
+
+    def move_worker(self, request):
+        target = request.get("target")
+        if not isinstance(target, str) or target not in {"outside", "A", "B", "T"}:
+            raise ValueError("Choose a marked simulation destination.")
+        if not self.safety_enabled or not self.worker_control.get_subscription_count():
+            raise RuntimeError("Simulation worker controls are unavailable.")
+        self.worker_control.publish(String(data=target))
+        return {"accepted": True}
+
     def update_camera(self, message, source):
         now = monotonic()
         if self.camera_type == source and now - self.camera_at < .09:
@@ -187,7 +226,10 @@ class Control(Node):
         return stage != "ERROR"
 
     def preview(self, selection):
-        return plan(self.layout, selection)
+        route = plan(self.layout, selection)
+        if self.safety_enabled:
+            route["required_zones"] = route_zones(route["points"], self.layout["safety_fields"])
+        return route
 
     def begin(self, selection):
         planned = self.preview(selection)
@@ -201,6 +243,12 @@ class Control(Node):
             missing = set(planned["slots"]) - set(self.backend_state["slots"])
             if missing:
                 raise RuntimeError(f"Inventory API does not cover {', '.join(sorted(missing))}.")
+            if self.safety_enabled:
+                status = self.safety_status()
+                if not status or not self.safety_request.get_subscription_count():
+                    raise RuntimeError("The Safety Manager is unavailable.")
+                if status["phase"] in {"PREPARING", "RESERVED", "RECOVERY"}:
+                    raise RuntimeError(status["message"])
             if self.job:
                 stop_workers(self.job.processes)
             elif self.start_client.service_is_ready():
@@ -220,12 +268,15 @@ class Control(Node):
                 }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
                     **common, "route_file": route, "scan_hold_seconds": "1.3" if planned["quality"] else "0.0",
+                    "safety_interlock": str(self.safety_enabled).lower(),
                 }))
             except OSError:
                 stop_workers(processes)
                 raise
             self.job = Job(run, planned, processes)
             self.jpeg, self.camera_type, self.camera_at = None, "raw", 0.
+            if self.safety_enabled:
+                self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": planned["points"]})))
             return {"inspection_id": run}
 
     @staticmethod
@@ -297,6 +348,14 @@ class Control(Node):
             job.error = "A mission worker stopped. Check the dispatch logs."
             return
         ready_to_start = stage == "WAITING" and self.camera_type == "annotated"
+        if self.safety_enabled:
+            status = self.safety_status()
+            matching = status and status["inspection_id"] == job.run
+            if matching and status["phase"] == "REJECTED":
+                stop_workers(job.processes)
+                job.error = status["message"]
+                return
+            ready_to_start = ready_to_start and matching and status["permit"]
         if stage in {"WAITING", "STARTING"} and now - job.created > 20:
             stop_workers(job.processes)
             job.error = "Mission start timed out. Check robot, perception and command ownership."
@@ -329,8 +388,10 @@ class Control(Node):
                     source = self.data / "quality" / self.job.run
                     self.job.evidence = [json.loads(file.read_text()) for file in sorted(source.glob("*/report.json"))]
 
-    def frame(self):
+    def frame(self, overview=False):
         with self.lock:
+            if overview:
+                return self.overview_jpeg if monotonic() - self.overview_at < 1.5 else None
             return self.jpeg
 
     def snapshot(self):
@@ -345,7 +406,9 @@ class Control(Node):
             return {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
                     "position": self.position, "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
-                    "camera_type": self.camera_type, "history": self.history[:12]}
+                    "camera_type": self.camera_type, "history": self.history[:12],
+                    "safety_enabled": self.safety_enabled, "safety": self.safety_status(),
+                    "overview": monotonic() - self.overview_at < 1.5}
 
     def close(self):
         if self.job:

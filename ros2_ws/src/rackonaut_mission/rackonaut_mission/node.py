@@ -49,6 +49,7 @@ class Mission(Node):
             "travel_timeout": 38.0,
             "inspection_timeout": 8.0,
             "scan_hold_seconds": 0.0,
+            "safety_interlock": False,
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
         self.inspection_id = settings["inspection_id"]
@@ -75,6 +76,10 @@ class Mission(Node):
         self.create_service(Trigger, f"{MISSION}/start", self.on_start)
         self.create_service(Trigger, f"{MISSION}/abort", self.on_abort)
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+        self.safety_interlock = settings["safety_interlock"]
+        self.safety_at, self.safety_permit = -1e6, False
+        if self.safety_interlock:
+            self.create_subscription(String, "/rackonaut/safety/state", self.on_safety, latest)
         self.status_pub = self.create_publisher(String, f"{MISSION}/status", latest)
         self.plan_pub = self.create_publisher(Path, f"{MISSION}/plan", latest)
         self.path_pub = self.create_publisher(Path, f"{MISSION}/path", latest)
@@ -116,7 +121,14 @@ class Mission(Node):
         self.pose, self.odom_stamp = Target(p.x, p.y, p.z, yaw), stamp
         self.speed, self.odom_at = hypot(v.x, v.y, v.z), monotonic()
 
+    def on_safety(self, message):
+        state = json.loads(message.data)
+        if state.get("inspection_id") == self.inspection_id:
+            self.safety_at, self.safety_permit = monotonic(), state.get("permit") is True
+
     def readiness(self, now):
+        if self.safety_interlock and (not self.safety_permit or now - self.safety_at > .45):
+            return "Waiting for the safety interlock to confirm reserved, clear zones"
         if self.pose is None or now - self.odom_at > .65:
             return f"Waiting for fresh odometry in {self.frame}"
         if self.count_publishers(self.command_topic):
@@ -278,6 +290,8 @@ class Mission(Node):
         if self.command is not None:
             if self.count_publishers(self.command_topic) > 1:
                 self.finish("ABORTED", "Another publisher claimed the command topic", now, competing=True)
+            elif self.safety_interlock and now - self.safety_at > .65:
+                self.finish("ABORTED", "Safety Manager heartbeat stopped", now)
             elif now - self.odom_at > .65:
                 self.finish("ABORTED", "Odometry stopped advancing", now)
             else:

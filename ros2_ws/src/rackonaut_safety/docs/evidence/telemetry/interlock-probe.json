@@ -1,0 +1,8 @@
+{
+  "time": "2026-11-25T10:37:42.822445+00:00",
+  "inspection_id": "INS-CONTROL-20261125-103742-9F3C811E",
+  "phase": "PREPARING",
+  "countdown_s": 2.6,
+  "success": false,
+  "response": "Waiting for the safety interlock to confirm reserved, clear zones"
+}

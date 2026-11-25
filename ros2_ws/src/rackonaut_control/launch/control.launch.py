@@ -24,7 +24,9 @@ def setup(context):
 
     root = Path(os.environ["RACKONAUT_ROOT"])
     warehouse = get_package_share_path("rackonaut_warehouse")
-    command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds/control_showcase.sdf")]
+    safety = enabled("safety")
+    world = "safety_showcase.sdf" if safety else "control_showcase.sdf"
+    command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     if enabled("gazebo_gui"):
         command.append("--gui")
     processes = [ExecuteProcess(cmd=command, cwd=str(root), output="screen", name="control_simulator")]
@@ -47,16 +49,28 @@ def setup(context):
         "http_port": int(arg("http_port")),
         "backend_url": backend,
         "data_dir": data,
+        "safety_enabled": safety,
     }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
         target_action=process, on_exit=[EmitEvent(event=Shutdown(reason="A Control Center service stopped"))],
     )) for process in processes]
-    return [*on_exit, *processes]
+    safety_nodes = []
+    if safety:
+        config = get_package_share_path("rackonaut_safety") / "config"
+        safety_nodes = [
+            Node(package="rackonaut_safety", executable="manage", output="screen",
+                 parameters=[{"events_file": str(Path(data) / "safety-events.jsonl")}]),
+            Node(package="rackonaut_safety", executable="infrastructure", output="screen"),
+            *(Node(package="ros_gz_bridge", executable="parameter_bridge", name=f"safety_{name}_bridge",
+                   parameters=[{"config_file": str(config / f"{name}_bridge.yaml")}], output="screen")
+              for name in ("presence", "overview")),
+        ]
+    return [*on_exit, *processes, *safety_nodes]
 
 
 def generate_launch_description():
     defaults = {"http_port": "8765", "mock": "true", "mock_port": "8000", "backend_url": "",
-                "gazebo_gui": "false", "data_dir": ""}
+                "gazebo_gui": "false", "data_dir": "", "safety": "false"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

@@ -21,9 +21,20 @@ add_custom_command(OUTPUT "${control_world}" "${control_layout}" "${control_mark
   VERBATIM)
 add_custom_target(control_showcase ALL DEPENDS "${control_world}" "${control_layout}" "${control_markers}")
 
+set(safety_world "${CMAKE_CURRENT_BINARY_DIR}/safety_showcase.sdf")
+set(safety_fields "${CMAKE_CURRENT_BINARY_DIR}/safety_fields.json")
+add_custom_command(OUTPUT "${safety_world}" "${safety_fields}"
+  COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+    --control --quality --safety --output "${safety_world}" --layout "${safety_fields}"
+  DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+  VERBATIM)
+add_custom_target(safety_showcase ALL DEPENDS "${safety_world}" "${safety_fields}")
+
 install(DIRECTORY worlds meshes materials ground_truth docs
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${control_layout}" "${control_markers}" DESTINATION share/${PROJECT_NAME}/config)
+install(FILES "${safety_world}" DESTINATION share/${PROJECT_NAME}/worlds)
+install(FILES "${safety_fields}" DESTINATION share/${PROJECT_NAME}/config)
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
 ament_package()

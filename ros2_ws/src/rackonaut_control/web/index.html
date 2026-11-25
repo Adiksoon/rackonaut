@@ -33,12 +33,17 @@
     <button type="button" class="tab" data-view="results">Inspection results</button>
   </nav>
   <div id="notice" class="notice" role="status" hidden></div>
+  <div class="safety-banner" id="safety-banner" hidden>
+    <strong id="safety-headline" role="status"></strong>
+    <span id="safety-message"></span>
+    <a href="#warehouse-safety">Warehouse Safety ↓</a>
+  </div>
   <div class="workspace" id="workspace" data-view="plan">
     <section class="card warehouse" aria-labelledby="map-title">
       <div class="card-head"><div><h2 id="map-title">Warehouse floor</h2><p>Top-down view · Rackonaut showcase</p></div><div class="map-tag">ZONE A / B / C</div></div>
       <svg id="warehouse-map" viewBox="0 0 900 530" aria-label="Interactive warehouse map" role="group">
         <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#213444" stroke-width="1"/></pattern></defs>
-        <g id="floor"></g><g id="map-aisles"></g><g id="racks"></g>
+        <g id="floor"></g><g id="map-aisles"></g><g id="safety-fields" aria-hidden="true"></g><g id="racks"></g>
         <g id="flight-lines"><polyline id="plan-line" /><polyline id="flown-line" /></g>
         <g id="positions"></g>
         <g id="drone" visibility="hidden"><circle r="13"/><path d="M-6 -5L9 0-6 5-3 0Z"/></g>
@@ -88,6 +93,34 @@
     <div><small>CONFIRMED</small><strong id="metric-confirmed">—</strong><span>Accepted by the inventory API</span></div>
     <div><small>DAMAGED</small><strong id="metric-damaged">—</strong><span>Stable carton findings</span></div>
     <div><small>ELAPSED</small><strong id="metric-time">—</strong><span>Mission duration</span></div>
+  </section>
+  <section id="warehouse-safety" class="card safety" aria-labelledby="safety-title" hidden>
+    <div class="card-head">
+      <div><h2 id="safety-title">Warehouse Safety</h2><p>Simulated presence sensor · Gazebo model poses</p></div>
+      <span class="signal" id="sensor-state">Presence unknown</span>
+    </div>
+    <div class="safety-zones" id="safety-zones" aria-label="Access and occupancy by zone"></div>
+    <div class="safety-grid">
+      <section class="safety-controls" aria-labelledby="simulation-title">
+        <div class="card-head">
+          <div><h3 id="simulation-title">Simulation Controls</h3><p>Move the worker in Gazebo.</p></div>
+          <span id="overview-state" class="map-tag">GAZEBO CAMERA</span>
+        </div>
+        <div class="safety-camera"><img id="safety-overview" alt="Live Gazebo overview of aisle entrances and the simulated worker" hidden><span id="overview-unavailable">Waiting for the warehouse camera</span></div>
+        <div id="worker-controls" class="aisle-options" aria-label="Worker destination">
+          <button type="button" class="chip" data-worker="outside">Move outside</button>
+          <button type="button" class="chip" data-worker="A">Enter aisle A</button>
+          <button type="button" class="chip" data-worker="B">Enter aisle B</button>
+          <button type="button" class="chip" data-worker="T">Enter transfer</button>
+        </div>
+        <p class="footnote" id="worker-message" role="status"></p>
+      </section>
+      <section class="safety-history" aria-labelledby="safety-history-title">
+        <h3 id="safety-history-title">Safety events</h3>
+        <p id="zone-reservations" class="footnote"></p>
+        <ol id="safety-history" aria-live="off"></ol>
+      </section>
+    </div>
   </section>
   <section class="card review" id="review" hidden>
     <div class="card-head"><div><h2>Inspection locations</h2><p id="results-note">Observation and comparison status</p></div></div>

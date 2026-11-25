@@ -16,6 +16,7 @@ let view = "plan";
 let dispatching = false;
 let version = 0;
 let cameraLoading = false;
+let overviewLoading = false;
 
 function put(id, value) { el(id).textContent = value; }
 function html(id, value) { if (el(id).innerHTML !== value) el(id).innerHTML = value; }
@@ -147,6 +148,12 @@ function drawMap(job) {
     item.classList.toggle("selected", selectedAisles.has(row.id));
     if (row.functional) item.setAttribute("aria-pressed", String(selectedAisles.has(row.id)));
   }
+  if (layout.safety_fields) {
+    const zones = state?.safety?.zones || {};
+    html("safety-fields", Object.entries(layout.safety_fields).map(([id, [x, y, endX, endY]]) =>
+      rect(x, y, endX - x, endY - y, `safety-field access-${(zones[id]?.state || "FAULT").toLowerCase()}`,
+        'rx="4"')).join(""));
+  }
   for (const slot of Object.keys(layout.slots)) {
     const item = el("slot-" + slot);
     item.classList.toggle("selected", selected.has(slot));
@@ -222,6 +229,72 @@ function reviewSlots(job) {
   return [...new Set([...(status.missed || []), ...problems, ...(job.result?.discrepancies || []).map((row) => row.slot_id)])];
 }
 
+function drawSafety() {
+  const enabled = !!layout.safety_fields;
+  el("safety-banner").hidden = el("warehouse-safety").hidden = !enabled;
+  if (!enabled) return;
+  const status = state?.safety;
+  const alarm = status?.alarm;
+  const zones = status?.zones || {};
+  const awaiting = status?.phase === "PREPARING";
+  const selected = (preview?.required_zones || []).map(id => zones[id]).filter(Boolean);
+  const unavailable = !status || status.sensor !== "FRESH" || !status.signals_online;
+  const occupied = selected.filter(zone => zone.occupied).map(zone => zone.label);
+  let title = "Ready to request inspection";
+  let message = "Selected zones clear • Verify access before dispatch.";
+  let style = "open";
+  if (alarm) {
+    title = alarm.event === "intrusion" ? "Safety alert · Intrusion detected" : "Safety alert · Access restricted";
+    message = alarm.message + " " + status.message;
+    style = alarm.event === "intrusion" ? "intrusion" : "fault";
+  } else if (awaiting) {
+    title = `Preparing inspection · ${status.countdown.toFixed(1)} s`;
+    message = status.message;
+    style = "preparing";
+  } else if (status?.phase === "RESERVED") {
+    title = "Drone inspection · Zones reserved";
+    message = status.message;
+    style = "reserved";
+  } else if (status?.phase === "REJECTED") {
+    title = "Inspection blocked";
+    message = status.message;
+    if (!unavailable && !occupied.length) message += " Clear now. Request a new inspection when ready.";
+    style = "fault";
+  } else if (unavailable || occupied.length) {
+    title = "Hold · Selected scope unavailable";
+    message = unavailable ? "Waiting for verified sensor and signal data." : `Worker present · ${occupied.join(", ")}`;
+    style = "fault";
+  } else if (status.phase === "RELEASED") {
+    title = "Inspection completed · Access restored";
+    message = status.message;
+  } else if (!selected.length) {
+    title = "Choose an inspection scope";
+    message = "Required zones follow the planned flight path.";
+  }
+  el("safety-banner").dataset.access = style;
+  put("safety-headline", title);
+  put("safety-message", message);
+  put("sensor-state", status?.sensor === "FRESH" ? "Presence feed live" : status?.sensor === "STALE" ? "Presence feed stale" : "Presence unknown");
+  el("sensor-state").classList.toggle("good", status?.sensor === "FRESH");
+  const byName = { A: "Aisle A", B: "Aisle B", T: "Transfer corridor & pad", C: "Aisle C" };
+  html("safety-zones", ["A", "B", "T", "C"].map(id => {
+    const zone = zones[id];
+    const state = zone?.state || (id === "C" ? "UNMONITORED" : "FAULT");
+    const detected = zone?.occupied === true ? "Worker present" : zone?.occupied === false ? "Clear field" : "Unknown presence";
+    return `<div class="safety-zone access-${state.toLowerCase()}">
+      <strong>${byName[id]}</strong><span class="access-label"><i></i>${label(state)}</span>
+      <small>${id === "C" ? "Decorative aisle" : detected + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
+  }).join(""));
+  const reservations = (status?.required || []).map(id => zones[id]?.label).filter(Boolean);
+  put("zone-reservations", reservations.length ? `Restricted scope · ${reservations.join(", ")}` : "No active reservation.");
+  html("safety-history", (status?.events || []).slice(0, 12).map(event =>
+    `<li><time datetime="${safe(event.time)}">${safe(new Date(event.time).toLocaleTimeString())}</time>
+      <div><b>${safe(label(event.event))}</b><span>${safe(event.message)}</span>
+      <small>${safe(event.inspection_id || "")}</small></div></li>`).join(""));
+  el("safety-overview").hidden = !state?.overview;
+  el("overview-unavailable").hidden = !!state?.overview;
+}
+
 function draw() {
   if (!layout) return;
   const job = state?.mission;
@@ -242,6 +315,8 @@ function draw() {
   else if (!preview) reason = "Select at least one functional location.";
   else if (!state?.robot) reason = "Waiting for drone odometry.";
   else if (!state.at_pad) reason = "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
+  else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
+  else if (state?.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
   else if (!state.backend.online) reason = "Waiting for the inventory API.";
   else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
   el("start").disabled = !!reason;
@@ -260,6 +335,7 @@ function draw() {
   put("metric-damaged", job?.quality ? new Set(job.evidence.filter((r) => r.status === "DAMAGED").map((r) => r.slot_id + "/" + r.pallet_id)).size : "—");
   put("metric-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
+  drawSafety();
   drawResults(job);
 }
 
@@ -288,6 +364,7 @@ async function poll() {
 
 async function init() {
   layout = await api("/api/layout");
+  el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
   drawLayout();
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
@@ -318,6 +395,16 @@ async function init() {
   el("next-inspection").addEventListener("click", () => {
     choices.mode = "aisle"; choices.aisles.clear(); choices.slots.clear(); setView("plan"); changePlan();
   });
+  el("worker-controls").addEventListener("click", async (event) => {
+    const target = event.target.dataset.worker;
+    if (!target) return;
+    try {
+      await api("/api/simulation/worker", { target });
+      put("worker-message", "Movement requested. Watch the live model and presence status.");
+    } catch (error) {
+      put("worker-message", error.message);
+    }
+  });
   const camera = el("camera");
   camera.onload = camera.onerror = () => { cameraLoading = false; };
   setInterval(() => {
@@ -326,6 +413,16 @@ async function init() {
       camera.src = "/api/frame.jpg?t=" + Date.now();
     }
   }, 155);
+  if (layout.safety_fields) {
+    const overview = el("safety-overview");
+    overview.onload = overview.onerror = () => { overviewLoading = false; };
+    setInterval(() => {
+      if (state?.overview && !overviewLoading) {
+        overviewLoading = true;
+        overview.src = "/api/overview.jpg?t=" + Date.now();
+      }
+    }, 225);
+  }
   changePlan();
   poll();
 }

@@ -40,8 +40,8 @@ def serve(control, port):
                     self.json(200, control.layout)
                 elif path == "/api/state":
                     self.json(200, control.snapshot())
-                elif path == "/api/frame.jpg":
-                    frame = control.frame()
+                elif path in {"/api/frame.jpg", "/api/overview.jpg"}:
+                    frame = control.frame(overview=path == "/api/overview.jpg")
                     self.reply(200, frame, "image/jpeg") if frame else self.json(404, {"error": "Waiting for camera"})
                 elif match := REPORT.fullmatch(path):
                     report = control.data / "reports" / match[1] / "index.html"
@@ -70,7 +70,8 @@ def serve(control, port):
                 selection = json.loads(self.rfile.read(size))
                 if not isinstance(selection, dict):
                     raise ValueError("Expected a JSON object.")
-                actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort}
+                actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort,
+                           "/api/simulation/worker": control.move_worker}
                 action = actions.get(urlsplit(self.path).path)
                 if action:
                     self.json(200, action(selection))
