@@ -4,16 +4,18 @@ import json
 import re
 from http.cookies import CookieError, SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from time import monotonic
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
+from .measured_map import DETAIL, FRAME, MAP_TOPIC, VOXEL_METRES
 from .service import COOKIE
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "service.js", "twin.js", "twin-scene.js", "vendor/three.module.min.js",
+              "app.js", "business.js", "service.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
@@ -32,7 +34,8 @@ def serve(control, port):
         def reply(self, code, data, media_type, headers=None):
             self.send_response(code)
             self.send_header("Content-Type", media_type)
-            self.send_header("Content-Length", str(len(data)))
+            if code not in {204, 304}:
+                self.send_header("Content-Length", str(len(data)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             for key, value in (headers or {}).items():
@@ -89,6 +92,34 @@ def serve(control, port):
             else:
                 self.json(404, {"error": "Not found"})
 
+        def measured_cloud(self, live):
+            stream = control.measured_map
+            if stream is None:
+                self.json(404, {"error": "3D Scan requires sensor-based localization."})
+                return
+            query = parse_qs(urlsplit(self.path).query)
+            detail = "live" if live else query.get("detail", ["balanced"])[0]
+            if not live and detail not in DETAIL:
+                self.json(400, {"error": "Select low, balanced or high detail."})
+                return
+            sample = control.latest_scan() if live else stream.sample
+            headers = {"X-Frame": FRAME}
+            if not live:
+                headers.update({"X-Map-Source": MAP_TOPIC, "X-Voxel-Metres": str(VOXEL_METRES),
+                                "X-TF-Age-Ms": str(round((monotonic() - control.scan_tf_at) * 1000))
+                                if control.scan_tf_at else ""})
+            if sample is None:
+                self.reply(204, b"", "application/octet-stream", headers)
+                return
+            etag = sample.etag(detail)
+            headers.update({"ETag": etag, "X-Map-Session": sample.session, "X-Point-Count": str(len(sample.data) // 12),
+                            "X-Received-At": sample.updated_at, "X-Sample-Age-Ms": str(sample.age_ms)})
+            if self.headers.get("If-None-Match") == etag:
+                self.reply(304, b"", "application/octet-stream", headers)
+                return
+            data = sample.data if live else stream.payload(sample, detail)
+            self.reply(200, data, "application/octet-stream", headers)
+
         def business(self, path, payload=None):
             if control.backend_state["mode"] != "mock_sap":
                 self.json(404, {"error": "Warehouse Intelligence requires the Mock SAP profile."})
@@ -116,6 +147,8 @@ def serve(control, port):
                     self.json(200, control.layout)
                 elif path == "/api/state":
                     self.json(200, control.snapshot())
+                elif path in {"/api/measured-map", "/api/measured-scan"}:
+                    self.measured_cloud(path == "/api/measured-scan")
                 elif path == "/api/service/state":
                     if not self.local_request():
                         self.json(403, {"error": "Open the local Control Center URL to access Service."})

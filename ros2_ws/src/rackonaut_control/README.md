@@ -9,7 +9,7 @@ Run the [Quick Start](../../../README.md#start-here) on Ubuntu 22.04 or WSL2 wit
 Open [Control Center](http://127.0.0.1:8765). Use `gazebo_gui:=true` to open the simulator window or override ports with `http_port:=8766 mock_port:=18092`. Run one stack in the ROS domain. The environment honors `RACKONAUT_ROS_DOMAIN_ID` and `RACKONAUT_GZ_PARTITION` for isolated runs.
 
 1. Use **By aisle**, **Full inventory** or **Selected locations** in the plan. The warehouse has 11 functional positions in A and B. Aisle C is decorative. For the aerial profile use A-01-01 and A-01-03.
-2. In **Inspection options**, select package damage and adaptive retries as desired. Start the mission. **Live flight** shows the raw camera, estimated position and route. Choose **3D view** to view the same plan and telemetry in Digital Twin.
+2. In **Inspection options**, select package damage and adaptive retries as desired. Start the mission. **Live flight** shows the raw camera, estimated position and route. Choose **3D Model** for Digital Twin or **3D Scan** for registered LiDAR returns in the Full Robotics profile. [Measured 3D map](../../../docs/MEASURED_3D_MAP.md)
 3. Open **Results** for the scoped results and report or reinspection planning. Expand **Inventory comparison** when using Mock SAP. The report and evidence remain available after landing.
 4. **Stop inspection** requests a ROS abort. With Recovery enabled, review the proposal in the operator panel and explicitly authorize a safe return. A failed return keeps the active safety reservations. Ctrl+C stops the stack and its workers.
 

@@ -30,6 +30,7 @@ let version = 0;
 let cameraLoading = false;
 let overviewLoading = false;
 let twin = null, twinLoading = false, show3D = false, focusedLocation = null;
+let mapMode = "2d", mapIntent = "2d";
 
 function put(id, value) {
   const element = el(id);
@@ -42,28 +43,36 @@ function connectionStatus(value = "") {
   el("connection-status").hidden = !value;
 }
 
-function chooseMap(use3D) {
-  show3D = use3D;
-  el("warehouse-map").hidden = el("map-legend").hidden = use3D;
-  el("twin-panel").hidden = !use3D;
-  el("map-2d").setAttribute("aria-pressed", String(!use3D));
-  el("map-3d").setAttribute("aria-pressed", String(use3D));
-  put("map-title", use3D ? "Warehouse Digital Twin" : "Warehouse floor");
+function chooseMap(mode) {
+  mapMode = mapIntent = mode;
+  const unavailable = mode === "scan" && layout.localization?.mode !== "sensor_based";
+  show3D = mode !== "2d" && !unavailable;
+  el("warehouse-map").hidden = el("map-legend").hidden = mode !== "2d";
+  el("twin-panel").hidden = !show3D;
+  el("twin-error").hidden = !unavailable;
+  if (unavailable) put("twin-error", "3D Scan is unavailable in this profile. Run Full Robotics with sensor-based localization.");
+  for (const [id, key] of [["map-2d", "2d"], ["map-3d", "model"], ["map-scan", "scan"]]) {
+    el(id).setAttribute("aria-pressed", String(key === mode));
+  }
+  put("map-title", mode === "scan" ? "Measured 3D Scan" : mode === "model" ? "Warehouse Digital Twin" : "Warehouse floor");
+  twin?.setMode(mode);
   drawWorkspace();
-  twin?.setVisible(use3D && !el("warehouse-panel").hidden);
+  twin?.setVisible(show3D && !el("warehouse-panel").hidden);
   drawTwin(state?.mission);
 }
 function twinError(message) {
-  chooseMap(false);
+  chooseMap("2d");
   put("twin-error", message);
   el("twin-error").hidden = false;
 }
-async function loadTwin() {
+async function loadTwin(mode = "model") {
+  mapIntent = mode;
+  if (mode === "scan" && layout.localization?.mode !== "sensor_based") { chooseMap(mode); return; }
   el("twin-error").hidden = true;
-  if (twin) { chooseMap(true); return; }
+  if (twin) { chooseMap(mode); return; }
   if (twinLoading) return;
   twinLoading = true;
-  el("map-3d").disabled = true;
+  el("map-3d").disabled = el("map-scan").disabled = true;
   try {
     const { createTwin } = await import("/twin.js");
     twin = createTwin(layout, {
@@ -78,20 +87,21 @@ async function loadTwin() {
       onError: (message) => { twinError(message); twin = null; el("map-3d").disabled = true; },
     });
     if (focusedLocation) twin.focusSlot(focusedLocation);
-    chooseMap(true);
+    chooseMap(mapIntent);
   } catch (error) {
     twinError("3D view could not start. Use the 2D Warehouse Map.");
     console.warn(error);
   } finally {
     twinLoading = false;
-    el("map-3d").disabled = false;
+    el("map-3d").disabled = !layout.scene;
+    el("map-scan").disabled = false;
   }
 }
 function drawTwin(job) {
   if (!twin || !show3D || el("warehouse-panel").hidden) return;
   const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
-  twin.update({ state, view, preview, job, selection: new Set(selected) });
+  twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected) });
 }
 
 async function api(url, data) {
@@ -113,7 +123,8 @@ function drawWorkspace() {
   el("workspace").classList.toggle("with-map", showMap);
   el("results-map").setAttribute("aria-expanded", String(resultsMap));
   put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
-  put("map-caption", view === "plan" ? "Select aisles or locations on the map."
+  put("map-caption", mapMode === "scan" ? "Registered endpoints from the onboard LiDAR."
+    : view === "plan" ? "Select aisles or locations on the map."
     : view === "results" ? "Planned and flown route." : "Drone position and flight path.");
 }
 
@@ -783,12 +794,13 @@ async function init() {
   el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
   drawWorkspace();
   drawLayout();
-  el("map-2d").addEventListener("click", () => chooseMap(false));
-  el("map-3d").addEventListener("click", loadTwin);
+  el("map-2d").addEventListener("click", () => chooseMap("2d"));
+  el("map-3d").addEventListener("click", () => loadTwin("model"));
+  el("map-scan").addEventListener("click", () => loadTwin("scan"));
   el("map-3d").disabled = !layout.scene;
   el("focus-dock").addEventListener("click", async () => {
     setView("plan", true);
-    if (!show3D) await loadTwin();
+    if (mapMode !== "model") await loadTwin();
     if (show3D) {
       twin?.focusDock();
       el("map-title").scrollIntoView({block: "start"});

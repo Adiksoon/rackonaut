@@ -48,7 +48,7 @@ The full profile enables protected aerial corridors, LiDAR–IMU localization, o
 scripts/robotics/checkpoint live
 ```
 
-Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TRACKING` and the dock to be ready before dispatch. The verified run uses **virtual Safety presence** for ground-zone interlocks. The onboard LiDAR and simulated physical dock contact remain active. Start in 2D and switch to **3D view** when showing the route or recorded results. Use `gazebo_gui:=true` at launch to see the same simulation in Gazebo. [Full profile and launch details](docs/ENGINEERING_SHOWCASE.md#engineering-live)
+Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TRACKING` and the dock to be ready before dispatch. The verified run uses **virtual Safety presence** for ground-zone interlocks. The onboard LiDAR and simulated physical dock contact remain active. Switch between **2D Map**, **3D Model** and **3D Scan** to compare the plan, reference warehouse and live LiDAR measurements. Use `gazebo_gui:=true` at launch to see the same simulation in Gazebo. [Full profile and launch details](docs/ENGINEERING_SHOWCASE.md#engineering-live) · [Measured 3D map](docs/MEASURED_3D_MAP.md)
 
 Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
 

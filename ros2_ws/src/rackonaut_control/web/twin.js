@@ -1,6 +1,7 @@
 import * as T from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { accessColors, at, makeAircraft, makeWarehouse, slotColors, tint } from "./twin-scene.js";
+import { createMeasuredScene } from "./scan.js";
 
 const byId = (id) => document.getElementById(id);
 const stages = new Set(["INSPECT", "REPOSITION", "REINSPECT", "QUALITY_CLOSEUP", "RECENTER"]);
@@ -214,6 +215,12 @@ export function createTwin(layout, callbacks) {
   let renderData = null;
   let preset = "iso";
   let following = false;
+  let scanMode = false;
+  let autoFrameScan = true, framedSpan = 0;
+  const framedCenter = new T.Vector3();
+  const scan = layout.localization?.mode === "sensor_based"
+    ? createMeasuredScene(byId("twin-panel"), queue, frameMeasuredCloud)
+    : null;
   const projected = new T.Vector3();
   const followAnchor = new T.Vector3(), followDelta = new T.Vector3();
   const startPosition = new T.Vector3(), endPosition = new T.Vector3();
@@ -324,7 +331,7 @@ export function createTwin(layout, callbacks) {
       followAnchor.copy(drone.position);
     }
     const orbiting = controls.update();
-    renderer.render(scene, camera);
+    renderer.render(scanMode ? scan.scene : scene, camera);
     flightAnchor.copy(drone.position);
     flightAnchor.y += 1.10;
     const used = [];
@@ -332,7 +339,7 @@ export function createTwin(layout, callbacks) {
     for (const { element, anchor, kind } of labels) {
       projected.copy(anchor).project(camera);
       const within = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < .97 && Math.abs(projected.y) < .97;
-      const show = within && (element === flightLabel ? drone.visible : warehouseModel.visible)
+      const show = within && (element === flightLabel ? drone.visible : !scanMode && warehouseModel.visible)
         && (kind !== "aerial-marker" || warehouse.aerial.infrastructure.visible);
       element.style.visibility = show ? "visible" : "hidden";
       if (!show) continue;
@@ -373,12 +380,28 @@ export function createTwin(layout, callbacks) {
     preset = next;
     byId("twin-iso").setAttribute("aria-pressed", String(next === "iso"));
     byId("twin-top").setAttribute("aria-pressed", String(next === "top"));
+    if (scanMode) {
+      const target = scan.bounds.isEmpty() ? drone.position.clone() : scan.bounds.getCenter(new T.Vector3());
+      const span = scan.bounds.isEmpty() ? 8 : scan.bounds.getSize(new T.Vector3()).length();
+      framedCenter.copy(target);
+      framedSpan = span;
+      const distance = Math.max(8, span * 1.18) * Math.max(1, 1.16 / camera.aspect);
+      const offset = (next === "iso" ? new T.Vector3(-.57, .69, .75) : new T.Vector3(0, 1.35, .004)).multiplyScalar(distance);
+      cameraTo(target.clone().add(offset), target, animate);
+      return;
+    }
     const f = layout.floor;
     const target = at([f.x + f.width * .47, f.y + f.height / 2, 0]);
     const offset = next === "iso" ? new T.Vector3(-26, 32, 33) : new T.Vector3(0, 43, .12);
     // Keep the whole floor in view on narrow cards as well.
     offset.multiplyScalar(Math.max(1, 1.31 / camera.aspect));
     cameraTo(target.clone().add(offset), target, animate);
+  }
+  function frameMeasuredCloud(first) {
+    if (following || !autoFrameScan || scan.bounds.isEmpty()) return;
+    const span = scan.bounds.getSize(new T.Vector3()).length();
+    const center = scan.bounds.getCenter(new T.Vector3());
+    if (first || span > framedSpan * 1.15 || center.distanceTo(framedCenter) > 2.) choosePreset(preset, !first);
   }
   function focusRack() {
     if (!focus) return;
@@ -408,6 +431,7 @@ export function createTwin(layout, callbacks) {
     if (!event.isPrimary || event.button !== 0 || !down) return;
     const [x, y] = down;
     down = null;
+    if (scanMode) return;
     if (Math.hypot(event.clientX - x, event.clientY - y) > 5) return;
     const bounds = renderer.domElement.getBoundingClientRect();
     pointer.set((x - bounds.left) / bounds.width * 2 - 1, 1 - (y - bounds.top) / bounds.height * 2);
@@ -418,13 +442,13 @@ export function createTwin(layout, callbacks) {
   });
   renderer.domElement.addEventListener("pointercancel", () => { down = null; });
   controls.addEventListener("change", queue);
-  controls.addEventListener("start", () => { transition = null; });
+  controls.addEventListener("start", () => { transition = null; if (scanMode) autoFrameScan = false; });
   new ResizeObserver(resize).observe(viewport);
   document.addEventListener("visibilitychange", queue);
-  byId("twin-iso").addEventListener("click", () => choosePreset("iso"));
-  byId("twin-top").addEventListener("click", () => choosePreset("top"));
+  byId("twin-iso").addEventListener("click", () => { autoFrameScan = true; choosePreset("iso"); });
+  byId("twin-top").addEventListener("click", () => { autoFrameScan = true; choosePreset("top"); });
   byId("twin-follow").addEventListener("click", () => setFollow(!following));
-  byId("twin-reset").addEventListener("click", () => choosePreset(preset));
+  byId("twin-reset").addEventListener("click", () => { autoFrameScan = true; choosePreset(preset); });
   byId("twin-focus").addEventListener("click", focusRack);
   byId("twin-reinspect").addEventListener("click", () => { if (focus) callbacks.onReinspect(focus); });
   byId("twin-economy").addEventListener("click", () => {
@@ -535,6 +559,11 @@ export function createTwin(layout, callbacks) {
     renderData = data;
     if (!visible || !data) return;
     const { state, view, preview, job, selection } = data;
+    if (scanMode) {
+      updateDrone(state);
+      scan.update(state, data.activeFlight);
+      return;
+    }
     const planning = view === "plan";
     const current = planning ? null : job;
     const scope = planning ? (selection.size ? selection : null) : job ? new Set(job.slots) : null;
@@ -636,6 +665,18 @@ export function createTwin(layout, callbacks) {
   }
   return {
     update,
+    setMode(mode) {
+      const measured = mode === "scan" && !!scan;
+      if (measured === scanMode) return;
+      scanMode = measured;
+      autoFrameScan = true;
+      (scanMode ? scan.scene : scene).add(drone);
+      renderer.domElement.setAttribute("aria-label", scanMode ? "Measured LiDAR point cloud" : "3D warehouse scene");
+      byId("twin-panel").dataset.mapMode = mode;
+      scan.setVisible(visible && scanMode);
+      choosePreset(preset, false);
+      update(renderData);
+    },
     focusDock() {
       if (!dockLabel) return;
       setFollow(false);
@@ -646,6 +687,7 @@ export function createTwin(layout, callbacks) {
     setVisible(enabled) {
       const first = !visible && enabled && lastDraw === 0;
       visible = enabled;
+      scan?.setVisible(visible && scanMode);
       if (!visible) { cancelAnimationFrame(raf); raf = 0; return; }
       resize();
       if (first) choosePreset("iso", false);

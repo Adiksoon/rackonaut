@@ -135,7 +135,7 @@
             </div>
           </div>
           <dl class="service-metrics calibration-tools">
-            <div><dt>3D Mapping</dt><dd>Unavailable</dd></div>
+            <div><dt>3D Mapping</dt><dd>Unavailable</dd><small>New warehouse mapping will begin during the guided survey flight.</small></div>
             <div><dt>Manual Flight</dt><dd>Unavailable</dd></div>
             <div><dt>Registered Storage Locations</dt><dd id="calibration-locations"></dd></div>
             <div><dt>Recorded Flight Path</dt><dd id="calibration-waypoints"></dd></div>
@@ -208,12 +208,19 @@
     <section class="card warehouse" id="warehouse-panel" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Select an aisle or location to plan an inspection.</p></div>
         <div class="map-mode" role="group" aria-label="Warehouse view">
-          <button type="button" id="map-2d" aria-pressed="true">2D map</button>
-          <button type="button" id="map-3d" aria-pressed="false">3D view</button>
+          <button type="button" id="map-2d" aria-pressed="true">2D Map</button>
+          <button type="button" id="map-3d" aria-pressed="false">3D Model</button>
+          <button type="button" id="map-scan" aria-pressed="false">3D Scan</button>
         </div>
       </div>
       <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
-      <section id="twin-panel" aria-label="Interactive digital twin" hidden>
+      <section id="twin-panel" aria-label="Interactive warehouse view" data-map-mode="model" hidden>
+        <div class="scan-controls">
+          <strong id="scan-status" role="status">Waiting for measured points</strong>
+          <label>Detail <select id="scan-detail"><option value="low">Low</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select></label>
+          <label>Colour <select id="scan-colour"><option value="height">Height</option><option value="uniform">Uniform</option></select></label>
+          <label class="scan-toggle"><input id="scan-live" type="checkbox"> Live LiDAR</label>
+        </div>
         <div class="twin-viewport" id="twin-viewport">
           <div class="twin-markers" id="twin-markers"></div>
           <div class="twin-toolbar" role="group" aria-label="3D camera controls">
@@ -228,6 +235,23 @@
           </div>
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
+          <div class="scan-reference" id="scan-surface">
+            <span class="scan-axis"><b>X</b> <b>Y</b> <b>Z ↑</b> · Grid 2 m</span>
+            <div id="scan-height-key"><span>Height Z</span><i></i><span>0</span><span>2</span><span>4</span><span>6</span><span>8+ m</span></div>
+          </div>
+        </div>
+        <div class="scan-details">
+          <dl>
+            <div><dt>Map source</dt><dd>Onboard LiDAR · measured cloud</dd></div>
+            <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
+            <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>
+            <div><dt>Voxel resolution</dt><dd>0.16 m</dd></div>
+            <div><dt>Last update</dt><dd id="scan-updated">—</dd></div>
+            <div><dt>Localization</dt><dd id="scan-localization">—</dd></div>
+            <div><dt>Estimation quality</dt><dd id="scan-quality">—</dd></div>
+            <div><dt>Coordinate frame</dt><dd id="scan-frame">rackonaut_odom</dd></div>
+          </dl>
+          <div class="scan-legend"><span><i></i> Estimated trajectory</span><span><i></i> Local obstacle returns</span><span><i></i> Live LiDAR</span></div>
         </div>
         <div class="localization-layers" id="localization-layers" role="group" aria-label="Spatial mapping layers" hidden>
           <button type="button" id="twin-warehouse-model" aria-pressed="true">Warehouse model</button>

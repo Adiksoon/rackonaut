@@ -23,13 +23,16 @@ from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from rclpy.signals import SignalHandlerOptions
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import Image, PointCloud2
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
+from tf2_msgs.msg import TFMessage
 
+from rackonaut_avoidance.sensor import Scanner
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_safety.geometry import route_zones
 
+from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
 from .planning import energy_forecast, plan
 from .service import BLOCKED, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .web import serve
@@ -96,6 +99,9 @@ class Control(Node):
             self.layout["recovery"] = True
             self.recovery_operator = self.create_publisher(String, "/rackonaut/recovery/operator", 5)
         self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
+        self.measured_map = MeasuredMap() if self.localization_mode == "sensor_based" else None
+        self.scan_sample = None
+        self.scan_requested_until = self.next_scan = self.scan_tf_at = 0.
         self.localization_diagnostics = self.declare_parameter("localization_diagnostics", False).value
         self.localization, self.localization_at, self.pose_validation = None, -1e6, None
         if self.localization_mode != "ground_truth":
@@ -148,6 +154,11 @@ class Control(Node):
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         if self.localization_mode != "ground_truth":
             self.create_subscription(String, "/rackonaut/localization/state", self.on_localization, latest)
+        if self.measured_map is not None:
+            self.scan_decoder = Scanner(self, exact_pose=True)
+            self.create_subscription(PointCloud2, MAP_TOPIC, self.measured_map.accept, qos_profile_sensor_data)
+            self.create_subscription(Odometry, ESTIMATE_TOPIC, self.scan_decoder.odometry, qos_profile_sensor_data)
+            self.create_subscription(TFMessage, "/tf", self.on_scan_tf, qos_profile_sensor_data)
         if self.localization_diagnostics:
             self.create_subscription(String, "/rackonaut/localization/validation", self.on_pose_validation, latest)
         if self.energy_enabled:
@@ -171,8 +182,38 @@ class Control(Node):
         self.timer = self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_localization(self, message):
+        state = json.loads(message.data)
         with self.lock:
-            self.localization, self.localization_at = json.loads(message.data), monotonic()
+            if self.measured_map is not None and self.localization:
+                if state.get("accepted", 0) < self.localization.get("accepted", 0):
+                    self.measured_map.new_session()
+            self.localization, self.localization_at = state, monotonic()
+
+    def on_scan_tf(self, message):
+        if any(transform.header.frame_id == FRAME and transform.child_frame_id == "rackonaut_base_link"
+               for transform in message.transforms):
+            self.scan_tf_at = monotonic()
+
+    def latest_scan(self):
+        self.scan_requested_until = monotonic() + 1.8
+        sample = self.scan_sample
+        return sample if sample and sample.session == self.measured_map.session and sample.age_ms <= 850 else None
+
+    def sample_live_scan(self, now):
+        if now > self.scan_requested_until or now < self.next_scan:
+            return
+        self.next_scan = now + .33
+        cloud = self.scan_decoder.current(now)
+        if cloud is None:
+            return
+        seconds, fraction = divmod(round(cloud.time * 1e9), 10**9)
+        stamp = seconds, fraction
+        sample = self.scan_sample
+        session = self.measured_map.session
+        if sample and (sample.session, sample.stamp) == (session, stamp):
+            return
+        self.scan_sample = Sample(stamp, session, cloud.received, datetime.now(timezone.utc).isoformat(),
+                                  cloud.hits.astype("<f4").tobytes())
 
     def on_pose_validation(self, message):
         self.pose_validation = json.loads(message.data)
@@ -660,6 +701,8 @@ class Control(Node):
 
     def tick(self):
         now = monotonic()
+        if self.measured_map is not None:
+            self.sample_live_scan(now)
         with self.lock:
             if self.health_future and self.health_future.done():
                 self.backend_state = self.health_future.result()
