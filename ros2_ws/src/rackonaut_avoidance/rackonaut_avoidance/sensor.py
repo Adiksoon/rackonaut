@@ -93,6 +93,7 @@ class Cloud:
 class Scanner:
     def __init__(self, node, exact_pose=False, *, sensor_range=MAX_RANGE):
         self.poses = deque(maxlen=16)
+        self.exact_scans = deque(maxlen=8)
         self.pending = None
         self.cloud = None
         self.latest_stamp = -1.
@@ -111,9 +112,22 @@ class Scanner:
         time = stamp(message)
         if time > self.latest_stamp:
             self.latest_stamp = time
-            self.pending = message, monotonic()
+            received = monotonic()
+            if self.exact_pose:
+                self.exact_scans.append((time, message, received))
+            else:
+                self.pending = message, received
 
     def current(self, now):
+        if self.exact_pose:
+            self.pending = None
+            previous = self.cloud.time if self.cloud else -1.
+            for stamp_time, message, received in reversed(self.exact_scans):
+                if stamp_time <= previous or now - received > STALE_SECONDS:
+                    break
+                if any(abs(stamp_time - pose[0]) <= .001 for pose in self.poses):
+                    self.pending = message, received
+                    break
         if self.pending and self.poses:
             message, received = self.pending
             time = stamp(message)

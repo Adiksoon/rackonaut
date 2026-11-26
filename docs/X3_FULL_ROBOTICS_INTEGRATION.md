@@ -210,8 +210,23 @@ X3 przebył 72,42 m wobec 70,80 m referencji. Dłuższa droga i czas zwiększył
 | D · Teach-and-Repeat po pełnym restarcie | **PASS** | Zatwierdzona i zapieczętowana konfiguracja X3, 162 odcinki, dwie nowe obserwacje w Mock SAP, fizyczny dok i `RELEASED`. |
 | E · Regresja profilu referencyjnego | **PASS** | Smoke, chroniony lot i pełna inspekcja 2/2 z Mock SAP i fizycznym stykiem. |
 
+## Pełna inwentaryzacja X3 na znanej mapie
+
+Standardowy launcher Full Robotics z X3 i profilem LiDAR-u 8 m potwierdził **11/11 stanowisk w jednej misji** `INS-CONTROL-20261126-185127-7855CF9E`. Misja trwała 1151,9 s i wykonała trzy starty oraz dwa ładowania z automatycznym wznowieniem. Zakończyła się stanem `COMPLETE`, fizycznym kontaktem z dokiem, wyłączeniem napędu i zwolnieniem stref Safety. Raport HTML zwrócił HTTP 200. Liczbę obserwacji sprawdzono również w SQLite Mock SAP. [Wyniki odbioru](x3-full-robotics-evidence/x3-full-inventory-acceptance.json)
+
+```bash
+scripts/robotics/checkpoint live drone_model:=x3 full_route_slam:=false \
+  localization_diagnostics:=true safety_sensor:=virtual
+```
+
+W Control Center wybierz **Full inventory** i włącz kontrolę jakości. Próba używa znanej mapy i lokalizacji z IMU oraz LiDAR-u. Gazebo dostarcza pozę referencyjną do pomiaru. W czasie przebiegu wstrzymano fizykę wcześniej zakończonego demonstratora i przywrócono ją po teście.
+
+Skan i pozycja są parowane według znaczników czasu z zachowaniem limitu świeżości 650 ms od odbioru skanu. W profilu X3 odbiór IMU odbywa się niezależnie od dopasowania LiDAR-u. Wybrane ukośne podejścia zastąpiono pionowym i poziomym odcinkiem w zarezerwowanej przestrzeni. Po potwierdzonym kontakcie Mission Manager wyłącza napęd na czas ładowania i uruchamia go przy zatwierdzonym wznowieniu.
+
+Odbiór 11/11 dotyczy profilu 8 m. W oddzielnej próbie pełnego spisu z profilem 16 m watchdog przerwał lot po przerwie w dopływie skanów. Walidację nauczonej trasy z dwiema lokalizacjami opisano w poprzednich sekcjach. Zaliczono 63 testy ROS, siedem testów backendu oraz testy uruchomieniowe Gazebo i Mock SAP.
+
 ## Ograniczenia i rekomendacja
 
 **Do demonstracji konkursowej rekomendowana jest referencja.** W porównywalnym scenariuszu miała krótszą drogę hamowania i niższy modelowany koszt energii. Teach-and-Repeat przeszedł dla referencji w GOAL 24 i dla X3 w kampanii opisanej powyżej. [Dowody Teach-and-Repeat referencji](LEARNED_WAREHOUSE_AUTONOMY.md)
 
-Aktualna integracja potwierdza dwie lokalizacje na stosie GOAL 24. Wynik 11/11 pozostaje historyczną próbą Michała. W kwalifikacji X3 zapas RMSE w alejce wyniósł 0,91 mm, a w autonomicznym powtórzeniu 0,63 mm. Przy wymuszonym zatrzymaniu lokalizatora Recovery odmówiło ruchu po utracie aktualnej pozycji. Oba nagrania pokazują pełne cykle od doku do doku, z obrazem kamery i telemetrią odtwarzanymi w około czterokrotnym przyspieszeniu. [Nagranie na mapie fabrycznej](x3-full-robotics-evidence/x3-autonomous-fixed-route.mp4) · [Nagranie na mapie nauczonej](x3-full-robotics-evidence/x3-autonomous-learned-route.mp4)
+Walidacja Teach-and-Repeat na stosie GOAL 24 obejmuje dwie lokalizacje. Odbiór 11/11 dotyczy odrębnej misji inwentaryzacyjnej na znanej mapie. W kwalifikacji X3 zapas RMSE w alejce wyniósł 0,91 mm, a w autonomicznym powtórzeniu 0,63 mm. Przy wymuszonym zatrzymaniu lokalizatora Recovery odmówiło ruchu po utracie aktualnej pozycji. Oba nagrania pokazują pełne cykle od doku do doku, z obrazem kamery i telemetrią odtwarzanymi w około czterokrotnym przyspieszeniu. [Nagranie na mapie fabrycznej](x3-full-robotics-evidence/x3-autonomous-fixed-route.mp4) · [Nagranie na mapie nauczonej](x3-full-robotics-evidence/x3-autonomous-learned-route.mp4)

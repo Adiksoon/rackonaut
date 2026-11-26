@@ -70,8 +70,10 @@ class Mission(Node):
             "full_route_slam": False,
             "recovery_dir": "",
             "manual_flight": False,
+            "drone_model": "reference",
         }
         settings = {key: self.declare_parameter(key, value).value for key, value in defaults.items()}
+        self.x3 = settings["drone_model"] == "x3"
         self.inspection_id = settings["inspection_id"]
         if len(self.inspection_id) > 64 or not re.fullmatch(r"INS-[A-Z0-9]+(?:-[A-Z0-9]+)*", self.inspection_id):
             raise ValueError("inspection_id must follow the OpenAPI INS- identifier pattern.")
@@ -383,6 +385,8 @@ class Mission(Node):
         self.get_logger().info(f"{stage} {target.slot_id or 'PAD'} | {detail}")
 
     def send_velocity(self, target=None, scale=1.):
+        if self.x3 and self.stage in {"DOCKING", "LAND"} and self.pose.z - self.route.pad.z <= .75:
+            scale = min(scale, .40)
         command = Twist()
         if scale:
             x, y, z, yaw_rate = velocity(target or self.target, self.pose)
@@ -739,7 +743,15 @@ class Mission(Node):
 
     def outbound(self, slot):
         if self.aerial:
-            return self.aerial.sortie(self.coordinates(slot), slot.slot_id[0])
+            legs = self.aerial.sortie(self.coordinates(slot), slot.slot_id[0])
+            if self.x3:
+                x, y, z, yaw = legs[-2].pose
+                level = (x, y, slot.z, yaw)
+                if (slot.z - z > 1. and hypot(slot.x - x, slot.y - y) > .5
+                        and self.aerial.allows(legs[-2].pose, level, self.route.zones)
+                        and self.aerial.allows(level, legs[-1].pose, self.route.zones)):
+                    legs.insert(-1, Leg(level, "AISLE_APPROACH", slot.slot_id[0]))
+            return legs
         return [Leg(point, "") for point in sortie_path(self.coordinates(self.route.pad), self.route.takeoff.z,
                                                        self.route.crossing, self.coordinates(slot))]
 
@@ -905,6 +917,8 @@ class Mission(Node):
                     self.finish("COMPLETE_WITH_MISSES", "Returned to dock; remaining locations need operator review", now)
                     return
                 self.stop_motion()
+                if self.x3:
+                    self.set_flight_enabled(False)
                 self.landed = True
                 self.close_sortie("DOCKED_FOR_CHARGE")
                 self.stop_index = self.resume_index

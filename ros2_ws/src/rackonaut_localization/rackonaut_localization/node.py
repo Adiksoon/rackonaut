@@ -6,6 +6,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import monotonic, perf_counter
+from threading import Lock, Thread
 
 import numpy as np
 import rclpy
@@ -13,6 +14,7 @@ from ament_index_python.packages import get_package_share_path
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
+from rclpy.executors import ExternalShutdownException, SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from scipy.spatial.transform import Rotation
@@ -138,7 +140,18 @@ class Localization(Node):
         self.estimate_pub = self.create_publisher(Odometry, ESTIMATE, qos_profile_sensor_data)
         self.diag_pub = self.create_publisher(String, STATUS, latest)
         self.map_pub = self.create_publisher(PointCloud2, MAP, qos_profile_sensor_data)
-        self.create_subscription(Imu, IMU, self.on_imu, qos_profile_sensor_data)
+        self.imu_worker = None
+        if self.drone_model == "x3" and self.mode == "sensor_based":
+            self.imu_inbox = deque(maxlen=32)
+            self.imu_lock = Lock()
+            self.imu_receiver = Node("rackonaut_x3_imu_receiver")
+            self.imu_receiver.create_subscription(Imu, IMU, self.enqueue_imu, qos_profile_sensor_data)
+            self.imu_executor = SingleThreadedExecutor()
+            self.imu_executor.add_node(self.imu_receiver)
+            self.imu_worker = Thread(target=self.receive_imu, name="x3-imu")
+            self.imu_worker.start()
+        else:
+            self.create_subscription(Imu, IMU, self.on_imu, qos_profile_sensor_data)
         self.create_subscription(PointCloud2, TOPIC, self.on_scan, qos_profile_sensor_data)
         self.create_service(Trigger, "/rackonaut/localization/export_map", self.export_map)
         if self.mode == "sensor_based":
@@ -245,6 +258,33 @@ class Localization(Node):
         self.quality, self.reason = "STARTING", reason
         self.accepted = self.failures = 0
         self.updates.clear()
+
+    def receive_imu(self):
+        try:
+            self.imu_executor.spin()
+        except ExternalShutdownException:
+            pass
+
+    def enqueue_imu(self, message):
+        received = monotonic()
+        with self.imu_lock:
+            self.imu_inbox.append((received, message))
+
+    def drain_imu(self):
+        with self.imu_lock:
+            batch = tuple(self.imu_inbox)
+            self.imu_inbox.clear()
+        for received, message in batch:
+            previous = self.samples[-1] if self.samples else None
+            self.on_imu(message)
+            if self.samples and self.samples[-1] is not previous:
+                self.imu_at = received
+
+    def close(self):
+        if self.imu_worker is not None:
+            self.imu_executor.shutdown()
+            self.imu_worker.join()
+            self.imu_receiver.destroy_node()
 
     def on_imu(self, message):
         if message.header.frame_id != IMU_FRAME:
@@ -383,6 +423,8 @@ class Localization(Node):
         return state, reason
 
     def tick(self):
+        if self.imu_worker is not None:
+            self.drain_imu()
         now = monotonic()
         self.check_warehouse(now)
         if self.calibrated and self.pending:
@@ -394,6 +436,9 @@ class Localization(Node):
                     self.match(message, received, now)
             elif now-received > .20:
                 self.pending = None
+        if self.imu_worker is not None:
+            self.drain_imu()
+            now = monotonic()
         state, reason = self.status(now)
         if self.mode == "sensor_based" and state == "TRACKING":
             time, gyro, _ = self.samples[-1]
@@ -505,8 +550,9 @@ def main():
     node = Localization()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
+        node.close()
         node.destroy_node()
         rclpy.try_shutdown()

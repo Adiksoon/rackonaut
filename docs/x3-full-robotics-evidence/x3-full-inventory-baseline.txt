@@ -1,0 +1,27 @@
+f4ca62f
+
+Full inventory
+run INS-CONTROL-20261126-180817-128A9981 ABORTED Onboard lidar stopped advancing 101.8
+coverage [] missed [] pending ['A-01-01', 'A-01-02', 'A-01-03', 'A-01-04', 'A-01-05', 'A-01-06', 'A-01-07', 'A-01-08', 'B-01-01', 'B-01-02', 'B-02-01']
+terminal at_pad False landed False contact False cycles 0 safety RECOVERY
+pose [2.103, 0.638, 6.697, 0.001] sorties [(1, 'ABORTED', None)]
+stages ['STARTING', 'WAITING', 'VERTICAL_TAKEOFF', 'ENTERING_CORRIDOR', 'OVERHEAD_TRANSIT', 'ABORTED']
+motor_enable [[46408.330462506, True]]
+raw_dock_pairs [['rackonaut_dock::body::dock_contact_surface_collision', 'rackonaut_x3::X3/base_link::X3/base_link_inertia_collision']]
+lidar_pair 312 observer_median_ms 29 observer_later_than_130ms 0 max_ms 66
+localization Counter({('TRACKING', 'Synchronized LiDAR fit and inertial prediction'): 620, ('DEGRADED', 'Calibrating IMU at the known installation dock'): 54, ('LOST', 'IMU data stopped advancing'): 2, ('LOST', 'Matched scans stopped advancing'): 1})
+end trace [('OVERHEAD_TRANSIT', 'TRACKING', False, 80.518), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.504), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.482), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.439), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.411), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.375), ('OVERHEAD_TRANSIT', 'TRACKING', False, 80.333), ('ABORTED', 'TRACKING', False, 80.333)]
+
+Targeted recharge at 70 percent
+run INS-CONTROL-20261126-181055-1A48790D ABORTED Charging contact was lost 335.2
+coverage ['A-01-01'] missed [] pending ['A-01-03']
+terminal at_pad True landed True contact False cycles 0 safety RECOVERY
+pose [-4.701, 10.301, 0.046, -0.0] sorties [(1, 'DOCKED_FOR_CHARGE', None)]
+stages ['STARTING', 'WAITING', 'VERTICAL_TAKEOFF', 'ENTERING_CORRIDOR', 'OVERHEAD_TRANSIT', 'WAITING_FOR_AISLE_CLEARANCE', 'AISLE_DESCENT', 'TRANSIT', 'ALIGN', 'INSPECT', 'RETURN_TO_DOCK', 'DOCKING', 'CHARGING', 'ABORTED']
+motor_enable [[46566.909636706, True]]
+raw_dock_pairs [['rackonaut_dock::body::dock_contact_surface_collision', 'rackonaut_x3::X3/base_link::X3/base_link_inertia_collision']]
+lidar_pair 994 observer_median_ms 30 observer_later_than_130ms 2 max_ms 149
+localization Counter({('TRACKING', 'Synchronized LiDAR fit and inertial prediction'): 1945, ('DEGRADED', 'Calibrating IMU at the known installation dock'): 21, ('LOST', 'IMU data stopped advancing'): 1})
+end trace [('CHARGING', 'TRACKING', True, 13.507), ('CHARGING', 'TRACKING', True, 13.505), ('CHARGING', 'TRACKING', True, 13.504), ('CHARGING', 'TRACKING', True, 13.502), ('CHARGING', 'TRACKING', True, 13.502), ('CHARGING', 'TRACKING', True, 14.342), ('CHARGING', 'TRACKING', False, 15.302), ('ABORTED', 'TRACKING', False, 15.302)]
+[INFO] [1795716992.577312971] [rackonaut_mission]: CHARGING PAD | Docking confirmed — charging
+[INFO] [1795716994.496573669] [rackonaut_mission]: ABORTED PAD | Charging contact was lost
