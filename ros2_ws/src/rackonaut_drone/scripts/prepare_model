@@ -8,6 +8,8 @@ from tempfile import NamedTemporaryFile
 from urllib.parse import urlsplit
 import xml.etree.ElementTree as xml
 
+from ament_index_python.packages import get_package_share_path
+
 FUEL = Path(".ignition/fuel/fuel.gazebosim.org/openrobotics/models/x3%20uav/4")
 CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
 FILES = {
@@ -19,7 +21,7 @@ FILES = {
 }
 
 
-def prepare(source, camera_profile):
+def prepare(source, camera_profile, localization_shadow):
     for name, digest in FILES.items():
         if sha256((source / name).read_bytes()).hexdigest() != digest:
             raise ValueError(f"{name} does not match X3 UAV Fuel revision 4.")
@@ -59,7 +61,23 @@ def prepare(source, camera_profile):
         camera.find("camera").append(xml.fromstring(
             "<noise><type>gaussian</type><mean>0</mean><stddev>0.015</stddev></noise>"
         ))
-    model.find("link[@name='X3/base_link']").append(camera)
+    body = model.find("link[@name='X3/base_link']")
+    body.append(camera)
+    if localization_shadow:
+        config = get_package_share_path("rackonaut_reference") / "config"
+        for fragment in ("avoidance-lidar.sdf.fragment", "localization-imu.sdf.fragment"):
+            for element in xml.fromstring(f"<fragment>{(config / fragment).read_text()}</fragment>"):
+                topic = element.find("topic")
+                if topic is not None:
+                    topic.text = topic.text.replace("/rackonaut_reference/", "/rackonaut_x3/")
+                body.append(element)
+        # The cloud uses bit 2. Keep our own visuals visible to RGB, but outside that mask.
+        for visual in model.findall(".//visual"):
+            flags = visual.find("visibility_flags")
+            if flags is None:
+                flags = xml.SubElement(visual, "visibility_flags")
+                flags.text = "4294967295"
+            flags.text = str(int(flags.text) & ~2)
 
     controller = xml.fromstring("""<plugin filename="ignition-gazebo-multicopter-control-system"
       name="ignition::gazebo::systems::MulticopterVelocityControl">
@@ -107,12 +125,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path.home() / FUEL)
     parser.add_argument("--camera-profile", choices=["standard", "challenging"], default="standard")
+    parser.add_argument("--localization-shadow", action="store_true", help="attach the IMU and 3D LiDAR")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
-    filename = "x3-challenging.sdf" if args.camera_profile == "challenging" else "x3.sdf"
+    suffix = "-challenging" if args.camera_profile == "challenging" else ""
+    if args.localization_shadow:
+        suffix += "-shadow"
+    filename = f"x3{suffix}.sdf"
     output = args.output or CACHE / "rackonaut_drone" / filename
     try:
-        tree = prepare(args.source.resolve(strict=True), args.camera_profile)
+        tree = prepare(args.source.resolve(strict=True), args.camera_profile, args.localization_shadow)
         output.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(dir=output.parent, delete=False) as temporary:
             draft = Path(temporary.name)
