@@ -103,7 +103,9 @@ timeout 10s ros2 run ros_gz_sim create -world rackonaut -file "$model" \
 start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -p "config_file:=$bridge"
 start_owned ros2 run tf2_ros static_transform_publisher "${camera_xyz[@]}" --roll -1.57079632679 --yaw -1.57079632679 --frame-id rackonaut_base_link --child-frame-id rackonaut_camera_optical_frame --ros-args -p use_sim_time:=true
 if (( x3 )); then
-    start_owned ros2 run rackonaut_drone velocity_guard
+    LC_ALL=C printf -v dock_position '[%.9f,%.9f,0.059]' "${spawn[0]}" "${spawn[1]}"
+    start_owned ros2 run rackonaut_drone velocity_guard --ros-args -p gentle_dock_descent:=true \
+        -p "dock_position:=$dock_position"
     start_owned ros2 run rackonaut_drone sensor_frames
     start_owned ros2 run ros_gz_bridge parameter_bridge '/rackonaut_x3/local_lidar/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked' \
         --ros-args -r __node:=rackonaut_x3_lidar_bridge -r /rackonaut_x3/local_lidar/points:=/rackonaut_drone/sensors/lidar
