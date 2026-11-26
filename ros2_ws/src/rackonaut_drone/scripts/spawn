@@ -1,0 +1,30 @@
+#!/usr/bin/python3
+"""Wait for Gazebo's create service before introducing the X3 model."""
+import subprocess
+import sys
+from time import monotonic, sleep
+
+
+def main():
+    world, model, x, y, z, roll, pitch, yaw = sys.argv[1:]
+    service = f"/world/{world}/create"
+    deadline = monotonic() + 20
+    try:
+        while monotonic() < deadline:
+            services = subprocess.run(["ign", "service", "-l"], capture_output=True, text=True, timeout=3)
+            if service in services.stdout.splitlines():
+                return subprocess.run([
+                    "ros2", "run", "ros_gz_sim", "create", "-world", world, "-file", model,
+                    "-name", "rackonaut_x3", "-x", x, "-y", y, "-z", z,
+                    "-R", roll, "-P", pitch, "-Y", yaw,
+                ], timeout=12).returncode
+            sleep(0.2)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        print(f"X3 spawn failed: {error}", file=sys.stderr)
+        return 1
+    print(f"Gazebo did not expose {service}.", file=sys.stderr)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

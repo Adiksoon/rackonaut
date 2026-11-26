@@ -1,0 +1,5 @@
+{
+  "keyboard": "teleop_twist_keyboard via PTY",
+  "t_climb_m": 0.19,
+  "k_zero_command_seen": true
+}
