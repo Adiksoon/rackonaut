@@ -91,6 +91,17 @@ python3 ros2_ws/src/rackonaut_drone/test/probe_shadow.py ros2_ws/log/x3-shadow-p
 
 Próba obejmowała jedną trasę ze znaną mapą i poprawną inicjalizacją w doku. Walidator porównywał pozycje na znacznikach czasu skanu. [Pomiary i pozostałe etapy](docs/evidence/x3-shadow-localization.json)
 
+### Zanik danych czujników w zawisie
+
+W osobnej domenie ROS, podczas zawisu X3, dwukrotnie wstrzymano proces `x3_shadow_sensor_bridge` sygnałem `SIGSTOP` i wznowiono przez `SIGCONT`. Mostek przesyła razem dane IMU i LiDAR-u. Walidacja dotyczy jednoczesnej przerwy obu strumieni.
+
+| Czas przerwy | Do stanu LOST | Od wznowienia do TRACKING | Komunikaty odometrii Gazebo podczas przerwy |
+| ---: | ---: | ---: | ---: |
+| 1,015 s | 0,445 s | 0,128 s | 18 |
+| 3,007 s | 0,537 s | 0,154 s | 49 |
+
+Estymator sygnalizował `IMU data stopped advancing`. Gazebo nadal publikowało pozycję dla próby lotu. Największa zmiana położenia względem początku przerwy do odzyskania śledzenia wyniosła 8,5 mm. Są to dwa kontrolowane pomiary na postoju w powietrzu, w trybie `shadow`. [Telemetria próby](docs/evidence/x3-shadow-dropout.json)
+
 ## Sterowanie i obraz
 
 Polecenia poniżej wykonuj w osobnych terminalach po aktywacji projektu z tym samym `RACKONAUT_ROS_DOMAIN_ID` i `RACKONAUT_GZ_PARTITION`. Jeśli działa już demonstrator, ustaw inną domenę i partycję **przed** aktywacją, np. `RACKONAUT_ROS_DOMAIN_ID=66` i `RACKONAUT_GZ_PARTITION=rackonaut-x3-local`. Uruchom tylko jednego wydawcę poleceń na temacie sterowania. Zakończ teleop przed uruchomieniem testu automatycznego.
