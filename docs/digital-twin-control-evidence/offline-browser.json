@@ -1,0 +1,19 @@
+{
+  "chrome": "158.0.8127.88",
+  "errors": [],
+  "active": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+  "archivePreview": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "archiveRun": "INS-CONTROL-20261126-161131-4C2582B8",
+  "mode": "actual archives and Mock SAP with ROS Control Center only, no running drone in this environment",
+  "canvasCount": 1,
+  "measurements": [
+    "Plan ratios",
+    "revision-bound historic Results",
+    "Service auth and private photos",
+    "archive preview",
+    "top and LiDAR",
+    "eight protected manual controls",
+    "Diagnostics"
+  ],
+  "ratio": 0.25
+}

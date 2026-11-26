@@ -1,0 +1,23 @@
+{
+  "simulatedSecondsBetweenFirstMotionAndDock": 179.76,
+  "wallSecondsBetweenFirstMotionAndDock": 316.73,
+  "averageRtf": 0.568,
+  "stateSamples": 302,
+  "medianPollSpacingS": 1.049,
+  "localizationStates": [
+    "TRACKING"
+  ],
+  "waypointsReported": 80,
+  "lastPosition": [
+    -4.701,
+    10.3,
+    0.051,
+    0.001
+  ],
+  "lastBattery": 38.088,
+  "lastSafety": "RELEASED",
+  "firstConfirmation": {
+    "A-01-01": 1795714573168,
+    "A-01-03": 1795714589675
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "chrome": "158.0.8127.88",
+  "boot": {
+    "warehouse": {
+      "enabled": true,
+      "active_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "loaded_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "ready": true,
+      "error": ""
+    },
+    "position": [
+      -4.7,
+      10.3,
+      0.051,
+      -0.001
+    ],
+    "sim": 30.24
+  },
+  "run": "INS-CONTROL-20261126-173342-61439CAF",
+  "forecast": {
+    "duration": "~4 min sim",
+    "battery": "80% min."
+  },
+  "stage": "COMPLETE",
+  "reason": "Learned route ended at the verified physical dock",
+  "battery": 38.088,
+  "contact": true,
+  "contactSource": "gazebo_dock_switch",
+  "safety": "RELEASED",
+  "frames": 156,
+  "projectedPoseUpdates": 306,
+  "result": {
+    "url": "/reports/INS-CONTROL-20261126-173342-61439CAF",
+    "events": 2,
+    "rows": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-08C4EF434E7E4B098713C0E95CE0B063",
+        "outcome": "unreadable_label"
+      },
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-64E83CDAF5504D99BAB2FF7E1541033C",
+        "outcome": "missing_pallet"
+      }
+    ],
+    "discrepancies": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-08C4EF434E7E4B098713C0E95CE0B063",
+        "outcome": "unreadable_label"
+      },
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-64E83CDAF5504D99BAB2FF7E1541033C",
+        "outcome": "missing_pallet"
+      }
+    ]
+  },
+  "elapsedWallSeconds": 321.065,
+  "visited": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "confirmed": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "errors": []
+}

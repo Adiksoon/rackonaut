@@ -613,3 +613,45 @@ main nav .tab.active { font-weight: 700; }
   .result-workbench { grid-template-columns: 1fr; }
   .results-toolbar { align-items: stretch; flex-direction: column; }
 }
+
+/* The canvas is shared across the operator and service workspaces. */
+@media (min-width: 1000px) {
+  .workspace.with-map[data-view="plan"] { grid-template-columns: minmax(260px, 1fr) minmax(0, 3fr); }
+  .workspace.with-map[data-view="manual"] { grid-template-columns: minmax(420px, 44fr) minmax(0, 56fr); }
+}
+.workspace[data-view="manual"] .flight-monitor { grid-template-columns: minmax(0, 1fr); }
+.workspace[data-view="manual"] .video { width: 100%; height: clamp(270px, 38vh, 420px); aspect-ratio: auto; }
+.workspace[data-view="manual"] .video img { object-fit: contain; }
+.workspace[data-surveyed="true"] .twin-viewport { height: clamp(405px, 67vh, 820px); }
+.workspace[data-surveyed="true"] :is(#twin-detail, #localization-layers, .twin-legend, #twin-aerial,
+  #twin-corridor, #twin-onboard, #twin-source) { display: none; }
+.workspace[data-surveyed="true"]:is([data-view="plan"],[data-view="configuration"],[data-view="results"]) .twin-feed { display: none; }
+.visual-status { margin: 0 16px 10px; }
+.visual-locations { display: grid; gap: 6px; margin: 0 12px 12px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: .83rem; }
+.visual-locations .chip { margin-right: 5px; }
+.visual-locations img { width: min(100%, 320px); border-radius: 5px; }
+.manual-height { display: inline-flex; gap: 9px; margin: 8px 0; color: var(--muted); font-size: .83rem; }
+.manual-height strong { color: var(--text); }
+.manual-direction { grid-template-columns: minmax(0, 1.38fr) minmax(0, 1fr); align-items: stretch; gap: 8px; }
+.manual-planar, .manual-vertical { display: grid; gap: 4px; align-content: start; }
+.manual-planar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.manual-planar button:first-child { grid-column: 2; }
+.manual-planar button:nth-child(2) { grid-column: 1; grid-row: 2; }
+.manual-planar button:nth-child(3) { grid-column: 2; grid-row: 2; }
+.manual-planar button:nth-child(4) { grid-column: 3; grid-row: 2; }
+.manual-vertical { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.manual-direction button { min-height: 48px; flex-direction: column; align-items: center; justify-content: center;
+  font-size: .70rem; touch-action: none; user-select: none; }
+.manual-direction button span { color: var(--accent); font-size: 1rem; line-height: 1; }
+.manual-direction button kbd { font-size: .61rem; }
+#service-overview { margin-bottom: 14px; }
+#service-return { margin-top: 12px; }
+#calibration-steps { grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); }
+#results-business-overview { padding: 13px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; margin: 0 0 12px; }
+#results-business-overview .intelligence-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 520px) {
+  .workspace[data-surveyed="true"] .twin-viewport { height: 440px; }
+  .manual-direction { grid-template-columns: 1fr; }
+}

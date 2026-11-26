@@ -108,3 +108,20 @@ Service authentication is required for configuration management. Route sealing a
 | `POST /api/plan` and `POST /api/start` | In `mode: learned` accept the active `configuration_id`, `revision` and nonempty `record_ids`. Use the original sequence of approved directed edges and stop only at the selected learned locations. |
 
 The existing Mock SAP API receives current camera observations and the existing report exporter reads those observations by inspection ID. Calibration references remain in the warehouse archive.
+
+## Control Center warehouse visualization
+
+Read-only JSON for Warehouse Digital Twin in the existing loopback Control Center.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/visualization/active` | Returns the visualization for the selected learned configuration. |
+| `GET /api/visualization/run/{inspection_id}` | Resolves the learned configuration and revision recorded for that inspection. Uses the dispatch record or archived mission evidence. |
+| `GET /api/service/visualization/warehouse/{configuration_id}` | Previews any verified saved configuration with the existing Service session. |
+| `GET /api/service/visualization/calibration/{calibration_id}` | Previews a completed measured calibration with the existing Service session. |
+
+A ready response contains `binding` (configuration ID, calibration ID, revision, and input hashes), `name`, the original Float32 little-endian XYZ payload in `points_f32le`, `point_count`, and `enhanced` (template parameters, layout and location projections). The public responses omit calibration photographs and archived route edges. The protected previews include them. Live approved route and flown positions continue to use the existing mission telemetry.
+
+Requests return `202` with `status: preparing` and `Retry-After: 2` during background work, `304` with a matching `If-None-Match`, and `404` for a missing model association or input. Service follows the existing origin and authentication checks. Visualization failure reports a read error and leaves the archive and dispatch permissions independent.
+
+The exporter writes `visualization.json` beside the calibration or sealed configuration with an atomic replacement. Its binding tracks source hashes and revision. The verified localization manifest, approved routes, stored inspection poses and robot commands use their existing paths and formats.

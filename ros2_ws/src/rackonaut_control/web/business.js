@@ -1,4 +1,19 @@
-export function createIntelligence(api, locate, safe, label) {
+const confirmedFindings = new Set(["WRONG_PALLET", "MISSING_PALLET", "UNEXPECTED_PALLET", "DISCONTINUED_PRODUCT",
+  "BLOCKED_PRODUCT", "DAMAGED_PACKAGE", "MISPLACED_PALLET"]);
+const tone = state => ({discrepancy: "mismatch", manual: "review"}[state] || state);
+
+export function locationResult(row, issues) {
+  const mismatch = ["wrong_pallet", "missing_pallet", "unexpected_pallet"].includes(row.outcome);
+  const quality = (row.quality_history || []).some(photo => photo.status === "DAMAGED");
+  const problem = issues.some(issue => confirmedFindings.has(issue.type));
+  if (mismatch || quality || problem) return {state: "discrepancy", label: "Confirmed issue"};
+  if (issues.length || ["unreadable_label", "uncertain"].includes(row.outcome))
+    return {state: "manual", label: "Needs review"};
+  if (row.outcome === "match") return {state: "match", label: "Clear"};
+  return {state: "uninspected", label: "Not inspected"};
+}
+
+export function createIntelligence(api, locate, safe, label, sceneChanged) {
   const el = name => document.getElementById("intelligence" + (name ? "-" + name : ""));
   const status = message => { el("status").textContent = message; };
   const options = (name, entries, all) => {
@@ -12,13 +27,6 @@ export function createIntelligence(api, locate, safe, label) {
   };
   let current = null, data = null, selected = null, automatic = true, latest = null, pending = false, next = 0;
   let detailSignature = "", rowSignature = "", locationSignature = "", selectedSlot = null;
-  const outcomes = {
-    match: ["match", "Match"], wrong_pallet: ["mismatch", "Mismatch"],
-    missing_pallet: ["mismatch", "Mismatch"], unexpected_pallet: ["mismatch", "Mismatch"],
-    unreadable_label: ["review", "Needs review"], uncertain: ["unknown", "Unreliable reading"],
-    uninspected: ["uninspected", "Not inspected"],
-  };
-  const outcome = row => outcomes[row.outcome] || ["unknown", "No reliable data"];
 
   function detail(issue) {
     const slot = data.slots.find(row => row.slot_id === (issue?.slot_id || selectedSlot));
@@ -45,13 +53,13 @@ export function createIntelligence(api, locate, safe, label) {
       · ${safe(label(event.label_status))} · <time>${safe(event.timestamp)}</time>
       <code>${safe(event.observation_id)}</code></li>`).join("");
     const related = (issue?.related_issue_ids || []).map(id => data.issues.find(item => item.issue_id === id)).filter(Boolean);
-    const [kind, caption] = outcome(slot);
+    const {state, label:caption} = locationResult(slot, data.issues.filter(item => item.slot_id === slot.slot_id));
     const reading = slot.readings.at(-1);
     const observed = reading ? (product(slot.observed_product) || slot.observed_pallet_id ||
       (reading.occupancy === "empty" ? "Empty location" : reading.occupancy === "occupied"
         ? "Occupied · label unreadable" : "Occupancy uncertain")) : "No camera observation in this inspection";
     section.innerHTML = `<div class="intelligence-detail-head"><div>
-      <span class="outcome-label" data-outcome="${kind}">${caption}</span>
+      <span class="outcome-label" data-outcome="${tone(state)}">${caption}</span>
       <h2>${safe(issue ? label(issue.type) : slot.slot_id)}</h2>
       ${issue ? `<p>${safe(slot.slot_id)}</p>` : ""}</div>
       <button class="chip" type="button" data-intel-map="${safe(slot.slot_id)}">Locate on map</button></div>
@@ -70,7 +78,15 @@ export function createIntelligence(api, locate, safe, label) {
 
   function render() {
     el("content").hidden = !data;
-    if (!data) { el("metrics").replaceChildren(); return; }
+    if (!data) {
+      el("metrics").replaceChildren();
+      sceneChanged(current, {});
+      return;
+    }
+    const markers = Object.fromEntries(data.slots.map(row => [
+      row.slot_id, locationResult(row, data.issues.filter(item => item.slot_id === row.slot_id)),
+    ]));
+    sceneChanged(current, markers);
     const m = data.metrics;
     const measures = [
       ["Locations observed", m.observed, `${m.total} in warehouse records`],
@@ -88,11 +104,12 @@ export function createIntelligence(api, locate, safe, label) {
     if (!selected && !selectedSlot && issues.length) selected = issues[0].issue_id;
     const activeIssue = data.issues.find(item => item.issue_id === selected);
     const activeSlot = activeIssue?.slot_id || selectedSlot;
-    const signatureLocations = JSON.stringify([activeSlot, data.slots.map(row => [row.slot_id,row.outcome])]);
+    const signatureLocations = JSON.stringify([activeSlot, markers]);
     if (signatureLocations !== locationSignature) {
       locationSignature = signatureLocations;
       el("locations").innerHTML = data.slots.map(row => {
-        const [kind, caption] = outcome(row);
+        const {state, label:caption} = markers[row.slot_id];
+        const kind = tone(state);
         return `<button type="button" data-intel-location="${safe(row.slot_id)}" data-outcome="${kind}" aria-pressed="${activeSlot === row.slot_id}"><strong>${safe(row.slot_id)}</strong><span>${caption}</span></button>`;
       }).join("");
     }
@@ -143,11 +160,7 @@ export function createIntelligence(api, locate, safe, label) {
     const item = event.target.closest("button");
     if (!item || !data) return;
     if (item.dataset.intelIssue) { selected = item.dataset.intelIssue; selectedSlot = null; render(); }
-    if (item.dataset.intelLocation) {
-      selectedSlot = item.dataset.intelLocation;
-      selected = data.issues.find(row => row.slot_id === selectedSlot)?.issue_id || null;
-      render();
-    }
+    if (item.dataset.intelLocation) selectLocation(item.dataset.intelLocation);
     if (item.dataset.intelMap) await locate(item.dataset.intelMap, current);
     if (item.dataset.intelVerify) {
       const issue = data.issues.find(row => row.issue_id === item.dataset.intelVerify);
@@ -162,7 +175,15 @@ export function createIntelligence(api, locate, safe, label) {
     }
   });
 
-  return {update(state) {
+  function selectLocation(id) {
+    if (!data?.slots.some(row => row.slot_id === id)) return false;
+    selectedSlot = id;
+    selected = data.issues.find(row => row.slot_id === id)?.issue_id || null;
+    detailSignature = "";
+    render();
+    return true;
+  }
+  return {selectLocation, update(state) {
     el("").hidden = state?.backend?.mode !== "mock_sap";
     if (el("").hidden) return;
     latest = state.mission?.mode !== "manual" && state.mission?.inspection_id || state.history[0]?.run;

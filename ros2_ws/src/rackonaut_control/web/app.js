@@ -24,22 +24,36 @@ const headings = {
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
   service: ["Service", "Calibration, warehouse configuration and manual flight."],
   route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
+  configuration: ["Warehouse preview", ""],
 };
 const service = createService({
   openWarehouse(configuration) {
+    previewSource = {kind: "warehouse", id: configuration.manifest.configuration_id};
     setView("route", true);
     routeReview.openArchive(configuration);
+  },
+  openPreview(configuration) {
+    previewSource = {kind: "warehouse", id: configuration.configuration_id};
+    put("configuration-preview-name", configuration.name);
+    setView("configuration", true);
   },
   openPlan() { setView("plan", true); },
   sessionChanged() {
     warehouseRequest = null;
     warehouseConfiguration = null;
+    for (const key of visualCache.keys()) if (key.startsWith("/api/service/")) visualCache.delete(key);
     if (layout?.learned_warehouse) changePlan();
   },
 });
 const manual = createManual(api, terminal, notice);
 const teaching = createTeaching(() => drawTwin(state?.mission), focusTaughtLocation);
-const routeReview = createRouteReview(api, () => drawTwin(state?.mission));
+const routeReview = createRouteReview(api, (event) => {
+  if (event === "approved" && previewSource?.kind === "calibration") {
+    visualCache.delete("/api/service/visualization/calibration/" + previewSource.id);
+    loadTwin("model");
+  }
+  drawTwin(state?.mission);
+});
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
@@ -56,6 +70,9 @@ let warehouseConfiguration = null, warehouseRequest = null, warehouseError = "",
 let learnedStops = new Set();
 let replanLocations = null;
 let emergencyTarget = null, connectionLost = false;
+let previewSource = null, businessRun = null, businessOutcomes = {}, fittedFocus = null;
+let showFittedDetails = false;
+const visualCache = new Map();
 
 function put(id, value) {
   const element = el(id);
@@ -70,7 +87,8 @@ function connectionStatus(value = "") {
 
 function chooseMap(mode) {
   mapMode = mapIntent = mode;
-  const unavailable = mode === "scan" && layout.localization?.mode !== "sensor_based";
+  const unavailable = mode === "scan" && layout.localization?.mode !== "sensor_based"
+    && !visualRequest(state?.mission).archiveScan;
   show3D = mode !== "2d" && !unavailable;
   el("workspace").dataset.mapMode = mode;
   el("scan-window-actions").hidden = mode !== "scan" || unavailable;
@@ -83,22 +101,30 @@ function chooseMap(mode) {
   for (const [id, key] of [["map-2d", "2d"], ["map-3d", "model"], ["map-scan", "scan"]]) {
     el(id).setAttribute("aria-pressed", String(key === mode));
   }
-  put("map-title", mode === "scan" ? "Measured 3D Scan" : mode === "model" ? "Warehouse Digital Twin" : "Warehouse floor");
+  put("map-title", mode === "scan" ? "LiDAR Scan" : mode === "model" ? "Warehouse Digital Twin" : "Warehouse floor");
   twin?.setMode(mode);
   drawWorkspace();
   twin?.setVisible(show3D && !el("warehouse-panel").hidden);
   drawTwin(state?.mission);
 }
 function twinError(message) {
-  chooseMap("2d");
+  if (visualRequest(state?.mission).required) message = "The 3D view is unavailable. Reload Control Center to try again.";
+  else chooseMap("2d");
+  el("visual-status").hidden = true;
   put("twin-error", message);
   el("twin-error").hidden = false;
 }
 async function loadTwin(mode = "model") {
   mapIntent = mode;
-  if (mode === "scan" && layout.localization?.mode !== "sensor_based") { chooseMap(mode); return; }
+  if (mode === "scan" && layout.localization?.mode !== "sensor_based"
+      && !visualRequest(state?.mission).archiveScan) { chooseMap(mode); return; }
   el("twin-error").hidden = true;
   if (twin) { chooseMap(mode); return; }
+  if (visualRequest(state?.mission).required) {
+    chooseMap(mode);
+    put("visual-status", "Loading the surveyed warehouse…");
+    el("visual-status").hidden = false;
+  }
   if (twinLoading) return;
   twinLoading = true;
   el("map-3d").disabled = el("map-scan").disabled = true;
@@ -114,6 +140,7 @@ async function loadTwin(mode = "model") {
           if (record) twin?.focusTaughtLocation(record.position_m);
         } else teaching.select(id);
       },
+      onFittedLocation: selectFittedLocation,
       onReinspect: id => planLocations([id]),
       onError: (message) => { twinError(message); twin = null; el("map-3d").disabled = true; },
     });
@@ -128,14 +155,126 @@ async function loadTwin(mode = "model") {
     el("map-scan").disabled = false;
   }
 }
+function visualRequest(job) {
+  if (["route", "configuration"].includes(view) && previewSource) {
+    const {kind, id} = previewSource;
+    return {required: true, url: `/api/service/visualization/${kind}/${id}`, archiveScan: view === "configuration"};
+  }
+  if (view === "manual" && (job?.mapping_id || state?.localization?.mapping_id)
+      && state?.service_mode !== "PRODUCTION") return {};
+  const run = view === "results" ? businessRun || locatedReport || (job?.mode !== "manual" ? job?.inspection_id : null)
+    : view === "live" && job?.mode === "learned" ? job.inspection_id : null;
+  const archivedLearned = view === "results" && state?.history.some(row => row.run === run && row.warehouse_configuration_id);
+  if (run && (layout?.learned_warehouse || archivedLearned)) {
+    return {required: true, url: `/api/visualization/run/${run}`, archiveScan: true, showFlight: view === "live"};
+  }
+  if (!layout?.learned_warehouse || view === "results") return {};
+  const identifier = state?.warehouse?.active_id;
+  return {required: true, url: identifier ? "/api/visualization/active" : null,
+    identity: identifier, archiveScan: true, showFlight: ["live", "manual"].includes(view)};
+}
+
+function readVisualization(visual) {
+  if (!visual.url) return {status: "Activate a saved warehouse to see its Digital Twin."};
+  const key = visual.url;
+  let entry = visualCache.get(key);
+  if (!entry || entry.identity !== visual.identity) {
+    entry = {identity: visual.identity, retry: 0, status: "Preparing the surveyed warehouse…"};
+    visualCache.set(key, entry);
+    if (visualCache.size > 8) visualCache.delete(visualCache.keys().next().value);
+  }
+  if (!entry.pending && !entry.packet && Date.now() >= entry.retry) {
+    entry.pending = true;
+    fetch(key, {cache: "no-store", signal: AbortSignal.timeout(6000)})
+      .then(async response => {
+        if (response.status === 202) { entry.retry = Date.now() + 1700; return; }
+        if (!response.ok) {
+          entry.status = response.status === 401 ? "Unlock Service to view this calibration."
+            : response.status === 404 ? "No surveyed model is available for this warehouse revision."
+            : "The surveyed warehouse could not be loaded.";
+          entry.retry = Date.now() + 10000;
+          return;
+        }
+        const packet = await response.json();
+        if (visual.identity && packet.binding.configuration_id !== visual.identity) {
+          entry.retry = Date.now() + 1700;
+          return;
+        }
+        entry.packet = packet;
+      }).catch(() => {
+        entry.retry = Date.now() + 3000;
+        entry.status = "Waiting for the warehouse visualization service…";
+      }).finally(() => {
+        entry.pending = false;
+        if (visualCache.get(key) === entry) drawTwin(state?.mission);
+      });
+  }
+  return entry;
+}
+
+function selectFittedLocation(id) {
+  if (view === "plan") {
+    const record = warehouseConfiguration?.locations.find(row => row.storage_location_id === id);
+    if (record) toggleLearned(record.record_id);
+    return;
+  }
+  fittedFocus = id;
+  showFittedDetails = true;
+  if (view === "results") intelligence.selectLocation(id);
+  drawTwin(state?.mission);
+}
+
+function showVisualizationDetails(visual, entry) {
+  const packet = entry.packet;
+  const locations = packet?.enhanced.locations || [];
+  const pending = el("visual-status");
+  pending.hidden = !visual.required || !!packet || (mapMode === "scan" && !visual.archiveScan);
+  put("visual-status", entry.status || "");
+  el("visual-locations").hidden = !locations.some(location => location.status === "unplaced");
+  html("unplaced-options", locations.filter(row => row.status === "unplaced").map(row =>
+    `<button class="chip" type="button" data-location="${safe(row.id)}"
+    ${view === "plan" && !visual.interactive ? "disabled" : ""}
+    aria-pressed="${visual.selected.has(row.id)}">${safe(row.id)}</button>`).join(""));
+  const item = showFittedDetails && locations.find(location => location.id === fittedFocus);
+  el("visual-location-detail").hidden = !item;
+  if (!item) return;
+  const outcome = view === "results" ? visual.outcomes[item.id] : null;
+  put("visual-location-title", item.id);
+  put("visual-location-caption", [outcome?.label, item.status === "unplaced" ? "Shelf location unconfirmed"
+    : item.status === "estimated" ? "Estimated rack face" : "Measured rack face",
+  item.rack_id, item.level ? "Level " + item.level : ""].filter(Boolean).join(" · "));
+  const photo = el("visual-location-photo");
+  photo.hidden = !item.photo_jpeg;
+  if (item.photo_jpeg) {
+    const source = "data:image/jpeg;base64," + item.photo_jpeg;
+    if (photo.getAttribute("src") !== source) photo.src = source;
+  } else photo.removeAttribute("src");
+}
+
+function flightTarget(job) {
+  const status = job?.status;
+  if (job?.mode !== "learned" || terminal.has(job.stage) || inspectionStages.includes(status?.stage)) return status?.target;
+  return job.slots.find(id => !status?.visited?.includes(id) && !status?.confirmed?.[id]
+    && !status?.missed?.includes(id)) || "PAD";
+}
+
 function drawTwin(job) {
   if (!twin || !show3D || el("warehouse-panel").hidden) return;
+  const visual = visualRequest(job);
+  const specimen = visual.required ? readVisualization(visual) : {};
+  const selectedLearned = new Set(warehouseConfiguration?.locations.filter(row => learnedStops.has(row.record_id))
+    .map(row => row.storage_location_id) || []);
+  const visualization = {...visual, packet: specimen.packet, selected: selectedLearned,
+    interactive: !!warehouseConfiguration && state?.warehouse?.ready,
+    outcomes: view === "results" ? businessOutcomes : {}, focus: fittedFocus, target: flightTarget(job)};
+  showVisualizationDetails(visualization, specimen);
+  drawMapCaption();
   if (view === "results" && locatedReport && job?.inspection_id !== locatedReport) job = null;
   const selected = layout.learned_warehouse ? [] : Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
   const review = view === "route" ? routeReview.display() : null;
   twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected),
-    review, taught: review ? review.locations : view === "manual" ? teaching.locations() : [],
+    visualization, review, taught: review ? review.locations : view === "manual" ? teaching.locations() : [],
     taughtSelection: review ? review.selectedLocation : teaching.selection() });
 }
 
@@ -158,7 +297,7 @@ async function api(url, data) {
 }
 
 function drawWorkspace() {
-  const showMap = view === "plan" || view === "live" || view === "manual" || view === "route" || (view === "results" && resultsMap);
+  const showMap = ["plan", "live", "manual", "route", "configuration"].includes(view) || (view === "results" && resultsMap);
   const warehouse = el("warehouse-panel");
   if (warehouse.hidden === showMap) {
     warehouse.hidden = !showMap;
@@ -166,12 +305,20 @@ function drawWorkspace() {
   }
   if ((!showMap || view === "service" || view === "diagnostics") && scanFullscreen()) leaveScanFullscreen();
   el("workspace").classList.toggle("with-map", showMap);
+  el("workspace").dataset.surveyed = String(visualRequest(state?.mission).required);
   el("results-map").setAttribute("aria-expanded", String(resultsMap));
   put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
   drawMapCaption();
 }
 
 function drawMapCaption() {
+  const visual = visualRequest(state?.mission);
+  if (visual.required && (mapMode !== "scan" || visual.archiveScan)) {
+    const artifact = visualCache.get(visual.url)?.packet;
+    put("map-caption", (artifact ? `${artifact.name} · Revision ${artifact.binding.revision} · ` : "")
+      + (mapMode === "scan" ? "Saved LiDAR measurements" : "Surveyed positions · Fitted rack templates"));
+    return;
+  }
   const scanSource = view === "route" || state?.localization?.source === "learned_map" ? "Saved measured map"
     : state?.localization?.state === "TRACKING" ? "Accumulated LiDAR measurements" : "Last measured snapshot";
   put("map-caption", mapMode === "scan" ? scanSource : mapMode === "model" ? "Reference model of the warehouse"
@@ -188,12 +335,20 @@ async function leaveScanFullscreen() {
 }
 
 function setView(next, focus = false) {
-  if (next === "results" && view !== next) { resultsMap = false; locatedReport = null; }
+  if (next === "results" && view !== next) {
+    resultsMap = !!layout.learned_warehouse || !!state?.history.some(row => row.warehouse_configuration_id);
+    locatedReport = null;
+    businessRun = null;
+    businessOutcomes = {};
+  }
+  showFittedDetails = false;
+  fittedFocus = null;
   view = next;
   el("workspace").dataset.view = next;
   el("workspace").hidden = next === "diagnostics" || next === "service";
   el("system-details").hidden = next !== "diagnostics";
   el("route-panel").hidden = next !== "route";
+  el("configuration-preview").hidden = next !== "configuration";
   service.show(next === "service");
   manual.show(next === "manual");
   drawWorkspace();
@@ -201,7 +356,7 @@ function setView(next, focus = false) {
     el(panel).hidden = name !== next && !(name === "live" && next === "manual");
   }
   for (const button of document.querySelectorAll(".tab")) {
-    const active = button.dataset.view === next || (["route", "manual"].includes(next) && button.dataset.view === "service");
+    const active = button.dataset.view === next || (["route", "manual", "configuration"].includes(next) && button.dataset.view === "service");
     button.classList.toggle("active", active);
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
@@ -213,7 +368,10 @@ function setView(next, focus = false) {
     warehouseRequest = null;
     syncLearnedPlan();
   }
-  if (next === "route" || (next === "manual" && state?.localization?.mapping_id)) loadTwin("scan");
+  if (next === "route" || (next === "manual" && state?.localization?.mapping_id
+    && state?.service_mode !== "PRODUCTION")) loadTwin("scan");
+  else if (["configuration", "live", "manual"].includes(next) || (next === "plan" && layout.learned_warehouse)
+    || next === "results" && resultsMap) loadTwin("model");
   draw();
   if (focus) el("page-title").focus();
 }
@@ -822,10 +980,14 @@ function draw() {
   const job = state?.mission;
   const status = job?.status || {};
   const stage = job?.stage;
-  const mapping = view === "route" || (view === "manual" && !!state?.localization?.mapping_id);
-  el("map-2d").hidden = el("map-3d").hidden = mapping;
+  const mapping = view === "manual" && !!state?.localization?.mapping_id && state?.service_mode !== "PRODUCTION";
+  const surveyed = visualRequest(job).required;
+  el("workspace").dataset.surveyed = String(surveyed);
+  el("map-2d").hidden = mapping || surveyed;
+  el("map-3d").hidden = mapping;
   const businessResults = state?.backend?.mode === "mock_sap";
   el("business-results").hidden = view !== "results" || !businessResults;
+  el("results-business-overview").hidden = !businessResults;
   const robot = el("robot-state"), backend = el("api-state");
   robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
   robot.classList.toggle("good", !!state?.robot);
@@ -842,7 +1004,8 @@ function draw() {
   el("reference-scope").hidden = learned;
   el("learned-scope").hidden = !learned;
   el("learned-service").hidden = !learned || (!!learnedReady && !warehouseLocked);
-  put("active-warehouse-name", learned ? warehouseConfiguration?.manifest.name || "Learned warehouse" : "Reference warehouse");
+  const visualName = visualCache.get("/api/visualization/active")?.packet?.name;
+  put("active-warehouse-name", learned ? warehouseConfiguration?.manifest.name || visualName || "Learned warehouse" : "Reference warehouse");
   put("planned-total", preview?.slots.length ?? (learned ? learnedStops.size : "—"));
   put("plan-distance", Number.isFinite(preview?.distance) ? `${preview.distance.toFixed(1)} m planned` : "");
   const duration = forecast?.seconds ?? (forecast ? forecast.flight_seconds + forecast.inspection_seconds : null);
@@ -886,7 +1049,8 @@ function draw() {
   const confirmed = Object.keys(status.confirmed || {}).length;
   const total = job?.slots?.length || 0;
   el("flight-progress").hidden = !job || job.mode === "manual" || view === "manual";
-  put("active-target", status.target === "PAD" ? "Launch pad" : status.target === "CORRIDOR" ? "Transfer corridor" : status.target || "—");
+  const target = flightTarget(job);
+  put("active-target", target === "PAD" ? "Dock" : target === "CORRIDOR" ? "Transfer corridor" : target || "—");
   put("progress-count", `${confirmed} / ${total}`);
   el("progress-bar").max = total || 1;
   el("progress-bar").value = confirmed;
@@ -911,6 +1075,8 @@ function draw() {
   el("global-stop").disabled = stopping;
   el("scan-stop").hidden = !scanFullscreen() || el("global-stop").hidden;
   el("scan-stop").disabled = stopping;
+  el("manual-stop").hidden = !canStop;
+  el("manual-stop").disabled = stopping;
   el("live-plan").hidden = !!job || view === "manual";
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMapCaption();
@@ -986,9 +1152,21 @@ async function init() {
     resultsMap = true;
     drawWorkspace();
     await loadTwin();
-    twin?.focusSlot(slot);
+    if (visualRequest(state?.mission).required) selectFittedLocation(slot);
+    else twin?.focusSlot(slot);
     el("map-title").scrollIntoView({block: "start", behavior: "smooth"});
-  }, safe, label);
+  }, safe, label, (run, outcomes) => {
+    if (businessRun !== run) {
+      fittedFocus = null;
+      showFittedDetails = false;
+    }
+    businessRun = run;
+    businessOutcomes = outcomes;
+    if (view === "results") drawTwin(state?.mission);
+  });
+  el("workspace").after(el("business-results"));
+  el("results-business-overview").append(
+    el("intelligence").querySelector(".results-toolbar"), el("intelligence-metrics"), el("intelligence-status"));
   el("localization-panel").hidden = !layout.localization;
   if (layout.avoidance) {
     el("avoidance-panel").hidden = false;
@@ -1014,8 +1192,19 @@ async function init() {
     loadTwin("scan");
   });
   el("service-review-route").addEventListener("click", () => {
+    previewSource = {kind: "calibration", id: el("service-review-route").dataset.session};
     setView("route", true);
-    routeReview.open(el("service-review-route").dataset.session, layout.learned_warehouse);
+    routeReview.open(previewSource.id, layout.learned_warehouse);
+  });
+  el("service-preview-calibration").addEventListener("click", () => {
+    previewSource = {kind: "calibration", id: el("service-review-route").dataset.session};
+    put("configuration-preview-name", "Completed calibration");
+    setView("configuration", true);
+  });
+  el("configuration-back").addEventListener("click", () => setView("service", true));
+  el("unplaced-options").addEventListener("click", event => {
+    const button = event.target.closest("button[data-location]");
+    if (button) selectFittedLocation(button.dataset.location);
   });
   el("route-back").addEventListener("click", () => setView("service", true));
   el("scan-expand").disabled = !document.fullscreenEnabled;
@@ -1042,7 +1231,7 @@ async function init() {
   });
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("diagnostics-tab").hidden = false;
-  el("manual-entry").hidden = !layout.manual_flight || !!layout.mapping_only;
+  el("manual-entry").hidden = !layout.manual_flight || layout.mapping_only && !layout.learned_warehouse;
   el("manual-tab").addEventListener("click", () => setView("manual", true));
   el("learned-service").addEventListener("click", () => setView("service", true));
   el("learned-all").addEventListener("change", (event) => {
@@ -1107,6 +1296,7 @@ async function init() {
     }
   }
   el("abort").addEventListener("click", stopInspection);
+  el("manual-stop").addEventListener("click", () => el("global-stop").click());
   el("global-stop").addEventListener("click", () => {
     if (emergencyTarget?.recovery) {
       const {inspection_id, recovery_id, proposal} = emergencyTarget.recovery;
@@ -1128,6 +1318,10 @@ async function init() {
   }
   el("recovery-replan").addEventListener("click", () => {
     planLocations(state?.recovery?.retry_slots || []);
+  });
+  el("service-return").addEventListener("click", () => {
+    if (state?.safety?.phase === "RECOVERY") el("emergency-panel").scrollIntoView({block: "start"});
+    else setView("manual", true);
   });
   el("review-stops").addEventListener("click", () => {
     planLocations(reviewSlots(state.mission));

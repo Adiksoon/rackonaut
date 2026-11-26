@@ -6,7 +6,7 @@ import numpy as np
 from scipy.spatial import cKDTree
 from scipy.spatial.transform import Rotation
 
-from twin import estimated_hit, fit_bays, fit_rack, keyframe_voxels
+from rackonaut_control.reconstruction.twin import estimated_hit, fit_bays, fit_rack, keyframe_voxels
 
 
 class TwinTest(unittest.TestCase):

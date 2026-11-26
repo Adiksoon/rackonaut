@@ -163,3 +163,29 @@ export function warehouseTemplate(twin) {
   route.computeLineDistances();
   return {model, context, route};
 }
+
+export function measuredCloud(packet) {
+  const raw = Uint8Array.from(atob(packet.points_f32le), char => char.charCodeAt(0));
+  if (raw.byteLength !== packet.point_count*12) throw new Error("The measured cloud is incomplete.");
+  const source = new DataView(raw.buffer);
+  const xyz = new Float32Array(packet.point_count*3);
+  const colors = new Float32Array(xyz.length);
+  const low = new THREE.Color("#3ab8ac"), middle = new THREE.Color("#548cdc"), high = new THREE.Color("#df9b62");
+  const tint = new THREE.Color();
+  for (let i = 0; i < xyz.length; i += 3) {
+    const x = source.getFloat32(i*4, true), y = source.getFloat32((i+1)*4, true), z = source.getFloat32((i+2)*4, true);
+    if (![x,y,z].every(Number.isFinite)) throw new Error("Invalid coordinates in the measured cloud.");
+    xyz.set([x,z,-y], i);
+    const height = THREE.MathUtils.clamp(z / 10, 0, 1);
+    if (height < .5) tint.copy(low).lerp(middle, height*2);
+    else tint.copy(middle).lerp(high, height*2-1);
+    tint.toArray(colors, i);
+  }
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.BufferAttribute(xyz,3));
+  geometry.setAttribute("color", new THREE.BufferAttribute(colors,3));
+  geometry.computeBoundingBox();
+  return new THREE.Points(geometry, new THREE.PointsMaterial({
+    vertexColors: true, size: .067, transparent: true, depthWrite: false,
+  }));
+}

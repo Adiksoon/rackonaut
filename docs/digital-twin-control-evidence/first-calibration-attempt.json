@@ -1,0 +1,40 @@
+{
+  "attempt": "New measured calibration after successful A-01-01 / A-01-03 autonomous replay",
+  "run": "INS-CONTROL-20261126-174131-9CFCDC21",
+  "calibrationId": "CAL-52F14B65A2674A69B3F88A4A59C1308B",
+  "capturedLocations": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "stage": "ABORTED",
+  "reason": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+  "position": [
+    2.094,
+    6.96,
+    6.696,
+    -0.0
+  ],
+  "safetyAtAbort": "RECOVERY",
+  "heldZones": [
+    "D",
+    "A"
+  ],
+  "sampleAfterAbort": {
+    "state": "TRACKING",
+    "reason": "Synchronized LiDAR fit and inertial prediction",
+    "scan_age_ms": 271,
+    "update_hz": 3.16,
+    "processing_ms": 20.21,
+    "pipeline_ms": 40.83,
+    "keyframe_count": 144
+  },
+  "recovery": {
+    "phase": "RECOVERY_FAILED",
+    "cause": "LOCALIZATION_LOST",
+    "detail": "in_flight_envelope, stable_tracking"
+  },
+  "parallelSimulatorStart": "2026-11-26T18:46:08+01:00",
+  "abortAt": "2026-11-26T18:46:15.128450+01:00",
+  "secondsFromObservedX3StartToAbort": 7.13,
+  "causeEstablished": false
+}

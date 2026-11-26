@@ -51,9 +51,10 @@ export function createManual(api, terminal, onError) {
     const flying = owned && manual?.stage === "MANUAL_FLIGHT" && !returning && status?.state !== "RETURNING";
     el("manual-aisles").disabled = starting || !!state?.busy;
     const mappingReady = state?.service_mode === "CALIBRATION_READY" && state.localization?.mapping_phase === "READY";
+    const learnedReady = state?.warehouse?.ready === true;
     el("manual-start").disabled = !state || starting || !!state.busy || !state.at_pad
       || state.safety?.phase === "RECOVERY"
-      || (!mappingReady && (state.service_mode !== "PRODUCTION" || state.mapping_only));
+      || (!mappingReady && (state.service_mode !== "PRODUCTION" || state.mapping_only && !learnedReady));
     put("manual-start", mappingReady ? "Start mapping flight" : "Start and take off");
     el("manual-return").disabled = !flying;
     el("manual-motion").disabled = !flying;
@@ -68,6 +69,7 @@ export function createManual(api, terminal, onError) {
     put("manual-requested", display(status?.requested));
     put("manual-permitted", display(status?.permitted));
     put("manual-clearance", status?.clearance != null ? `${status.clearance.toFixed(2)} m` : "—");
+    put("manual-height", state?.robot && Number.isFinite(state.position?.[2]) ? `${state.position[2].toFixed(2)} m` : "—");
   }
 
   el("manual-start").addEventListener("click", async () => {

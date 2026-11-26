@@ -128,3 +128,17 @@ button.twin-marker { pointer-events: auto; }
 .twin-marker.taught-marker { color: #092141; background: #b9e9ff; border: 1px solid #72c6ef;
   font-weight: 650; box-shadow: 0 0 0 2px #10223fbb; pointer-events: auto; z-index: 3; }
 .twin-marker.taught-marker:hover, .twin-marker.taught-marker[aria-pressed="true"] { color: #091a35; background: #f5fbff; }
+
+.twin-marker.fitted-marker {
+  padding: 5px 7px; color: #294b70; border-color: #5c80a8; background: #f6faff;
+  box-shadow: 0 1px 4px #14365330; font-size: .72rem;
+}
+.fitted-marker[data-placement="estimated"] { border-style: dashed; }
+.fitted-marker[data-status="available"] { color: #315476; background: #edf4fa; }
+.fitted-marker[data-status="selected"], .fitted-marker[data-status="target"] { color: white; background: #2465a4; border-color: #215a91; }
+.fitted-marker[data-status="target"] { z-index: 3; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #4083c2; }
+.fitted-marker[data-status="match"], .fitted-marker[data-status="visited"] { color: #14513b; background: #dff6e9; border-color: #4d9274; }
+.fitted-marker[data-status="discrepancy"] { color: #7d2330; background: #ffe3e6; border-color: #b44359; }
+.fitted-marker[data-status="manual"] { color: #815012; background: #fff0d7; border-color: #be8844; }
+.fitted-marker[data-status="uninspected"] { color: #4b5765; background: #edf0f3; border-color: #8996a5; }
+.fitted-marker[aria-pressed="true"] { z-index: 3; box-shadow: 0 0 0 2px #ffffff, 0 0 0 3px #326caa; }

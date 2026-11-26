@@ -111,6 +111,7 @@ export function createRouteReview(api, changed) {
         revision = result;
         proposal = null;
         drawStops();
+        if (name === "approve" && result.status === "approved") changed("approved");
       }
     } catch (cause) {
       error = cause.message;

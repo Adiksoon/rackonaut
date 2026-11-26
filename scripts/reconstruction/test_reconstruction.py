@@ -5,8 +5,8 @@ import unittest
 
 import numpy as np
 
-from geometry import reconstruct
-from reconstruct import projected_hits, read_json
+from rackonaut_control.reconstruction.geometry import reconstruct
+from rackonaut_control.reconstruction.reconstruct import projected_hits, read_json
 from validate import angle_error, perturb
 
 

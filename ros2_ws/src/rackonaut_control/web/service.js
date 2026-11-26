@@ -1,4 +1,4 @@
-export function createService({ openWarehouse, openPlan, sessionChanged } = {}) {
+export function createService({ openWarehouse, openPreview, openPlan, sessionChanged } = {}) {
   const el = (id) => document.getElementById(id);
   const text = (id, value) => { el(id).textContent = value ?? "—"; };
   const label = (value) => value ? value.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase()) : "—";
@@ -29,6 +29,7 @@ export function createService({ openWarehouse, openPlan, sessionChanged } = {}) 
       && !["PREPARING", "RESERVED", "RECOVERY"].includes(current.system.safety);
     el("warehouse-confirm-row").hidden = !verified || active;
     el("warehouse-verify").disabled = warehouseBusy || !selected;
+    el("warehouse-preview").disabled = warehouseBusy || !selected;
     el("warehouse-activate").hidden = !verified || active;
     el("warehouse-activate").disabled = warehouseBusy || !verified || active || !idle || !el("warehouse-confirm").checked;
     el("warehouse-map-open").disabled = warehouseBusy || !active;
@@ -105,9 +106,9 @@ export function createService({ openWarehouse, openPlan, sessionChanged } = {}) 
     const production = calibration.mode === "PRODUCTION";
     const ready = !!mapping;
     const draft = calibration.draft;
-    const step = production ? (catalog.length && !current.learned_warehouse?.ready ? 4 : 0)
-      : calibration.mode === "MAPPING_COMPLETE" ? 3 : calibration.mode === "MAPPING_ACTIVE"
-        ? (mapping?.mapping_phase === "FINISHING" ? 2 : 1) : calibration.mode === "CALIBRATION_READY" ? 1 : 0;
+    const step = production ? 0 : calibration.mode === "MAPPING_COMPLETE" ? 4
+      : calibration.mode === "MAPPING_ACTIVE" ? (mapping?.mapping_phase === "FINISHING" ? 3 : 2)
+        : calibration.mode === "CALIBRATION_READY" ? 1 : 0;
     for (const [index, item] of [...el("calibration-steps").children].entries()) {
       if (index === step) item.setAttribute("aria-current", "step");
       else item.removeAttribute("aria-current");
@@ -122,6 +123,7 @@ export function createService({ openWarehouse, openPlan, sessionChanged } = {}) 
     text("service-dock", system.contact ? "Physical contact confirmed" : label(system.dock));
     text("service-safety", [label(system.safety), system.safety_sensors && `${label(system.safety_sensors)} sensors`].filter(Boolean).join(" · "));
     text("service-mission", system.mission ? `${label(system.mission.stage)} · ${system.mission.inspection_id}` : "Idle");
+    el("service-return").hidden = system.contact || !(system.safety === "RECOVERY" || system.mission?.stage === "MANUAL_FLIGHT");
     text("service-profile", warehouse.profile);
     text("service-map-source", warehouse.map_source);
     text("service-map", warehouse.map);
@@ -158,6 +160,7 @@ export function createService({ openWarehouse, openPlan, sessionChanged } = {}) 
     el("calibration-ply").hidden = el("calibration-result").hidden = !draft.map_reference;
     el("calibration-locations").hidden = !draft.map_reference || !draft.locations_reference;
     el("service-review-route").hidden = calibration.mode !== "MAPPING_COMPLETE" || !draft.map_reference;
+    el("service-preview-calibration").hidden = el("service-review-route").hidden;
     el("service-review-route").dataset.session = draft.calibration_id;
     if (draft.map_reference) {
       el("calibration-ply").href = draft.map_reference;
@@ -251,6 +254,10 @@ export function createService({ openWarehouse, openPlan, sessionChanged } = {}) 
   el("warehouse-activate").addEventListener("click", () => warehouseAction("activate"));
   el("warehouse-plan").addEventListener("click", () => openPlan(details));
   el("warehouse-map-open").addEventListener("click", () => openWarehouse(details));
+  el("warehouse-preview").addEventListener("click", () => {
+    const selected = catalog.find(item => item.configuration_id === el("warehouse-select").value);
+    if (selected) openPreview(selected);
+  });
   el("warehouse-confirm").addEventListener("change", renderWarehouses);
   el("warehouse-select").addEventListener("change", () => {
     details = null;

@@ -20,7 +20,7 @@ from .teaching import CAPTURE_ID, SESSION_ID, session_path
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "service.js", "manual.js", "teaching.js", "route.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
+              "app.js", "business.js", "service.js", "manual.js", "teaching.js", "route.js", "twin.js", "rack-templates.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
@@ -36,6 +36,8 @@ TEACHING_ACTION = re.compile(r"/api/service/teaching/(capture|save|rename|delete
 ROUTE_STATE = re.compile(fr"/api/service/route/({SESSION_ID})$")
 ROUTE_ACTION = re.compile(r"/api/service/route/(review|validate|approve|plan)$")
 WAREHOUSE_ACTION = re.compile(r"/api/service/warehouses/(seal|verify|activate)$")
+VISUALIZATION_RUN = re.compile(fr"/api/visualization/run/({RUN})$")
+VISUALIZATION_SERVICE = re.compile(fr"/api/service/visualization/(warehouse|calibration)/(WH-[A-F0-9]{{32}}|{SESSION_ID})$")
 
 
 def serve(control, port):
@@ -57,6 +59,14 @@ def serve(control, port):
 
         def json(self, code, payload, headers=None):
             self.reply(code, json.dumps(payload, separators=(",", ":")).encode(), "application/json", headers)
+
+        def visualization(self, artifact):
+            if artifact is None:
+                self.json(202, {"status": "preparing"}, {"Retry-After": "2"})
+                return
+            body, etag = artifact
+            unchanged = self.headers.get("If-None-Match") == etag
+            self.reply(304 if unchanged else 200, b"" if unchanged else body, "application/json", {"ETag": etag})
 
         def local_request(self):
             host = self.headers.get("Host")
@@ -122,6 +132,8 @@ def serve(control, port):
                     self.json(200, control.teaching_state())
                 elif path == "/api/service/warehouses":
                     self.json(200, control.warehouse_catalog())
+                elif match := VISUALIZATION_SERVICE.fullmatch(path):
+                    self.visualization(control.visualizations.get(match[1], match[2], private=True))
                 elif match := TEACHING_PREVIEW.fullmatch(path):
                     with control.teaching.operations:
                         preview = control.teaching.get_preview(match[1], self.service_token(), monotonic())
@@ -201,6 +213,13 @@ def serve(control, port):
                     self.json(200, control.snapshot())
                 elif path in {"/api/measured-map", "/api/measured-scan"}:
                     self.measured_cloud(path == "/api/measured-scan")
+                elif (path == "/api/visualization/active" and control.learned_mode) or VISUALIZATION_RUN.fullmatch(path):
+                    if not self.local_request():
+                        self.json(403, {"error": "Open the local Control Center URL to view warehouse models."})
+                    elif path.endswith("/active"):
+                        self.visualization(control.visualizations.active())
+                    else:
+                        self.visualization(control.visualizations.for_run(path.rsplit("/", 1)[1]))
                 elif path.startswith("/api/service/"):
                     self.service_read(path)
                 elif path == "/api/business/summary":

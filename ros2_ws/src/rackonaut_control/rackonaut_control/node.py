@@ -42,6 +42,7 @@ from .route_recording import RouteRecorder
 from .route_review import RouteReview
 from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching
+from .visualization import Visualizations
 from .warehouse import WarehouseArchive
 from .web import serve
 
@@ -150,6 +151,12 @@ class Control(Node):
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
         self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor)
+        self.visualizations = Visualizations(self.data, self.web.parent / "config" / "reference-camera.json")
+        if self.learned_mode:
+            try:
+                self.visualizations.prime("warehouse", self.warehouse_archive.active_id())
+            except (OSError, ValueError):
+                pass
         self.route_recording = None
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
                                       and self.recovery_enabled and self.energy_enabled
@@ -279,6 +286,7 @@ class Control(Node):
     def history_item(status):
         run = status["inspection_id"]
         return {"run": run, "stage": status["stage"], "landed": status["landed"],
+                "warehouse_configuration_id": (status.get("learned") or {}).get("configuration_id"),
                 "confirmed": len(status["confirmed"]), "total": status["total"], "url": f"/reports/{run}"}
 
     def remember_recovery(self, record):
@@ -522,7 +530,8 @@ class Control(Node):
     def begin(self, selection, manual=False, mapping_id=None):
         with self.lock:
             learned = not manual and selection.get("mode") == "learned"
-            if self.mapping_only and not (mapping_id or learned and self.learned_mode):
+            learned_manual = manual and self.learned_mode and self.warehouse_status()["ready"]
+            if self.mapping_only and not (mapping_id or learned and self.learned_mode or learned_manual):
                 raise RuntimeError("Open Warehouse Calibration to dispatch on this survey profile.")
             if self.calibration.state != (READY if mapping_id else PRODUCTION):
                 raise RuntimeError("Warehouse calibration is active. New inspections are locked.")
@@ -737,10 +746,14 @@ class Control(Node):
                 session = draft.get("calibration_id")
                 if self.calibration.state != MAPPED or request.get("calibration_id") != session:
                     raise RuntimeError("Choose the current completed calibration.")
-                return self.warehouse_archive.seal(session, draft.get("warehouse_name") or "Learned warehouse")
+                result = self.warehouse_archive.seal(session, draft.get("warehouse_name") or "Learned warehouse")
+                self.visualizations.prime("warehouse", result["manifest"]["configuration_id"])
+                return result
             if self.calibration.state != PRODUCTION or request.get("confirm") is not True:
                 raise RuntimeError("Close Warehouse Calibration and confirm activation.")
-            return self.warehouse_archive.activate(request.get("configuration_id"))
+            result = self.warehouse_archive.activate(request.get("configuration_id"))
+            self.visualizations.prime("warehouse", result["manifest"]["configuration_id"])
+            return result
 
     def mapping_status(self):
         localization = self.localization or {}
@@ -870,7 +883,10 @@ class Control(Node):
                     raise RuntimeError("Route review requires a completed mapping session and physical docking.")
             if not self.service_access.authorized(owner):
                 raise RuntimeError("Unlock Service to continue.")
-            return self.route_review.action(action, session, request)
+            result = self.route_review.action(action, session, request)
+            if action == "approve":
+                self.visualizations.prime("calibration", session)
+            return result
 
     def cancel_calibration(self, _request):
         with self.lock:
@@ -939,6 +955,7 @@ class Control(Node):
                     return
                 calibration.draft = draft
                 calibration.set_state(MAPPED, "Mapping result and trajectory saved after verified docking.")
+                self.visualizations.prime("calibration", identifier)
             return
         if calibration.state not in TRANSITIONING:
             return
@@ -1124,6 +1141,8 @@ class Control(Node):
                     "safety_enabled": self.safety_enabled, "safety": safety,
                     "last_reservation": (self.safety or {}).get("required", []) if safety is None else [],
                     "overview": monotonic() - self.overview_at < 1.5}
+            if self.learned_mode:
+                result["warehouse"] = self.warehouse_status()
             if self.recovery_enabled:
                 recovery = job.recovery if job else None
                 if job and safety and safety["phase"] == "RECOVERY" and monotonic()-job.recovery_at > .85:
@@ -1148,6 +1167,7 @@ class Control(Node):
             self.route_recording.finish("INTERRUPTED", False, {})
             self.route_recording.worker.join(timeout=1.)
         self.pool.shutdown(wait=True, cancel_futures=True)
+        self.visualizations.close()
 
 
 def main():

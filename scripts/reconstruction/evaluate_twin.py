@@ -10,9 +10,9 @@ from xml.etree import ElementTree as ET
 
 import numpy as np
 
-from geometry import reconstruct
-from reconstruct import generate, read_json
-from twin import axes, completion, generate_twin
+from rackonaut_control.reconstruction.geometry import reconstruct
+from rackonaut_control.reconstruction.reconstruct import generate, read_json
+from rackonaut_control.reconstruction.twin import axes, completion, generate_twin
 from validate import angle_error, compare, reference, xyz
 
 

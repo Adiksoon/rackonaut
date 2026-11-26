@@ -13,8 +13,8 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 from scipy.spatial import cKDTree
 
-from geometry import reconstruct
-from reconstruct import MARKERS, Inspector, load_markers, read_json
+from rackonaut_control.reconstruction.geometry import reconstruct
+from rackonaut_control.reconstruction.reconstruct import MARKERS, Inspector, load_markers, read_json
 
 
 def xyz(element):

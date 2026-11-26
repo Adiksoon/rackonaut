@@ -69,7 +69,7 @@
   </section>
   <section id="service-panel" aria-label="Service Center" hidden>
     <div class="service-tools" id="manual-entry" hidden>
-      <div><h2>Manual flight</h2><p>Fly in reserved space with collision protection and a supervised return.</p></div>
+      <div><h2>Manual Control</h2><p>Fly in reserved space with collision protection and a supervised return.</p></div>
       <button type="button" class="secondary" id="manual-tab" data-view="manual">Open manual controls</button>
     </div>
     <form id="service-access" class="card service-access">
@@ -86,9 +86,9 @@
         <button type="button" id="service-lock" class="secondary">Lock Service</button>
       </div>
       <p id="service-feedback" class="notice" role="status" hidden></p>
-      <details id="service-overview" class="service-overview"><summary>System and warehouse details</summary><div class="service-grid">
+      <div id="service-overview" class="service-overview service-grid">
         <section class="card service-card" aria-labelledby="service-system-title">
-          <h2 id="service-system-title">System Status</h2>
+          <h2 id="service-system-title">Drone Management</h2>
           <dl id="service-system" class="service-metrics">
             <div><dt>Drone</dt><dd id="service-drone">—</dd></div><div><dt>Connection</dt><dd id="service-connection">—</dd></div>
             <div><dt>Localization</dt><dd id="service-localization">—</dd></div><div><dt>LiDAR match</dt><dd id="service-lidar">—</dd></div>
@@ -96,9 +96,10 @@
             <div><dt>Battery</dt><dd id="service-battery">—</dd></div><div><dt>Dock</dt><dd id="service-dock">—</dd></div>
             <div><dt>Safety</dt><dd id="service-safety">—</dd></div><div><dt>Current mission</dt><dd id="service-mission">—</dd></div>
           </dl>
+          <button type="button" class="secondary" id="service-return" hidden>Return to dock options</button>
         </section>
         <section class="card service-card" aria-labelledby="service-config-title">
-          <h2 id="service-config-title">Warehouse Configuration</h2>
+          <h2 id="service-config-title">Active warehouse</h2>
           <dl class="service-facts">
             <div><dt>Profile</dt><dd id="service-profile">—</dd></div>
             <div><dt>Map source</dt><dd id="service-map-source">—</dd></div>
@@ -107,14 +108,15 @@
             <div><dt>Configuration</dt><dd id="service-config-state">—</dd></div>
           </dl>
         </section>
-      </div></details>
+      </div>
       <section class="card service-card service-transition" aria-labelledby="service-calibration-title">
         <div class="service-transition-head">
           <div><h2 id="service-calibration-title">Warehouse Calibration</h2><p id="service-calibration-detail" class="footnote" role="status"></p></div>
           <span id="service-mode" class="run-state"></span>
         </div>
         <ol id="calibration-steps" class="calibration-steps" aria-label="Calibration progress">
-          <li>Prepare warehouse</li><li>Map &amp; register locations</li><li>Return to dock</li><li>Review &amp; approve route</li><li>Save &amp; activate</li>
+          <li>Prepare</li><li>Map warehouse</li><li>Register locations</li><li>Return to dock</li>
+          <li>Approve route</li><li>Generate model</li><li>Save configuration</li>
         </ol>
         <div id="service-introduction">
           <button type="button" id="service-start" class="primary" aria-describedby="service-start-hint">Start Calibration</button>
@@ -154,16 +156,18 @@
           <a id="calibration-result" hidden>Download result and trajectory</a>
           <a id="calibration-locations" hidden>Download registered locations</a>
           <button type="button" class="primary" id="service-review-route" hidden>Review Route</button>
+          <button type="button" class="secondary" id="service-preview-calibration" hidden>Preview generated model</button>
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
       <section class="card service-card" id="warehouse-configurations" aria-labelledby="warehouse-config-title" hidden>
-        <h2 id="warehouse-config-title">Learned warehouses</h2>
+        <h2 id="warehouse-config-title">Warehouse Configuration</h2>
         <p id="warehouse-active" class="footnote" role="status"></p>
         <label class="warehouse-select">Saved configuration <select id="warehouse-select"></select></label>
         <div class="route-actions">
           <button type="button" class="secondary" id="warehouse-verify">Check integrity</button>
-          <button type="button" class="secondary" id="warehouse-map-open" disabled>View 3D Scan and route</button>
+          <button type="button" class="secondary" id="warehouse-preview" disabled>Preview Digital Twin</button>
+          <button type="button" class="secondary" id="warehouse-map-open" disabled>Review route</button>
         </div>
         <p id="warehouse-feedback" class="footnote" role="status"></p>
         <label id="warehouse-confirm-row" hidden><input id="warehouse-confirm" type="checkbox"> Activate this revision at the dock</label>
@@ -257,15 +261,25 @@
         <div class="manual-actions">
           <label>Reserve aisles <select id="manual-aisles"><option value="A">A</option><option value="B">B</option><option value="A,B">A and B</option></select></label>
           <button type="button" class="primary" id="manual-start">Start and take off</button>
-          <button type="button" class="secondary" id="manual-return">Return and end session</button>
+          <button type="button" class="secondary" id="manual-return">Return to dock</button>
+          <button type="button" class="danger" id="manual-stop" hidden>Emergency stop</button>
         </div>
+        <p class="manual-height">Altitude <strong id="manual-height">—</strong></p>
         <fieldset id="manual-motion" disabled>
           <legend>Hold to move</legend>
           <div class="manual-direction">
-            <button type="button" data-move="w">Forward <kbd>W</kbd></button><button type="button" data-move="s">Back <kbd>S</kbd></button>
-            <button type="button" data-move="a">Left <kbd>A</kbd></button><button type="button" data-move="d">Right <kbd>D</kbd></button>
-            <button type="button" data-move="r">Up <kbd>R</kbd></button><button type="button" data-move="f">Down <kbd>F</kbd></button>
-            <button type="button" data-move="q">Yaw left <kbd>Q</kbd></button><button type="button" data-move="e">Yaw right <kbd>E</kbd></button>
+            <div class="manual-planar" aria-label="Horizontal movement">
+              <button type="button" data-move="w"><span aria-hidden="true">↑</span> Forward <kbd>W</kbd></button>
+              <button type="button" data-move="a"><span aria-hidden="true">←</span> Left <kbd>A</kbd></button>
+              <button type="button" data-move="s"><span aria-hidden="true">↓</span> Back <kbd>S</kbd></button>
+              <button type="button" data-move="d"><span aria-hidden="true">→</span> Right <kbd>D</kbd></button>
+            </div>
+            <div class="manual-vertical" aria-label="Altitude and rotation">
+              <button type="button" data-move="r"><span aria-hidden="true">↑</span> Rise <kbd>R</kbd></button>
+              <button type="button" data-move="f"><span aria-hidden="true">↓</span> Descend <kbd>F</kbd></button>
+              <button type="button" data-move="q"><span aria-hidden="true">↶</span> Yaw left <kbd>Q</kbd></button>
+              <button type="button" data-move="e"><span aria-hidden="true">↷</span> Yaw right <kbd>E</kbd></button>
+            </div>
           </div>
           <div class="manual-actions"><label>Speed <input id="manual-speed" type="range" min="20" max="100" step="10" value="60"><output for="manual-speed" id="manual-speed-value">60%</output></label>
             <button type="button" class="secondary" id="manual-hold">Hold position <kbd>Space</kbd></button></div>
@@ -316,6 +330,7 @@
     </aside>
     <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
       <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id" hidden></p></div></div>
+      <div id="results-business-overview" hidden></div>
       <div id="completion-text" class="completion">Run an inspection to see its report.</div>
       <dl id="result-counts" class="result-counts" hidden>
         <div><dt>Confirmed</dt><dd id="result-confirmed">—</dd></div>
@@ -385,12 +400,17 @@
       <button type="button" class="secondary" id="route-seal" hidden>Save warehouse configuration</button>
       <button type="button" class="secondary" id="route-back">Back to Service</button>
     </aside>
+    <aside class="card controls" id="configuration-preview" aria-labelledby="configuration-preview-name" hidden>
+      <h2 id="configuration-preview-name">Warehouse preview</h2>
+      <p class="footnote">Select a marker to view its calibration evidence.</p>
+      <button type="button" class="secondary" id="configuration-back">Back to Service</button>
+    </aside>
     <section class="card warehouse" id="warehouse-panel" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Select an aisle or location to plan an inspection.</p></div>
         <div class="map-mode" role="group" aria-label="Warehouse view">
           <button type="button" id="map-2d" aria-pressed="true">2D Map</button>
-          <button type="button" id="map-3d" aria-pressed="false">3D Model</button>
-          <button type="button" id="map-scan" aria-pressed="false">3D Scan</button>
+          <button type="button" id="map-3d" aria-pressed="false">Digital Twin</button>
+          <button type="button" id="map-scan" aria-pressed="false">LiDAR Scan</button>
         </div>
         <div class="scan-window-actions" hidden id="scan-window-actions">
           <button type="button" class="danger scan-stop" id="scan-stop" hidden>Emergency stop</button>
@@ -399,6 +419,7 @@
       </div>
       <p id="fullscreen-alert" class="critical-alert" role="alert" hidden></p>
       <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
+      <p id="visual-status" class="notice visual-status" role="status" hidden></p>
       <section id="twin-panel" aria-label="Interactive warehouse view" data-map-mode="model" hidden>
         <div class="scan-controls">
           <dl class="scan-summary">
@@ -424,6 +445,7 @@
           <button type="button" class="scan-camera" id="scan-side" aria-pressed="false">Side</button>
           <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
           <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
+          <button type="button" id="twin-survey" hidden>Fit survey</button>
           <button type="button" class="scan-camera" id="scan-fit">Fit to cloud</button>
           <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
           <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
@@ -486,6 +508,13 @@
           </div>
           <div id="twin-slot-record" hidden></div>
         </section>
+      </section>
+      <div id="visual-locations" class="visual-locations" hidden>
+        <strong>Locations without a shelf position</strong><div id="unplaced-options"></div>
+      </div>
+      <section class="visual-locations" id="visual-location-detail" hidden aria-label="Surveyed location details">
+        <h3 id="visual-location-title"></h3><p id="visual-location-caption"></p>
+        <img id="visual-location-photo" alt="Camera photo recorded during calibration" hidden>
       </section>
       <svg id="warehouse-map" viewBox="0 0 900 530" aria-label="Interactive warehouse map" role="group">
         <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#d6e1ee" stroke-width="1"/></pattern></defs>
