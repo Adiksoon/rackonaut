@@ -1,0 +1,7 @@
+hu_id,sku,product_name,batch,lifecycle_status,quality_status,stock_status
+P001,EL-440,Series 440 control relay,EL-2408,DISCONTINUED,RELEASED,ON_HAND
+P002,MT-125,Mounting bracket kit,EL-2611,RETIRED,RELEASED,ON_HAND
+P003,,Industrial junction box,EL-2606,ACTIVE,RELEASED,ON_HAND
+P003,EL-812,Industrial junction box,EL-2606,ACTIVE,RELEASED,ON_HAND
+HU-005,PK-140,Protective packaging inserts,PK-2610,active,RELEASED,ON_HAND
+P006,MT-620,Bearing assembly,MT-2605,BLOCKED,QUARANTINE,RESTRICTED

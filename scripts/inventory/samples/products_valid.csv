@@ -1,0 +1,10 @@
+hu_id,sku,product_name,batch,lifecycle_status,quality_status,stock_status
+P001,EL-440,Series 440 control relay,EL-2408,DISCONTINUED,RELEASED,ON_HAND
+P002,MT-125,Mounting bracket kit,MT-2611,ACTIVE,RELEASED,ON_HAND
+P003,EL-812,Industrial junction box,EL-2606,ACTIVE,RELEASED,ON_HAND
+P005,PK-140,Protective packaging inserts,PK-2610,ACTIVE,RELEASED,ON_HAND
+P006,MT-620,Bearing assembly,MT-2605,BLOCKED,ON_HOLD,RESTRICTED
+P007,EL-224,Cable routing module,EL-2611,ACTIVE,RELEASED,ON_HAND
+P008,HY-310,Hydraulic fitting set,HY-2609,ACTIVE,RELEASED,ON_HAND
+P021,EL-590,Modular sensor housing,EL-2610,ACTIVE,RELEASED,ON_HAND
+P022,MT-271,Precision mounting rail,MT-2609,UNKNOWN,PENDING,ON_HAND
