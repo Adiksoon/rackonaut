@@ -102,6 +102,37 @@ W osobnej domenie ROS, podczas zawisu X3, dwukrotnie wstrzymano proces `x3_shado
 
 Estymator sygnalizował `IMU data stopped advancing`. Gazebo nadal publikowało pozycję dla próby lotu. Największa zmiana położenia względem początku przerwy do odzyskania śledzenia wyniosła 8,5 mm. Są to dwa kontrolowane pomiary na postoju w powietrzu, w trybie `shadow`. [Telemetria próby](docs/evidence/x3-shadow-dropout.json)
 
+### Próba lotu sterowanego z IMU i LiDAR-u
+
+W odizolowanej próbie integracyjnej launcher testowy z modułu X3 podstawia model i mostki X3 pod istniejący stos Control Center, Energy, Mission i Safety. Estymator jako jedyny publikuje `/rackonaut/drone/odom` oraz dynamiczny TF. Mostek Gazebo publikuje pozę osobno na `/rackonaut/validation/ground_truth` dla walidatora. Adapter doku mapuje nazwę kolizji korpusu X3 zgłoszoną przez fizyczny czujnik na nazwę obsługiwaną przez istniejący moduł energii.
+
+```bash
+export RACKONAUT_ROS_DOMAIN_ID=81 RACKONAUT_GZ_PARTITION=rackonaut-x3-active-81
+source scripts/robotics/activate.bash
+ros2 run rackonaut_drone prepare_model --localization-shadow
+LP_NUM_THREADS=4 ros2 launch "$PWD/ros2_ws/src/rackonaut_drone/test/active_mission.launch.py" \
+  localization:=sensor_based localization_diagnostics:=true safety:=true safety_sensor:=virtual \
+  http_port:=18765 mock_port:=18000 data_dir:="$PWD/ros2_ws/log/x3-active-trial"
+```
+
+W [panelu testowym](http://127.0.0.1:18765/) przed startem sprawdź `TRACKING`, kontakt z dokiem i stan Safety. Ten launcher jest przeznaczony do porównawczej, bezokiennej próby na znanej mapie. Dla każdego przebiegu użyj osobnej domeny i katalogu danych. Scenariusze obejmują lot do jednego punktu i lądowanie, utratę IMU i LiDAR-u w pionowym wznoszeniu oraz pełną inspekcję z zakresem **Full inventory**.
+
+W próbie utraty czujników wstrzymaj mostek publikujący IMU i LiDAR, gdy dron wznosi się, a walidator pokazuje wysokość ponad 0,75 m. Rejestruj stan misji, komendy prędkości i wysokość walidacyjną Gazebo. Po przerwaniu misji wznów mostek i sprawdź powrót do `TRACKING` oraz to, czy misja pozostaje w stanie `ABORTED`.
+
+| Scenariusz | Wynik |
+| --- | --- |
+| Lot do `A-01-01` | `COMPLETE`, potwierdzono 1/1 stanowisko. Lądowanie z fizycznym kontaktem doku, zwolnienie stref i raport HTML (HTTP 200). |
+| Przerwa IMU i LiDAR-u w czasie wznoszenia | `ABORTED` po 0,573 s. Sterownik wydał komendę zerową, a dron wzniósł się jeszcze o około 0,36 m przed ustabilizowaniem. Safety utrzymało strefy w `RECOVERY`. Śledzenie wróciło, a misja pozostała przerwana. |
+| Pełna inspekcja 11 stanowisk | `ABORTED`, 7/11 stanowisk. Podejście do `A-01-03` zostało pominięte. Przy 17% baterii dron wylądował na doku. Autoładowanie przeszło do `CHARGING`, po czym misja zgłosiła `LOCALIZATION_LOST`. |
+| Cztery pozostałe stanowiska | Potwierdzono `A-01-03` oraz `B-01-01`. W trakcie powrotu do doku estymator zgłosił `IMU data stopped advancing`, po czym misja została przerwana. |
+| Przejście z `B-01-02` do `B-02-01` | Potwierdzono `B-01-02`. Moduł omijania zarejestrował przeszkodę 0,60 m od drona podczas przejścia. Misję przerwano po braku zweryfikowanego obejścia lub drogi powrotnej. |
+| Bezpośrednia próba `B-02-01` z doku | `COMPLETE`, 1/1. Lądowanie z fizycznym kontaktem doku, zwolnienie stref i raport HTML (HTTP 200). |
+
+Łącznie próby potwierdziły obserwacje dla wszystkich 11 stanowisk. Pełna misja z ładowaniem i automatycznym wznowieniem pozostaje kryterium odbioru. Przy pierwszym powrocie do doku kontroler przeszedł do `CHARGING` i po 36 ms zapisał `LOCALIZATION_LOST`. Ostatni odczyt panelu nadal pokazywał `TRACKING`. W późniejszym locie między stanowiskami w alei B sonda odebrała te same znaczniki czasu IMU przed adapterem i za nim. W próbie, w której estymator zapisał przerwę IMU, stanowisko pomiarowe rejestrowało komunikaty estymatora. Miejsce wystąpienia przerwy pozostaje nieustalone.
+
+Stanowisko potwierdzone przez misję oznacza otrzymanie obserwacji z kamery i API. Status etykiety oraz rozpoznany identyfikator palety są zapisane osobno. [Pomiary i identyfikatory prób](docs/evidence/x3-active-flight.json)
+
+
 ## Sterowanie i obraz
 
 Polecenia poniżej wykonuj w osobnych terminalach po aktywacji projektu z tym samym `RACKONAUT_ROS_DOMAIN_ID` i `RACKONAUT_GZ_PARTITION`. Jeśli działa już demonstrator, ustaw inną domenę i partycję **przed** aktywacją, np. `RACKONAUT_ROS_DOMAIN_ID=66` i `RACKONAUT_GZ_PARTITION=rackonaut-x3-local`. Uruchom tylko jednego wydawcę poleceń na temacie sterowania. Zakończ teleop przed uruchomieniem testu automatycznego.
@@ -170,4 +201,4 @@ Ubuntu 22.04.5 WSL2, ROS 2 Humble, Fortress **6.18.0**, Python **3.10.12**, llvm
 - **X3 w magazynie.** W próbie `INS-X3-20261126-092105` odczytano znaczniki na dwóch wysokościach. Percepcja przesłała rzeczywiste obserwacje z symulacji dla `A-01-01 → P001` oraz `A-01-02 → P003`. Obie dostały HTTP 201. [Dolna półka](docs/evidence/x3-shelf-marker-0.png) · [Górna półka](docs/evidence/x3-shelf-marker-1.png) · [Dane próby](docs/evidence/warehouse.json) · [Obserwacje API](docs/evidence/api-observations.json)
 - **Regresja.** Przeszło 7 testów kontraktów i Mock SAP oraz 7 testów modułu Perception.
 
-Zakres odbioru X3 to sterowanie ręczne i tor kamery w symulacji. Przed podłączeniem autonomii potrzebna jest wspólna próba z Adrianem obejmująca lądowanie oraz Abort z interlockiem.
+Pierwotny odbiór X3 obejmował sterowanie ręczne i tor kamery w symulacji. Pomiary autonomii i reakcji na utratę lokalizacji opisano w sekcji [próby lotu sterowanego z IMU i LiDAR-u](#próba-lotu-sterowanego-z-imu-i-lidar-u).

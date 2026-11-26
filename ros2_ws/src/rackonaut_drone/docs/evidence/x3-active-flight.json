@@ -1,0 +1,738 @@
+{
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12",
+    "stack_base": "6e04fcf",
+    "x3_shadow_base": "6d68860"
+  },
+  "world": "localization_showcase.sdf",
+  "mode": "sensor_based",
+  "safety_sensor": "virtual",
+  "navigation_pose_source": "rackonaut_localization",
+  "simulation_pose_use": "validation",
+  "short": {
+    "run": "INS-CONTROL-20261126-130944-8CAF2ED4",
+    "accepted": true,
+    "stage": "COMPLETE",
+    "detail": "Landed on the launch pad",
+    "elapsed_s": 300.9,
+    "mode": "sensor_based",
+    "planned": [
+      "A-01-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "occupancy": "occupied",
+        "pallet_id": null,
+        "label_status": "unreadable"
+      }
+    },
+    "missed": [],
+    "pending_or_missed": [],
+    "landed": true,
+    "at_pad": true,
+    "dock_contact": true,
+    "safety_phase": "RELEASED",
+    "reserved_zones": [],
+    "safety_abort_events": [],
+    "avoidance_at_terminal_sample": {
+      "state": "CLEAR",
+      "reason": "Holding the reached waypoint",
+      "obstacle_distance": null,
+      "verified_distance": 0.006,
+      "scan_age_ms": 929
+    },
+    "battery_final_percent": 44.208,
+    "battery_forecast_percent": 58.88,
+    "completed_charge_cycles": 0,
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.946,
+        "start_sim_time": 4.2,
+        "completed_before": [],
+        "result": "COMPLETE",
+        "end_percent": 43.496,
+        "end_sim_time": 166.8,
+        "completed_after": [
+          "A-01-01"
+        ]
+      }
+    ],
+    "charge_and_abort_log": [],
+    "report": {
+      "http_status": 200,
+      "result_url_at_terminal_sample": "/reports/INS-CONTROL-20261126-130944-8CAF2ED4",
+      "archived_html_verified": true
+    },
+    "quality_requested": false,
+    "quality_evidence_count": 0,
+    "observed_flight_stages": [
+      "STARTING",
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECT",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TRANSIT",
+      "LAND",
+      "COMPLETE"
+    ],
+    "panel_localization_states": {
+      "TRACKING": 1516
+    },
+    "panel_localization_at_terminal_sample": "TRACKING",
+    "estimation": {
+      "samples": 1007,
+      "rmse_3d_cm": 0.732,
+      "p95_3d_cm": 1.371,
+      "max_3d_cm": 2.492
+    },
+    "raw_contact_at_start": [
+      [
+        "rackonaut_dock::body::dock_contact_surface_collision",
+        "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+      ]
+    ]
+  },
+  "fault": {
+    "abort_delay_s": 0.573,
+    "abort_reason": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "zero_commands_during_fault": 1,
+    "truth_after_abort": [
+      -4.701928536985025,
+      10.298387440700232,
+      1.1490917597347952
+    ],
+    "confirmed_pose_publisher": "rackonaut_localization",
+    "state_after_sensor_return": "ABORTED",
+    "localization_after_sensor_return": "TRACKING",
+    "run": "INS-CONTROL-20261126-131513-37C2DEF6",
+    "safety_phase": "RECOVERY",
+    "reserved_zones": [
+      "D",
+      "A"
+    ],
+    "height_at_sensor_pause_m": 0.786,
+    "rise_from_pause_to_settling_m": 0.363,
+    "horizontal_drift_from_pause_m": 0.001
+  },
+  "full": {
+    "run": "INS-CONTROL-20261126-131535-3395899F",
+    "accepted": false,
+    "stage": "ABORTED",
+    "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "elapsed_s": 430.4,
+    "mode": "sensor_based",
+    "planned": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "occupancy": "occupied",
+        "pallet_id": null,
+        "label_status": "unreadable"
+      },
+      "A-01-02": {
+        "occupancy": "occupied",
+        "pallet_id": "P003",
+        "label_status": "readable"
+      },
+      "A-01-04": {
+        "occupancy": "occupied",
+        "pallet_id": "P999",
+        "label_status": "readable"
+      },
+      "A-01-05": {
+        "occupancy": "occupied",
+        "pallet_id": null,
+        "label_status": "unreadable"
+      },
+      "A-01-06": {
+        "occupancy": "occupied",
+        "pallet_id": "P006",
+        "label_status": "readable"
+      },
+      "A-01-07": {
+        "occupancy": "uncertain",
+        "pallet_id": null,
+        "label_status": "unknown"
+      },
+      "A-01-08": {
+        "occupancy": "occupied",
+        "pallet_id": "P008",
+        "label_status": "readable"
+      }
+    },
+    "missed": [
+      "A-01-03"
+    ],
+    "pending_or_missed": [
+      "A-01-03",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ],
+    "landed": true,
+    "at_pad": true,
+    "dock_contact": true,
+    "safety_phase": "RECOVERY",
+    "reserved_zones": [
+      "D",
+      "B",
+      "A"
+    ],
+    "safety_abort_events": [
+      {
+        "time": "2026-11-26T13:23:06.686+00:00",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ]
+      },
+      {
+        "time": "2026-11-26T13:23:06.734+00:00",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ]
+      }
+    ],
+    "avoidance_at_terminal_sample": {
+      "state": "ABORTED",
+      "reason": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "obstacle_distance": null,
+      "verified_distance": 0.004,
+      "scan_age_ms": 828
+    },
+    "battery_final_percent": 17.034,
+    "battery_forecast_percent": 125.49,
+    "completed_charge_cycles": 0,
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.944,
+        "start_sim_time": 4.34,
+        "completed_before": [],
+        "result": "DOCKED_FOR_CHARGE",
+        "end_percent": 17.038,
+        "end_sim_time": 240.02,
+        "completed_after": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07",
+          "A-01-08"
+        ]
+      }
+    ],
+    "charge_and_abort_log": [
+      {
+        "utc_epoch_s": 1795699386.6224358,
+        "stage": "CHARGING"
+      },
+      {
+        "utc_epoch_s": 1795699386.6585157,
+        "stage": "ABORTED"
+      }
+    ],
+    "report": {
+      "http_status": null,
+      "result_url_at_terminal_sample": null,
+      "archived_html_verified": false
+    },
+    "quality_requested": true,
+    "quality_evidence_count": 2,
+    "observed_flight_stages": [
+      "STARTING",
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECT",
+      "RETURN_TO_DOCK",
+      "DOCKING",
+      "ABORTED"
+    ],
+    "panel_localization_states": {
+      "TRACKING": 2113
+    },
+    "panel_localization_at_terminal_sample": "TRACKING",
+    "estimation": {
+      "samples": 1447,
+      "rmse_3d_cm": 1.018,
+      "p95_3d_cm": 2.002,
+      "max_3d_cm": 4.713
+    },
+    "raw_contact_at_start": [
+      [
+        "rackonaut_dock::body::dock_contact_surface_collision",
+        "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+      ]
+    ]
+  },
+  "retry": {
+    "run": "INS-CONTROL-20261126-132357-D408A8F6",
+    "accepted": false,
+    "stage": "ABORTED",
+    "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "elapsed_s": 418.0,
+    "mode": "sensor_based",
+    "planned": [
+      "A-01-03",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ],
+    "confirmed": {
+      "A-01-03": {
+        "occupancy": "empty",
+        "pallet_id": null,
+        "label_status": "not_applicable"
+      },
+      "B-01-01": {
+        "occupancy": "occupied",
+        "pallet_id": "P021",
+        "label_status": "readable"
+      }
+    },
+    "missed": [],
+    "pending_or_missed": [
+      "B-01-02",
+      "B-02-01"
+    ],
+    "landed": false,
+    "at_pad": false,
+    "dock_contact": false,
+    "safety_phase": "RESERVED",
+    "reserved_zones": [
+      "D",
+      "B",
+      "A"
+    ],
+    "safety_abort_events": [
+      {
+        "time": "2026-11-26T13:31:14.631+00:00",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ]
+      },
+      {
+        "time": "2026-11-26T13:31:14.687+00:00",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ]
+      }
+    ],
+    "avoidance_at_terminal_sample": {
+      "state": "ABORTED",
+      "reason": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "obstacle_distance": null,
+      "verified_distance": 1.5,
+      "scan_age_ms": 337
+    },
+    "battery_final_percent": 19.646,
+    "battery_forecast_percent": 98.62,
+    "completed_charge_cycles": 0,
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.942,
+        "start_sim_time": 4.48,
+        "completed_before": [],
+        "result": "ABORTED",
+        "end_percent": 19.646,
+        "end_sim_time": 230.78,
+        "completed_after": [
+          "A-01-03",
+          "B-01-01"
+        ]
+      }
+    ],
+    "charge_and_abort_log": [
+      {
+        "utc_epoch_s": 1795699874.5851724,
+        "stage": "ABORTED"
+      }
+    ],
+    "report": {
+      "http_status": null,
+      "result_url_at_terminal_sample": null,
+      "archived_html_verified": true
+    },
+    "quality_requested": true,
+    "quality_evidence_count": 0,
+    "observed_flight_stages": [
+      "STARTING",
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECT",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TO_DOCK",
+      "ABORTED"
+    ],
+    "panel_localization_states": {
+      "TRACKING": 2069,
+      "LOST": 1
+    },
+    "panel_localization_at_terminal_sample": "LOST",
+    "estimation": {
+      "samples": 1391,
+      "rmse_3d_cm": 0.769,
+      "p95_3d_cm": 1.383,
+      "max_3d_cm": 2.054
+    },
+    "raw_contact_at_start": [
+      [
+        "rackonaut_dock::body::dock_contact_surface_collision",
+        "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+      ]
+    ],
+    "direct_localization_health": {
+      "messages": 2082,
+      "states": {
+        "TRACKING": 2081,
+        "LOST": 1
+      },
+      "non_tracking_reasons": {
+        "IMU data stopped advancing": 1
+      },
+      "max_receipt_gap_s": 0.3363,
+      "max_scan_age_ms": 547
+    }
+  },
+  "regression": {
+    "reference_smoke": {
+      "command": "scripts/robotics/smoke --reference",
+      "passed": [
+        "SIM-01",
+        "SIM-02",
+        "SIM-03",
+        "CAM-01",
+        "CV-01",
+        "CLEAN-01"
+      ]
+    },
+    "http_smoke": {
+      "command": ".venv-backend/bin/python scripts/api/smoke.py",
+      "passed": [
+        "API-01",
+        "API-02",
+        "API shutdown"
+      ]
+    },
+    "contract_and_mock_sap_tests": {
+      "command": ".venv-backend/bin/python -m unittest discover -s tests -q",
+      "passed": 7
+    },
+    "ros_module_tests": {
+      "command": "python3 -m pytest -q ros2_ws/src/rackonaut_{control,mission,perception,avoidance,localization,energy}/test",
+      "passed": 30
+    }
+  },
+  "remaining": {
+    "run": "INS-CONTROL-20261126-133152-B229323E",
+    "accepted": false,
+    "stage": "ABORTED",
+    "detail": "Route blocked; no measured, reserved bypass or verified return path",
+    "elapsed_s": 194.5,
+    "mode": "sensor_based",
+    "planned": [
+      "B-01-02",
+      "B-02-01"
+    ],
+    "confirmed": {
+      "B-01-02": {
+        "occupancy": "occupied",
+        "pallet_id": "P022",
+        "label_status": "readable"
+      }
+    },
+    "missed": [],
+    "pending_or_missed": [
+      "B-02-01"
+    ],
+    "landed": false,
+    "at_pad": false,
+    "dock_contact": false,
+    "safety_phase": "RESERVED",
+    "reserved_zones": [
+      "D",
+      "B"
+    ],
+    "safety_abort_events": [
+      {
+        "time": "2026-11-26T13:35:18.931+00:00",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "B"
+        ]
+      },
+      {
+        "time": "2026-11-26T13:35:18.982+00:00",
+        "event": "abort_confirmed",
+        "zones": [
+          "D",
+          "B"
+        ]
+      }
+    ],
+    "avoidance_at_terminal_sample": {
+      "state": "RECOVERY_REQUIRED",
+      "reason": "Route blocked; no measured, reserved bypass or verified return path",
+      "obstacle_distance": 0.601,
+      "verified_distance": 0.494,
+      "scan_age_ms": 222
+    },
+    "battery_final_percent": 62.574,
+    "battery_forecast_percent": 73.69,
+    "completed_charge_cycles": 0,
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.944,
+        "start_sim_time": 4.38,
+        "completed_before": [],
+        "result": "ABORTED",
+        "end_percent": 62.584,
+        "end_sim_time": 110.38,
+        "completed_after": [
+          "B-01-02"
+        ]
+      }
+    ],
+    "charge_and_abort_log": [
+      {
+        "utc_epoch_s": 1795700118.9047225,
+        "stage": "ABORTED"
+      }
+    ],
+    "report": {
+      "http_status": null,
+      "result_url_at_terminal_sample": null,
+      "archived_html_verified": true
+    },
+    "quality_requested": true,
+    "quality_evidence_count": 1,
+    "observed_flight_stages": [
+      "STARTING",
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECT",
+      "ABORTED"
+    ],
+    "panel_localization_states": {
+      "TRACKING": 1001
+    },
+    "panel_localization_at_terminal_sample": "TRACKING",
+    "estimation": {
+      "samples": 665,
+      "rmse_3d_cm": 0.79,
+      "p95_3d_cm": 1.429,
+      "max_3d_cm": 2.195
+    },
+    "raw_contact_at_start": [
+      [
+        "rackonaut_dock::body::dock_contact_surface_collision",
+        "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+      ]
+    ],
+    "timing_diagnostics": {
+      "channels_since_first_tracking": {
+        "raw_imu": {
+          "messages": 5493,
+          "max_wall_gap_s": 0.263,
+          "sim_advance_across_max_gap_s": 0.02
+        },
+        "adapted_imu": {
+          "messages": 5493,
+          "max_wall_gap_s": 0.263,
+          "sim_advance_across_max_gap_s": 0.02
+        },
+        "clock": {
+          "messages": 27216,
+          "max_wall_gap_s": 0.246,
+          "sim_advance_across_max_gap_s": 0.004
+        }
+      },
+      "localizer_status_messages": 1163,
+      "raw_imu_stamps_not_seen_on_adapted_topic": 0,
+      "non_tracking_after_first_match": {}
+    }
+  },
+  "last": {
+    "run": "INS-CONTROL-20261126-133648-AEDF6026",
+    "accepted": true,
+    "stage": "COMPLETE",
+    "detail": "Landed on the launch pad",
+    "elapsed_s": 376.3,
+    "mode": "sensor_based",
+    "planned": [
+      "B-02-01"
+    ],
+    "confirmed": {
+      "B-02-01": {
+        "occupancy": "empty",
+        "pallet_id": null,
+        "label_status": "not_applicable"
+      }
+    },
+    "missed": [],
+    "pending_or_missed": [],
+    "landed": true,
+    "at_pad": true,
+    "dock_contact": true,
+    "safety_phase": "RELEASED",
+    "reserved_zones": [],
+    "safety_abort_events": [],
+    "avoidance_at_terminal_sample": {
+      "state": "CLEAR",
+      "reason": "Holding the reached waypoint",
+      "obstacle_distance": null,
+      "verified_distance": 0.003,
+      "scan_age_ms": 1415
+    },
+    "battery_final_percent": 30.192,
+    "battery_forecast_percent": 70.27,
+    "completed_charge_cycles": 0,
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.938,
+        "start_sim_time": 4.76,
+        "completed_before": [],
+        "result": "COMPLETE",
+        "end_percent": 29.959,
+        "end_sim_time": 204.5,
+        "completed_after": [
+          "B-02-01"
+        ]
+      }
+    ],
+    "charge_and_abort_log": [],
+    "report": {
+      "http_status": 200,
+      "result_url_at_terminal_sample": "/reports/INS-CONTROL-20261126-133648-AEDF6026",
+      "archived_html_verified": true
+    },
+    "quality_requested": true,
+    "quality_evidence_count": 0,
+    "observed_flight_stages": [
+      "STARTING",
+      "WAITING",
+      "VERTICAL_TAKEOFF",
+      "ENTERING_CORRIDOR",
+      "OVERHEAD_TRANSIT",
+      "WAITING_FOR_AISLE_CLEARANCE",
+      "AISLE_DESCENT",
+      "TRANSIT",
+      "ALIGN",
+      "INSPECT",
+      "AISLE_APPROACH",
+      "AISLE_ASCENT",
+      "RETURN_TRANSIT",
+      "LAND",
+      "COMPLETE"
+    ],
+    "panel_localization_states": {
+      "TRACKING": 1893
+    },
+    "panel_localization_at_terminal_sample": "TRACKING",
+    "estimation": {
+      "samples": 1236,
+      "rmse_3d_cm": 0.746,
+      "p95_3d_cm": 1.389,
+      "max_3d_cm": 2.742
+    },
+    "raw_contact_at_start": [
+      [
+        "rackonaut_dock::body::dock_contact_surface_collision",
+        "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+      ]
+    ],
+    "timing_diagnostics": {
+      "channels_since_first_tracking": {
+        "raw_imu": {
+          "messages": 10222,
+          "max_wall_gap_s": 0.229,
+          "sim_advance_across_max_gap_s": 0.02
+        },
+        "adapted_imu": {
+          "messages": 10222,
+          "max_wall_gap_s": 0.242,
+          "sim_advance_across_max_gap_s": 0.02
+        },
+        "clock": {
+          "messages": 50112,
+          "max_wall_gap_s": 0.217,
+          "sim_advance_across_max_gap_s": 0.048
+        }
+      },
+      "localizer_status_messages": 2196,
+      "raw_imu_stamps_not_seen_on_adapted_topic": 0,
+      "non_tracking_after_first_match": {}
+    }
+  },
+  "confirmed_across_trials": [
+    "A-01-01",
+    "A-01-02",
+    "A-01-03",
+    "A-01-04",
+    "A-01-05",
+    "A-01-06",
+    "A-01-07",
+    "A-01-08",
+    "B-01-01",
+    "B-01-02",
+    "B-02-01"
+  ],
+  "full_single_mission_accepted": false
+}

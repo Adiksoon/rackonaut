@@ -4,6 +4,7 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
+from ros_gz_interfaces.msg import Contacts
 from sensor_msgs.msg import Imu, PointCloud2
 
 
@@ -15,6 +16,10 @@ class SensorFrames(Node):
         self.create_subscription(Imu, "/rackonaut_drone/sensors/imu", self.forward_imu, qos_profile_sensor_data)
         self.create_subscription(PointCloud2, "/rackonaut_drone/sensors/lidar",
                                  self.forward_lidar, qos_profile_sensor_data)
+        if self.declare_parameter("dock_contact", False).value:
+            self.dock = self.create_publisher(Contacts, "/rackonaut/dock/contacts", qos_profile_sensor_data)
+            self.create_subscription(Contacts, "/rackonaut_drone/sensors/dock_contacts",
+                                     self.forward_dock, qos_profile_sensor_data)
 
     def forward_imu(self, message):
         message.header.frame_id = "rackonaut_reference_drone/base_link/local_imu"
@@ -23,6 +28,15 @@ class SensorFrames(Node):
     def forward_lidar(self, message):
         message.header.frame_id = "rackonaut_reference_drone/base_link/local_lidar"
         self.lidar.publish(message)
+
+    def forward_dock(self, message):
+        # Energy Manager recognizes the contact name of the existing docking port.
+        # Translate only the X3 base collision from the actual contact event.
+        for event in message.contacts:
+            for collision in (event.collision1, event.collision2):
+                if collision.name == "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision":
+                    collision.name = "rackonaut_reference_drone::base_link::body_collision"
+        self.dock.publish(message)
 
 
 def main():

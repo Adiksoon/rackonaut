@@ -37,7 +37,12 @@ def launch_drone(context):
     spawn = ExecuteProcess(cmd=[str(spawn_executable), world, str(model_file), *pose],
                            name="x3_spawn", output="screen")
     gz_clock = f"/world/{world}/clock"
+    bridge_remappings = []
+    if value("navigation_odometry") == "sensor_based":
+        bridge_remappings = [("/rackonaut/drone/odom", "/rackonaut/validation/ground_truth"),
+                             ("/tf", "/rackonaut_drone/simulator/tf")]
     bridge = Node(package="ros_gz_bridge", executable="parameter_bridge", name="x3_bridge",
+                  remappings=bridge_remappings,
                   parameters=[{"config_file": str(get_package_share_path("rackonaut_drone") / "config/bridge.yaml")}],
                   output="screen")
     clock = Node(package="ros_gz_bridge", executable="parameter_bridge", name="x3_clock_bridge",
@@ -69,5 +74,8 @@ def generate_launch_description():
                 "model_path": str(cache / "rackonaut_drone/x3.sdf"),
                 "x": "0", "y": "0", "z": "0.12", "roll": "0", "pitch": "0", "yaw": "0"}
     arguments = [DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()]
-    return LaunchDescription([*arguments, DeclareLaunchArgument("gui", default_value="false",
+    return LaunchDescription([*arguments,
+                              DeclareLaunchArgument("navigation_odometry", default_value="gazebo",
+                                                    choices=["gazebo", "sensor_based"]),
+                              DeclareLaunchArgument("gui", default_value="false",
                               choices=["true", "false"]), OpaqueFunction(function=launch_drone)])

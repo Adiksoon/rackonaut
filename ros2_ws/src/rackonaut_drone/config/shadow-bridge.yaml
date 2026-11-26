@@ -8,3 +8,8 @@
   ros_type_name: sensor_msgs/msg/PointCloud2
   gz_type_name: gz.msgs.PointCloudPacked
   direction: GZ_TO_ROS
+- ros_topic_name: /rackonaut_drone/sensors/dock_contacts
+  gz_topic_name: /world/rackonaut/model/rackonaut_dock/link/body/sensor/dock_presence/contact
+  ros_type_name: ros_gz_interfaces/msg/Contacts
+  gz_type_name: gz.msgs.Contacts
+  direction: GZ_TO_ROS

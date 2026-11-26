@@ -25,12 +25,15 @@ def setup(context):
         raise FileNotFoundError("Run ros2 run rackonaut_drone prepare_model --localization-shadow.")
     data = Path(arg("data_dir")).expanduser().resolve()
     data.mkdir(parents=True, exist_ok=True)
+    mode = arg("localization_mode")
+    sensor_navigation = mode == "sensor_based"
     drone = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(str(package / "launch/drone.launch.py")),
         launch_arguments={
             "world_path": str(warehouse / "worlds/localization_showcase.sdf"),
             "model_path": str(model), "x": str(dock[0]), "y": str(dock[1]),
             "z": str(dock[2] + .07), "gui": arg("gazebo_gui"),
+            "navigation_odometry": "sensor_based" if sensor_navigation else "gazebo",
         }.items(),
     )
 
@@ -44,15 +47,20 @@ def setup(context):
     workers = [
         Node(package="ros_gz_bridge", executable="parameter_bridge", name="x3_shadow_sensor_bridge",
              parameters=[{"config_file": str(package / "config/shadow-bridge.yaml")}], output="screen"),
-        Node(package="rackonaut_drone", executable="sensor_frames", output="screen"),
-        Node(package="rackonaut_localization", executable="localize", output="screen",
-             additional_env={"OPENBLAS_NUM_THREADS": "1"},
-             parameters=[{"mode": "shadow", "data_dir": str(data)}]),
-        Node(package="rackonaut_localization", executable="validate_pose", output="screen",
-             additional_env={"OPENBLAS_NUM_THREADS": "1"}, parameters=[{"data_dir": str(data)}],
-             remappings=[("/rackonaut/validation/ground_truth", "/rackonaut/drone/odom")]),
+        Node(package="rackonaut_drone", executable="sensor_frames", output="screen",
+             parameters=[{"dock_contact": sensor_navigation}]),
         *transforms,
     ]
+    if arg("start_estimator") == "true":
+        truth = [] if sensor_navigation else [("/rackonaut/validation/ground_truth", "/rackonaut/drone/odom")]
+        workers.extend([
+            Node(package="rackonaut_localization", executable="localize", output="screen",
+                 additional_env={"OPENBLAS_NUM_THREADS": "1"},
+                 parameters=[{"mode": mode, "data_dir": str(data)}]),
+            Node(package="rackonaut_localization", executable="validate_pose", output="screen",
+                 additional_env={"OPENBLAS_NUM_THREADS": "1"}, parameters=[{"data_dir": str(data)}],
+                 remappings=truth),
+        ])
     monitors = [
         RegisterEventHandler(OnProcessExit(target_action=process,
             on_exit=[EmitEvent(event=Shutdown(reason="An X3 shadow localization service stopped"))]))
@@ -71,5 +79,9 @@ def generate_launch_description():
                               description="Localization map and comparison logs"),
         DeclareLaunchArgument("gazebo_gui", default_value="false", choices=["true", "false"],
                               description="Show the Gazebo window"),
+        DeclareLaunchArgument("localization_mode", default_value="shadow", choices=["shadow", "sensor_based"],
+                              description="Source of navigation odometry"),
+        DeclareLaunchArgument("start_estimator", default_value="true", choices=["true", "false"],
+                              description="Start the estimator and validator unless the caller provides both"),
         OpaqueFunction(function=setup),
     ])
