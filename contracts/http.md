@@ -79,3 +79,18 @@ The loopback Control Center exposes the session below through its existing authe
 | `GET /api/service/mapping/{calibration_id}/locations.json` | Downloads the approved location list for a completed map. The manifest names its PLY and result files and links the individual reference images. |
 
 Authentication failures return `401`. Ineligible flight state, a changed draft, or a conflicting location ID can return `409`. The pending photo is bound to the Service session that requested it. Client requests provide identifiers and confirmation only. The Mock SAP observation routes keep their existing payload and behavior.
+
+## Local route review
+
+Route operations use the same authenticated Service cookie. Read archived routes by mapping ID. Review, validation, planning, and approval require the current completed session and verified physical docking. Requests submit a calibration ID and, after review, the exact `route_sha256` of the proposal.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/route/{calibration_id}` | Returns the recorded positions, location records, route status, and matching validation if available. A changed source manifest yields `stale`. |
+| `POST /api/service/route/review` | Generates the directed graph from the timestamped captures and returns the proposal with its hash. |
+| `POST /api/service/route/validate` | Checks the proposal against the measured source, the approved flight envelope, and the simulated energy budget. The response specifies `historical_envelope` and `live_clearance: required`. |
+| `POST /api/service/route/plan` | Accepts nonempty `record_ids` from the proposal and returns the measured sequence of directed waypoints and the forecast for the selected stops. |
+| `POST /api/service/route/approve` | Requires `confirm: true` and the current validated proposal. Records approval in the calibration archive. |
+| `GET /api/service/mapping/{calibration_id}/{filename}` | Downloads `trajectory.jsonl`, `route.json`, or `route-validation.json` once available. |
+
+The calibration journal uses ROS time, recorded XYZ in metres, and XYZW orientation in `rackonaut_odom`. Approval applies to the exact archive revision. Runtime clearance and flight dispatch remain separate operations.

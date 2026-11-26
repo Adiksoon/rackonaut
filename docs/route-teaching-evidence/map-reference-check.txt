@@ -1,0 +1,2 @@
+Reference map was absent before launching the survey.
+ros2_ws/install/rackonaut_warehouse/share/rackonaut_warehouse/config/localization_map.json: OK

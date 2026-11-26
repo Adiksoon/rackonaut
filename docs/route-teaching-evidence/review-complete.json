@@ -1,0 +1,124 @@
+{
+  "session": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+  "events": [
+    {
+      "approval": {
+        "route_sha256": "795ac29d3c1828f02c813a3e7d411367b5dd52215ee7451b45ae2bbd59e9a930",
+        "approved_at_utc": "2026-11-26T13:59:13.670763+00:00",
+        "location_revision": 2
+      },
+      "session": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+      "verified": [
+        "result.json",
+        "map.ply",
+        "locations.json",
+        "trajectory.jsonl",
+        "route.json",
+        "route-validation.json",
+        "locations/CAP-81303FDDFE734502B524B9C93D8C6E38/reference.jpg",
+        "locations/CAP-FF3F2567B612480E87FAFC1A08AFC651/reference.jpg"
+      ],
+      "frames": 72
+    },
+    {
+      "stale": "stale",
+      "old_approval_status": 409,
+      "reason": "The learned route changed. Review the current revision first."
+    }
+  ],
+  "errors": [],
+  "final_digest": "6d2f16966dcd364cac49a3a038f7e1f58374121b54ddf5a786dd2cbf1f014f20",
+  "location_revision": 4,
+  "validation": {
+    "schema_version": 1,
+    "mapping_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+    "frame": "rackonaut_odom",
+    "location_revision": 4,
+    "route_sha256": "6d2f16966dcd364cac49a3a038f7e1f58374121b54ddf5a786dd2cbf1f014f20",
+    "scope": "historical_envelope",
+    "live_clearance": "required",
+    "valid": true,
+    "validated_segments": 94,
+    "issues": []
+  },
+  "summary": {
+    "raw_samples": 928,
+    "waypoints": 95,
+    "recorded_distance_m": 71.03747093269186,
+    "learned_distance_m": 70.86270896129103,
+    "max_deviation_m": 0.01499151339850767
+  },
+  "calibration_energy": {
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.888,
+        "start_sim_time": 8.18,
+        "completed_before": [],
+        "result": "COMPLETE",
+        "end_percent": 33.672,
+        "end_sim_time": 204.6,
+        "completed_after": []
+      }
+    ],
+    "dock_contact_source": "gazebo_dock_switch"
+  },
+  "bindings": [
+    {
+      "record_id": "LOC-E065774CBEEA42AF9E7C6DD2332824D7",
+      "storage_location_id": "A-01-01",
+      "node": "W0046",
+      "stamp_ns": 119200000000,
+      "raw_bracket": [
+        529,
+        530
+      ],
+      "location_revision": 4,
+      "orientation_xyzw": [
+        0.0009286009894499553,
+        0.0006474087458500178,
+        0.6948048555176245,
+        0.7191974216522548
+      ]
+    },
+    {
+      "record_id": "LOC-58F20C0733BF4CBB859537FECAAD7935",
+      "storage_location_id": "A-01-03",
+      "node": "W0052",
+      "stamp_ns": 129400000000,
+      "raw_bracket": [
+        576,
+        577
+      ],
+      "location_revision": 4,
+      "orientation_xyzw": [
+        0.0007291205858714573,
+        0.0011815043108714923,
+        0.707215698991594,
+        0.7069964833933519
+      ]
+    }
+  ],
+  "forecasts": {
+    "one": {
+      "distance_m": 70.863,
+      "climb_m": 12.841,
+      "duration_sim_s": 173.08,
+      "mission_percent": 60.363,
+      "return_percent": 31.23,
+      "reserve_percent": 8,
+      "required_percent": 68.363,
+      "within_capacity": true
+    },
+    "two": {
+      "distance_m": 70.863,
+      "climb_m": 12.841,
+      "duration_sim_s": 176.08,
+      "mission_percent": 61.143,
+      "return_percent": 29.164,
+      "reserve_percent": 8,
+      "required_percent": 69.143,
+      "within_capacity": true
+    }
+  }
+}
