@@ -1,0 +1,72 @@
+{
+  "newConfiguration": {
+    "warehouse": {
+      "enabled": true,
+      "active_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "loaded_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "ready": true,
+      "error": ""
+    },
+    "contact": "gazebo_dock_switch",
+    "model": {
+      "format": 1,
+      "configuration_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "mapping_id": "CAL-7E1488E90FE6414AAE778D3923425103",
+      "revision": 2,
+      "source_sha256": "82f6b5e445a37a278dfd7cdd20ba608a0e2e626a115d712a25e08baae45a06eb",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    },
+    "etag": "\"780b312fc21d872d11567051344384563e8ae7c4701e16042a01420f2f18558a\""
+  },
+  "archivedMission": {
+    "run": "INS-CONTROL-20261126-173342-61439CAF",
+    "binding": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "afterRestart": {
+    "active": {
+      "enabled": true,
+      "active_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "loaded_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "ready": true,
+      "error": ""
+    },
+    "dock": "gazebo_dock_switch",
+    "model": {
+      "format": 1,
+      "configuration_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "mapping_id": "CAL-7E1488E90FE6414AAE778D3923425103",
+      "revision": 2,
+      "source_sha256": "82f6b5e445a37a278dfd7cdd20ba608a0e2e626a115d712a25e08baae45a06eb",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    },
+    "etag": "\"780b312fc21d872d11567051344384563e8ae7c4701e16042a01420f2f18558a\""
+  },
+  "leftActive": {
+    "warehouse": {
+      "enabled": true,
+      "active_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "loaded_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "ready": true,
+      "error": ""
+    },
+    "contact": "gazebo_dock_switch",
+    "model": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "freshModelSha256AfterRestart": "c98d67217f6e75fa1433585af25c8ab1ff7e231cddc8f39f4c03f9a3d02f91c5",
+  "controlCenter": "http://127.0.0.1:8772/",
+  "frameErrors": []
+}

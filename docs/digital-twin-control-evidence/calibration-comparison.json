@@ -1,0 +1,71 @@
+{
+  "sharedConditions": {
+    "bootWarehouse": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "gazebo": "Fortress 6.16.0",
+    "model": "reference",
+    "lpNumThreads": 4,
+    "scenario": "fresh calibration, two ArUco captures, protected return",
+    "pilotEquivalent": true,
+    "identicalModuleTrees": {
+      "localization": "35aa895246e62bbef185a68e818d0ef94968fac2",
+      "mission": "d14d991ffd312f81b963f0e2ca39c8a3734d6ec7",
+      "energy": "0c5cc830d605b886c642a9f1382f5095963c9bb9",
+      "avoidance": "6256a9713b3c110122adef6d767780b47f7f5c36",
+      "safety": "5f56afb49415396fef90d0261180a8e83fa65b46",
+      "reference": "c1a01fbe1799f5d114ddcfa485e3207819bcf0bb",
+      "warehouse": "749b535a26352d5ffc46bc9751db170d33826d49"
+    }
+  },
+  "trials": {
+    "baseline-24": {
+      "testedCommit": "e43ccf7",
+      "bootArchiveSha256": "20b88312fbab97dc969d8372ed3469de7553cf4adf8b0658bd97c4fbecc1963b",
+      "calibrationId": "CAL-2B19FE16D20440A5AEF10FBECD750B00",
+      "gazeboServers": 1,
+      "durationWallSeconds": 343.83,
+      "durationSimSeconds": 197.98,
+      "returnWallSeconds": 134.56,
+      "airborneLocalizationStates": [
+        "TRACKING"
+      ],
+      "airborneSamples": 337,
+      "airborneScanAgeP95Ms": 302.7,
+      "returnScanAgeP95Ms": 313.0,
+      "confirmedArUcoLocations": [
+        "A-01-01",
+        "A-01-03"
+      ],
+      "rangeMapVoxels": 56001,
+      "missionStage": "COMPLETE",
+      "serviceMode": "MAPPING_COMPLETE",
+      "dock": "gazebo_dock_switch",
+      "safety": "RELEASED",
+      "remainingBatteryPercent": 34.64
+    },
+    "retry-26c": {
+      "testedCommit": "3126276",
+      "bootArchiveSha256": "20b88312fbab97dc969d8372ed3469de7553cf4adf8b0658bd97c4fbecc1963b",
+      "calibrationId": "CAL-7E1488E90FE6414AAE778D3923425103",
+      "gazeboServers": 1,
+      "durationWallSeconds": 342.39,
+      "durationSimSeconds": 197.96,
+      "returnWallSeconds": 131.7,
+      "airborneLocalizationStates": [
+        "TRACKING"
+      ],
+      "airborneSamples": 337,
+      "airborneScanAgeP95Ms": 301.2,
+      "returnScanAgeP95Ms": 321.1,
+      "confirmedArUcoLocations": [
+        "A-01-01",
+        "A-01-03"
+      ],
+      "rangeMapVoxels": 55911,
+      "missionStage": "COMPLETE",
+      "serviceMode": "MAPPING_COMPLETE",
+      "dock": "gazebo_dock_switch",
+      "safety": "RELEASED",
+      "remainingBatteryPercent": 34.16
+    }
+  }
+}

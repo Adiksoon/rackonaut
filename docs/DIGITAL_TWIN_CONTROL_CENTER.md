@@ -34,7 +34,7 @@ Przeglądarka używa pojedynczego WebGL i współdzielonego generatora szablonó
 
 ## Walidacja
 
-Próby odbyły się w Ubuntu 22.04 pod WSL2, z ROS 2 Humble, Gazebo Fortress 6.16.0 i Chrome 158 sterowanym przez Playwright. Podczas prób ruchu działał jeden serwer Gazebo. Dwie osierocone instancje wcześniejszego GOAL 21 zostały tymczasowo wstrzymane, aby nie obciążały prób. Zmiany kodu ograniczają się do Control Center, pakowania istniejącej rekonstrukcji, kontraktu odczytu HTTP i dokumentacji.
+Próby odbyły się w Ubuntu 22.04 pod WSL2, z ROS 2 Humble, Gazebo Fortress 6.16.0 i Chrome 158 sterowanym przez Playwright. Główną misję i porównanie kalibracji przeprowadzono z jednym aktywnym serwerem Gazebo. Dwie osierocone instancje wcześniejszego GOAL 21 najpierw wstrzymano, a przed porównaniem zamknięto. Zmiany kodu obejmują Control Center, pakowanie istniejącej rekonstrukcji, kontrakt odczytu HTTP i dokumentację.
 
 | Próba | Wynik |
 | --- | --- |
@@ -60,6 +60,20 @@ W odizolowanej próbie zatwierdzonych danych GOAL 24 zapis konfiguracji wrócił
 
 W pierwszej dodatkowej sesji zarejestrowano oba identyfikatory ArUco. Powrót został przerwany przez `LOCALIZATION_LOST` w górnym korytarzu. Safety zachowało rezerwacje. W próbie Recovery nie zostały spełnione warunki świeżego śledzenia i obwiedni lotu. Równoległa instancja X3 wystartowała około siedem sekund przed zatrzymaniem. Sam odstęp czasowy nie wskazuje przyczyny. Zachowano stan próby i zakończono tylko stos 26C. [Zapis przerwanej próby](digital-twin-control-evidence/first-calibration-attempt.json)
 
+Po zakończeniu sesji X3 wykonano sekwencyjne porównanie bazowego GOAL 24 `e43ccf7` i GOAL 26C `3126276`. W obu próbach uruchomiono to samo archiwum startowe GOAL 24, ten sam model drona, ten sam scenariusz lotu i jeden serwer Gazebo z `LP_NUM_THREADS=4`. Skróty drzew kodu lokalizacji, misji, energii, omijania przeszkód, Safety, modelu referencyjnego i świata są identyczne. Obie kalibracje zapisały A-01-01 oraz A-01-03, fizycznie zadokowały i zwolniły rezerwację Safety. W każdej próbie wszystkie 337 zebranych próbek w locie miały stan `TRACKING`. [Porównanie i skróty źródeł](digital-twin-control-evidence/calibration-comparison.json)
+
+| Pomiar | GOAL 24 | GOAL 26C |
+| --- | ---: | ---: |
+| Czas lotu w symulacji | 197,98 s | 197,96 s |
+| Czas lotu na zegarze systemowym | 343,83 s | 342,39 s |
+| P95 wieku skanu LiDAR w locie | 302,7 ms | 301,2 ms |
+| P95 wieku skanu LiDAR w drodze powrotnej | 313,0 ms | 321,1 ms |
+| Stan na zakończenie | `COMPLETE` | `COMPLETE` |
+
+Błędu nie odtworzono w tej parze prób. Wcześniejsze zatrzymanie pozostaje udokumentowanym przypadkiem utraty lokalizacji, którego przyczyny nie ustalono.
+
+W próbie 26C ukończenie kalibracji `CAL-7E1488E90FE6414AAE778D3923425103` automatycznie wygenerowało model jeszcze przed zatwierdzeniem trasy. Po zatwierdzeniu Service zapisał rewizję 2 jako `WH-FCF24BB703AA3198A71098E8AC100C03` z oddzielnym plikiem wizualizacji. Skróty wszystkich plików manifestu archiwum zgadzały się po zapisie. Po aktywacji nowej konfiguracji i pełnym restarcie Gazebo, ROS i Control Center model wrócił z tym samym ETag oraz SHA-256. Raport wcześniejszej misji zachował powiązanie z własną wersją GOAL 24. Po próbie przywrócono tę sprawdzoną konfigurację jako aktywną. [Dowód zapisu](digital-twin-control-evidence/fresh-sealing-proof.json) · [Aktywacja i pełny restart](digital-twin-control-evidence/fresh-restart-proof.json)
+
 ## Materiały
 
 | Ekran | Materiał |
@@ -68,6 +82,7 @@ W pierwszej dodatkowej sesji zarejestrowano oba identyfikatory ArUco. Powrót zo
 | Live flight | [Kamera, trasa, UAV i cel A-01-01](digital-twin-control-evidence/live-target.png) · [LiDAR](digital-twin-control-evidence/live-lidar.png) |
 | Results | [Wyniki misji na modelu](digital-twin-control-evidence/live-results.png) · [Układ 1600 px](digital-twin-control-evidence/final-results-1600.png) · [układ 1366 px](digital-twin-control-evidence/final-results-1366.png) · [próba widoku](digital-twin-control-evidence/final-ui-proof.json) · [Starsza misja przy aktywnej innej konfiguracji](digital-twin-control-evidence/historical-with-alternate-active.png) |
 | Service | [Drone Management i kalibracja](digital-twin-control-evidence/live-service.png) · [Podgląd innej konfiguracji](digital-twin-control-evidence/live-configuration.png) · [Ruch ręczny](digital-twin-control-evidence/manual-controls.png) |
+| Pełna kalibracja | [Nauczanie miejsca na pomiarach LiDAR](digital-twin-control-evidence/calibration-live-lidar.png) · [Zapis nowej konfiguracji z modelem](digital-twin-control-evidence/calibration-sealed-model.png) · [Podgląd zapisanej wersji](digital-twin-control-evidence/calibration-saved-preview.png) |
 | Diagnostics | [Emergency Stop i rezerwacje](digital-twin-control-evidence/live-diagnostics-emergency.png) · [Watchdog](digital-twin-control-evidence/manual-watchdog.png) · [Recovery](digital-twin-control-evidence/live-recovery.png) |
 | Wideo | [Przyspieszony fragment rzeczywistej inspekcji, 31 s](digital-twin-control-evidence/control-center-flight.mp4) |
 
