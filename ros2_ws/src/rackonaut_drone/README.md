@@ -45,6 +45,22 @@ Domyślny katalog raportów to `ros2_ws/log/ros/x3-inventory`. `gazebo_gui:=true
 
 **Wynik próby pełnej inspekcji.** Na WSL2 Ubuntu 22.04.5, ROS 2 Humble i Gazebo Fortress 6.18.0 X3 potwierdził **11/11** lokalizacji bez pominięć w **233,0 s** z włączoną kontrolą jakości. Po ośmiu punktach w A przeleciał korytarzem do B, odwiedził trzy kolejne punkty, wylądował i zwolnił strefy A, B oraz T. W archiwum znalazło się osiem zapisów kontroli jakości, a raport HTML zwrócił HTTP 200. Identyfikator `INS-CONTROL-20261126-104105-66B6872F`. [Wynik i telemetria](docs/evidence/x3-full-inventory.json)
 
+### Wariant trudniejszej kamery
+
+`camera_profile:=challenging` dodaje do obrazu X3 szum Gaussa o odchyleniu standardowym `0.015` w skali znormalizowanej. Zmniejsza światło otoczenia i moc wybranych opraw oraz dodaje reflektor i bardziej połyskliwą etykietę w alejce B. Ustawienia służą do porównań symulacyjnych. Domyślne `camera_profile:=standard` uruchamia dotychczasowy model i świat.
+
+```bash
+source scripts/robotics/activate.bash
+ros2 run rackonaut_drone prepare_model --camera-profile challenging
+LP_NUM_THREADS=4 ros2 launch rackonaut_drone inventory.launch.py camera_profile:=challenging
+```
+
+Przy równoległych instancjach ustaw osobną domenę ROS, partycję, porty i `data_dir`, tak jak w przykładzie wyżej. Profil tworzy lokalną kopię świata w swoim `data_dir`. Kamera zachowuje tę samą kalibrację, rozdzielczość i temat ROS. Odometria, geometria kolizyjna i konfiguracja Safety pozostają takie jak w standardowym profilu.
+
+W próbie z 26 listopada 2026 r. na WSL2 Ubuntu 22.04.5, ROS 2 Humble i Fortress 6.18.0 API potwierdziło **11/11** punktów w obu wariantach i **7** czytelnych etykiet palet. W trudniejszych warunkach liczba lokalizacji do ręcznej weryfikacji wzrosła z **2 do 4**, a liczba zapisów kontroli jakości spadła z **8 do 4**. Dwa puste miejsca (`A-01-03`, `B-02-01`) zmieniły wynik na niepewny. Odczyt zajętości w `A-01-05` także stał się niepewny. X3 wylądował, zwolnił strefy i wystawił raport. Identyfikator próby `INS-CONTROL-20261126-112516-4895F6CC`.
+
+Na 20 surowych klatkach w obu ustawieniach z tego samego pola startowego średnia jasność centralnego obszaru spadła ze 101,2 do 84,4 w skali 0–255. Pojedyncze przebiegi porównują łączny wpływ zmian światła i szumu. Automatyczne ponawianie odczytów było wyłączone. [Dane porównawcze](docs/evidence/x3-camera-realism.json)
+
 ## Sterowanie i obraz
 
 Polecenia poniżej wykonuj w osobnych terminalach po aktywacji projektu z tym samym `RACKONAUT_ROS_DOMAIN_ID` i `RACKONAUT_GZ_PARTITION`. Jeśli działa już demonstrator, ustaw inną domenę i partycję **przed** aktywacją, np. `RACKONAUT_ROS_DOMAIN_ID=66` i `RACKONAUT_GZ_PARTITION=rackonaut-x3-local`. Uruchom tylko jednego wydawcę poleceń na temacie sterowania. Zakończ teleop przed uruchomieniem testu automatycznego.

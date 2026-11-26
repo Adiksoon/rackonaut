@@ -1,0 +1,123 @@
+{
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12",
+    "code_base": "6e04fcf",
+    "drone_module_base": "58ca460"
+  },
+  "scope": {
+    "planned": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ],
+    "quality": true,
+    "adaptive_retries": false,
+    "camera_noise_sigma_normalized": 0.015
+  },
+  "static_rgb_samples": {
+    "standard": {
+      "frames": 20,
+      "width": 320,
+      "height": 240,
+      "mean_rgb_level": 101.199,
+      "temporal_pixel_stddev": 0.0
+    },
+    "challenging": {
+      "frames": 20,
+      "width": 320,
+      "height": 240,
+      "mean_rgb_level": 84.4,
+      "temporal_pixel_stddev": 0.3
+    }
+  },
+  "standard": {
+    "run": "INS-CONTROL-20261126-104105-66B6872F",
+    "elapsed_seconds": 233.0,
+    "confirmed": 11,
+    "missed": [],
+    "label_status": {
+      "readable": 7,
+      "not_applicable": 2,
+      "unreadable": 1,
+      "unknown": 1
+    },
+    "review_slots": [
+      "A-01-05",
+      "A-01-07"
+    ],
+    "quality_evidence_count": 8
+  },
+  "challenging": {
+    "run": "INS-CONTROL-20261126-112516-4895F6CC",
+    "elapsed_seconds": 228.0,
+    "confirmed": 11,
+    "missed": [],
+    "label_status": {
+      "readable": 7,
+      "unknown": 4
+    },
+    "review_slots": [
+      "A-01-03",
+      "A-01-05",
+      "A-01-07",
+      "B-02-01"
+    ],
+    "quality_evidence_count": 4
+  },
+  "changed_readings": {
+    "A-01-03": {
+      "standard": {
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "pallet_id": null
+      },
+      "challenging": {
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "pallet_id": null
+      }
+    },
+    "A-01-05": {
+      "standard": {
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "pallet_id": null
+      },
+      "challenging": {
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "pallet_id": null
+      }
+    },
+    "B-02-01": {
+      "standard": {
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "pallet_id": null
+      },
+      "challenging": {
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "pallet_id": null
+      }
+    }
+  },
+  "challenging_end_state": {
+    "stage": "COMPLETE",
+    "at_pad": true,
+    "landed": true,
+    "safety_phase": "RELEASED",
+    "report_http": 200
+  }
+}
