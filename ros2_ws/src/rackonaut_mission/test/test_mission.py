@@ -4,7 +4,7 @@ from math import hypot, pi, radians
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import Mock, call, patch
 
 from rackonaut_mission.adaptive import next_issue
 from rackonaut_mission.confirmation import current_observation
@@ -14,6 +14,22 @@ from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def test_x3_cuts_power_only_after_confirmed_docking(self):
+        for model, contact in ((True, False), (False, True), (True, True)):
+            mission = Mock(stage="DOCKING", manual=None, calibration_id=None,
+                           battery={"contact": contact, "percent": 17.},
+                           x3=model, obstacle_retreat=False, resume_index=2)
+            Mission.advance_energy_motion(mission, 100.)
+            calls = []
+            if contact:
+                calls.append(call.stop_motion())
+                if model:
+                    calls.append(call.set_flight_enabled(False))
+                calls.extend((call.close_sortie("DOCKED_FOR_CHARGE"),
+                              call.transition("CHARGING", mission.route.pad, 100.,
+                                              "Docking confirmed — charging")))
+            self.assertEqual(mission.method_calls, calls)
+
     def test_manual_rejects_expired_reordered_and_cross_mission_requests(self):
         flight = ManualFlight(SimpleNamespace(inspection_id="INS-CURRENT"))
         request = {"inspection_id": "INS-CURRENT", "sequence": 5, "sent": 12.8,

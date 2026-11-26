@@ -149,7 +149,7 @@ class Control(Node):
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
-        drone_model = self.declare_parameter("drone_model", "reference").value
+        drone_model = self.drone_model = self.declare_parameter("drone_model", "reference").value
         self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor, drone_model)
         self.route_recording = None
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
@@ -478,7 +478,7 @@ class Control(Node):
             if not self.learned_mode:
                 raise RuntimeError("Launch the learned warehouse profile before planning inspections.")
             return self.warehouse_archive.plan(selection, self.energy_state())
-        route = plan(self.layout, selection)
+        route = plan(self.layout, selection, orthogonal_descent=self.drone_model == "x3")
         if self.safety_enabled and not self.aerial_enabled:
             route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
         if self.energy_enabled:
@@ -599,6 +599,7 @@ class Control(Node):
                     **({"sensor_localization": "true"} if self.localization_mode == "sensor_based" else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
+                    "drone_model": self.drone_model,
                     **({"manual_flight": "true"} if manual else {}),
                     **({"mapping_id": mapping_id} if mapping_id else {}),
                     **({"full_route_slam": "true"} if self.full_route_slam else {}),
