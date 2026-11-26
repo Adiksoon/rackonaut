@@ -1,0 +1,26 @@
+{
+  "evidence": {
+    "findingSwitch": true,
+    "rawPhotoDefault": true,
+    "offlineActionExplanation": true
+  },
+  "recovery": {
+    "originalAlarmStored": true,
+    "phase": "RECOVERY_COMPLETE",
+    "physicalDock": true,
+    "safety": "RELEASED",
+    "header": "Docked"
+  },
+  "rendering": {
+    "windowMs": 2050,
+    "visibleDrawCalls": 50,
+    "hiddenDrawCalls": 0,
+    "contexts": 1
+  },
+  "diagnostics": {
+    "replayedFromCompletedFlight": true,
+    "reservationTone": "active",
+    "measuredState": "INS-CONTROL-20261126-214430-08FAE03A"
+  },
+  "errors": []
+}

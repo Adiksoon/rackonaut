@@ -1,0 +1,32 @@
+{
+  "restart": {
+    "active": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "run": "INS-CONTROL-20261126-214430-08FAE03A",
+    "dock": true,
+    "status": "TRACKING",
+    "history": {
+      "run": "INS-CONTROL-20261126-214430-08FAE03A",
+      "stage": "COMPLETE",
+      "landed": true,
+      "warehouse_configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "warehouse_revision": 2,
+      "warehouse_name": "Learned warehouse",
+      "planned_slots": [
+        "A-01-01",
+        "A-01-03"
+      ],
+      "business": true,
+      "confirmed": 2,
+      "total": 2,
+      "url": "/reports/INS-CONTROL-20261126-214430-08FAE03A"
+    },
+    "reportBytes": 11151
+  },
+  "progress": {
+    "actualReplayRun": "INS-CONTROL-20261126-214430-08FAE03A",
+    "actualReplayStage": "LEARNED_TRANSIT",
+    "reachedBeforeRecordedFixture": true,
+    "countBeforeRecording": "0 of 2"
+  },
+  "errors": []
+}

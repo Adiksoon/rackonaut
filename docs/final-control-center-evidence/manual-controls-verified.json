@@ -1,0 +1,167 @@
+{
+  "layouts": [
+    {
+      "width": 1366,
+      "height": 768,
+      "holdBottom": 759,
+      "stopRight": 1327,
+      "overflow": false
+    },
+    {
+      "width": 1600,
+      "height": 900,
+      "holdBottom": 756,
+      "stopRight": 1551,
+      "overflow": false
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "holdBottom": 756,
+      "stopRight": 1711,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "height": 720,
+      "holdBottom": 859,
+      "stopRight": 985,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "holdBottom": 1480,
+      "stopRight": 364,
+      "overflow": false
+    }
+  ],
+  "takeoff": {
+    "run": "INS-CONTROL-20261126-214125-012E1823",
+    "pose": [
+      -4.7,
+      10.301,
+      0.717,
+      0
+    ],
+    "state": "Manual flight · holding position"
+  },
+  "autoDuringManual": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "keyDown": {
+    "state": "MOVING",
+    "detail": "Motion permitted",
+    "requested": [
+      0.24,
+      0,
+      0,
+      0
+    ],
+    "permitted": [
+      0.24,
+      0,
+      0,
+      0
+    ],
+    "clearance": 0.328
+  },
+  "keyUp": {
+    "state": "HOLD",
+    "detail": "Hold position",
+    "requested": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "permitted": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "clearance": null
+  },
+  "navigation": {
+    "state": "HOLD",
+    "detail": "Hold position",
+    "requested": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "permitted": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "clearance": null
+  },
+  "focus": {
+    "observedFocusChange": false,
+    "state": "HOLD",
+    "detail": "Hold position",
+    "requested": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "permitted": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "clearance": null
+  },
+  "motionLimit": {
+    "state": "LIMITED",
+    "detail": "Reduced command within verified clearance",
+    "requested": [
+      0,
+      0,
+      -0.168,
+      0
+    ],
+    "permitted": [
+      0,
+      0,
+      -0.128,
+      0
+    ],
+    "clearance": 0.326
+  },
+  "watchdog": {
+    "manual": {
+      "state": "LINK_LOST",
+      "detail": "Operator heartbeat expired; holding position",
+      "requested": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "permitted": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "clearance": null
+    },
+    "reservation": "RESERVED"
+  },
+  "emergency": {
+    "detail": "Stopped by the operator",
+    "zones": [
+      "D",
+      "A"
+    ],
+    "recovery": "RECOVERY_REQUIRED"
+  },
+  "error": "Timeout: Recovery awaiting operator approval"
+}
