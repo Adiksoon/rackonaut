@@ -881,6 +881,10 @@ class Mission(Node):
             if self.count_publishers(self.command_topic) > 1:
                 self.finish("ABORTED", "Another publisher claimed the command topic", now, competing=True)
             elif self.safety_interlock and now - self.safety_at > .65:
+                self.get_logger().warning(
+                    f"Safety state for {self.inspection_id} last received {now - self.safety_at:.3f}s ago "
+                    f"during {self.stage}"
+                )
                 self.finish("ABORTED", "Safety Manager heartbeat stopped", now)
             elif now - self.odom_at > .65:
                 self.finish("ABORTED", "Odometry stopped advancing", now)

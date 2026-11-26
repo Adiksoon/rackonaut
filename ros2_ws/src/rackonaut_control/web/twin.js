@@ -143,7 +143,6 @@ export function createTwin(layout, callbacks) {
   const viewport = byId("twin-viewport");
   const overlay = byId("twin-markers");
   const renderer = new T.WebGLRenderer({ antialias: true, powerPreference: "low-power" });
-  renderer.setClearColor(0x081521);
   renderer.domElement.setAttribute("aria-label", "3D warehouse scene");
   viewport.prepend(renderer.domElement);
   renderer.domElement.addEventListener("webglcontextlost", (event) => {
@@ -159,53 +158,54 @@ export function createTwin(layout, callbacks) {
   controls.dampingFactor = .18;
   controls.zoomToCursor = true;
   const scene = new T.Scene();
-  scene.add(new T.HemisphereLight(0xd8edff, 0x46566d, 2.15));
+  scene.background = new T.Color(0xedf3fa);
+  scene.add(new T.HemisphereLight(0xe9f3ff, 0x9cabc0, 1.55));
   const sun = new T.DirectionalLight(0xffeed6, 1.65);
   sun.position.set(-14, 27, 18);
   scene.add(sun);
   const rim = new T.DirectionalLight(0xb2dafc, .58);
   rim.position.set(22, 19, -25);
   scene.add(rim);
-  scene.fog = new T.Fog(0x081521, 79, 140);
+  scene.fog = new T.Fog(scene.background, 79, 140);
   const warehouseModel = new T.Group();
   scene.add(warehouseModel);
   const warehouse = makeWarehouse(layout, warehouseModel);
   const { drone, body, edge } = makeAircraft(scene, layout.avoidance);
-  const corridor = warehouse.aerial ? path(scene, 0xc597fa, true, true) : null;
+  const corridor = warehouse.aerial ? path(scene, 0x8a5cb8, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
-  const planLine = path(scene, 0x83afff, true);
-  const recoveryPlan = layout.recovery ? path(scene, 0xffbd6a, true) : null;
-  const recoveryFlown = layout.recovery ? path(scene, 0xff8ada) : null;
-  const stopped = layout.recovery ? samples(scene, 1, 0xff5773, .48, .95) : null;
+  const planLine = path(scene, 0x4b78a8, true);
+  const recoveryPlan = layout.recovery ? path(scene, 0xa85b14, true) : null;
+  const recoveryFlown = layout.recovery ? path(scene, 0xa23287) : null;
+  const stopped = layout.recovery ? samples(scene, 1, 0xbd3e57, .48, .95) : null;
   if (layout.recovery) {
     recoveryPlan.renderOrder = 7;
     recoveryFlown.renderOrder = 8;
     for (const id of ["twin-recovery-key", "twin-recovery-flown", "twin-recovery-stop"]) byId(id).hidden = false;
   }
-  const flownLine = path(scene, 0x75ffd9);
-  const extraLine = path(scene, 0xffb469, false, true);
-  const pendingLine = path(scene, 0xffb469, true, true);
+  const flownLine = path(scene, 0x214b80);
+  const extraLine = path(scene, 0xa85b14, false, true);
+  const pendingLine = path(scene, 0xa85b14, true, true);
   const beams = path(scene, 0x4e94bf, false, true);
   beams.material.transparent = true;
   beams.material.opacity = .30;
   beams.material.depthTest = true;
   beams.renderOrder = 2;
-  const lidarReturns = samples(scene, 450, 0x69d5f6, .08, .79);
-  const lidarHits = samples(scene, 300, 0xff6575, .15, 1);
+  const lidarReturns = samples(scene, 450, 0x3587aa, .08, .79);
+  const lidarHits = samples(scene, 300, 0xba3a4d, .15, 1);
   const onboard = new T.Group();
   scene.add(onboard);
-  const onboardPoints = layout.avoidance ? samples(onboard, 240, 0x63dcff, .070, .76) : null;
-  const onboardHazards = layout.avoidance ? samples(onboard, 60, 0xff5773, .16, 1) : null;
-  const bypass = layout.avoidance ? path(onboard, 0xdd9bff) : null;
+  const onboardPoints = layout.avoidance ? samples(onboard, 240, 0x267caa, .070, .76) : null;
+  const onboardHazards = layout.avoidance ? samples(onboard, 60, 0xbd3e57, .16, 1) : null;
+  const bypass = layout.avoidance ? path(onboard, 0x7c51ac) : null;
   const field = layout.avoidance ? path(onboard, 0x4f9cc0, true, true) : null;
-  const direction = layout.avoidance ? path(onboard, 0xf0cc77) : null;
+  const direction = layout.avoidance ? path(onboard, 0x9d6c22) : null;
   const mapLayer = new T.Group();
   scene.add(mapLayer);
-  const measuredMap = layout.localization ? samples(mapLayer, 2200, 0x80d9ff, .088, .82) : null;
-  const unmatched = layout.localization ? samples(mapLayer, 120, 0xffb66b, .105, .90) : null;
-  const estimatedPath = layout.localization ? path(scene, 0x5bffba) : null;
-  const referencePath = layout.localization?.diagnostics ? path(scene, 0xffb66b, true) : null;
+  const measuredMap = layout.localization ? samples(mapLayer, 2200, 0x408bb0, .088, .82) : null;
+  const unmatched = layout.localization ? samples(mapLayer, 120, 0xa26124, .105, .90) : null;
+  const estimatedPath = layout.localization ? path(scene, 0x24835f) : null;
+  const referencePath = layout.localization?.diagnostics ? path(scene, 0xa26124, true) : null;
   if (referencePath) referencePath.visible = false;
 
   let width = 1, height = 1, raf = 0, lastDraw = 0, visible = false, eco = false;
@@ -481,8 +481,8 @@ export function createTwin(layout, callbacks) {
       fill("twin-odom", drone.visible ? "Connection lost · Last pose" : "Waiting for odometry");
       flightLabel.textContent = "UAV · Last pose";
     }
-    body.color.setHex(fresh ? 0x9afcdb : 0xb6a380);
-    edge.color.setHex(fresh ? 0xccfff3 : 0xf2cd8f);
+    body.color.setHex(fresh ? 0x3974ba : 0x9d7844);
+    edge.color.setHex(fresh ? 0x214b80 : 0xa46522);
     flightLabel.classList.toggle("stale", !fresh);
     byId("twin-odom").classList.toggle("stale", !fresh);
   }
@@ -555,10 +555,10 @@ export function createTwin(layout, callbacks) {
       marker.setAttribute("aria-pressed", String(scope?.has(id) || false));
       marker.title = statusNames[record.state] + " · " + record.quality;
       marker.style.setProperty("--marker", "#" + color.toString(16).padStart(6, "0"));
-      meshes.outline.material.color.setHex(active || id === focus ? 0xf4fcff : color);
+      meshes.outline.material.color.setHex(active || id === focus ? 0x123f76 : color);
       meshes.outline.material.transparent = true;
       meshes.outline.material.opacity = record.state === "outside" ? .33 : .95;
-      meshes.face.material.color.setHex(record.quality === "Damaged" ? 0xff6875 : color);
+      meshes.face.material.color.setHex(record.quality === "Damaged" ? 0xb14251 : color);
       meshes.face.material.opacity = record.quality === "Damaged" || active ? .92 : scope?.has(id) ? .51 : .16;
       meshes.cover.visible = !record.reading || record.reading.occupancy === "uncertain";
       meshes.cargo.visible = record.reading?.occupancy === "occupied";
@@ -623,7 +623,7 @@ export function createTwin(layout, callbacks) {
         const cleared = safety?.descents?.[id]?.cleared;
         gateLabels[id].dataset.cleared = String(!!cleared);
         gateLabels[id].title = `Focus descent ${id} · ${cleared ? "Cleared" : "Clearance unavailable"}`;
-        tint(area, cleared ? 0x38d7a1 : 0xc597fa, .22);
+        tint(area, cleared ? 0x27835d : 0x8a5cb8, .22);
       }
     }
     if (dockLabel) {

@@ -2,12 +2,12 @@ import * as T from "three";
 
 export const at = ([x, y, z = 0]) => new T.Vector3(x, z, -y);
 export const accessColors = {
-  OPEN: 0x38d7a1, PREPARING: 0xffc34f, RESERVED: 0xf36b75, INTRUSION: 0xff4560, FAULT: 0xe59afe,
+  OPEN: 0x27835d, PREPARING: 0xb97a20, RESERVED: 0xbb4b58, INTRUSION: 0xbb304c, FAULT: 0x8456a7,
 };
 export const slotColors = {
-  uninspected: 0x698397, outside: 0x718395, planned: 0x60e4cb, inspecting: 0xe8fcff,
-  observed: 0x66bafa, pending: 0x8bbaff, match: 0x64e0aa, discrepancy: 0xff7180,
-  manual: 0xffbe6b, missed: 0xd8a4fa,
+  uninspected: 0x536a82, outside: 0x70869e, planned: 0x285a92, inspecting: 0x123f76,
+  observed: 0x316b97, pending: 0x4e6c9b, match: 0x287556, discrepancy: 0xb14251,
+  manual: 0x9e611f, missed: 0x7e53a4,
 };
 const box = new T.BoxGeometry();
 const invisible = new T.MeshBasicMaterial({ visible: false });
@@ -35,7 +35,7 @@ function boxes(parent, parts, category, opacity = 1) {
     transform.setPosition(at([x, y, z]));
     mesh.setMatrixAt(i, transform);
     if (palette[category]) color.setHex(palette[category]);
-    else if (category === "marking" && height < .012 && width > 35) color.setHex(0x263b50);
+    else if (category === "marking" && height < .012 && width > 35) color.setHex(0xdbe5f1);
     else color.setRGB(r, g, b, T.SRGBColorSpace);
     mesh.setColorAt(i, color);
   });
@@ -79,8 +79,8 @@ function signalView(scene, signal, parts) {
 
 export function makeWarehouse(layout, scene) {
   const { floor, pad, crossing_x: crossing, scene: source } = layout;
-  const farWall = solid(0x263b4d);
-  const trim = solid(0x3b5870);
+  const farWall = solid(0xbacadd);
+  const trim = solid(0x94abc6);
   const building = new T.Group();
   scene.add(building);
   // The cutaway keeps the physical wall footprint and a low perimeter sill.
@@ -89,18 +89,18 @@ export function makeWarehouse(layout, scene) {
     block(building, [width + .04, .055, depth + .04], at([x, y, height * .075]), trim);
   }
   for (const [category, parts] of Object.entries(source.parts)) boxes(building, parts, category);
-  const grid = new T.GridHelper(floor.width, 40, 0x3c566d, 0x334a60);
+  const grid = new T.GridHelper(floor.width, 40, 0x809ab7, 0x9cb0c8);
   grid.scale.z = floor.height / floor.width;
   grid.position.copy(at([floor.x + floor.width / 2, floor.y + floor.height / 2, .017]));
   grid.material.transparent = true;
   grid.material.opacity = .49;
   scene.add(grid);
   const padBox = [pad.x - pad.width / 2, pad.y - pad.height / 2, pad.x + pad.width / 2, pad.y + pad.height / 2];
-  scene.add(footprint(padBox, 0x6eead4, .31, .033).group);
+  scene.add(footprint(padBox, 0x4c78ad, .31, .033).group);
 
   const points = [at([crossing, layout.aisles[0].y, .055]), at([crossing, layout.aisles.at(-1).y, .055])];
   const corridor = new T.Line(new T.BufferGeometry().setFromPoints(points),
-    new T.LineDashedMaterial({ color: 0xa5bed6, opacity: .78, transparent: true, dashSize: .33, gapSize: .26 }));
+    new T.LineDashedMaterial({ color: 0x68829f, opacity: .78, transparent: true, dashSize: .33, gapSize: .26 }));
   corridor.computeLineDistances();
   scene.add(corridor);
 
@@ -110,8 +110,8 @@ export function makeWarehouse(layout, scene) {
     return [id, shape];
   }));
   const lasers = Object.fromEntries(Object.entries(layout.laser_fields || {}).map(([id, scanner]) => {
-    scene.add(footprint(scanner.field, 0x63cbff, .055, .040, true).group);
-    const mesh = new T.Mesh(new T.CylinderGeometry(.14, .17, .15, 12), solid(0x53cdeb));
+    scene.add(footprint(scanner.field, 0x4087af, .055, .040, true).group);
+    const mesh = new T.Mesh(new T.CylinderGeometry(.14, .17, .15, 12), solid(0x3e86ad));
     mesh.position.copy(at(scanner.pose));
     scene.add(mesh);
     return [id, scanner];
@@ -124,7 +124,7 @@ export function makeWarehouse(layout, scene) {
     boxes(infrastructure, layout.aerial.screens, "aerial", .24);
     scene.add(infrastructure);
     const gates = Object.fromEntries(Object.entries(layout.aerial.gates).map(([id, bounds]) => {
-      const shape = footprint(bounds, 0xc597fa, .20, .060, true);
+      const shape = footprint(bounds, 0x8a5cb8, .20, .060, true);
       infrastructure.add(shape.group);
       return [id, shape];
     }));
@@ -172,7 +172,7 @@ export function makeWarehouse(layout, scene) {
   for (const aisle of layout.aisles) {
     if (!aisle.functional) continue;
     const bound = [rack.x, aisle.y - aisleWidth / 2, rack.x + rack.width, aisle.y + aisleWidth / 2];
-    const outline = footprint(bound, 0x8ee9dc, .045, .030);
+    const outline = footprint(bound, 0x4b78a8, .045, .030);
     outline.group.visible = false;
     scene.add(outline.group);
     aisles[aisle.id] = outline;
@@ -186,14 +186,14 @@ export function makeWarehouse(layout, scene) {
 export function makeAircraft(scene, lidar = false) {
   const drone = new T.Group();
   scene.add(drone);
-  const body = solid(0x9afcdb);
-  const edge = new T.MeshBasicMaterial({ color: 0xccfff3 });
+  const body = solid(0x3974ba);
+  const edge = new T.MeshBasicMaterial({ color: 0x214b80 });
   const dark = solid(0x254158);
   // Slightly enlarged glyph for readability at warehouse scale. Its origin is the ROS base.
   block(drone, [.61, .21, .43], new T.Vector3(), body);
   block(drone, [.18, .11, .27], new T.Vector3(.31, .03, 0), edge);
   if (lidar) {
-    const sensor = new T.Mesh(new T.CylinderGeometry(.098, .105, .10, 16), solid(0x62dcfb));
+    const sensor = new T.Mesh(new T.CylinderGeometry(.098, .105, .10, 16), solid(0x4991bd));
     sensor.position.set(0, .151, 0);
     drone.add(sensor);
   }

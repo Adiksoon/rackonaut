@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Rackonaut | Control Center</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%2369e4bf'/%3E%3Cpath fill='none' stroke='%230b2220' stroke-width='3' d='M11 13h18v14H11zM20 9v22M8 20h24'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23285a92'/%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='3' d='M11 13h18v14H11zM20 9v22M8 20h24'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/twin.css">
+  <link rel="stylesheet" href="/style.css">
   <script type="importmap">{"imports":{"three":"/vendor/three.module.min.js"}}</script>
   <script type="module" src="/app.js"></script>
 </head>
@@ -16,54 +16,32 @@
     <div class="brandmark" aria-hidden="true">
       <svg viewBox="0 0 36 36"><path d="M8 12h20v12H8zm10-5v22M6 18h24M10 29h16" /></svg>
     </div>
-    <div><strong>Rackonaut</strong><span>Warehouse Control Center</span></div>
+    <div><strong>Rackonaut</strong><span>Control Center</span></div>
   </div>
   <div class="statusbar">
-    <span class="environment">REFERENCE SIMULATION</span>
+    <span class="environment">Simulation</span>
     <span id="robot-state" class="signal">Connecting to drone</span>
     <span id="api-state" class="signal">Connecting to API</span>
+    <button type="button" id="abort" class="danger" disabled hidden>Stop inspection</button>
   </div>
 </header>
 <main>
-  <div class="page-heading">
-    <div><h1 id="page-title">Mission planning</h1><p id="page-description">Choose which locations the drone should inspect.</p></div>
-    <div id="run-state" class="run-state">AWAITING DISPATCH</div>
-  </div>
-  <nav aria-label="Workspace">
-    <button type="button" class="tab active" data-view="plan" aria-current="page">Mission planning</button>
-    <button type="button" class="tab" data-view="live">Live inspection</button>
-    <button type="button" class="tab" data-view="results">Inspection results</button>
+  <nav aria-label="Control Center">
+    <button type="button" class="tab active" data-view="plan" aria-current="page">Plan</button>
+    <button type="button" class="tab" data-view="live">Live flight</button>
+    <button type="button" class="tab" data-view="results">Results</button>
+    <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
   </nav>
+  <div class="page-heading">
+    <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description">Choose where the drone should inspect.</p></div>
+  </div>
+  <p id="connection-status" class="notice" role="status" hidden></p>
   <div id="notice" class="notice" role="status" hidden></div>
   <div class="safety-banner" id="safety-banner" hidden>
     <strong id="safety-headline" role="status"></strong>
     <span id="safety-message"></span>
-    <a href="#warehouse-safety">Warehouse Safety ↓</a>
+    <a id="safety-details-link" href="#warehouse-safety">Safety details ↓</a>
   </div>
-  <section class="card energy-panel" id="energy-panel" aria-labelledby="energy-title" hidden>
-    <div class="energy-head"><div><h2 id="energy-title">Drone &amp; Energy</h2><p id="energy-message" role="status">Waiting for simulated battery data</p></div>
-      <div class="energy-actions"><span id="dock-state" class="signal">Dock unavailable</span><button type="button" id="focus-dock" class="chip">Focus dock</button></div></div>
-    <div class="energy-grid">
-      <div class="energy-battery"><span>Simulated battery</span><strong id="battery-value">—</strong><meter id="battery-meter" min="0" max="100" value="0" aria-label="Simulated battery percentage"></meter></div>
-      <div><span>Estimated energy to finish</span><strong id="energy-need">—</strong><small id="energy-budget"></small></div>
-      <div><span>Return budget + reserve</span><strong id="energy-reserve">—</strong></div>
-      <div><span>Charging cycles</span><strong id="energy-cycles">—</strong></div>
-      <div><span>Remaining locations</span><strong id="energy-remaining">—</strong><small id="energy-remaining-ids"></small></div>
-    </div>
-  </section>
-  <section class="card avoidance-panel" id="avoidance-panel" aria-labelledby="avoidance-title" hidden>
-    <div class="energy-head">
-      <div><h2 id="avoidance-title">Obstacle Avoidance</h2><p id="avoidance-reason">Awaiting the first scan from an active inspection.</p></div>
-      <span class="signal" id="avoidance-state" role="status">Waiting</span>
-    </div>
-    <div class="energy-grid">
-      <div><span>Nearest obstacle on path</span><strong id="avoidance-range">—</strong><small id="avoidance-returns"></small></div>
-      <div><span>Onboard scan age</span><strong id="avoidance-age">—</strong><small id="avoidance-coverage"></small></div>
-      <div><span>Flight direction</span><strong id="avoidance-direction">—</strong></div>
-      <div><span>Local maneuver</span><strong id="avoidance-maneuver">—</strong></div>
-      <div><span>Additional distance / energy</span><strong id="avoidance-cost">—</strong></div>
-    </div>
-  </section>
   <section class="card emergency-panel" id="emergency-panel" aria-labelledby="emergency-title" hidden>
     <div class="energy-head">
       <div><h2 id="emergency-title">Emergency &amp; Recovery Center</h2><p id="recovery-detail"></p></div>
@@ -84,46 +62,69 @@
     </div>
     <p class="footnote" id="recovery-action-message" role="status"></p>
   </section>
-  <section class="card localization-panel" id="localization-panel" aria-labelledby="localization-title" hidden>
-    <div class="energy-head">
-      <div><h2 id="localization-title">Localization &amp; Spatial Mapping</h2><p id="localization-reason">Waiting for a synchronized scan.</p></div>
-      <span class="signal" id="localization-status" role="status">Degraded</span>
-    </div>
-    <div class="energy-grid">
-      <div><span>Flight pose source</span><strong id="localization-source">—</strong></div>
-      <div><span>Estimated XYZ</span><strong id="localization-pose">—</strong><small id="localization-sigma"></small></div>
-      <div><span>Map match RMS</span><strong id="localization-fit">—</strong><small id="localization-overlap"></small></div>
-      <div><span>Matched scan age / rate</span><strong id="localization-rate">—</strong></div>
-      <div><span>Measured map</span><strong id="localization-map-size">—</strong><small id="localization-validation"></small></div>
-    </div>
-  </section>
-  <section class="card intelligence-panel" id="intelligence" aria-labelledby="intelligence-title" hidden>
-    <div class="energy-head"><div><h2 id="intelligence-title">Warehouse Intelligence</h2>
-      <p>Mock SAP · simulated warehouse records</p></div>
-      <label>Inspection <select id="intelligence-run"></select></label>
-    </div>
-    <div class="intelligence-metrics" id="intelligence-metrics"></div>
-    <p id="intelligence-status" class="footnote" role="status"></p>
-    <div id="intelligence-content" hidden>
-      <div class="intelligence-filters">
-        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
-        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
-        <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
-        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
-      </div>
-      <div class="intelligence-table">
-        <table aria-label="Warehouse issues"><thead><tr><th>Priority</th><th>Issue</th><th>Location</th><th>HU</th><th>Review</th></tr></thead>
-          <tbody id="intelligence-issues"></tbody></table>
-      </div>
-      <section id="intelligence-detail" aria-label="Issue evidence" hidden></section>
-    </div>
-  </section>
   <div class="workspace" id="workspace" data-view="plan">
-    <section class="card warehouse" aria-labelledby="map-title">
-      <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Top-down view · Rackonaut showcase</p></div>
+    <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">
+      <div class="card-head"><div><h2 id="scope-title">Inspection scope</h2></div></div>
+      <fieldset id="mode-options">
+        <legend class="sr-only">Selection mode</legend>
+        <label class="mode"><input name="mode" value="full" type="radio"><span><strong>Full inventory</strong><small>All inspection locations</small></span></label>
+        <label class="mode"><input name="mode" value="aisle" type="radio" checked><span><strong>By aisle</strong></span></label>
+        <label class="mode"><input name="mode" value="custom" type="radio"><span><strong>Selected locations</strong></span></label>
+      </fieldset>
+      <div id="aisle-options" class="aisle-options"></div>
+      <div id="slot-options" class="slot-options" hidden></div>
+      <details class="inspection-options">
+        <summary>Inspection options</summary>
+        <label class="quality"><span><strong>Check for package damage</strong><small>Save photos of visible damage</small></span><input id="quality" type="checkbox" checked></label>
+        <label class="quality" id="adaptive-option" hidden><span><strong>Retry difficult readings</strong><small>Change the camera angle for a second look</small></span><input id="adaptive" type="checkbox"></label>
+      </details>
+      <div class="plan-totals"><span><strong id="planned-total">—</strong> locations</span><span id="plan-distance">—</span></div>
+      <button type="button" id="start" class="primary" aria-describedby="dispatch-help" disabled>Start inspection</button>
+      <p id="dispatch-help" class="footnote" role="status">Connecting to the drone and inventory API.</p>
+    </aside>
+    <aside class="card controls live" id="live-panel" aria-labelledby="camera-title" hidden>
+      <div class="card-head"><div><h2 id="camera-title">Drone camera</h2></div></div>
+      <div class="flight-monitor">
+        <div class="video"><img id="camera" alt="Live image from the simulated drone camera" hidden><span id="no-camera">Waiting for camera stream</span></div>
+        <div class="flight-status">
+          <p id="live-detail" class="flight-message" role="status">Start an inspection to monitor progress.</p>
+          <div id="flight-progress" class="flight-progress" hidden>
+            <div><span>Locations confirmed</span><strong id="progress-count">—</strong></div>
+            <progress id="progress-bar" max="1" value="0" aria-label="Confirmed locations"></progress>
+          </div>
+          <div id="adaptive-progress" class="adaptive-progress" hidden>
+            <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
+          </div>
+          <button type="button" id="live-plan" class="secondary" hidden>Plan an inspection</button>
+        </div>
+      </div>
+    </aside>
+    <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
+      <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id" hidden></p></div></div>
+      <dl id="result-counts" class="result-counts" hidden>
+        <div><dt>Locations confirmed</dt><dd id="result-confirmed">—</dd></div>
+        <div><dt>Locations needing attention</dt><dd id="result-review-count">—</dd></div>
+        <div><dt>Package damage</dt><dd id="result-damage-count">—</dd></div>
+      </dl>
+      <p id="result-attention" class="result-attention" hidden></p>
+      <div id="completion-text" class="completion">Run an inspection to see its report.</div>
+      <div class="result-actions">
+        <a id="report-link" class="primary" target="_blank" rel="noopener" hidden>Open report <span aria-hidden="true">↗</span></a>
+        <a id="damage-link" class="secondary" href="#findings" hidden></a>
+        <button type="button" id="review-stops" class="secondary" hidden>Plan reinspection</button>
+        <button type="button" id="next-inspection" class="secondary">Plan another inspection</button>
+        <button type="button" id="results-map" class="secondary" aria-controls="warehouse-panel" aria-expanded="false" hidden>Show route on map</button>
+      </div>
+      <details id="history-panel" class="result-details"><summary>Report history</summary><div id="history"></div></details>
+      <section id="recovery-history" hidden aria-label="Recovery archive">
+        <h3>Recovery history</h3><div id="recovery-history-rows"></div>
+      </section>
+    </aside>
+    <section class="card warehouse" id="warehouse-panel" aria-labelledby="map-title">
+      <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Select an aisle or location to plan an inspection.</p></div>
         <div class="map-mode" role="group" aria-label="Warehouse view">
-          <button type="button" id="map-2d" aria-pressed="true">2D Warehouse Map</button>
-          <button type="button" id="map-3d" aria-pressed="false">3D Digital Twin</button>
+          <button type="button" id="map-2d" aria-pressed="true">2D map</button>
+          <button type="button" id="map-3d" aria-pressed="false">3D view</button>
         </div>
       </div>
       <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
@@ -178,7 +179,7 @@
         </section>
       </section>
       <svg id="warehouse-map" viewBox="0 0 900 530" aria-label="Interactive warehouse map" role="group">
-        <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#213444" stroke-width="1"/></pattern></defs>
+        <defs><pattern id="floor-grid" width="19" height="19" patternUnits="userSpaceOnUse"><path d="M19 0H0V19" fill="none" stroke="#d6e1ee" stroke-width="1"/></pattern></defs>
         <g id="floor"></g><g id="map-aisles"></g><g id="safety-fields" aria-hidden="true"></g><g id="racks"></g>
         <g id="laser-fields" aria-hidden="true"></g><g id="laser-returns" aria-hidden="true"></g>
         <g id="aerial-map" aria-hidden="true"></g>
@@ -197,56 +198,87 @@
         <span id="aerial-key" hidden><i class="legend-key aerial"></i>Protected aerial corridor</span>
       </div>
     </section>
-    <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">
-      <div class="card-head"><div><h2 id="scope-title">Inspection scope</h2><p>Choose a mode, then confirm the selection.</p></div></div>
-      <fieldset id="mode-options">
-        <legend class="sr-only">Selection mode</legend>
-        <label class="mode"><input name="mode" value="full" type="radio"><span><strong>Full inventory</strong><small>All 11 inspection locations in A and B</small></span></label>
-        <label class="mode"><input name="mode" value="aisle" type="radio" checked><span><strong>Aisle inspection</strong><small>Select one or more aisles</small></span></label>
-        <label class="mode"><input name="mode" value="custom" type="radio"><span><strong>Custom inspection</strong><small>Select individual locations</small></span></label>
-      </fieldset>
-      <div id="aisle-options" class="aisle-options"></div>
-      <div id="slot-options" class="slot-options" hidden></div>
-      <label class="quality"><span><strong>Package quality</strong><small>Check visible damage and save photos</small></span><input id="quality" type="checkbox" checked></label>
-      <label class="quality" id="adaptive-option" hidden><span><strong>Adaptive inspection</strong><small>Adjust the viewpoint when a reading needs another look</small></span><input id="adaptive" type="checkbox"></label>
-      <div class="plan-totals"><span><strong id="planned-total">—</strong> planned stops</span><span id="plan-distance">—</span></div>
-      <button type="button" id="start" class="primary" disabled>Start Inspection <span aria-hidden="true">→</span></button>
-      <p id="dispatch-help" class="footnote">Waiting for robot and inventory API.</p>
-    </aside>
-    <aside class="card controls live" id="live-panel" aria-labelledby="camera-title" hidden>
-      <div class="card-head"><div><h2 id="camera-title">Onboard camera</h2><p id="camera-caption">Waiting for a live frame</p></div><div class="map-tag" id="camera-kind">ROS 2</div></div>
-      <div class="video"><img id="camera" alt="Live image from the simulated drone camera" hidden><span id="no-camera">Waiting for camera stream</span></div>
-      <div class="live-detail"><div><small>ACTIVE TARGET</small><strong id="active-target">—</strong></div><div><small>POSITION · METRES</small><strong id="position-value">—</strong></div></div>
-      <p id="live-detail" class="footnote">Start an inspection to monitor progress.</p>
-      <div id="adaptive-progress" class="adaptive-progress" hidden>
-        <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
-      </div>
-      <button type="button" id="abort" class="danger" disabled>Abort inspection</button>
-      <p class="footnote">Abort stops motion and holds position.</p>
-    </aside>
-    <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
-      <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id">No inspection selected</p></div></div>
-      <div id="completion-text" class="completion">Run an inspection to see its report.</div>
-      <a id="report-link" class="primary" target="_blank" rel="noopener" hidden>Open HTML Report <span aria-hidden="true">↗</span></a>
-      <a id="damage-link" class="secondary" href="#findings" hidden></a>
-      <button type="button" id="review-stops" class="secondary" hidden>Plan reinspection</button>
-      <button type="button" id="next-inspection" class="secondary">Plan another inspection</button>
-      <section id="history-panel"><h3>Report history</h3><div id="history"></div></section>
-      <section id="recovery-history" hidden aria-label="Recovery archive">
-        <h3>Recovery history</h3><div id="recovery-history-rows"></div>
-      </section>
-    </aside>
   </div>
-  <section class="metrics" aria-label="Inspection totals">
-    <div><small>PLANNED</small><strong id="metric-planned">—</strong><span>Selected locations</span></div>
-    <div><small>VISITED</small><strong id="metric-visited">—</strong><span>Inspection viewpoints</span></div>
-    <div><small>CONFIRMED</small><strong id="metric-confirmed">—</strong><span>Accepted by the inventory API</span></div>
-    <div><small>DAMAGED</small><strong id="metric-damaged">—</strong><span>Stable carton findings</span></div>
-    <div><small>ELAPSED</small><strong id="metric-time">—</strong><span>Mission duration</span></div>
-  </section>
+
   <section class="card adaptive-summary" id="adaptive-summary" aria-labelledby="adaptive-title" hidden>
     <div class="card-head"><div><h2 id="adaptive-title">Adaptive inspection</h2><p id="adaptive-totals"></p></div></div>
     <p id="adaptive-review" class="footnote"></p>
+  </section>
+  <details class="card result-details review" id="review" hidden>
+    <summary>Location details and photos</summary>
+    <p id="results-note" class="footnote"></p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Location</th><th>Mission status</th><th>Observed pallet</th><th>Inventory reading</th><th>API comparison</th><th>Quality evidence</th></tr></thead>
+      <tbody id="result-rows"></tbody>
+    </table></div>
+    <div id="findings" class="findings"></div>
+  </details>
+  <details id="business-results" class="card result-details" hidden>
+    <summary>Inventory comparison</summary>
+  <section class="card intelligence-panel" id="intelligence" aria-labelledby="intelligence-title" hidden>
+    <div class="energy-head"><div><h2 id="intelligence-title">Warehouse Intelligence</h2>
+      <p>Mock SAP · simulated warehouse records</p></div>
+      <label>Inspection <select id="intelligence-run"></select></label>
+    </div>
+    <div class="intelligence-metrics" id="intelligence-metrics"></div>
+    <p id="intelligence-status" class="footnote" role="status"></p>
+    <div id="intelligence-content" hidden>
+      <div class="intelligence-filters">
+        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
+        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
+        <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
+        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
+      </div>
+      <div class="intelligence-table">
+        <table aria-label="Warehouse issues"><thead><tr><th>Priority</th><th>Issue</th><th>Location</th><th>HU</th><th>Review</th></tr></thead>
+          <tbody id="intelligence-issues"></tbody></table>
+      </div>
+      <section id="intelligence-detail" aria-label="Issue evidence" hidden></section>
+    </div>
+  </section>
+  </details>
+  <section id="system-details" class="system-details" aria-label="System diagnostics" hidden>
+  <section class="card telemetry-panel">
+    <h2>Drone telemetry</h2>
+    <dl class="telemetry-values"><div><dt>Position (X / Y / Z in metres)</dt><dd id="position-value">—</dd></div>
+      <div><dt>Flight time</dt><dd id="flight-time">—</dd></div></dl>
+  </section>
+  <section class="card energy-panel" id="energy-panel" aria-labelledby="energy-title" hidden>
+    <div class="energy-head"><div><h2 id="energy-title">Drone &amp; Energy</h2><p id="energy-message" role="status">Waiting for simulated battery data</p></div>
+      <div class="energy-actions"><span id="dock-state" class="signal">Dock unavailable</span><button type="button" id="focus-dock" class="chip">Focus dock</button></div></div>
+    <div class="energy-grid">
+      <div class="energy-battery"><span>Simulated battery</span><strong id="battery-value">—</strong><meter id="battery-meter" min="0" max="100" value="0" aria-label="Simulated battery percentage"></meter></div>
+      <div><span>Estimated energy to finish</span><strong id="energy-need">—</strong><small id="energy-budget"></small></div>
+      <div><span>Return budget + reserve</span><strong id="energy-reserve">—</strong></div>
+      <div><span>Charging cycles</span><strong id="energy-cycles">—</strong></div>
+      <div><span>Remaining locations</span><strong id="energy-remaining">—</strong><small id="energy-remaining-ids"></small></div>
+    </div>
+  </section>
+  <section class="card avoidance-panel" id="avoidance-panel" aria-labelledby="avoidance-title" hidden>
+    <div class="energy-head">
+      <div><h2 id="avoidance-title">Obstacle Avoidance</h2><p id="avoidance-reason">Awaiting the first scan from an active inspection.</p></div>
+      <span class="signal" id="avoidance-state" role="status">Waiting</span>
+    </div>
+    <div class="energy-grid">
+      <div><span>Nearest obstacle on path</span><strong id="avoidance-range">—</strong><small id="avoidance-returns"></small></div>
+      <div><span>Onboard scan age</span><strong id="avoidance-age">—</strong><small id="avoidance-coverage"></small></div>
+      <div><span>Flight direction</span><strong id="avoidance-direction">—</strong></div>
+      <div><span>Local maneuver</span><strong id="avoidance-maneuver">—</strong></div>
+      <div><span>Additional distance / energy</span><strong id="avoidance-cost">—</strong></div>
+    </div>
+  </section>
+  <section class="card localization-panel" id="localization-panel" aria-labelledby="localization-title" hidden>
+    <div class="energy-head">
+      <div><h2 id="localization-title">Localization &amp; Spatial Mapping</h2><p id="localization-reason">Waiting for a synchronized scan.</p></div>
+      <span class="signal" id="localization-status" role="status">Degraded</span>
+    </div>
+    <div class="energy-grid">
+      <div><span>Flight pose source</span><strong id="localization-source">—</strong></div>
+      <div><span>Estimated XYZ</span><strong id="localization-pose">—</strong><small id="localization-sigma"></small></div>
+      <div><span>Map match RMS</span><strong id="localization-fit">—</strong><small id="localization-overlap"></small></div>
+      <div><span>Matched scan age / rate</span><strong id="localization-rate">—</strong></div>
+      <div><span>Measured map</span><strong id="localization-map-size">—</strong><small id="localization-validation"></small></div>
+    </div>
   </section>
   <section id="warehouse-safety" class="card safety" aria-labelledby="safety-title" hidden>
     <div class="card-head">
@@ -293,13 +325,6 @@
       </section>
     </div>
   </section>
-  <section class="card review" id="review" hidden>
-    <div class="card-head"><div><h2>Inspection locations</h2><p id="results-note">Observation and comparison status</p></div></div>
-    <div class="table-scroll"><table>
-      <thead><tr><th>Location</th><th>Mission status</th><th>Observed pallet</th><th>Inventory reading</th><th>API comparison</th><th>Quality evidence</th></tr></thead>
-      <tbody id="result-rows"></tbody>
-    </table></div>
-    <div id="findings" class="findings"></div>
   </section>
 </main>
 </body>

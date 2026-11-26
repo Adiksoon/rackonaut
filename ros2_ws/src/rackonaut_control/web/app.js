@@ -13,21 +13,31 @@ const retryReasons = { initial: "Reference view", unreadable: "Unreadable label"
   uncertain: "Uncertain occupancy", missing: "No reading", damage: "Damage close-up",
   damage_closeup_unconfirmed: "Close-up unconfirmed" };
 const headings = {
-  plan: ["Mission planning", "Choose which locations the drone should inspect."],
-  live: ["Live inspection", "Follow the simulator, camera detections and API confirmations."],
-  results: ["Inspection results", "Review the selected locations and open the inspection report."],
+  plan: ["Plan inspection", "Choose where the drone should inspect."],
+  live: ["Live flight", "Follow the drone and its current inspection."],
+  results: ["Inspection results", "Review what the drone found."],
+  diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
 };
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
+let resultsMap = false;
+let stopping = false;
 let dispatching = false;
 let version = 0;
 let cameraLoading = false;
 let overviewLoading = false;
 let twin = null, twinLoading = false, show3D = false, focusedLocation = null;
 
-function put(id, value) { el(id).textContent = value; }
+function put(id, value) {
+  const element = el(id);
+  if (element.textContent !== String(value)) element.textContent = value;
+}
 function html(id, value) { if (el(id).innerHTML !== value) el(id).innerHTML = value; }
 function notice(value = "") { put("notice", value); el("notice").hidden = !value; }
+function connectionStatus(value = "") {
+  put("connection-status", value);
+  el("connection-status").hidden = !value;
+}
 
 function chooseMap(use3D) {
   show3D = use3D;
@@ -36,8 +46,8 @@ function chooseMap(use3D) {
   el("map-2d").setAttribute("aria-pressed", String(!use3D));
   el("map-3d").setAttribute("aria-pressed", String(use3D));
   put("map-title", use3D ? "Warehouse Digital Twin" : "Warehouse floor");
-  put("map-caption", use3D ? "Live warehouse geometry and mission telemetry" : "Top-down view · Rackonaut showcase");
-  twin?.setVisible(use3D);
+  drawWorkspace();
+  twin?.setVisible(use3D && !el("warehouse-panel").hidden);
   drawTwin(state?.mission);
 }
 function twinError(message) {
@@ -75,7 +85,7 @@ async function loadTwin() {
   }
 }
 function drawTwin(job) {
-  if (!twin || !show3D) return;
+  if (!twin || !show3D || el("warehouse-panel").hidden) return;
   const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
   twin.update({ state, view, preview, job, selection: new Set(selected) });
@@ -90,9 +100,27 @@ async function api(url, data) {
   return body;
 }
 
-function setView(next) {
+function drawWorkspace() {
+  const showMap = view === "plan" || view === "live" || (view === "results" && resultsMap);
+  const warehouse = el("warehouse-panel");
+  if (warehouse.hidden === showMap) {
+    warehouse.hidden = !showMap;
+    twin?.setVisible(showMap && show3D);
+  }
+  el("workspace").classList.toggle("with-map", showMap);
+  el("results-map").setAttribute("aria-expanded", String(resultsMap));
+  put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
+  put("map-caption", view === "plan" ? "Select aisles or locations on the map."
+    : view === "results" ? "Planned and flown route." : "Drone position and flight path.");
+}
+
+function setView(next, focus = false) {
+  if (next === "results" && view !== next) resultsMap = false;
   view = next;
   el("workspace").dataset.view = next;
+  el("workspace").hidden = next === "diagnostics";
+  el("system-details").hidden = next !== "diagnostics";
+  drawWorkspace();
   for (const [name, panel] of [["plan", "plan-panel"], ["live", "live-panel"], ["results", "results-panel"]]) {
     el(panel).hidden = name !== next;
   }
@@ -105,6 +133,7 @@ function setView(next) {
   put("page-title", headings[next][0]);
   put("page-description", headings[next][1]);
   draw();
+  if (focus) el("page-title").focus();
 }
 
 function point(x, y) {
@@ -225,7 +254,9 @@ function changePlan() {
   if ((chosen.mode === "aisle" && !chosen.aisles.length) || (chosen.mode === "custom" && !chosen.slots.length)) return;
   api("/api/plan", chosen).then((plan) => {
     if (version === revision) { preview = plan; draw(); }
-  }).catch((error) => notice(error.message));
+  }).catch((error) => {
+    if (version === revision) notice(error.message);
+  });
 }
 
 function drawMap(job) {
@@ -281,29 +312,72 @@ function drawMap(job) {
   }
 }
 
+function flightMessage(job) {
+  if (!job) return "Start an inspection to monitor progress.";
+  if (job.error) return job.error;
+  if (stopping && !terminal.has(job.stage)) return "Waiting for the drone to stop…";
+  const { target, detail } = job.status || {};
+  const location = job.slots?.includes(target) ? target : "";
+  switch (job.stage) {
+    case "STARTING": return "Preparing inspection…";
+    case "WAITING": return "Waiting for permission to take off.";
+    case "WAITING_FOR_AISLE_CLEARANCE": return "Waiting for the aisle to clear.";
+    case "CORRIDOR": return "Flying through the transfer corridor.";
+    case "TRANSIT":
+    case "AISLE_APPROACH": return location ? `Flying to ${location}.` : "Flying to the next stop.";
+    case "ALIGN": return location ? `Aligning with ${location}.` : "Aligning with the shelf.";
+    case "INSPECT":
+    case "REINSPECT": return location ? `Reading the label at ${location}.` : "Reading the location label.";
+    case "REPOSITION":
+    case "RECENTER": return "Adjusting the camera angle.";
+    case "QUALITY_CLOSEUP": return "Checking the package up close.";
+    case "RETURN":
+    case "RETURN_TRANSIT": return "Returning to the launch pad.";
+    case "LAND": return "Landing.";
+    default: return detail || label(job.stage);
+  }
+}
+
 function drawResults(job) {
   const status = job?.status || {};
   const result = job?.result;
   const finished = job && terminal.has(job.stage);
+  const confirmed = Object.keys(status.confirmed || {}).length;
   const reports = job?.evidence || [];
   const damage = reports.filter(report => report.status === "DAMAGED");
   const interrupted = job?.stage === "ABORTED";
-  put("completion-id", job?.inspection_id || "No inspection selected");
+  el("completion-id").hidden = !job;
+  put("completion-id", job?.inspection_id || "");
   el("completion-text").classList.toggle("warning", interrupted || !!job?.error || (!!finished && !status.landed));
-  put("completion-text", job?.error || (finished ? (interrupted ? "Mission aborted. Touchdown unconfirmed. "
-    : status.landed ? "Touchdown confirmed. " : "Touchdown unconfirmed. ")
-    + (result ? `${Object.keys(status.confirmed || {}).length} stops confirmed · ${result.events} API events.` : "Preparing report.")
-    : job ? "The mission is still in progress." : "Run an inspection to see its report."));
+  const interruption = status.detail === "Safety Manager heartbeat stopped"
+    ? "The flight controller lost contact with the Safety Manager."
+    : status.detail;
+  const nextStep = layout.recovery ? "Open Emergency & Recovery to return to the dock."
+    : "Restart the Rackonaut simulator before starting a new inspection.";
+  put("completion-text", job?.error || (finished ? (interrupted
+    ? ["Flight stopped.", interruption, !status.landed && nextStep].filter(Boolean).join(" ") + " "
+    : status.landed ? "The drone landed safely. " : "Landing is unconfirmed. ")
+    + (result ? "" : "Preparing the report.")
+    : job ? "The inspection is in progress." : "Completed inspections and reports will appear here."));
   const reportLink = el("report-link");
   reportLink.hidden = !result;
   if (result) reportLink.href = result.url;
   el("damage-link").hidden = !damage.length;
   put("damage-link", `View ${damage.length} damage ${damage.length === 1 ? "photo" : "photos"} ↓`);
   const review = reviewSlots(job);
+  const attention = [...new Set([...review, ...damage.map(report => report.slot_id).filter(Boolean)])];
+  el("result-counts").hidden = !finished;
+  put("result-confirmed", `${confirmed} / ${job?.slots?.length || 0}`);
+  put("result-review-count", attention.length);
+  put("result-damage-count", job?.quality ? damage.length : "—");
+  el("result-attention").hidden = !finished || !attention.length;
+  put("result-attention", attention.length ? `Check ${attention.slice(0, 4).join(", ")}${attention.length > 4 ? ` and ${attention.length - 4} more` : ""}.` : "");
+  el("results-map").hidden = !job;
   el("review-stops").hidden = !(finished && review.length);
   const recoveryPending = layout.recovery && state?.safety?.phase === "RECOVERY";
   el("review-stops").disabled = !state?.at_pad || !!state?.busy || recoveryPending;
   el("next-inspection").disabled = !!state?.busy || recoveryPending;
+  el("history-panel").hidden = !state?.history?.length;
   html("history", state?.history?.length ? state.history.map((item) => `<div class="history-item"><a target="_blank"
     rel="noopener" href="${safe(item.url)}">${safe(item.run)}</a><span>${item.confirmed}/${item.total}</span></div>`).join("")
     : '<p class="footnote">Completed reports will appear here.</p>');
@@ -315,16 +389,15 @@ function drawResults(job) {
   el("review").hidden = view !== "results" || !job;
   if (view !== "results" || !job) return;
   put("results-note", result ? "Inventory results as returned by the API." : "Waiting for the final API snapshot.");
-  const selected = new Set(job.slots);
   const rows = new Map((result?.rows || []).map((row) => [row.slot_id, row]));
   const captures = new Map(reports.map((report) => [report.slot_id, report]));
-  html("result-rows", Object.keys(layout.slots).map((slot) => {
+  html("result-rows", job.slots.map((slot) => {
     const observed = status.confirmed?.[slot];
     const row = rows.get(slot);
     const evidence = captures.get(slot);
     const stopped = status.missed?.includes(slot);
     const manual = status.adaptive?.manual_review?.[slot];
-    const progress = !selected.has(slot) ? "Outside scope" : manual ? "Manual verification" : observed ? "Confirmed" : stopped ? "Missed"
+    const progress = manual ? "Manual verification" : observed ? "Confirmed" : stopped ? "Missed"
       : status.visited?.includes(slot) ? "Visited" : "Planned";
     const outcome = row?.outcome;
     const reading = observed ? `${label(observed.occupancy)} · ${label(observed.label_status)}` : "—";
@@ -345,7 +418,7 @@ function drawResults(job) {
 
 function reviewSlots(job) {
   if (!job) return [];
-  const status = job.status;
+  const status = job.status || {};
   const problems = Object.values(status.confirmed || {}).filter((event) =>
     event.occupancy === "uncertain" || event.label_status === "unreadable").map((event) => event.slot_id);
   return [...new Set([...(status.missed || []), ...problems, ...Object.keys(status.adaptive?.manual_review || {}),
@@ -353,9 +426,9 @@ function reviewSlots(job) {
 }
 
 function drawAdaptive(job) {
-  const adaptive = view !== "plan" && job?.status?.adaptive;
-  el("adaptive-summary").hidden = !adaptive;
-  el("adaptive-progress").hidden = !adaptive || !inspectionStages.includes(job.status.stage);
+  const adaptive = job?.status?.adaptive;
+  el("adaptive-summary").hidden = !adaptive || view !== "results";
+  el("adaptive-progress").hidden = !adaptive || view !== "live" || !inspectionStages.includes(job.status.stage);
   if (!adaptive) return;
   const move = adaptive.moves.at(-1);
   const moving = move && ["REPOSITION", "RECENTER"].includes(job.status.stage);
@@ -557,6 +630,7 @@ function drawSafety() {
     title = "Choose an inspection scope";
     message = "Required zones follow the planned flight path.";
   }
+  el("safety-banner").hidden = style === "open";
   el("safety-banner").dataset.access = style;
   put("safety-headline", title);
   put("safety-message", message);
@@ -594,46 +668,54 @@ function draw() {
   const job = state?.mission;
   const status = job?.status || {};
   const stage = job?.stage;
+  el("business-results").hidden = view !== "results" || state?.backend?.mode !== "mock_sap";
   const robot = el("robot-state"), backend = el("api-state");
   robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
   robot.classList.toggle("good", !!state?.robot);
   backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : state.backend.mode === "mock_sap" ? "Mock SAP online" : "Warehouse API online") : "Inventory API offline";
   backend.classList.toggle("good", !!state?.backend.online);
-  const flightPhase = job?.status?.flight_phase || stage;
-  put("run-state", flightPhase ? flightPhase.replaceAll("_", " ") : "AWAITING DISPATCH");
-  el("run-state").classList.toggle("active", !!stage && !terminal.has(stage));
   put("planned-total", preview?.slots.length ?? "—");
   put("plan-distance", preview ? `${preview.distance.toFixed(1)} m planned` : "—");
-  const missing = preview?.slots.filter((slot) => !state?.backend.slots.includes(slot)) || [];
+  const missing = preview?.slots.filter((slot) => !state?.backend?.slots?.includes(slot)) || [];
+  const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
-  if (state?.busy || dispatching) reason = "An inspection is in progress or its report is being prepared.";
+  if (!state) reason = "Connecting to the Control Center.";
+  else if (dispatching || wantedRun) reason = "Starting the inspection. Wait for Live flight.";
+  else if (state.busy) reason = terminal.has(stage) ? "Preparing the previous report. Wait for it to finish." : "An inspection is in progress. Follow it in Live flight.";
   else if (!preview) reason = "Select at least one functional location.";
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
     reason = "Waiting for reliable sensor localization.";
-  else if (!state?.robot) reason = "Waiting for drone odometry.";
+  else if (!state?.robot) reason = "Drone is offline. Check the simulator and ROS connection.";
   else if (!state.at_pad) reason = layout.recovery ? "Use the Recovery Center to return the drone to the dock." :
-    "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
+    "Drone is away from the launch pad. Wait for it to return. If the flight was stopped, restart the simulator.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
-  else if (state?.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
+  else if (state.safety?.phase === "RECOVERY") reason = "Recovery is required. Open Diagnostics and follow the recovery steps.";
+  else if (layout.safety_fields && (!state.safety.signals_online || selectedZones.some(zone => zone?.sensor !== "FRESH")))
+    reason = "Waiting for verified safety sensors and signals.";
+  else if (selectedZones.some(zone => zone?.occupied)) reason = "A required zone is occupied. Clear it or choose another scope.";
   else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
-  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Insufficient energy for the first stop and safe return.";
-  else if (!state.backend.online) reason = "Waiting for the inventory API.";
-  else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
+  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Battery is too low for the first stop and a safe return. Wait for charging to finish.";
+  else if (!state.backend.online) reason = "Inventory API is offline. Check that the backend is running.";
+  else if (missing.length) reason = `Inventory data is missing for ${missing[0]}. Choose a supported scope.`;
   el("start").disabled = !!reason;
-  put("dispatch-help", reason || "Drone ready on launch pad.");
-  put("camera-caption", state?.camera ? (state.camera_type === "annotated" ? "Live perception overlay" : "Live reference camera") : "Waiting for a live frame");
-  put("camera-kind", state?.camera_type === "annotated" ? "DETECTIONS" : "ROS 2");
+  put("start", dispatching || wantedRun ? "Starting inspection…" : "Start inspection");
+  put("dispatch-help", reason || "Ready to take off.");
   el("camera").hidden = !state?.camera;
   el("no-camera").hidden = !!state?.camera;
-  put("active-target", status.target || "—");
+  const confirmed = Object.keys(status.confirmed || {}).length;
+  const total = job?.slots?.length || 0;
+  el("flight-progress").hidden = !job;
+  put("progress-count", `${confirmed} of ${total}`);
+  el("progress-bar").max = total || 1;
+  el("progress-bar").value = confirmed;
   put("position-value", state?.robot && state.position ? state.position.slice(0, 3).map((p) => p.toFixed(2)).join(" / ") : "—");
-  put("live-detail", job?.error || status.detail || "Start an inspection to monitor progress.");
-  el("abort").disabled = !job || terminal.has(stage);
-  put("metric-planned", (view === "plan" ? preview?.slots.length : job?.slots.length) ?? "—");
-  put("metric-visited", job ? (status.visited || []).length : "—");
-  put("metric-confirmed", job ? Object.keys(status.confirmed || {}).length : "—");
-  put("metric-damaged", job?.quality ? new Set(job.evidence.filter((r) => r.status === "DAMAGED").map((r) => r.slot_id + "/" + r.pallet_id)).size : "—");
-  put("metric-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
+  put("live-detail", flightMessage(job));
+  const canStop = !!job && !terminal.has(stage);
+  el("abort").hidden = !canStop;
+  el("abort").disabled = !canStop || stopping;
+  put("abort", stopping ? "Stopping inspection…" : "Stop inspection");
+  el("live-plan").hidden = !!job;
+  put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
   drawScans();
   drawSafety();
@@ -649,6 +731,7 @@ function draw() {
 async function poll() {
   try {
     state = await api("/api/state");
+    connectionStatus();
     if (layout.dock && preview && !preview.energy && state.energy?.fresh) changePlan();
     const job = state.mission;
     if (job && (!wantedRun || job.inspection_id === wantedRun)) {
@@ -656,15 +739,18 @@ async function poll() {
         lastRun = job.inspection_id;
         lastStage = null;
         wantedRun = null;
-        if (!terminal.has(job.stage)) setView("live");
+        if (!terminal.has(job.stage) && view === "plan") setView("live");
       }
-      if (terminal.has(job.stage) && lastStage !== job.stage && view === "live") setView("results");
+      if (terminal.has(job.stage) && lastStage !== job.stage) {
+        if (stopping) { stopping = false; notice(); }
+        if (view === "live") setView("results", true);
+      }
       lastStage = job.stage;
     }
     draw();
-    intelligence.update(state);
+    if (view === "results" && el("business-results").open) intelligence.update(state);
   } catch (error) {
-    notice(error.message);
+    connectionStatus("Connection lost. Keep the Rackonaut terminal open. Reconnecting…");
     state = null;
     intelligence.update(null);
     draw();
@@ -673,9 +759,18 @@ async function poll() {
 }
 
 async function init() {
-  layout = await api("/api/layout");
+  try {
+    layout = await api("/api/layout");
+    connectionStatus();
+  } catch (error) {
+    connectionStatus("Waiting for Control Center. Start Rackonaut in the terminal. Reconnecting…");
+    setTimeout(init, 1500);
+    return;
+  }
   intelligence = createIntelligence(api, async (slot) => {
     focusedLocation = slot;
+    resultsMap = true;
+    drawWorkspace();
     await loadTwin();
     twin?.focusSlot(slot);
     el("map-title").scrollIntoView({block: "start", behavior: "smooth"});
@@ -695,15 +790,32 @@ async function init() {
     if (layout.laser_fields) put("sensor-source", "3 simulated GPU LiDARs · Technical dock uses virtual worker presence");
   }
   el("warehouse-map").classList.toggle("has-safety", !!layout.safety_fields);
+  drawWorkspace();
   drawLayout();
   el("map-2d").addEventListener("click", () => chooseMap(false));
   el("map-3d").addEventListener("click", loadTwin);
   el("map-3d").disabled = !layout.scene;
   el("focus-dock").addEventListener("click", async () => {
+    setView("plan", true);
     if (!show3D) await loadTwin();
-    if (show3D) twin?.focusDock();
+    if (show3D) {
+      twin?.focusDock();
+      el("map-title").scrollIntoView({block: "start"});
+    }
   });
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
+  el("diagnostics-tab").hidden = false;
+  el("safety-details-link").addEventListener("click", (event) => {
+    event.preventDefault();
+    setView("diagnostics", true);
+  });
+  el("live-plan").addEventListener("click", () => setView("plan", true));
+  el("results-map").addEventListener("click", () => {
+    resultsMap = !resultsMap;
+    drawWorkspace();
+    if (resultsMap) el("map-title").scrollIntoView({block: "nearest"});
+  });
+  el("damage-link").addEventListener("click", () => { el("review").open = true; });
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
   el("quality").addEventListener("change", (event) => { choices.quality = event.target.checked; changePlan(); });
   el("adaptive").addEventListener("change", (event) => { choices.adaptive = event.target.checked; changePlan(); });
@@ -716,16 +828,23 @@ async function init() {
   el("start").addEventListener("click", async () => {
     dispatching = true; notice(); draw();
     try {
-      wantedRun = (await api("/api/start", selection())).inspection_id;
-      setView("live");
+      const run = (await api("/api/start", selection())).inspection_id;
+      wantedRun = run === lastRun ? null : run;
+      setView("live", true);
     } catch (error) { notice(error.message); }
     finally { dispatching = false; draw(); }
   });
   el("abort").addEventListener("click", async () => {
+    stopping = true;
+    draw();
     try {
       await api("/api/abort", { inspection_id: state.mission.inspection_id });
-      notice("Abort sent to Mission Manager. Waiting for acknowledgement.");
-    } catch (error) { notice(error.message); }
+      notice("Stop requested. Waiting for the drone to respond.");
+    } catch (error) {
+      stopping = false;
+      draw();
+      notice(error.message);
+    }
   });
   for (const action of ["evaluate", "authorize", "abort"]) {
     el(`recovery-${action}`).addEventListener("click", async () => {
@@ -778,7 +897,7 @@ async function init() {
   const camera = el("camera");
   camera.onload = camera.onerror = () => { cameraLoading = false; };
   setInterval(() => {
-    if (view === "live" && state?.camera && !cameraLoading) {
+    if (!document.hidden && view === "live" && state?.camera && !cameraLoading) {
       cameraLoading = true;
       camera.src = "/api/frame.jpg?t=" + Date.now();
     }
@@ -787,7 +906,7 @@ async function init() {
     const overview = el("safety-overview");
     overview.onload = overview.onerror = () => { overviewLoading = false; };
     setInterval(() => {
-      if (state?.overview && !overviewLoading) {
+      if (!document.hidden && view === "diagnostics" && state?.overview && !overviewLoading) {
         overviewLoading = true;
         overview.src = "/api/overview.jpg?t=" + Date.now();
       }
