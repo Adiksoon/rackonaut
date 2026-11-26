@@ -12,7 +12,7 @@ Clone the private repository after accepting the GitHub invitation. On WSL2, clo
 
 **Requirements.** Ubuntu 22.04 or WSL2 Ubuntu 22.04, ROS 2 Humble, Gazebo Fortress, system Python 3.10 with cv_bridge, OpenCV and NumPy, plus Git, colcon and rosdep. Use a WebGL2-capable browser for 3D. RViz2, rqt_graph, rqt_plot and rosbag2 are used by Engineering Showcase. Native GUI windows require a display such as WSLg. The simulator starts headless by default.
 
-If you are setting up ROS and Gazebo for the first time, follow the linked installation guide and review the workspace dependency plan with `scripts/robotics/dependencies`. [Environment and dependency setup](docs/onboarding/ADRIAN.md#set-up-in-ubuntu-2204-or-wsl2)
+If you are setting up ROS and Gazebo for the first time, follow the linked installation guide and review its rosdep commands. [Environment and dependency setup](docs/onboarding/ADRIAN.md#set-up-in-ubuntu-2204-or-wsl2)
 
 ```bash
 git clone https://github.com/Adiksoon/rackonaut.git
