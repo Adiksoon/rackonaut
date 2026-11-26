@@ -1,50 +1,31 @@
 # Rackonaut Warehouse Control Center
 
-The local browser application plans a simulated inspection, dispatches Mission Manager, shows actual odometry and camera detections, and opens the existing portable HTML report after landing. The original [`demo-quality` showcase](../rackonaut_mission/README.md#presentation-and-report-export) remains an independent fallback.
+The Control Center selects warehouse locations, dispatches an autonomous inspection, shows the live camera and route, and opens the portable HTML report after landing. The browser is served on loopback.
 
 ## Launch
 
-From the repository root on Ubuntu 22.04 or WSL2, with ROS 2 Humble and Gazebo Fortress:
+Run the [Quick Start](../../../README.md#start-here) on Ubuntu 22.04 or WSL2 with Humble and Fortress. Use [Business Demo](../../../README.md#a-business-demo) for the short adaptive warehouse and Mock SAP. Use [Full Robotics Demo](../../../README.md#b-full-robotics-demo) for aerial corridors, LiDAR–IMU localization, docking and Recovery. Calling `ros2 launch rackonaut_control control.launch.py` with default arguments starts the development fixture profile.
 
-```bash
-python3.10 scripts/api/setup.py
-scripts/robotics/build
-source scripts/robotics/activate.bash
-ros2 launch rackonaut_control control.launch.py
-```
+Open [Control Center](http://127.0.0.1:8765). Use `gazebo_gui:=true` to open the simulator window or override ports with `http_port:=8766 mock_port:=18092`. Run one stack in the ROS domain. The environment honors `RACKONAUT_ROS_DOMAIN_ID` and `RACKONAUT_GZ_PARTITION` for isolated runs.
 
-Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The launcher starts the extended world, the reference drone and its ROS bridge, the Control Center, and the separate inventory fixture on port 8000. Use `gazebo_gui:=true` to open the simulator window as well. Use `http_port:=8766` or `mock_port:=18092` to avoid a port conflict. Run one controller stack in the ROS domain. The shell activation honors `RACKONAUT_ROS_DOMAIN_ID` and `RACKONAUT_GZ_PARTITION` for an isolated run.
+1. Use **By aisle**, **Full inventory** or **Selected locations** in the plan. The warehouse has 11 functional positions in A and B. Aisle C is decorative. For the aerial profile use A-01-01 and A-01-03.
+2. In **Inspection options**, select package damage and adaptive retries as desired. Start the mission. **Live flight** shows the raw camera, estimated position and route. Choose **3D view** to view the same plan and telemetry in Digital Twin.
+3. Open **Results** for the scoped results and report or reinspection planning. Expand **Inventory comparison** when using Mock SAP. The report and evidence remain available after landing.
+4. **Stop inspection** requests a ROS abort. With Recovery enabled, review the proposal in the operator panel and explicitly authorize a safe return. A failed return keeps the active safety reservations. Ctrl+C stops the stack and its workers.
 
-1. Select **Aisle inspection** and click A or B on the map or in the scope panel. Select multiple aisles in the same panel. **Full inventory** includes all 11 functional locations, and **Custom inspection** uses only the clicked locations. Aisle C is visibly decorative.
-2. Toggle **Package quality** to add carton inspection to any of the three scope modes. Select **Start Inspection**. Live inspection shows the camera, the current target, position, planned and flown paths, visited waypoints, accepted observations, damaged cartons and elapsed time.
-3. Open **Inspection results** and the generated HTML report after completion. Reports remain in history. Use **Plan another inspection** to start with a new selection and ID, or **Plan reinspection** to select missed, uncertain, unreadable or backend-flagged locations.
-4. **Abort inspection** calls the ROS abort service. The reference drone holds position after the stop. A stopped drone away from the pad prevents another dispatch. Restart the simulator stack to reset an aborted demo. Ctrl+C stops the launcher and its workers.
-
-The default archive is `ros2_ws/log/ros/control/reports/<inspection_id>/`. It includes the HTML, the ROS and API snapshot and any stable photo evidence. `data_dir:=/absolute/path` selects a different archive root.
-
-The [adaptive inspection demonstration](../../../docs/ADAPTIVE_INSPECTION.md) uses a separate warehouse profile and an opt-in checkbox. The guide includes the tested route, browser recording and safety observations.
-
-Select **3D Digital Twin** above the map for the live warehouse scene. It shares the existing planner and inspection controls. The [Digital Twin guide](../../../docs/DIGITAL_TWIN.md) includes controls, performance measurements and demonstration evidence.
-
-The [energy and charging profile](../../../docs/ENERGY_MANAGEMENT.md) adds a dock, simulated battery telemetry and the option to resume a single inspection after an automatic charging stop.
+The archive is `ros2_ws/log/ros/control/reports/<inspection_id>/`. It includes HTML and the ROS/API snapshot with stable photo evidence when available. `data_dir:=/absolute/path` sets a separate archive and database root.
 
 ## Warehouse and route
 
-The variant `control_showcase.sdf` contains the original eight A slots and adds B-01-01, B-01-02 and B-02-01. The additional slots have ArUco IDs 8–10 and the additional pallets use IDs 25 and 26. The physical B cases are a torn carton, an intact carton and an empty slot. The build publishes the SVG geometry inputs and the marker dictionary from the same generator. These configuration files contain viewpoint geometry and marker identities. The runtime derives inventory and carton quality from the camera.
-
-The planner groups selected positions by aisle. Before crossing between aisles, it returns to the front transfer corridor at world X = 2.1 m, ahead of the rack faces. Empty-slot-ID waypoints are transit instructions. The existing positional controller flies them and returns through the corridor. Each planned slot is distinct. The simulated odometry and the two ROS paths drive the top-down map.
+The base `control_showcase.sdf` adds B-01-01, B-01-02 and B-02-01 to the eight A slots. The B cases include torn and intact cartons and an empty slot. The generator publishes shared scene geometry and the marker dictionary. Inventory and visible carton quality are derived from the camera. The short profile uses the front transfer corridor, and the aerial profile follows the overhead infrastructure and reserved descents. [Adaptive warehouse](../../../docs/ADAPTIVE_INSPECTION.md) · [Digital Twin](../../../docs/DIGITAL_TWIN.md) · [Route constraints](../../../docs/INTEGRATION.md#route-and-operator-constraints)
 
 ## ROS and team integration
 
-The loopback web service subscribes to ROS odometry, mission status, planned and flown paths, and annotated images. It dispatches the existing Mission Manager and perception processes with the chosen route and a fresh ID. The browser polls the service for telemetry and live JPEG frames from those topics. Start and Abort use the existing ROS services. Mission Manager owns velocity commands.
+The loopback service subscribes to odometry, mission status, paths, raw images and annotated images. Each dispatch creates a fresh inspection ID and starts Mission Manager and perception. The JPEG endpoint serves the raw stream. An annotated frame latches perception readiness for dispatch, with no frame-age check. Use the [Engineering Showcase Vision view](../../../docs/ENGINEERING_SHOWCASE.md#engineering-live) to see annotations. Mission Manager owns ROS velocity commands. The backend observation contract and existing start and abort services remain the integration interfaces.
 
-In this launcher, perception only persists observations and quality evidence for the current `INSPECT` target of the matching inspection ID. Other visible tags can appear in the camera image. The table separates planned, visited, confirmed, missed and outside-scope slots. Stable quality captures link to an inventory observation, and the HTML exporter verifies the link.
+Perception stores observations and evidence for the current scoped target. Other visible tags can appear in the camera image. Stable quality captures link to an inventory observation, and the HTML exporter verifies the link. Use `mock:=false backend_url:=http://host:port` for an independent backend that implements the contract and recognizes the selected inventory IDs. The fixture returns `pending` for new observations, while Mock SAP derives comparisons and actions locally. An independent drone model must first pass the [module acceptance gates](../../../docs/INTEGRATION.md#acceptance-gates-for-independent-modules).
 
-For a team backend, launch with `mock:=false backend_url:=http://host:port`. The selected IDs must exist in its `GET /api/inventory/expected` response. Align aisle B with Vahid using [the separate fixture extension](../../../test_data/control_inventory_extension.json). The normal mock, its expected inventory and the HTTP v1 contract keep their existing defaults. The enlarged fixture reports `pending` for newly captured events. The comparison and discrepancy fields come from the configured backend. Tharindu can use the same inspection ID and API endpoints for business views and use the existing [quality handoff proposal](../rackonaut_mission/docs/VERIFICATION.md#quality-evidence-handoff) when those endpoints are agreed. Michał's model must satisfy the shared ROS topics, frames, velocity and camera contracts before switching the reference drone.
-
-The prototype binds to loopback for a local simulation and uses fixed, unobstructed corridors. It assumes the published showcase geometry, simulator-derived odometry and the reference camera. The ROS bridge and JPEG serving use the existing rclpy and OpenCV environment. The available workspace does not ship rosbridge or web_video_server. Their upstream documentation covers general ROS WebSocket and image streaming. [rosbridge](https://github.com/RobotWebTools/rosbridge_suite) · [web_video_server](https://github.com/RobotWebTools/web_video_server)
-
-## Verification
+## Historical fixture profile verification
 
 On 25 November 2026, two uninterrupted runs were dispatched in Chrome with Playwright through **Start Inspection** on the same launched stack. Both used package quality, headless Gazebo Fortress on Ubuntu 22.04.5 WSL2, ROS 2 Humble and the extended fixture API. The browser received annotated camera frames in both aisles and opened the generated reports. The fixture recorded one actual observation per selected location and returned `pending` for each comparison.
 

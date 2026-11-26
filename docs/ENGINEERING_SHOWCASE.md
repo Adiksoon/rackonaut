@@ -18,7 +18,7 @@ Otwórz [Control Center](http://127.0.0.1:8765). W drugim terminalu uruchom gł�
 scripts/robotics/checkpoint tools
 ```
 
-Poczekaj na `TRACKING` i potwierdzenie doku. Wybierz *Custom inspection*, A-01-01 i A-01-03, *Package quality* oraz *Adaptive inspection*. Pokaż start, narastającą mapę i obie trajektorie. W RViz zapisano ujęcie magazynu, alejki A i widok przy dronie. Użyj przełącznika *Reference infrastructure*, aby porównać odrębną geometrię z odbiciami.
+Poczekaj na `TRACKING` i potwierdzenie doku. Wybierz *Selected locations*, A-01-01 i A-01-03, a następnie *Check for package damage* i *Retry difficult readings* w *Inspection options*. Pokaż start, narastającą mapę i obie trajektorie. W RViz zapisano ujęcie magazynu, alejki A i widok przy dronie. Użyj przełącznika *Reference infrastructure*, aby porównać odrębną geometrię z odbiciami.
 
 Podczas demonstracji omijania możesz umieścić karton w A na przejeździe do A-01-03, gdy dron leci na poziomie inspekcji około 0,79 m. Zabezpieczenia wstrzymują ruch, gdy skan nie potwierdza kolejnego odcinka. Na krótkim spotkaniu najlepiej pokazać aktywne mapowanie, kamerę i backend. Film i materiały Evidence pozwalają omówić omijanie, Recovery i walidację.
 
@@ -33,7 +33,7 @@ Podczas demonstracji omijania możesz umieścić karton w A na przejeździe do A
 | `view:=graph adapter:=false` | rqt_graph. Odśwież po starcie zlecenia i wybierz *Nodes/Topics (active)* oraz *Hide Debug*. |
 | `view:=plot_energy` | rqt_plot z baterią, kosztem i rezerwą. Analogicznie `plot_flight`, `plot_localization`, `plot_avoidance` i `plot_validation`. |
 
-Konfiguracje RViz ustawiają `rackonaut_odom` oraz 12 FPS dla Navigation, Safety i Validation, a 15 FPS dla Vision. Główny widok używa oryginalnych chmur z buforem jednej wiadomości. Gdy adapter już działa, dodaj `adapter:=false` do następnego okna. Otwieraj kolejny widok pojedynczo. Gazebo dołączysz do tej samej symulacji poleceniem `ign gazebo -g` w aktywowanym terminalu albo ustawieniem `gazebo_gui:=true` podczas uruchamiania Live.
+Konfiguracje RViz ustawiają `rackonaut_odom` oraz 12 FPS dla Navigation, Safety i Validation, a 15 FPS dla Vision. Główny widok używa oryginalnych chmur z buforem jednej wiadomości. Gdy adapter już działa, dodaj `adapter:=false` do następnego okna. Odświeżony Control Center pokazuje surową kamerę. Widok Vision umożliwia jednoczesne obejrzenie ramki surowej i przetworzonej. Otwieraj kolejny widok pojedynczo. Gazebo dołączysz do tej samej symulacji poleceniem `ign gazebo -g` w aktywowanym terminalu albo ustawieniem `gazebo_gui:=true` podczas uruchamiania Live.
 
 Domyślny Live używa wirtualnego nadzoru obecności. `scripts/robotics/checkpoint live safety_sensor:=laser` uruchamia czujniki A, B i T. W Safety cyjanowe prostokąty oznaczają kalibrowane pola detekcji, osobno od pełnych granic rezerwacji. D korzysta z czujnika wirtualnego także w profilu laserowym. Widok wirtualny jawnie opisuje stan i wyświetla wyłącznie dostępne dane.
 

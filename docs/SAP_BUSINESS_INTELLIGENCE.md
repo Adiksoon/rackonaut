@@ -18,7 +18,7 @@ LP_NUM_THREADS=4 ros2 launch rackonaut_control control.launch.py \
   api_profile:=mock_sap safety:=true adaptive_world:=true
 ```
 
-W [Control Center](http://127.0.0.1:8765) wybierz *Custom inspection*, stanowiska A-01-01, A-01-02 i A-01-03 oraz *Package quality* i *Adaptive inspection*. Panel *Warehouse Intelligence* pokazuje wyniki w miarę przyjmowania obserwacji. Po zakończeniu zdjęcia dochodzą wraz z archiwum. Wybierz problem, aby sprawdzić przewidywaną i zaobserwowaną paletę, zdjęcia, historię i lokalizację w Digital Twin.
+W [Control Center](http://127.0.0.1:8765) wybierz *Selected locations* i stanowiska A-01-01, A-01-02 oraz A-01-03. W *Inspection options* włącz *Check for package damage* i *Retry difficult readings*. Po zakończeniu lotu otwórz *Results* i rozwiń *Inventory comparison*. Archiwum udostępnia zdjęcia i raport. Wybierz problem, aby sprawdzić przewidywaną i zaobserwowaną paletę, zdjęcia, historię i lokalizację w Digital Twin.
 
 Profil powietrzny z funkcjami GOAL 15 i 16 uruchamia się tym samym backendem.
 
@@ -26,6 +26,8 @@ Profil powietrzny z funkcjami GOAL 15 i 16 uruchamia się tym samym backendem.
 LP_NUM_THREADS=4 ros2 launch rackonaut_control control.launch.py \
   api_profile:=mock_sap safety:=true localization:=sensor_based recovery:=true
 ```
+
+W profilu powietrznym wybierz A-01-01 i A-01-03. Ten wariant używa wirtualnego nadzoru obecności w strefach naziemnych. [Ograniczenia trasy powietrznej](INTEGRATION.md#route-and-operator-constraints)
 
 W obu wariantach można podać `data_dir:=/ścieżka/do/danych`. W tym katalogu launch przechowuje `warehouse.sqlite3`, raporty i dane misji. Domyślny profil `api_profile:=fixture` zachowuje API testowe. Samodzielny backend Mock SAP korzysta z `RACKONAUT_SAP_DB` lub pliku `.rackonaut-data/warehouse.sqlite3`. [Uruchomienie samego API](../backend/README.md)
 
