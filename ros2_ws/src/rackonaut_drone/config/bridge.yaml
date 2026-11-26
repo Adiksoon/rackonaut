@@ -23,3 +23,8 @@
   ros_type_name: geometry_msgs/msg/Twist
   gz_type_name: gz.msgs.Twist
   direction: ROS_TO_GZ
+- ros_topic_name: /rackonaut_drone/controller/enable
+  gz_topic_name: /rackonaut_x3/enable
+  ros_type_name: std_msgs/msg/Bool
+  gz_type_name: gz.msgs.Boolean
+  direction: ROS_TO_GZ

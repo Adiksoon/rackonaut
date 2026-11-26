@@ -1,0 +1,85 @@
+#!/usr/bin/python3
+"""Keep X3 IMU reception independent of LiDAR registration."""
+from collections import deque
+from threading import Lock, Thread
+from time import monotonic
+
+import rclpy
+from rclpy.executors import ExternalShutdownException, SingleThreadedExecutor
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Imu
+
+from rackonaut_localization.node import IMU, Localization
+
+
+class X3Localization(Localization):
+    def __init__(self):
+        super().__init__()
+        original = next(subscription for subscription in self.subscriptions if subscription.topic_name == IMU)
+        self.destroy_subscription(original)
+
+        self.inbox = deque(maxlen=32)
+        self.inbox_lock = Lock()
+        self.receiver = Node("rackonaut_x3_imu_receiver")
+        self.receiver.create_subscription(Imu, IMU, self.enqueue, qos_profile_sensor_data)
+        self.receiver_executor = SingleThreadedExecutor()
+        self.receiver_executor.add_node(self.receiver)
+        self.worker = Thread(target=self.receive, name="x3-imu")
+        self.worker.start()
+
+    def receive(self):
+        try:
+            self.receiver_executor.spin()
+        except ExternalShutdownException:
+            pass
+
+    def enqueue(self, message):
+        received = monotonic()
+        with self.inbox_lock:
+            self.inbox.append((received, message))
+
+    def drain_imu(self):
+        with self.inbox_lock:
+            batch = tuple(self.inbox)
+            self.inbox.clear()
+        for received, message in batch:
+            previous = self.samples[-1] if self.samples else None
+            super().on_imu(message)
+            if self.samples and self.samples[-1] is not previous:
+                self.imu_at = received
+
+    def tick(self):
+        self.drain_imu()
+        super().tick()
+
+    def status(self, _now):
+        self.drain_imu()
+        return super().status(monotonic())
+
+    def publish_status(self, _now, state, reason):
+        super().publish_status(monotonic(), state, reason)
+
+    def close(self):
+        self.receiver_executor.shutdown()
+        self.worker.join()
+        self.receiver.destroy_node()
+
+
+def main():
+    rclpy.init()
+    estimator = None
+    try:
+        estimator = X3Localization()
+        rclpy.spin(estimator)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        if estimator is not None:
+            estimator.close()
+            estimator.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 """Bridge recent operator commands and return to zero when the stream lapses."""
+import json
 from math import isfinite
 from time import monotonic
 
@@ -7,8 +8,55 @@ from geometry_msgs.msg import Twist
 import rclpy
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
+from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+from ros_gz_interfaces.msg import Contacts
+from std_msgs.msg import Bool, String
 
 TIMEOUT = 0.5
+
+
+class DockPower:
+    """Rest on the physical dock until a new mission departure commands lift."""
+
+    def __init__(self, node):
+        self.enable = node.create_publisher(Bool, "/rackonaut_drone/controller/enable", 10)
+        node.create_subscription(Contacts, "/rackonaut/dock/contacts", self.on_contact, qos_profile_sensor_data)
+        node.create_subscription(String, "/rackonaut/mission/status", self.on_mission,
+                                 QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL))
+        self.contact_at = self.mission_at = float("-inf")
+        self.contact_stamp = (-1, 0)
+        self.phase = ""
+        self.landed = self.disarmed = False
+
+    def on_contact(self, message):
+        stamp = message.header.stamp.sec, message.header.stamp.nanosec
+        if stamp <= self.contact_stamp:
+            return
+        self.contact_stamp = stamp
+        pair = {"rackonaut_dock::body::dock_contact_surface_collision",
+                "rackonaut_reference_drone::base_link::body_collision"}
+        touching = any({row.collision1.name, row.collision2.name} == pair for row in message.contacts)
+        self.contact_at = monotonic() if touching else float("-inf")
+
+    def on_mission(self, message):
+        status = json.loads(message.data)
+        self.phase = status.get("stage", "")
+        self.landed = status.get("landed") is True
+        self.mission_at = monotonic()
+
+    def allow(self, command, now):
+        fresh = now - self.mission_at <= .45
+        if self.disarmed:
+            # These phases follow the Mission Manager's fresh departure permit and preflight checks.
+            if (fresh and not self.landed and self.phase in {"RESUMING", "VERTICAL_TAKEOFF"}
+                    and command.linear.z > 0.):
+                self.enable.publish(Bool(data=True))
+                self.disarmed = False
+        elif fresh and self.landed and self.phase == "CHARGING" and now - self.contact_at <= .40:
+            self.disarmed = True
+        if self.disarmed:
+            self.enable.publish(Bool(data=False))
+        return not self.disarmed
 
 
 class VelocityGuard(Node):
@@ -16,6 +64,7 @@ class VelocityGuard(Node):
         super().__init__("rackonaut_drone_velocity_guard")
         self.output = self.create_publisher(Twist, "/rackonaut_drone/controller/cmd_vel", 10)
         self.create_subscription(Twist, "/rackonaut/drone/cmd_vel", self.receive, 10)
+        self.dock = DockPower(self) if self.declare_parameter("dock_power", False).value else None
         self.command = None
         self.received_at = 0.0
         self.create_timer(0.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
@@ -32,9 +81,11 @@ class VelocityGuard(Node):
     def tick(self):
         if self.command is None:
             return
-        if monotonic() - self.received_at >= TIMEOUT:
+        now = monotonic()
+        if now - self.received_at >= TIMEOUT:
             self.command = Twist()
-        self.output.publish(self.command)
+        if self.dock is None or self.dock.allow(self.command, now):
+            self.output.publish(self.command)
 
 
 def main():

@@ -1,0 +1,338 @@
+{
+  "previous_route_trial": {
+    "run": "INS-CONTROL-20261126-135204-E84E39C1",
+    "confirmed": 8,
+    "reported_failure": "Charging contact was lost",
+    "localization_at_abort": "TRACKING",
+    "estimated_position_at_abort": [
+      -4.702,
+      10.3,
+      0.046,
+      0.0
+    ],
+    "charge_contact_at_first_charging_sample": true
+  },
+  "previous_resume_trial": {
+    "run": "INS-CONTROL-20261126-142228-D2E21A0A",
+    "confirmed": 7,
+    "charged_percent": 88.06,
+    "resumed": true,
+    "blocked_approach": "A-01-08",
+    "measured_obstacle_distance_m": 0.62
+  },
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12",
+    "upstream": "6e04fcf",
+    "x3_previous_validation": "28bdaf7"
+  },
+  "profile": {
+    "name": "x3 sensor-based full inventory",
+    "backend": "mock_sap",
+    "safety": "virtual",
+    "quality_enabled": true,
+    "simulator_pose_use": "validation only",
+    "background_demo_physics_temporarily_paused": true
+  },
+  "run": "INS-CONTROL-20261126-144219-97770C36",
+  "elapsed_wall_s": 1096.7,
+  "status": "COMPLETE",
+  "planned_slots": [
+    "A-01-01",
+    "A-01-02",
+    "A-01-03",
+    "A-01-04",
+    "A-01-05",
+    "A-01-06",
+    "A-01-07",
+    "A-01-08",
+    "B-01-01",
+    "B-01-02",
+    "B-02-01"
+  ],
+  "confirmed_slots": [
+    "A-01-01",
+    "A-01-02",
+    "A-01-03",
+    "A-01-04",
+    "A-01-05",
+    "A-01-06",
+    "A-01-07",
+    "A-01-08",
+    "B-01-01",
+    "B-01-02",
+    "B-02-01"
+  ],
+  "mock_sap_observations": 11,
+  "mock_sap_quality_reports": 3,
+  "missed": [],
+  "landed": true,
+  "at_pad": true,
+  "physical_dock_contact": true,
+  "safety_phase": "RELEASED",
+  "safety_events": [
+    {
+      "event": "preparing",
+      "utc": "2026-11-26T14:42:19.181+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "reserved",
+      "utc": "2026-11-26T14:42:22.224+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "start_permitted",
+      "utc": "2026-11-26T14:42:22.424+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "flight_started",
+      "utc": "2026-11-26T14:42:22.774+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "start_permitted",
+      "utc": "2026-11-26T14:49:41.027+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "start_permitted",
+      "utc": "2026-11-26T14:55:26.225+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    },
+    {
+      "event": "released",
+      "utc": "2026-11-26T15:01:28.874+00:00",
+      "zones": [
+        "D",
+        "B",
+        "A"
+      ]
+    }
+  ],
+  "report": {
+    "http_status": 200,
+    "all_slots_present": true,
+    "url": "/reports/INS-CONTROL-20261126-144219-97770C36"
+  },
+  "dock_power": {
+    "disarm_messages": 414,
+    "rearm_messages": 2,
+    "measured_holds": [
+      {
+        "wall_seconds": 20.671,
+        "contact_frames": 3192,
+        "frames_with_x3_contact": 3192
+      },
+      {
+        "wall_seconds": 18.659,
+        "contact_frames": 2818,
+        "frames_with_x3_contact": 2818
+      }
+    ]
+  },
+  "battery": {
+    "forecast": {
+      "flight_seconds": 355.5,
+      "inspection_seconds": 35.2,
+      "adaptive_seconds": 0.0,
+      "adaptive_percent": 0.0,
+      "estimated_percent": 132.13,
+      "return_percent": 34.53,
+      "reserve_percent": 8.0,
+      "minimum_percent": 67.4,
+      "can_start": true,
+      "single_cycle": false
+    },
+    "sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.936,
+        "start_sim_time": 4.9,
+        "completed_before": [],
+        "result": "DOCKED_FOR_CHARGE",
+        "end_percent": 11.493,
+        "end_sim_time": 263.14,
+        "completed_after": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-03",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07"
+        ],
+        "charged_percent": 88.286,
+        "charge_end_sim_time": 276.38
+      },
+      {
+        "departure": 2,
+        "start_percent": 88.286,
+        "start_sim_time": 276.38,
+        "completed_before": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-03",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07"
+        ],
+        "result": "DOCKED_FOR_CHARGE",
+        "end_percent": 16.828,
+        "end_sim_time": 484.26,
+        "completed_after": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-03",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07",
+          "A-01-08"
+        ],
+        "charged_percent": 88.581,
+        "charge_end_sim_time": 496.72
+      },
+      {
+        "departure": 3,
+        "start_percent": 88.581,
+        "start_sim_time": 496.72,
+        "completed_before": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-03",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07",
+          "A-01-08"
+        ],
+        "result": "COMPLETE",
+        "end_percent": 12.927,
+        "end_sim_time": 721.02,
+        "completed_after": [
+          "A-01-01",
+          "A-01-02",
+          "A-01-03",
+          "A-01-04",
+          "A-01-05",
+          "A-01-06",
+          "A-01-07",
+          "A-01-08",
+          "B-01-01",
+          "B-01-02",
+          "B-02-01"
+        ]
+      }
+    ],
+    "charge_cycles": [
+      {
+        "cycle": 1,
+        "sim_time": 276.38,
+        "inspection_id": "INS-CONTROL-20261126-144219-97770C36",
+        "reached_percent": 88.29
+      },
+      {
+        "cycle": 2,
+        "sim_time": 496.64,
+        "inspection_id": "INS-CONTROL-20261126-144219-97770C36",
+        "reached_percent": 88.1
+      }
+    ],
+    "percent_at_final_dock": 14.72
+  },
+  "observed_stages": [
+    "STARTING",
+    "WAITING",
+    "VERTICAL_TAKEOFF",
+    "ENTERING_CORRIDOR",
+    "OVERHEAD_TRANSIT",
+    "WAITING_FOR_AISLE_CLEARANCE",
+    "AISLE_DESCENT",
+    "TRANSIT",
+    "ALIGN",
+    "INSPECT",
+    "AISLE_APPROACH",
+    "RETURN_TO_DOCK",
+    "DOCKING",
+    "CHARGING",
+    "READY_TO_RESUME",
+    "RESUMING",
+    "AISLE_ASCENT",
+    "RETURN_TRANSIT",
+    "LAND",
+    "COMPLETE"
+  ],
+  "localization": {
+    "states": {
+      "TRACKING": 6227
+    },
+    "largest_observed_status_gap_s": 0.498,
+    "max_imu_age_ms": 195,
+    "validation_samples": 4346,
+    "position_rmse_m": 0.0101,
+    "position_p95_m": 0.0183
+  },
+  "dropout": {
+    "abort_delay_s": 0.774,
+    "abort_reason": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "zero_commands_during_fault": 1,
+    "truth_after_abort": [
+      -4.701334339897146,
+      10.298528052108503,
+      1.1734051201402045
+    ],
+    "confirmed_pose_publisher": "rackonaut_localization",
+    "state_after_sensor_return": "ABORTED",
+    "localization_after_sensor_return": "TRACKING",
+    "run": "INS-CONTROL-20261126-150146-EB233C72",
+    "rise_from_pause_to_settling_m": 0.352,
+    "safety_phase": "RECOVERY"
+  },
+  "regression": {
+    "ros_pytest": {
+      "passed": 45,
+      "command": "python3 -m pytest -q ros2_ws/src/rackonaut_{control,mission,perception,avoidance,localization,energy,drone}/test"
+    },
+    "backend_unit_tests": {
+      "passed": 7,
+      "command": ".venv-backend/bin/python -m unittest discover -s tests -q"
+    },
+    "reference_smoke": {
+      "result": "PASS",
+      "command": "scripts/robotics/smoke --reference"
+    },
+    "mock_sap_api_smoke": {
+      "result": "PASS",
+      "command": ".venv-backend/bin/python scripts/api/smoke.py"
+    }
+  }
+}

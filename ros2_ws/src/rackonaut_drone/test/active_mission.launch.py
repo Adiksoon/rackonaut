@@ -5,6 +5,7 @@ from pathlib import Path
 from ament_index_python.packages import get_package_share_path
 from launch.actions import ExecuteProcess
 from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -25,5 +26,13 @@ def generate_launch_description():
             ]
         return ExecuteProcess(*args, **kwargs)
 
+    def worker(*args, **kwargs):
+        if kwargs.get("package") == "rackonaut_control" and kwargs.get("executable") == "serve":
+            kwargs.update(package="rackonaut_drone", executable="serve_x3")
+        if kwargs.get("package") == "rackonaut_localization" and kwargs.get("executable") == "localize":
+            kwargs.update(package="rackonaut_drone", executable="localize_x3")
+        return Node(*args, **kwargs)
+
     module.ExecuteProcess = process
+    module.Node = worker
     return module.generate_launch_description()

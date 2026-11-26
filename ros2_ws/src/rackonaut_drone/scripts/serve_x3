@@ -1,0 +1,63 @@
+#!/usr/bin/python3
+"""Start Control Center with a descent-first route for the X3."""
+from math import dist, hypot
+
+from rackonaut_control import node as control
+from rackonaut_control.node import Control
+from rackonaut_control.planning import plan
+from rackonaut_energy.aerial import Network
+
+
+def plan_x3(layout, selection):
+    planned = plan(layout, selection)
+    route = planned["route"]
+    if "aerial" not in route:
+        return planned
+
+    previous = None
+    waypoints = []
+    for target in route["waypoints"]:
+        if (previous and previous.get("slot_id") and target.get("slot_id")
+                and previous["slot_id"][0] == target["slot_id"][0]
+                and previous["z"] - target["z"] > 1.
+                and hypot(target["x"] - previous["x"], target["y"] - previous["y"]) > .5):
+            waypoints.append({
+                "x": previous["x"], "y": previous["y"], "z": target["z"],
+                "yaw_deg": previous["yaw_deg"], "phase": "AISLE_APPROACH",
+            })
+        waypoints.append(target)
+        previous = target
+
+    pad = route["pad"]
+    takeoff = {**pad, "z": route["takeoff_z"]}
+    points, safety_points = [], []
+    for waypoint in (pad, takeoff, *waypoints, takeoff, pad):
+        point = [waypoint[axis] for axis in ("x", "y", "z")]
+        points.append(point)
+        safety_points.append(point)
+        if "retries" in route and (retry := route["retries"].get(waypoint.get("slot_id"))):
+            for views in retry["views"].values():
+                for view in views:
+                    safety_points.extend(([view[axis] for axis in ("x", "y", "z")], point))
+
+    route["waypoints"] = waypoints
+    planned["points"] = points
+    planned["distance"] = round(sum(dist(first, second) for first, second in zip(points, points[1:])), 1)
+    planned["required_zones"] = Network(route["aerial"]).required(safety_points)
+    if "safety_points" in planned:
+        planned["safety_points"] = safety_points
+    return planned
+
+
+class X3Control(Control):
+    @staticmethod
+    def spawn(directory, package, executable, parameters):
+        if package == "rackonaut_mission" and executable == "run_mission":
+            package = "rackonaut_drone"
+        return Control.spawn(directory, package, executable, parameters)
+
+
+if __name__ == "__main__":
+    control.Control = X3Control
+    control.plan = plan_x3
+    control.main()

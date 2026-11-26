@@ -83,6 +83,7 @@ def prepare(source, camera_profile, localization_shadow):
       name="ignition::gazebo::systems::MulticopterVelocityControl">
       <robotNamespace>rackonaut_x3</robotNamespace>
       <commandSubTopic>cmd_vel</commandSubTopic>
+      <enableSubTopic>enable</enableSubTopic>
       <comLinkName>X3/base_link</comLinkName>
       <velocityGain>2.7 2.7 2.7</velocityGain>
       <attitudeGain>2 3 0.15</attitudeGain>

@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+"""Use a bounded scan history for exact-stamp LiDAR pairing on the X3."""
+from collections import deque
+from math import hypot
+
+from rackonaut_avoidance.sensor import STALE_SECONDS, Scanner, stamp
+from rackonaut_energy.aerial import Leg
+from rackonaut_mission import node as mission
+from rackonaut_mission.node import Mission
+
+
+class X3Scanner(Scanner):
+    def __init__(self, node, exact_pose=False):
+        super().__init__(node, exact_pose=exact_pose)
+        self.scans = deque(maxlen=8)
+
+    def receive(self, message):
+        previous = self.latest_stamp
+        super().receive(message)
+        if self.exact_pose and self.latest_stamp > previous:
+            self.scans.append(self.pending)
+            self.pending = None
+
+    def current(self, now):
+        if self.exact_pose:
+            self.pending = None
+            latest = self.cloud.time if self.cloud else -1.
+            for message, received in reversed(self.scans):
+                time = stamp(message)
+                if time <= latest or now - received > STALE_SECONDS:
+                    break
+                if any(abs(time - pose[0]) <= .001 for pose in self.poses):
+                    self.pending = message, received
+                    break
+        return super().current(now)
+
+
+class X3Mission(Mission):
+    def send_velocity(self, target=None, scale=1.):
+        # Limit the final approach speed so touchdown does not produce a sharp
+        # deceleration while the estimator reconciles its last airborne scan.
+        if self.stage in {"DOCKING", "LAND"} and self.pose.z - self.route.pad.z <= .75:
+            scale = min(scale, .40)
+        super().send_velocity(target, scale)
+
+    def outbound(self, slot):
+        legs = super().outbound(slot)
+        if self.aerial:
+            x, y, z, yaw = legs[-2].pose
+            if slot.z - z > 1. and hypot(slot.x - x, slot.y - y) > .5:
+                level = (x, y, slot.z, yaw)
+                zones = self.route.zones
+                if (self.aerial.allows(legs[-2].pose, level, zones)
+                        and self.aerial.allows(level, legs[-1].pose, zones)):
+                    legs.insert(-1, Leg(level, "AISLE_APPROACH", slot.slot_id[0]))
+        return legs
+
+
+if __name__ == "__main__":
+    mission.Mission = X3Mission
+    mission.Scanner = X3Scanner
+    mission.main()

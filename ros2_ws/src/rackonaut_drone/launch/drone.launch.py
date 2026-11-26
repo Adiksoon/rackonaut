@@ -52,7 +52,8 @@ def launch_drone(context):
               arguments=["--x", "0.27", "--z", "0.04", "--roll", "-1.57079632679", "--yaw", "-1.57079632679",
                          "--frame-id", "rackonaut_base_link", "--child-frame-id", "rackonaut_camera_optical_frame"],
               parameters=[{"use_sim_time": True}], output="screen")
-    guard = Node(package="rackonaut_drone", executable="velocity_guard", output="screen")
+    guard = Node(package="rackonaut_drone", executable="velocity_guard", output="screen",
+                 parameters=[{"dock_power": value("navigation_odometry") == "sensor_based"}])
     workers = [bridge, clock, tf, guard]
 
     def after_spawn(event, _):

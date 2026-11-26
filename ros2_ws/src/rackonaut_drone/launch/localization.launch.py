@@ -54,7 +54,8 @@ def setup(context):
     if arg("start_estimator") == "true":
         truth = [] if sensor_navigation else [("/rackonaut/validation/ground_truth", "/rackonaut/drone/odom")]
         workers.extend([
-            Node(package="rackonaut_localization", executable="localize", output="screen",
+            Node(package="rackonaut_drone" if sensor_navigation else "rackonaut_localization",
+                 executable="localize_x3" if sensor_navigation else "localize", output="screen",
                  additional_env={"OPENBLAS_NUM_THREADS": "1"},
                  parameters=[{"mode": mode, "data_dir": str(data)}]),
             Node(package="rackonaut_localization", executable="validate_pose", output="screen",

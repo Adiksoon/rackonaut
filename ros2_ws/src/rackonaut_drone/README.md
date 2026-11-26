@@ -104,20 +104,27 @@ Estymator sygnalizował `IMU data stopped advancing`. Gazebo nadal publikowało 
 
 ### Próba lotu sterowanego z IMU i LiDAR-u
 
-W odizolowanej próbie integracyjnej launcher testowy z modułu X3 podstawia model i mostki X3 pod istniejący stos Control Center, Energy, Mission i Safety. Estymator jako jedyny publikuje `/rackonaut/drone/odom` oraz dynamiczny TF. Mostek Gazebo publikuje pozę osobno na `/rackonaut/validation/ground_truth` dla walidatora. Adapter doku mapuje nazwę kolizji korpusu X3 zgłoszoną przez fizyczny czujnik na nazwę obsługiwaną przez istniejący moduł energii.
+W odizolowanej próbie integracyjnej launcher testowy z modułu X3 podstawia model i mostki X3 pod istniejący stos Control Center, Energy, Mission i Safety. Estymator jako jedyny publikuje `/rackonaut/drone/odom` oraz dynamiczny TF. Odbiornik IMU działa niezależnie od rejestracji skanów LiDAR-u. Estymator zachowuje rzeczywisty czas odbioru każdej poprawnej próbki, także gdy odczytuje ją z kolejki. Kontroler omijania przechowuje do ośmiu najnowszych skanów do chwili dopasowania pozycji z tym samym znacznikiem. Obowiązuje limit 650 ms od odbioru skanu oraz dotychczasowa tolerancja znacznika 1 ms. Mostek Gazebo publikuje pozę osobno na `/rackonaut/validation/ground_truth` dla walidatora. Adapter doku mapuje nazwę kolizji korpusu X3 zgłoszoną przez fizyczny czujnik na nazwę obsługiwaną przez istniejący moduł energii. Gdy Mission Manager potwierdzi lądowanie i rozpocznie ładowanie, sterownik X3 odcina napęd po otrzymaniu świeżego odczytu styku doku. Napęd wraca dopiero po zatwierdzonym starcie lub wznowieniu i dodatniej komendzie wznoszenia. Na ostatnich 75 cm podejścia do stacji polecenie prędkości liniowej ma limit 40% skali nominalnej. Niższy limit zadany przez moduł omijania nadal obowiązuje.
 
 ```bash
 export RACKONAUT_ROS_DOMAIN_ID=81 RACKONAUT_GZ_PARTITION=rackonaut-x3-active-81
 source scripts/robotics/activate.bash
 ros2 run rackonaut_drone prepare_model --localization-shadow
 LP_NUM_THREADS=4 ros2 launch "$PWD/ros2_ws/src/rackonaut_drone/test/active_mission.launch.py" \
-  localization:=sensor_based localization_diagnostics:=true safety:=true safety_sensor:=virtual \
+  api_profile:=mock_sap localization:=sensor_based localization_diagnostics:=true \
+  safety:=true safety_sensor:=virtual \
   http_port:=18765 mock_port:=18000 data_dir:="$PWD/ros2_ws/log/x3-active-trial"
 ```
 
-W [panelu testowym](http://127.0.0.1:18765/) przed startem sprawdź `TRACKING`, kontakt z dokiem i stan Safety. Ten launcher jest przeznaczony do porównawczej, bezokiennej próby na znanej mapie. Dla każdego przebiegu użyj osobnej domeny i katalogu danych. Scenariusze obejmują lot do jednego punktu i lądowanie, utratę IMU i LiDAR-u w pionowym wznoszeniu oraz pełną inspekcję z zakresem **Full inventory**.
+W [panelu testowym](http://127.0.0.1:18765/) przed startem sprawdź `TRACKING`, kontakt z dokiem i stan Safety. Ten launcher jest przeznaczony do porównawczej, bezokiennej próby na znanej mapie. Dla każdego przebiegu użyj osobnej domeny i katalogu danych. Scenariusze obejmują lot do jednego punktu i lądowanie, utratę IMU i LiDAR-u w pionowym wznoszeniu oraz pełną inspekcję z zakresem **Full inventory**. W tym profilu przejścia między odległymi stanowiskami w tej samej alei przy zmianie z wysokiego na niski poziom zaczynają się od pionowego zniżania. Kontroler sprawdza każdy odcinek tym samym LiDAR-em i uwzględnia go w rezerwacji stref oraz prognozie energii. Przy wznowieniu do odległego górnego stanowiska X3 wyrównuje wysokość pionowo przy wejściu do zarezerwowanej alei. Następnie leci poziomo wzdłuż regału.
 
 W próbie utraty czujników wstrzymaj mostek publikujący IMU i LiDAR, gdy dron wznosi się, a walidator pokazuje wysokość ponad 0,75 m. Rejestruj stan misji, komendy prędkości i wysokość walidacyjną Gazebo. Po przerwaniu misji wznów mostek i sprawdź powrót do `TRACKING` oraz to, czy misja pozostaje w stanie `ABORTED`.
+
+**Odbiór profilu X3 zaliczony w symulacji.** Misja `INS-CONTROL-20261126-144219-97770C36` potwierdziła **11/11 stanowisk** bez pominięć. Wykonała trzy loty z dwoma automatycznymi ładowaniami i wznowieniami. Zakończyła się w 1096,7 s stanem `COMPLETE`, fizycznym kontaktem w doku, zwolnieniem stref oraz raportem HTML (HTTP 200). Baza Mock SAP zawiera 11 obserwacji i trzy raporty jakości dla tego identyfikatora.
+
+Kontrolowana przerwa IMU i LiDAR-u przerwała osobną misję po 0,774 s. Dron wzniósł się jeszcze o 0,352 m od chwili przerwy przed ustabilizowaniem. Po wznowieniu danych lokalizacja wróciła do `TRACKING`, a misja pozostała w `ABORTED`. Przeszło 45 testów ROS i X3, siedem testów backendu oraz próby uruchomieniowe ROS/Gazebo i Mock SAP. [Wyniki odbioru](docs/evidence/x3-full-mission-acceptance.json)
+
+Wcześniejsze próby diagnostyczne
 
 | Scenariusz | Wynik |
 | --- | --- |
@@ -128,7 +135,7 @@ W próbie utraty czujników wstrzymaj mostek publikujący IMU i LiDAR, gdy dron 
 | Przejście z `B-01-02` do `B-02-01` | Potwierdzono `B-01-02`. Moduł omijania zarejestrował przeszkodę 0,60 m od drona podczas przejścia. Misję przerwano po braku zweryfikowanego obejścia lub drogi powrotnej. |
 | Bezpośrednia próba `B-02-01` z doku | `COMPLETE`, 1/1. Lądowanie z fizycznym kontaktem doku, zwolnienie stref i raport HTML (HTTP 200). |
 
-Łącznie próby potwierdziły obserwacje dla wszystkich 11 stanowisk. Pełna misja z ładowaniem i automatycznym wznowieniem pozostaje kryterium odbioru. Przy pierwszym powrocie do doku kontroler przeszedł do `CHARGING` i po 36 ms zapisał `LOCALIZATION_LOST`. Ostatni odczyt panelu nadal pokazywał `TRACKING`. W późniejszym locie między stanowiskami w alei B sonda odebrała te same znaczniki czasu IMU przed adapterem i za nim. W próbie, w której estymator zapisał przerwę IMU, stanowisko pomiarowe rejestrowało komunikaty estymatora. Miejsce wystąpienia przerwy pozostaje nieustalone.
+Łącznie wcześniejsze próby potwierdziły obserwacje dla wszystkich 11 stanowisk w kilku lotach. Przy pierwszym powrocie do doku kontroler przeszedł do `CHARGING` i po 36 ms zapisał `LOCALIZATION_LOST`. Ostatni odczyt panelu nadal pokazywał `TRACKING`. W późniejszym locie między stanowiskami w alei B sonda odebrała te same znaczniki czasu IMU przed adapterem i za nim. W próbie, w której estymator zapisał przerwę IMU, stanowisko pomiarowe rejestrowało komunikaty estymatora. Miejsce wystąpienia przerwy pozostaje nieustalone.
 
 Stanowisko potwierdzone przez misję oznacza otrzymanie obserwacji z kamery i API. Status etykiety oraz rozpoznany identyfikator palety są zapisane osobno. [Pomiary i identyfikatory prób](docs/evidence/x3-active-flight.json)
 
