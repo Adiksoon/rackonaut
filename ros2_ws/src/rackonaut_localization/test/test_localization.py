@@ -5,10 +5,18 @@ from scipy.spatial.transform import Rotation
 
 from rackonaut_localization.inertial import GRAVITY, State, propagate
 from rackonaut_localization.registration import StaticMap
-from rackonaut_localization.slam import MeasuredRegistration
+from rackonaut_localization.slam import MeasuredRegistration, planar_voxel_support
 
 
 class LocalizationTests(TestCase):
+    def test_voxel_support_preserves_oldest_plane_at_a_shelf_edge(self):
+        points = np.array([[.01, .02, .01], [.07, .02, .03], [.09, .09, .07], [.09, .09, .08]])
+        normals = np.array([[0., 0., 1.], [0., 0., -1.], [1., 0., 0.], [0., 0., 1.]])
+        support = planar_voxel_support(points, normals, np.array([0]), np.zeros(4, dtype=int), .18)
+        # The second observation shares the plane despite the sign of its normal.
+        # The crossing face and the separate parallel plane cannot shift the support.
+        np.testing.assert_allclose(support, [[.0154, .02, .01]])
+
     def test_measured_registration_uses_its_own_keyframes(self):
         x, y = np.meshgrid(np.linspace(-1.5, 1.5, 43), np.linspace(-1.5, 1.5, 43))
         planes = np.column_stack((x.ravel(), y.ravel(), np.zeros(x.size)))

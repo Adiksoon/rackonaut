@@ -30,6 +30,24 @@ def measured_surfaces(sample, neighbors_count=14, maximum_distance=.46, flatness
     return sample[planar], axes[planar, :, 0]
 
 
+def planar_voxel_support(points, normals, first, membership, weight):
+    """Redistribute samples along the oldest observed plane in each voxel."""
+    origin, plane = points[first], normals[first]
+    reference = plane[membership]
+    delta = points - origin[membership]
+    alignment = np.abs(np.einsum("ij,ij->i", normals, reference))
+    separation = np.abs(np.einsum("ij,ij->i", delta, reference))
+    # A voxel can straddle a shelf edge or contain two parallel surfaces.
+    same_plane = (alignment >= .94) & (separation <= .035)
+    groups = membership[same_plane]
+    counts = np.bincount(groups, minlength=len(first))
+    offset = np.column_stack([np.bincount(groups, weights=axis[same_plane], minlength=len(first)) / counts
+                              for axis in delta.T])
+    # Preserve the plane offset even if newer keyframes carry a small pose error.
+    offset -= np.einsum("ij,ij->i", offset, plane)[:, None] * plane
+    return origin + weight * offset
+
+
 class MeasuredRegistration:
     spacing = .24
     turn_spacing = .17
@@ -71,10 +89,8 @@ class MeasuredRegistration:
         normals = np.vstack([entry.normals for entry in local])
         voxels = np.floor(combined / self.map_voxel).astype(np.int32)
         if self.centroid_weight:
-            _, indices, membership, counts = np.unique(voxels, axis=0, return_index=True,
-                                                       return_inverse=True, return_counts=True)
-            centers = np.column_stack([np.bincount(membership, weights=axis) / counts for axis in combined.T])
-            support = (1. - self.centroid_weight) * combined[indices] + self.centroid_weight * centers
+            _, indices, membership = np.unique(voxels, axis=0, return_index=True, return_inverse=True)
+            support = planar_voxel_support(combined, normals, indices, membership, self.centroid_weight)
         else:
             _, indices = np.unique(voxels, axis=0, return_index=True)
             support = combined[indices]
