@@ -22,7 +22,7 @@ from rclpy.signals import SignalHandlerOptions
 from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
-from rackonaut_avoidance.planner import DETOUR_SCALE, Navigator, sweep
+from rackonaut_avoidance.planner import DETOUR_SCALE, LOOKAHEAD, Navigator, sweep
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner
 from rackonaut_energy.aerial import Leg, interval
 from rackonaut_energy.model import Model, dock_path, estimate, first_requirement, sortie_path
@@ -30,6 +30,8 @@ from rackonaut_energy.model import Model, dock_path, estimate, first_requirement
 from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, RETURN_MARGIN,
                        first_unused, next_issue, reading_issue)
 from .confirmation import current_observation, fetch_observations
+from .learned import (LAND as LEARNED_LAND, MAX_POSE_ERROR, STAGES as LEARNED_STAGES,
+                      TRANSIT as LEARNED_TRANSIT, forecast as learned_forecast, straight_continuation)
 from .manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, ManualFlight
 from .recovery import ACTIVE as RECOVERY_ACTIVE, FAILED as RECOVERY_FAILED, Recovery
 from .report import CALIBRATION_INTERRUPTED, TERMINAL
@@ -85,6 +87,7 @@ class Mission(Node):
             raise ValueError("The minimum scan hold must be below the inspection timeout.")
 
         self.route = load_route(settings["route_file"])
+        self.learned = self.route.learned
         self.aerial = self.route.aerial
         self.sensor_localization = settings["sensor_localization"]
         self.mapping_id = settings["mapping_id"]
@@ -181,6 +184,10 @@ class Mission(Node):
             self.create_subscription(String, "/rackonaut/recovery/operator", self.on_recovery_action, 5)
             self.create_subscription(String, "/rackonaut/calibration/request", self.on_calibration_request, 5)
         self.manual = ManualFlight(self) if settings["manual_flight"] else None
+        self.learned_visits, self.learned_skip = [], False
+        if self.learned and (self.manual or self.autostart or self.mapping_id
+                             or not (self.recovery and self.scanner and settings["full_route_slam"])):
+            raise ValueError("Learned missions require explicit dispatch and the full protected sensor profile.")
         if self.manual:
             if not (self.recovery and self.scanner):
                 raise ValueError("Manual flight requires the protected aerial sensor and Recovery profile.")
@@ -214,7 +221,11 @@ class Mission(Node):
     def localization_ready(self, now):
         return (now - self.localization_at <= .40 and self.localization.get("state") == "TRACKING"
                 and (self.localization.get("mapping_id") or "") == self.mapping_id
-                and (not self.mapping_id or self.localization.get("mapping_phase") == "RECORDING"))
+                and (not self.mapping_id or self.localization.get("mapping_phase") == "RECORDING")
+                and (not self.learned or (self.localization.get("source") == "learned_map"
+                                         and self.localization.get("warehouse_ready")
+                                         and self.localization.get("warehouse_id") == self.learned.configuration_id
+                                         and self.localization.get("warehouse_revision") == self.learned.revision)))
 
     def on_safety(self, message):
         state = json.loads(message.data)
@@ -264,6 +275,8 @@ class Mission(Node):
                      if self.route.waypoints[index].slot_id), None)
 
     def required_departure(self, index):
+        if self.learned:
+            return self.learned_budget(self.route.pad, len(self.route.stops))["required_percent"]
         if self.aerial:
             slot = self.route.waypoints[index]
             legs = [*self.outbound(slot), *self.dock_route(slot)]
@@ -287,10 +300,13 @@ class Mission(Node):
         if self.energy_enabled:
             if self.permit_departure != self.departures + 1 or not set(self.route.zones) <= self.safety_zones:
                 return "Waiting for current departure clearance"
-            if not self.energy_fresh(now) or not self.battery.get("contact"):
+            if (not self.energy_fresh(now) or not self.battery.get("contact")
+                    or self.learned and (not self.physical_dock(now) or not self.battery.get("budget_verified"))):
                 return "Waiting for fresh battery and confirmed dock contact"
             minimum = self.manual.departure_energy() if self.manual else self.required_departure(self.next_inspection_index())
             if self.battery["percent"] < minimum:
+                if self.learned:
+                    return "Insufficient energy for the learned route and required reserve"
                 return "Insufficient energy for manual takeoff and return" if self.manual else "Insufficient energy to inspect the first remaining location and return"
             if self.departures and self.battery.get("dock") != "READY":
                 return "Waiting for confirmed charge readiness"
@@ -334,6 +350,9 @@ class Mission(Node):
             self.sorties.append({"departure": self.departures, "start_percent": self.battery["percent"],
                                  "start_sim_time": self.battery["sim_time"], "completed_before": list(self.completed)})
             self.landed = False
+        if self.learned:
+            self.next_stop(now)
+            return ""
         target = self.manual.takeoff if self.manual else (
             replace(self.route.takeoff, phase="VERTICAL_TAKEOFF") if self.aerial else self.route.takeoff)
         self.transition("RESUMING" if resuming else target.phase or "TAKEOFF", target, now,
@@ -408,22 +427,26 @@ class Mission(Node):
 
     def move_with_avoidance(self, now):
         p, target = self.coordinates(self.pose), self.coordinates(self.target)
+        cloud = self.scanner.current(now)
         # Land at the intended contact plane; the controller targets slightly
         # lower to settle while the exposed volume above the pad stays checked.
         pad = (hypot(p[0]-self.route.pad.x, p[1]-self.route.pad.y) < .13
                and hypot(target[0]-self.route.pad.x, target[1]-self.route.pad.y) < .02)
         goal = (*target[:2], max(self.route.pad.z, target[2]), target[3]) if pad else target
-        may_bypass = self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"} and self.bypass_allowed(p, goal)
-        decision = self.navigation.step(self.scanner.current(now), p, goal, self.stage, self.speed, now,
+        if self.learned and cloud is not None:
+            goal = self.learned_lookahead(p, goal, cloud)
+        may_bypass = (not self.learned and self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"}
+                      and self.bypass_allowed(p, goal))
+        decision = self.navigation.step(cloud, p, goal, self.stage, self.speed, now,
                                         may_bypass, self.bypass_allowed, self.avoidance_budget, pad)
         if decision.fault:
             self.send_velocity(scale=0.)
-            if (self.manual or self.calibration_id or self.navigation.cloud is None or
+            if (self.learned or self.manual or self.calibration_id or self.navigation.cloud is None or
                     not (self.skip_blocked_stop(p, now) or self.try_verified_retreat(p, now))):
                 self.finish("ABORTED", decision.fault, now)
             return
         if decision.advance:
-            self.send_velocity(scale=decision.scale)
+            self.send_velocity(Target(*goal) if self.learned and not pad else None, scale=decision.scale)
             self.advance(now)
         else:
             if self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"}:
@@ -434,6 +457,22 @@ class Mission(Node):
                 self.send_velocity(Target(*decision.target), decision.scale)
             else:
                 self.send_velocity(scale=0.)
+
+    def learned_lookahead(self, current, target, cloud):
+        index = self.stop_index+1
+        if self.stage != LEARNED_TRANSIT or index >= len(self.route.waypoints):
+            return target
+        following = self.route.waypoints[index]
+        if following.gate or following.phase == LEARNED_LAND:
+            return target
+        ahead = (following.x, following.y, following.z, target[3])
+        if (dist(current[:3], ahead[:3]) <= LOOKAHEAD
+                and straight_continuation(current, target, ahead)
+                and abs(heading_error(target[3], following.yaw)) < .13
+                and self.aerial.allows(current, ahead, self.route.zones)
+                and sweep(cloud, current, ahead, LOOKAHEAD).confirmed):
+            return ahead
+        return target
 
     def try_verified_retreat(self, position, now):
         if self.obstacle_retreat or self.stage in {"RETURN_TO_DOCK", "DOCKING", "LAND"} or self.speed > .09:
@@ -471,6 +510,20 @@ class Mission(Node):
         return False
 
     def next_stop(self, now):
+        if self.learned:
+            target = self.route.waypoints[self.stop_index]
+            stage = target.phase
+            if target.slot_id and self.learned_skip:
+                target, stage = replace(target, slot_id=""), LEARNED_TRANSIT
+            if stage == LEARNED_LAND:
+                target = replace(target, z=max(0., min(target.z, self.route.pad.z) - .035))
+            if target.gate:
+                self.pending_descent = target, stage
+                self.transition("WAITING_FOR_AISLE_CLEARANCE", self.target, now,
+                                f"Waiting for live clearance at learned gate {target.gate}")
+            else:
+                self.transition(stage, target, now, f"Learned waypoint {self.learned.node_ids[self.stop_index]}")
+            return
         if self.stop_index == len(self.route.waypoints):
             if self.aerial:
                 self.transition("LAND", replace(self.route.pad, z=0.), now, "Descending vertically into the technical dock")
@@ -644,7 +697,7 @@ class Mission(Node):
         if self.energy_enabled:
             self.completed.append(self.target.slot_id)
         self.stop_index += 1
-        if self.energy_enabled and self.energy_return_needed():
+        if not self.learned and self.energy_enabled and self.energy_return_needed():
             self.begin_energy_return(now)
             return
         self.next_stop(now)
@@ -765,6 +818,9 @@ class Mission(Node):
 
     def calibration_guard(self, now):
         if not self.calibration_id or self.stage in TERMINAL:
+            return False
+        if self.learned and self.command is not None:
+            self.skip_learned_inspections("Returning along the learned route for calibration")
             return False
         if self.stage in {"WAITING"} | DOCK_WAIT and self.command is None:
             if (self.pose and now - self.odom_at <= .40 and self.localization_ready(now)
@@ -891,12 +947,80 @@ class Mission(Node):
         if self.battery["percent"] <= 0.5:
             self.finish("ABORTED", "Battery exhausted; operator recovery required", now)
             return True
+        if self.learned:
+            return self.learned_energy_guard(now)
         if (not self.manual and self.stage not in {"RETURN_TO_DOCK", "DOCKING", "RETURN", "LAND"}
                 and self.next_inspection_index() is not None
                 and self.battery["percent"] <= self.return_cost(self.pose) + self.energy_model.reserve):
             self.begin_energy_return(now)
             return True
         return False
+
+    def learned_budget(self, origin, stops):
+        path = [self.coordinates(point) for point in self.route.waypoints[self.stop_index:]]
+        return learned_forecast(self.energy_model, self.coordinates(origin), path, stops)
+
+    def skip_learned_inspections(self, reason):
+        self.learned_skip = True
+        self.return_reason = reason
+        for pose in self.route.waypoints[self.stop_index:]:
+            slot = pose.slot_id
+            if slot and slot not in self.completed and slot not in self.missed:
+                if self.stage == "INSPECT" and slot == self.target.slot_id:
+                    continue
+                self.missed.append(slot)
+                self.manual_review[slot] = reason
+
+    def learned_energy_guard(self, now):
+        if not self.battery.get("budget_verified"):
+            self.finish("ABORTED", "Energy can no longer verify the learned route", now)
+            return True
+        if self.stage == LEARNED_LAND and self.physical_dock(now):
+            return False
+        required = self.learned_budget(self.pose, 0)["required_percent"]
+        if self.battery["percent"] < required:
+            self.finish("ABORTED", "Insufficient energy to preserve the reserve on the remaining directed route", now)
+            return True
+        remaining = sum(point.slot_id and point.slot_id not in self.completed and point.slot_id not in self.missed
+                        for point in self.route.waypoints[self.stop_index:] if point.slot_id)
+        if remaining and self.battery["percent"] < self.learned_budget(self.pose, remaining)["required_percent"]:
+            self.skip_learned_inspections("Energy budget reserved for continuing to the dock")
+        return False
+
+    def advance_learned(self, now):
+        if now-self.stage_since >= self.travel_timeout:
+            self.finish("ABORTED", f"Learned waypoint {self.learned.node_ids[self.stop_index]} timed out", now)
+            return
+        pose, expected = self.coordinates(self.pose), self.coordinates(self.route.waypoints[self.stop_index])
+        error = dist(pose[:3], expected[:3])
+        heading = abs(heading_error(expected[3], pose[3]))
+        if self.stage == LEARNED_LAND:
+            if not self.physical_dock(now) or not self.stable(now, duration=.45, touchdown=True):
+                return
+        elif error > MAX_POSE_ERROR or heading > .09:
+            return
+        elif self.target.slot_id and not self.learned_skip and (
+                self.speed > .065 or not self.stable(now, duration=.40)):
+            if self.speed > .065:
+                self.settled_since = None
+            return
+        self.learned_visits.append({"node": self.learned.node_ids[self.stop_index],
+                                    "slot_id": self.target.slot_id if not self.learned_skip else "",
+                                    "pose": [round(value, 4) for value in pose],
+                                    "error_m": round(error, 4), "yaw_error_rad": round(heading, 4),
+                                    "sim_time": self.battery["sim_time"]})
+        if self.stage == LEARNED_LAND:
+            self.landed = True
+            if self.calibration_id:
+                self.finish_calibration(now)
+            else:
+                result = "COMPLETE_WITH_MISSES" if self.missed else "COMPLETE"
+                self.finish(result, "Learned route ended at the verified physical dock", now)
+        elif self.target.slot_id and not self.learned_skip:
+            self.begin_scan(now)
+        else:
+            self.stop_index += 1
+            self.next_stop(now)
 
     def finish(self, result, detail, now, competing=False):
         if self.navigation and result == "ABORTED" and self.navigation.mode not in {"FAULT", "RECOVERY_REQUIRED"}:
@@ -938,6 +1062,9 @@ class Mission(Node):
                 self.scan_adaptive(now)
             else:
                 self.scan(now)
+            return
+        if self.stage in LEARNED_STAGES:
+            self.advance_learned(now)
             return
         if now - self.stage_since >= self.travel_timeout:
             self.finish("ABORTED", f"Motion timed out at {self.stage}", now)
@@ -1047,7 +1174,7 @@ class Mission(Node):
                 phase = self.target.phase or self.stage
             elif self.stage in {"INSPECT", "REINSPECT", "QUALITY_CLOSEUP"}:
                 phase = "INSPECTION"
-            elif self.stage == "LAND":
+            elif self.stage in {"LAND", LEARNED_LAND}:
                 phase = "DOCKING"
             status.update(flight_phase=phase, descent_gate=gate)
         if self.navigation:
@@ -1058,6 +1185,11 @@ class Mission(Node):
             status["recovery"] = self.recovery.snapshot()
         if self.sensor_localization:
             status["localization"] = self.localization.get("state", "DEGRADED")
+        if self.learned:
+            status["learned"] = {"configuration_id": self.learned.configuration_id,
+                                 "revision": self.learned.revision, "route_sha256": self.learned.approval_sha256,
+                                 "node": self.learned.node_ids[self.stop_index],
+                                 "reached": self.learned_visits}
         if self.adaptive:
             status["adaptive"] = {"attempt": self.retry_number + 1, "reason": self.attempt_reason,
                                   "attempts": self.attempts, "moves": self.moves, "retries": self.total_retries,
@@ -1066,7 +1198,13 @@ class Mission(Node):
         if self.energy_enabled:
             remaining = [] if self.manual else [slot.slot_id for slot in self.route.stops if slot.slot_id not in self.completed]
             return_percent = required = None
-            if self.pose and self.energy_model:
+            if self.pose and self.energy_model and self.learned:
+                if self.stage not in TERMINAL:
+                    return_percent = round(self.learned_budget(self.pose, 0)["percent"], 2)
+                    required = round(self.learned_budget(self.pose, 0 if self.learned_skip else len(remaining))["percent"], 2)
+                elif self.landed:
+                    return_percent = required = 0.
+            elif self.pose and self.energy_model:
                 returning = self.calibration_return or bool(self.manual and self.manual.returning)
                 predicted_return = (self.return_motion_cost() if returning and self.stage not in TERMINAL
                                     else self.return_cost(self.pose))

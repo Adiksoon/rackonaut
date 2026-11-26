@@ -478,3 +478,7 @@ thead th { color: var(--muted); font-weight: 550; }
 main:has(.workspace[data-view="route"]:not([hidden])) { max-width: 1740px; }
 #route-show-raw { accent-color: #4b94ba; }
 #route-show-learned { accent-color: #b86b20; }
+.warehouse-select { display: grid; gap: .4rem; margin: .6rem 0; }
+#warehouse-stops { display: grid; gap: .4rem; margin-bottom: .75rem; }
+#warehouse-confirm-row { display: block; margin: .6rem 0; }
+#warehouse-confirm-row[hidden] { display: none; }

@@ -148,6 +148,23 @@
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
+      <section class="card service-card" id="warehouse-configurations" aria-labelledby="warehouse-config-title" hidden>
+        <h2 id="warehouse-config-title">Learned warehouses</h2>
+        <p id="warehouse-active" class="footnote" role="status"></p>
+        <label class="warehouse-select">Saved configuration <select id="warehouse-select"></select></label>
+        <div class="route-actions">
+          <button type="button" class="secondary" id="warehouse-verify">Check integrity</button>
+          <button type="button" class="secondary" id="warehouse-map-open" disabled>View 3D Scan and route</button>
+        </div>
+        <p id="warehouse-feedback" class="footnote" role="status"></p>
+        <label id="warehouse-confirm-row" hidden><input id="warehouse-confirm" type="checkbox"> Activate this revision at the dock</label>
+        <button type="button" class="primary" id="warehouse-activate" disabled>Activate warehouse</button>
+        <fieldset class="route-options" id="warehouse-mission" hidden>
+          <legend>Inspection stops</legend>
+          <div id="warehouse-stops"></div>
+          <button type="button" class="primary" id="warehouse-dispatch">Start learned inspection</button>
+        </fieldset>
+      </section>
     </div>
   </section>
   <div class="workspace" id="workspace" data-view="plan">
@@ -318,6 +335,7 @@
       </div>
       <label id="route-confirm-area" hidden><input type="checkbox" id="route-confirm"> Approve this route for the calibration archive</label>
       <button type="button" class="primary" id="route-approve" disabled>Approve Route</button>
+      <button type="button" class="secondary" id="route-seal" hidden>Save warehouse configuration</button>
       <button type="button" class="secondary" id="route-back">Back to Service</button>
     </aside>
     <section class="card warehouse" id="warehouse-panel" aria-labelledby="map-title">

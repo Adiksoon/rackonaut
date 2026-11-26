@@ -25,7 +25,18 @@ const headings = {
   service: ["Service Center", "Check system readiness and prepare a warehouse calibration."],
   route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
 };
-const service = createService();
+const service = createService({
+  openWarehouse(configuration) {
+    setView("route", true);
+    routeReview.openArchive(configuration);
+  },
+  async dispatchWarehouse(request) {
+    const result = await api("/api/start", request);
+    wantedRun = result.inspection_id;
+    setView("live", true);
+    loadTwin("scan");
+  },
+});
 const manual = createManual(api, terminal, notice);
 const teaching = createTeaching(() => drawTwin(state?.mission), focusTaughtLocation);
 const routeReview = createRouteReview(api, () => drawTwin(state?.mission));
@@ -850,7 +861,7 @@ async function init() {
   });
   el("service-review-route").addEventListener("click", () => {
     setView("route", true);
-    routeReview.open(el("service-review-route").dataset.session);
+    routeReview.open(el("service-review-route").dataset.session, layout.learned_warehouse);
   });
   el("route-back").addEventListener("click", () => setView("service", true));
   el("scan-expand").disabled = !document.fullscreenEnabled;

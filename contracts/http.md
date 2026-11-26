@@ -94,3 +94,17 @@ Route operations use the same authenticated Service cookie. Read archived routes
 | `GET /api/service/mapping/{calibration_id}/{filename}` | Downloads `trajectory.jsonl`, `route.json`, or `route-validation.json` once available. |
 
 The calibration journal uses ROS time, recorded XYZ in metres, and XYZW orientation in `rackonaut_odom`. Approval applies to the exact archive revision. Runtime clearance and flight dispatch remain separate operations.
+
+## Learned warehouse activation and dispatch
+
+Service authentication is required for configuration management. Route sealing and activation require an idle aircraft at the verified physical dock. The existing local dispatch endpoint checks the selected active configuration, its integrity and the matching learned-map localization state.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/warehouses` | Lists saved configurations and the localizer's active and loaded IDs. |
+| `POST /api/service/warehouses/seal` | Takes `calibration_id` for the current completed calibration and snapshots the approved route, measured maps and evidence. |
+| `POST /api/service/warehouses/verify` | Takes `configuration_id` and verifies the archive, approved sources and current sensor and Safety profile. |
+| `POST /api/service/warehouses/activate` | Takes `configuration_id` and `confirm: true`. Saves a selection after verification. Localization readiness follows from a separate dock match. |
+| `POST /api/plan` and `POST /api/start` | In `mode: learned` accept the active `configuration_id`, `revision` and nonempty `record_ids`. Use the original sequence of approved directed edges and stop only at the selected learned locations. |
+
+The existing Mock SAP API receives current camera observations and the existing report exporter reads those observations by inspection ID. Calibration references remain in the warehouse archive.

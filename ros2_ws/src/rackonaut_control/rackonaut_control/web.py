@@ -13,6 +13,7 @@ from rackonaut_localization.node import SLAM_MAP
 
 from .measured_map import DETAIL, FRAME, MAP_TOPIC, VOXEL_METRES
 from .route_review import ROUTE_FILES
+from rackonaut_localization.learned_map import MAP_FILE
 from .service import COOKIE
 from .teaching import CAPTURE_ID, SESSION_ID, session_path
 
@@ -34,6 +35,7 @@ TEACHING_PREVIEW = re.compile(fr"/api/service/teaching/preview/({CAPTURE_ID})/re
 TEACHING_ACTION = re.compile(r"/api/service/teaching/(capture|save|rename|delete)$")
 ROUTE_STATE = re.compile(fr"/api/service/route/({SESSION_ID})$")
 ROUTE_ACTION = re.compile(r"/api/service/route/(review|validate|approve|plan)$")
+WAREHOUSE_ACTION = re.compile(r"/api/service/warehouses/(seal|verify|activate)$")
 
 
 def serve(control, port):
@@ -105,6 +107,8 @@ def serve(control, port):
                 self.json(200, control.teach_location(match[1], selection, self.service_token()))
             elif match := ROUTE_ACTION.fullmatch(path):
                 self.json(200, control.review_route(match[1], selection, self.service_token()))
+            elif match := WAREHOUSE_ACTION.fullmatch(path):
+                self.json(200, control.warehouse_action(match[1], selection, self.service_token()))
             else:
                 self.json(404, {"error": "Not found"})
 
@@ -116,6 +120,8 @@ def serve(control, port):
                     self.json(200, control.service_snapshot())
                 elif path == "/api/service/teaching":
                     self.json(200, control.teaching_state())
+                elif path == "/api/service/warehouses":
+                    self.json(200, control.warehouse_catalog())
                 elif match := TEACHING_PREVIEW.fullmatch(path):
                     with control.teaching.operations:
                         preview = control.teaching.get_preview(match[1], self.service_token(), monotonic())
@@ -126,7 +132,7 @@ def serve(control, port):
                     self.json(200, control.route_review.state(match[1]))
                 elif match := MAPPING_RESULT.fullmatch(path):
                     root = control.data / "mapping"
-                    if match[2] not in ROUTE_FILES | {"map.ply", "result.json", "locations.json"}:
+                    if match[2] not in ROUTE_FILES | {"map.ply", "result.json", "locations.json", MAP_FILE}:
                         raise FileNotFoundError
                     if not session_path(root, match[1], "result.json").is_file():
                         raise FileNotFoundError

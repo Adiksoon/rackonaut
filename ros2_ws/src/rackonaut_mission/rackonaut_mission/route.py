@@ -6,6 +6,9 @@ from dataclasses import dataclass, field, replace
 from math import atan2, cos, hypot, isfinite, radians, sin
 from pathlib import Path
 from rackonaut_energy.aerial import Network
+from rackonaut_localization.warehouse_config import digest
+
+from .learned import Learned, check_metadata, ordered_targets
 
 
 @dataclass(frozen=True)
@@ -39,6 +42,7 @@ class Route:
     crossing: float | None = None
     zones: tuple[str, ...] = ()
     aerial: Network | None = None
+    learned: Learned | None = None
 
     @property
     def stops(self):
@@ -53,6 +57,23 @@ def load_route(path):
 
     config = json.loads(Path(path).read_text())
     pad = target(**config["pad"])
+    if "learned" in config:
+        metadata = config["learned"]
+        check_metadata(metadata)
+        graph = metadata["graph"]
+        signature = digest({key: value for key, value in graph.items() if key != "approval"})
+        if (signature != metadata["approval_sha256"] or graph.get("approval", {}).get("route_sha256") != signature
+                or graph["location_revision"] != metadata["revision"] or config.get("retries")):
+            raise ValueError("The approved learned route revision does not match the dispatch.")
+        aerial = Network(config["aerial"])
+        targets, zones = ordered_targets(graph, set(metadata["record_ids"]), aerial)
+        if not metadata["record_ids"] or set(zones) != set(config["energy_zones"]):
+            raise ValueError("The learned mission does not match the requested Safety reservation.")
+        waypoints = tuple(Target(*pose, slot, phase, gate) for _, pose, slot, phase, gate in targets)
+        source = Learned(metadata["configuration_id"], metadata["revision"], signature,
+                         tuple(identifier for identifier, *_ in targets))
+        return Route(pad, waypoints[0], waypoints, crossing=config["energy_crossing_x"],
+                     zones=zones, aerial=aerial, learned=source)
     height = config["takeoff_z"]
     waypoints = tuple(target(**item) for item in config["waypoints"])
     stops = tuple(point for point in waypoints if point.slot_id)

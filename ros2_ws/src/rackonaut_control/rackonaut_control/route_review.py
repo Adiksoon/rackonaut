@@ -7,6 +7,8 @@ from math import isfinite
 
 from rackonaut_energy.aerial import Network
 from rackonaut_energy.model import Model
+from rackonaut_localization.learned_map import MAP_FILE
+from rackonaut_localization.warehouse_config import file_hash
 
 from .learned_route import forecast, graph, ns
 from .route_recording import FORMAT, MAX_SAMPLES
@@ -75,6 +77,9 @@ class RouteReview:
         dependency = {"trajectory_sha256": hashlib.sha256(data).hexdigest(),
                       "locations_sha256": digest(manifest), "profile_sha256": digest(self.profile),
                       "map_result_sha256": digest(result)}
+        if result.get("localization_archive") == MAP_FILE:
+            dependency.update(map_sha256=file_hash(session_path(self.root, session, "map.ply")),
+                              localization_sha256=file_hash(session_path(self.root, session, MAP_FILE)))
         return samples, manifest, header, footer, dependency
 
     def state(self, session, inputs=None):

@@ -1,4 +1,4 @@
-export function createService() {
+export function createService({ openWarehouse, dispatchWarehouse } = {}) {
   const el = (id) => document.getElementById(id);
   const text = (id, value) => { el(id).textContent = value ?? "—"; };
   const label = (value) => value ? value.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase()) : "—";
@@ -13,6 +13,85 @@ export function createService() {
   };
   let visible = false, busy = false, loading = false, generation = 0, current = null;
   let nextRefresh = 0;
+  let catalog = [], details = null, warehouseBusy = false;
+
+  function renderWarehouses() {
+    const status = current?.learned_warehouse;
+    el("warehouse-configurations").hidden = !status?.enabled;
+    if (!status?.enabled) return;
+    text("warehouse-active", status.error || (status.ready ? "Active · localized on saved LiDAR map · " + status.active_id
+      : status.active_id ? "Matching saved map at the dock" : "Choose a saved warehouse to activate"));
+    const selected = el("warehouse-select").value;
+    const verified = details?.manifest.configuration_id === selected;
+    const active = verified && status.ready && status.active_id === selected;
+    const idle = current.calibration.mode === "PRODUCTION" && current.system.contact
+      && !["PREPARING", "RESERVED", "RECOVERY"].includes(current.system.safety);
+    el("warehouse-confirm-row").hidden = !verified || active;
+    el("warehouse-verify").disabled = warehouseBusy || !selected;
+    el("warehouse-activate").disabled = warehouseBusy || !verified || active || !idle || !el("warehouse-confirm").checked;
+    el("warehouse-map-open").disabled = warehouseBusy || !active;
+    el("warehouse-mission").hidden = !active;
+    el("warehouse-dispatch").disabled = warehouseBusy || !active || !idle
+      || !el("warehouse-stops").querySelector("input:checked");
+  }
+
+  async function updateCatalog() {
+    const { response, body } = await request("warehouses");
+    if (!response.ok) return;
+    const list = body.configurations;
+    if (JSON.stringify(catalog) === JSON.stringify(list)) return;
+    catalog = list;
+    const select = el("warehouse-select");
+    const previous = select.value || body.active_id;
+    select.replaceChildren(...list.map(row => {
+      const option = document.createElement("option");
+      option.value = row.configuration_id;
+      option.textContent = row.name + (row.revision ? " · Revision " + row.revision : "") + " · " + row.configuration_id.slice(-8);
+      return option;
+    }));
+    if (list.some(row => row.configuration_id === previous)) select.value = previous;
+  }
+
+  async function warehouseAction(action) {
+    const identifier = el("warehouse-select").value;
+    warehouseBusy = true;
+    text("warehouse-feedback", "");
+    renderWarehouses();
+    try {
+      if (action === "dispatch") {
+        await dispatchWarehouse({ mode:"learned", configuration_id:identifier, revision:details.manifest.revision,
+          record_ids:[...el("warehouse-stops").querySelectorAll("input:checked")].map(input => input.value) });
+      } else {
+        const { response, body } = await request("warehouses/" + action, {
+          configuration_id:identifier, confirm:el("warehouse-confirm").checked,
+        });
+        if (!response.ok) throw new Error(body.error);
+        details = body;
+        el("warehouse-stops").replaceChildren(...body.locations.map(row => {
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = row.record_id;
+          checkbox.checked = true;
+          checkbox.addEventListener("change", renderWarehouses);
+          label.append(checkbox, document.createTextNode(" " + row.storage_location_id));
+          return label;
+        }));
+        el("warehouse-confirm").checked = false;
+        text("warehouse-feedback", action === "verify"
+          ? "Verified · " + body.locations.length + " locations · " + body.route.edges.length + " directed segments"
+          : "Activation requested. Waiting for a verified dock match.");
+      }
+    } catch (error) {
+      if (action !== "dispatch") details = null;
+      text("warehouse-feedback", error.message);
+    } finally {
+      warehouseBusy = false;
+      renderWarehouses();
+      nextRefresh = 0;
+      refresh();
+    }
+  }
 
   async function request(path, data) {
     const response = await fetch(`/api/service/${path}`, data === undefined ? { cache: "no-store" } : {
@@ -37,6 +116,7 @@ export function createService() {
       return;
     }
     const { system, warehouse, calibration, available, mapping } = current;
+    renderWarehouses();
     const production = calibration.mode === "PRODUCTION";
     const ready = !!mapping;
     const draft = calibration.draft;
@@ -108,6 +188,7 @@ export function createService() {
       if (requestGeneration !== generation) return;
       if (response.ok) {
         current = body;
+        if (body.learned_warehouse?.enabled) await updateCatalog();
       } else if (response.status === 401) {
         if (current) text("service-access-message", "Service session expired. Enter the code to unlock it again.");
         if (body.configured === false) text("service-access-message", "Service access is disabled until a code is configured on the server.");
@@ -164,6 +245,17 @@ export function createService() {
   el("service-lock").addEventListener("click", () => action("lock", {}));
   el("service-start").addEventListener("click", () => action("calibration/start", {}));
   el("service-cancel").addEventListener("click", () => action("calibration/cancel", {}));
+  el("warehouse-verify").addEventListener("click", () => warehouseAction("verify"));
+  el("warehouse-activate").addEventListener("click", () => warehouseAction("activate"));
+  el("warehouse-dispatch").addEventListener("click", () => warehouseAction("dispatch"));
+  el("warehouse-map-open").addEventListener("click", () => openWarehouse(details));
+  el("warehouse-confirm").addEventListener("change", renderWarehouses);
+  el("warehouse-select").addEventListener("change", () => {
+    details = null;
+    el("warehouse-confirm").checked = false;
+    text("warehouse-feedback", "");
+    renderWarehouses();
+  });
   return {
     show(value) {
       visible = value;

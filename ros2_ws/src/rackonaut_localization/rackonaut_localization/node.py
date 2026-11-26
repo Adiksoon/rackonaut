@@ -23,8 +23,10 @@ from tf2_ros import TransformBroadcaster
 
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, OFFSET, TOPIC, stamp, unpack
 from .inertial import GRAVITY, State, propagate
+from .learned_map import MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
 from .registration import StaticMap, voxel_sample
-from .slam import FullRouteRegistration, MeasuredRegistration
+from .slam import FrozenRegistration, FullRouteRegistration, MeasuredRegistration
+from .warehouse_config import active_identifier, verified_package
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -92,6 +94,9 @@ class Localization(Node):
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
         self.mapping_only = self.declare_parameter("mapping_only", False).value
         full_route = self.declare_parameter("full_route_slam", False).value
+        self.learned_mode = self.declare_parameter("learned_warehouse", False).value
+        if self.learned_mode and (self.mode != "sensor_based" or not self.mapping_only or not full_route):
+            raise ValueError("Learned warehouse requires the sensor-based 16 m localization profile.")
         self.registration_type = FullRouteRegistration if full_route else MeasuredRegistration
         self.sensor_range = FULL_ROUTE_RANGE if full_route else MAX_RANGE
         self.slam = self.registration_type() if self.mode == "slam_shadow" or self.mapping_only else None
@@ -104,6 +109,12 @@ class Localization(Node):
             self.reference = StaticMap(layout["boxes"], layout["triangles"])
             dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
         self.dock = np.array(dock)
+        self.installation_dock = self.dock.copy()
+        self.warehouse_id = None
+        self.warehouse_revision = None
+        self.warehouse_error = ""
+        self.warehouse_seen = None
+        self.last_warehouse_check = -1e6
         self.anchor, self.fit, self.latest_estimate = None, None, None
         self.samples = deque(maxlen=100)
         self.calibration = deque(maxlen=25)
@@ -140,6 +151,47 @@ class Localization(Node):
     def on_energy(self, message):
         self.energy, self.energy_at = json.loads(message.data), monotonic()
 
+    def physical_switch(self, now):
+        return (now - self.energy_at <= .7
+                and self.energy.get("switch_engaged")
+                and self.energy.get("contact_source") == "gazebo_dock_switch")
+
+    def check_warehouse(self, now):
+        if (not self.learned_mode or self.mapping or now - self.last_warehouse_check < 1.
+                or not self.physical_switch(now) or self.count_publishers("/rackonaut/drone/cmd_vel")):
+            return
+        self.last_warehouse_check = now
+        try:
+            identifier = active_identifier(self.directory)
+            if identifier == self.warehouse_seen and not self.warehouse_error:
+                return
+            if identifier is None:
+                self.set_warehouse(None, None, self.registration_type(), self.installation_dock, Measurements())
+                return
+            folder, manifest = verified_package(self.directory, identifier)
+            dock, frames = load_learned_map(folder / MAP_FILE)
+            if np.linalg.norm(dock-self.installation_dock) > .02:
+                raise ValueError("Learned warehouse dock does not match the physical installation.")
+            points = read_ply(folder / "map.ply")
+            cells = np.floor(points / MAP_SIZE).astype(np.int32)
+            cloud = Measurements(voxels={tuple(cell): point for cell, point in zip(cells, points)},
+                                 stamp=self.samples[-1][0] if self.samples else 0.)
+            self.set_warehouse(identifier, manifest["revision"], FrozenRegistration(frames, dock), dock, cloud)
+        except (OSError, ValueError, KeyError) as error:
+            self.warehouse_error = str(error)
+            if self.warehouse_id:
+                self.slam = self.registration_type()
+                self.warehouse_id = self.warehouse_revision = self.warehouse_seen = None
+                self.reset_match("Active learned warehouse failed integrity verification")
+
+    def set_warehouse(self, identifier, revision, registration, dock, cloud):
+        self.slam, self.dock = registration, dock
+        self.warehouse_id, self.warehouse_revision = identifier, revision
+        self.warehouse_seen, self.warehouse_error = identifier, ""
+        self.production = self.cloud = cloud
+        self.reset_match("Matching the saved LiDAR map from the physical dock"
+                         if identifier else "Initializing LiDAR around the physical dock")
+
     def on_mapping(self, message):
         now = monotonic()
         try:
@@ -170,8 +222,8 @@ class Localization(Node):
             if action == "finish" and self.mapping.phase == "RECORDING":
                 try:
                     self.save_session()
-                except OSError as error:
-                    self.mapping.error = f"Mapping result could not be saved: {error.strerror}"
+                except (OSError, ValueError) as error:
+                    self.mapping.error = f"Mapping result could not be saved: {error}"
                 else:
                     self.mapping.phase, self.mapping.error = "COMPLETE", ""
             elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "COMPLETE"}:
@@ -179,6 +231,10 @@ class Localization(Node):
                 self.slam = self.registration_type() if self.mapping_only else None
                 self.mapping_closed = identifier
                 self.cloud = self.production
+                if self.learned_mode:
+                    self.production = self.cloud = Measurements()
+                    self.warehouse_seen = self.warehouse_id = self.warehouse_revision = None
+                    self.dock = self.installation_dock
                 self.reset_match("Reacquiring dock localization")
 
     def reset_match(self, reason):
@@ -230,6 +286,8 @@ class Localization(Node):
         start = perf_counter()
         time = stamp(message)
         if self.anchor is None:
+            if self.warehouse_id and not self.physical_switch(now):
+                return
             self.anchor = State(time, self.dock, np.zeros(3), Rotation.identity())
         dt = time - self.anchor.time
         if dt < 0.:
@@ -253,6 +311,9 @@ class Localization(Node):
         self.fit = fit
         if fit is None or fit.overlap < .34 or fit.rms > .059:
             self.reject("Insufficient measured correspondences" if self.slam else "Insufficient static correspondences")
+            return
+        if self.warehouse_id and not self.mapping and not self.accepted and np.linalg.norm(fit.xyz-self.dock) > .12:
+            self.reject("The measured position is inconsistent with the learned dock")
             return
         correction = fit.xyz - predicted.xyz
         velocity = predicted.velocity + .28 * correction / max(.13, min(dt, .25))
@@ -321,6 +382,7 @@ class Localization(Node):
 
     def tick(self):
         now = monotonic()
+        self.check_warehouse(now)
         if self.calibrated and self.pending:
             message, received = self.pending
             time = stamp(message)
@@ -375,7 +437,12 @@ class Localization(Node):
             sim_hz = (len(self.updates)-1)/max(.001, last[0]-first[0])
         value = {
             "mode": self.mode, "state": state, "reason": reason, "accepted": self.accepted,
-            "source": "slam" if self.slam is not None else "reference",
+            "source": "learned_map" if self.warehouse_id and not self.mapping else
+                      "slam" if self.slam is not None else "reference",
+            "warehouse_id": self.warehouse_id if not self.mapping else None,
+            "warehouse_revision": self.warehouse_revision if not self.mapping else None,
+            "warehouse_error": self.warehouse_error,
+            "warehouse_ready": bool(self.warehouse_id and not self.mapping and state == "TRACKING" and self.accepted >= 3),
             "mapping_id": self.mapping.id if self.mapping else None,
             "mapping_phase": self.mapping.phase if self.mapping else None,
             "mapping_closed": self.mapping_closed,
@@ -421,6 +488,9 @@ class Localization(Node):
         result = {"mapping_id": self.mapping.id, "frame": FRAME, "dock": rounded(self.dock),
                   "started_sim": self.mapping.stamp, "last_measurement_sim": self.cloud.stamp,
                   "points": len(self.cloud.voxels), "trajectory": [rounded(point, 5) for point in self.cloud.path]}
+        if type(self.slam) is FullRouteRegistration:
+            save_learned_map(directory / MAP_FILE, self.slam.keyframes, self.dock)
+            result["localization_archive"] = MAP_FILE
         pending = directory / "result.tmp"
         pending.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
         pending.replace(directory / "result.json")

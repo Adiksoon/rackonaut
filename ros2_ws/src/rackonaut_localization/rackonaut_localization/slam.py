@@ -59,7 +59,14 @@ class MeasuredRegistration:
         self.keyframe_count += 1
         if len(self.keyframes) > self.frame_limit:
             self.keyframes.pop(self.discard_index)
+        self.rebuild_target(position)
+        return True
+
+    def rebuild_target(self, position):
         local = self.local_frames(position)
+        if not local:
+            self.target = None
+            return
         combined = np.vstack([entry.points for entry in local])
         normals = np.vstack([entry.normals for entry in local])
         voxels = np.floor(combined / self.map_voxel).astype(np.int32)
@@ -72,7 +79,6 @@ class MeasuredRegistration:
             _, indices = np.unique(voxels, axis=0, return_index=True)
             support = combined[indices]
         self.target = self.surface_type(support, normals[indices])
-        return True
 
     def match(self, raw, offset, position, orientation):
         if self.target is None:
@@ -132,3 +138,23 @@ class FullRouteRegistration(MeasuredRegistration):
         # Preserve the earliest observation and its normal for each overlapping voxel.
         ordered = sorted((index, entry) for distance, index, entry in ranked[:60] if distance <= 12.)
         return [entry for _, entry in ordered]
+
+
+class FrozenRegistration(FullRouteRegistration):
+    """Match to the saved survey. Live scans can never modify the target."""
+
+    def __init__(self, frames, dock):
+        super().__init__()
+        self.keyframes = tuple(frames)
+        self.keyframe_count = len(self.keyframes)
+        self.center = dock.copy()
+        self.rebuild_target(dock)
+
+    def consider(self, raw, offset, position, orientation):
+        return False
+
+    def match(self, raw, offset, position, orientation):
+        if np.linalg.norm(position - self.center) >= .85:
+            self.center = position.copy()
+            self.rebuild_target(position)
+        return super().match(raw, offset, position, orientation)

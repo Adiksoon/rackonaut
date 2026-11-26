@@ -42,6 +42,7 @@ from .route_recording import RouteRecorder
 from .route_review import RouteReview
 from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching
+from .warehouse import WarehouseArchive
 from .web import serve
 
 
@@ -91,7 +92,8 @@ class Control(Node):
         super().__init__("rackonaut_control")
         self.port = self.declare_parameter("http_port", 8765).value
         self.safety_enabled = self.declare_parameter("safety_enabled", False).value
-        self.laser_enabled = self.declare_parameter("safety_sensor", "virtual").value == "laser"
+        safety_sensor = self.declare_parameter("safety_sensor", "virtual").value
+        self.laser_enabled = safety_sensor == "laser"
         self.backend = self.declare_parameter("backend_url", "http://127.0.0.1:8000").value.rstrip("/")
         self.data = Path(self.declare_parameter("data_dir", "control").value).expanduser().resolve()
         self.data.mkdir(parents=True, exist_ok=True)
@@ -112,6 +114,8 @@ class Control(Node):
         self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
         self.mapping_only = self.declare_parameter("mapping_only", False).value
         self.full_route_slam = self.declare_parameter("full_route_slam", False).value
+        self.learned_mode = self.declare_parameter("learned_warehouse", False).value
+        self.layout["learned_warehouse"] = self.learned_mode
         if self.mapping_only:
             self.layout["mapping_only"] = True
         self.measured_map = MeasuredMap() if self.localization_mode == "sensor_based" else None
@@ -145,6 +149,7 @@ class Control(Node):
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
+        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor)
         self.route_recording = None
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
                                       and self.recovery_enabled and self.energy_enabled
@@ -219,8 +224,9 @@ class Control(Node):
                     self.scan_sample = None
                     if identifier:
                         self.slam_map.new_session(identifier)
-                elif not identifier and state.get("accepted", 0) < previous.get("accepted", 0):
-                    self.measured_map.new_session()
+                elif not identifier and (state.get("warehouse_id") != previous.get("warehouse_id")
+                                         or state.get("accepted", 0) < previous.get("accepted", 0)):
+                    self.measured_map.new_session(state.get("warehouse_id"))
             self.localization, self.localization_at = state, monotonic()
 
     def on_slam_map(self, message):
@@ -467,6 +473,10 @@ class Control(Node):
         return stage != "ERROR"
 
     def preview(self, selection):
+        if selection.get("mode") == "learned":
+            if not self.learned_mode:
+                raise RuntimeError("Launch the learned warehouse profile before planning inspections.")
+            return self.warehouse_archive.plan(selection, self.energy_state())
         route = plan(self.layout, selection)
         if self.safety_enabled and not self.aerial_enabled:
             route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
@@ -510,14 +520,20 @@ class Control(Node):
             return result
 
     def begin(self, selection, manual=False, mapping_id=None):
-        planned = self.preview(selection)
         with self.lock:
-            if self.mapping_only and not mapping_id:
+            learned = not manual and selection.get("mode") == "learned"
+            if self.mapping_only and not (mapping_id or learned and self.learned_mode):
                 raise RuntimeError("Open Warehouse Calibration to dispatch on this survey profile.")
             if self.calibration.state != (READY if mapping_id else PRODUCTION):
                 raise RuntimeError("Warehouse calibration is active. New inspections are locked.")
             if self.busy():
                 raise RuntimeError("Wait for the running inspection and its report.")
+            if learned and not self.warehouse_status()["ready"]:
+                raise RuntimeError("Wait for the active learned warehouse to localize at the dock.")
+            planned = self.preview(selection)
+            if learned and (self.localization.get("warehouse_id") != selection.get("configuration_id")
+                            or self.localization.get("warehouse_revision") != selection.get("revision")):
+                raise RuntimeError("The active warehouse revision must match the loaded localization map.")
             if self.localization_mode == "sensor_based" and (
                     not self.localization or monotonic() - self.localization_at > .40
                     or self.localization.get("state") != "TRACKING"
@@ -538,9 +554,10 @@ class Control(Node):
                     if telemetry["percent"] < minimum:
                         raise RuntimeError(f"Insufficient energy for manual takeoff and verified return ({minimum:.1f}% required).")
                 else:
-                    forecast = energy_forecast(self.layout, planned, telemetry)
+                    forecast = planned["energy"] if learned else energy_forecast(self.layout, planned, telemetry)
                     if not forecast["can_start"]:
-                        raise RuntimeError(f"Insufficient energy for the first stop and safe return ({forecast['minimum_percent']:.1f}% required).")
+                        requirement = "the learned route and reserve" if learned else "the first stop and safe return"
+                        raise RuntimeError(f"Insufficient energy for {requirement} ({forecast['minimum_percent']:.1f}% required).")
             if not manual and not self.backend_state["online"]:
                 raise RuntimeError("The inventory API is unavailable.")
             missing = set(planned["slots"]) - set(self.backend_state["slots"])
@@ -669,17 +686,61 @@ class Control(Node):
 
     def service_snapshot(self):
         with self.lock:
+            learned = self.warehouse_status()
+            source = ("Saved LiDAR keyframes" if learned.get("ready") else "Onboard dock localization"
+                      if self.mapping_only else "Preconfigured reference warehouse geometry")
+            current_map = (learned.get("active_id") or "Choose a saved configuration") if self.learned_mode else (
+                "Awaiting a mapping session" if self.mapping_only else
+                "localization_map.json" if self.localization_mode == "sensor_based" else "Control Center reference layout")
             return {"available": self.calibration_supported,
                     "system": self.service_telemetry(monotonic()), "calibration": self.calibration.snapshot(),
                     "mapping": self.mapping_status(),
-                    "warehouse": {"profile": "Protected survey" if self.mapping_only else
+                    "learned_warehouse": learned,
+                    "warehouse": {"profile": "Learned warehouse" if self.learned_mode else
+                                  "Protected survey" if self.mapping_only else
                                   "Protected aerial" if self.aerial_enabled else "Showcase reference",
-                                  "map_source": "Onboard dock localization" if self.mapping_only else
-                                  "Preconfigured reference warehouse geometry",
-                                  "map": ("Awaiting a mapping session" if self.mapping_only else
-                                          "localization_map.json" if self.localization_mode == "sensor_based"
-                                          else "Control Center reference layout"),
-                                  "locations": len(self.layout["slots"]), "status": "ACTIVE"}}
+                                  "map_source": source, "map": current_map,
+                                  "locations": None if self.learned_mode else len(self.layout["slots"]),
+                                  "status": "ACTIVE" if not self.learned_mode or learned["ready"] else "PENDING"}}
+
+    def warehouse_status(self):
+        localization = self.localization or {}
+        if not self.learned_mode:
+            return {"enabled": False}
+        try:
+            identifier = self.warehouse_archive.active_id()
+            error = localization.get("warehouse_error")
+        except (OSError, ValueError) as invalid:
+            identifier, error = None, str(invalid)
+        return {"enabled": True, "active_id": identifier, "loaded_id": localization.get("warehouse_id"),
+                "ready": bool(identifier and identifier == localization.get("warehouse_id")
+                              and localization.get("warehouse_ready") and monotonic()-self.localization_at <= .40),
+                "error": error}
+
+    def warehouse_catalog(self):
+        return {**self.warehouse_status(), "configurations": self.warehouse_archive.list()}
+
+    def warehouse_action(self, action, request, owner):
+        with self.teaching.operations, self.lock:
+            if not self.learned_mode or not self.service_access.authorized(owner):
+                raise RuntimeError("Open the learned warehouse profile and unlock Service.")
+            if action == "verify":
+                return self.warehouse_archive.verify(request.get("configuration_id"))
+            now = monotonic()
+            telemetry = self.service_telemetry(now)
+            if (not telemetry["contact"] or not self.at_pad() or self.busy()
+                    or telemetry["safety"] in {"PREPARING", "RESERVED", "RECOVERY", "UNAVAILABLE"}
+                    or self.count_publishers("/rackonaut/drone/cmd_vel")):
+                raise RuntimeError("Confirm physical docking and finish the active mission before changing the warehouse.")
+            if action == "seal":
+                draft = self.calibration.draft or {}
+                session = draft.get("calibration_id")
+                if self.calibration.state != MAPPED or request.get("calibration_id") != session:
+                    raise RuntimeError("Choose the current completed calibration.")
+                return self.warehouse_archive.seal(session, draft.get("warehouse_name") or "Learned warehouse")
+            if self.calibration.state != PRODUCTION or request.get("confirm") is not True:
+                raise RuntimeError("Close Warehouse Calibration and confirm activation.")
+            return self.warehouse_archive.activate(request.get("configuration_id"))
 
     def mapping_status(self):
         localization = self.localization or {}

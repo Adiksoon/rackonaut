@@ -5,6 +5,7 @@ const number = (value, unit) => Number.isFinite(value) ? `${value.toFixed(2)} ${
 export function createRouteReview(api, changed) {
   let session = null, revision = null, selectedLocation = null, busy = false;
   let shortlist = new Set(), proposal = null, error = "";
+  let archive = false, canSeal = false, sealed = "";
   const trusted = () => ["validated","approved"].includes(revision?.status);
   const review = () => revision?.route;
   const title = status => ({review:"Pending validation",validated:"Validated · live clearance required",
@@ -40,7 +41,11 @@ export function createRouteReview(api, changed) {
     const approved = revision?.status==="approved";
     set("session",session || "");
     el("result").hidden = !route;
-    set("feedback",error || (busy ? "Working…" : title(revision?.status)));
+    set("feedback",error || (busy ? "Working…" : sealed || title(revision?.status)));
+    el("review-again").hidden = el("validate").hidden = el("approve").hidden = archive;
+    el("seal").hidden = archive || !canSeal || !approved;
+    el("seal").disabled = busy || !!sealed;
+    el("plan").hidden = archive;
     el("review-again").disabled = busy || !session;
     el("validate").disabled = busy || !route;
     el("approve").disabled = busy || !trusted() || approved || !el("confirm").checked;
@@ -110,17 +115,45 @@ export function createRouteReview(api, changed) {
   el("review-again").addEventListener("click",()=>action("review"));
   el("validate").addEventListener("click",()=>action("validate"));
   el("approve").addEventListener("click",()=>action("approve",{confirm:el("confirm").checked}));
+  el("seal").addEventListener("click",async () => {
+    if (busy) return;
+    busy = true;
+    error = "";
+    render();
+    try {
+      const result = await api("/api/service/warehouses/seal", {calibration_id:session});
+      sealed = "Saved revision " + result.manifest.revision + " · " + result.manifest.configuration_id;
+    } catch (cause) {
+      error = cause.message;
+    } finally {
+      busy = false;
+      render();
+    }
+  });
   el("plan").addEventListener("click",()=>action("plan",{record_ids:[...shortlist]}));
   for (const label of ["raw","learned","locations"]) el(`show-${label}`).addEventListener("change",render);
   el("confirm").addEventListener("change",render);
   return {
-    open(id) {
+    open(id, enableSeal = false) {
       session=id;
+      archive = false;
+      canSeal = enableSeal;
+      sealed = error = "";
       revision = proposal = selectedLocation = null;
       shortlist = new Set();
       el("confirm").checked = false;
       render();
       action("review");
+    },
+    openArchive(value) {
+      session = value.mapping_id;
+      archive = true;
+      revision = value;
+      shortlist = new Set();
+      proposal = selectedLocation = null;
+      sealed = error = "";
+      drawStops();
+      render();
     },
     display() {
       if (!revision?.route) return null;
