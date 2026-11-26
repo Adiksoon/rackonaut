@@ -10,7 +10,10 @@
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
+  <exec_depend>rackonaut_control</exec_depend>
   <exec_depend>rackonaut_reference</exec_depend>
+  <exec_depend>rackonaut_safety</exec_depend>
+  <exec_depend>rackonaut_warehouse</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>ros_gz_bridge</exec_depend>
   <exec_depend>ros_gz_sim</exec_depend>
