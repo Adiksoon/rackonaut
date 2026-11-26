@@ -1,4 +1,4 @@
-export function createService({ openWarehouse, dispatchWarehouse } = {}) {
+export function createService({ openWarehouse, dispatchWarehouse, previewWarehouse } = {}) {
   const el = (id) => document.getElementById(id);
   const text = (id, value) => { el(id).textContent = value ?? "—"; };
   const label = (value) => value ? value.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase()) : "—";
@@ -13,7 +13,27 @@ export function createService({ openWarehouse, dispatchWarehouse } = {}) {
   };
   let visible = false, busy = false, loading = false, generation = 0, current = null;
   let nextRefresh = 0;
-  let catalog = [], details = null, warehouseBusy = false;
+  let catalog = [], details = null, warehouseBusy = false, budgetKey = "";
+
+  function warehouseSelection(identifier) {
+    return {mode:"learned", configuration_id:identifier, revision:details.manifest.revision,
+      record_ids:[...el("warehouse-stops").querySelectorAll("input:checked")].map(input => input.value)};
+  }
+
+  async function showBudget(selection) {
+    const key = selection?.record_ids.length ? JSON.stringify(selection) : "";
+    if (key === budgetKey) return;
+    budgetKey = key;
+    text("warehouse-budget", key ? "Calculating flight budget…" : "");
+    if (!key) return;
+    try {
+      const {energy} = await previewWarehouse(selection);
+      if (budgetKey === key) text("warehouse-budget",
+        energy.seconds.toFixed(1) + " s sim · " + energy.percent.toFixed(1) + " pp · " + energy.reserve_percent.toFixed(1) + " pp reserve");
+    } catch (error) {
+      if (budgetKey === key) text("warehouse-budget", error.message);
+    }
+  }
 
   function renderWarehouses() {
     const status = current?.learned_warehouse;
@@ -33,6 +53,7 @@ export function createService({ openWarehouse, dispatchWarehouse } = {}) {
     el("warehouse-mission").hidden = !active;
     el("warehouse-dispatch").disabled = warehouseBusy || !active || !idle
       || !el("warehouse-stops").querySelector("input:checked");
+    showBudget(active ? warehouseSelection(selected) : null);
   }
 
   async function updateCatalog() {
@@ -59,8 +80,7 @@ export function createService({ openWarehouse, dispatchWarehouse } = {}) {
     renderWarehouses();
     try {
       if (action === "dispatch") {
-        await dispatchWarehouse({ mode:"learned", configuration_id:identifier, revision:details.manifest.revision,
-          record_ids:[...el("warehouse-stops").querySelectorAll("input:checked")].map(input => input.value) });
+        await dispatchWarehouse(warehouseSelection(identifier));
       } else {
         const { response, body } = await request("warehouses/" + action, {
           configuration_id:identifier, confirm:el("warehouse-confirm").checked,

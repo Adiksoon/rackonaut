@@ -5,7 +5,7 @@ from unittest import TestCase
 from ament_index_python.packages import get_package_share_path
 from rackonaut_energy.aerial import Network
 from rackonaut_energy.model import Model
-from rackonaut_mission.learned import forecast, ordered_targets, straight_continuation
+from rackonaut_mission.learned import forecast, observed_prefix, ordered_targets, straight_continuation
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -46,3 +46,11 @@ class LearnedRouteExecutionTests(TestCase):
         self.assertTrue(straight_continuation(pose, target, (.90, 0., 0., 0.)))
         self.assertFalse(straight_continuation(pose, target, (.40, .30, 0., 0.)))
         self.assertFalse(straight_continuation(pose, target, (.20, 0., 0., 0.)))
+
+    def test_visibility_stop_remains_in_the_known_section_of_the_same_leg(self):
+        pose, end = (0., 0., 1., 0.), (.4, 0., 1., .02)
+        first, *unchanged = observed_prefix(pose, end, .244)
+        self.assertAlmostEqual(first, .122)
+        self.assertEqual(unchanged, [0., 1., .02])
+        self.assertIsNone(observed_prefix(pose, end, .12))
+        self.assertIsNone(observed_prefix(pose, end, None))

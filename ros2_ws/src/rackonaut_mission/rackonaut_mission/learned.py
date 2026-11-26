@@ -119,3 +119,13 @@ def straight_continuation(pose, target, following):
     ratio = first_length/(first_length+next_length)
     on_line = [a+ratio*(b-a) for a, b in zip(pose[:3], following[:3])]
     return dist(on_line, target[:3]) <= .025
+
+
+def observed_prefix(pose, goal, unknown_at):
+    """Return a point with stopping room inside the visible part of the active leg."""
+    length = dist(pose[:3], goal[:3])
+    if unknown_at is None or unknown_at < .15 or length <= unknown_at:
+        return None
+    fraction = min(.13, unknown_at / 2.) / length
+    point = tuple(start + fraction * (end-start) for start, end in zip(pose[:3], goal[:3]))
+    return (*point, goal[3])

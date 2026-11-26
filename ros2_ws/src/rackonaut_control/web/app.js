@@ -26,6 +26,7 @@ const headings = {
   route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
 };
 const service = createService({
+  previewWarehouse: request => api("/api/plan",request),
   openWarehouse(configuration) {
     setView("route", true);
     routeReview.openArchive(configuration);

@@ -31,7 +31,7 @@ from .adaptive import (MAX_RETRIES, QUALITY_SECONDS, RETRY_SECONDS, RETRY_TEXT, 
                        first_unused, next_issue, reading_issue)
 from .confirmation import current_observation, fetch_observations
 from .learned import (LAND as LEARNED_LAND, MAX_POSE_ERROR, STAGES as LEARNED_STAGES,
-                      TRANSIT as LEARNED_TRANSIT, forecast as learned_forecast, straight_continuation)
+                      TRANSIT as LEARNED_TRANSIT, forecast as learned_forecast, observed_prefix, straight_continuation)
 from .manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, ManualFlight
 from .recovery import ACTIVE as RECOVERY_ACTIVE, FAILED as RECOVERY_FAILED, Recovery
 from .report import CALIBRATION_INTERRUPTED, TERMINAL
@@ -185,6 +185,7 @@ class Mission(Node):
             self.create_subscription(String, "/rackonaut/calibration/request", self.on_calibration_request, 5)
         self.manual = ManualFlight(self) if settings["manual_flight"] else None
         self.learned_visits, self.learned_skip = [], False
+        self.learned_probe, self.learned_probe_count = None, 0
         if self.learned and (self.manual or self.autostart or self.mapping_id
                              or not (self.recovery and self.scanner and settings["full_route_slam"])):
             raise ValueError("Learned missions require explicit dispatch and the full protected sensor profile.")
@@ -434,7 +435,9 @@ class Mission(Node):
                and hypot(target[0]-self.route.pad.x, target[1]-self.route.pad.y) < .02)
         goal = (*target[:2], max(self.route.pad.z, target[2]), target[3]) if pad else target
         if self.learned and cloud is not None:
-            goal = self.learned_lookahead(p, goal, cloud)
+            if self.learned_probe and dist(p[:3], self.learned_probe[:3]) <= .028 and self.speed <= .065:
+                self.learned_probe = None
+            goal = self.learned_probe or self.learned_lookahead(p, goal, cloud)
         may_bypass = (not self.learned and self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"}
                       and self.bypass_allowed(p, goal))
         decision = self.navigation.step(cloud, p, goal, self.stage, self.speed, now,
@@ -449,6 +452,8 @@ class Mission(Node):
             self.send_velocity(Target(*goal) if self.learned and not pad else None, scale=decision.scale)
             self.advance(now)
         else:
+            if self.learned and not pad and cloud is not None and not decision.target:
+                self.learned_visibility_step(p, target, cloud)
             if self.stage in {"TRANSIT", "AISLE_APPROACH", "RETURN_TO_DOCK"}:
                 # Avoidance has its own bounded wait and maneuver deadlines.
                 self.stage_since = now
@@ -457,6 +462,17 @@ class Mission(Node):
                 self.send_velocity(Target(*decision.target), decision.scale)
             else:
                 self.send_velocity(scale=0.)
+
+    def learned_visibility_step(self, position, target, cloud):
+        clearance = self.navigation.sweep
+        if (self.stage != LEARNED_TRANSIT or self.learned_probe or self.learned_probe_count >= 3
+                or self.speed > .075 or clearance.hit is not None or self.navigation.mode != "UNKNOWN"):
+            return
+        goal = observed_prefix(position, target, clearance.unknown)
+        if goal and self.aerial.allows(position, goal, self.route.zones) and sweep(cloud, position, goal, LOOKAHEAD).confirmed:
+            self.learned_probe = goal
+            self.learned_probe_count += 1
+            self.get_logger().info(f"Checking visibility from a fully observed prefix of {self.learned.node_ids[self.stop_index]}")
 
     def learned_lookahead(self, current, target, cloud):
         index = self.stop_index+1
@@ -511,6 +527,7 @@ class Mission(Node):
 
     def next_stop(self, now):
         if self.learned:
+            self.learned_probe, self.learned_probe_count = None, 0
             target = self.route.waypoints[self.stop_index]
             stage = target.phase
             if target.slot_id and self.learned_skip:

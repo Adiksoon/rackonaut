@@ -162,6 +162,7 @@
         <fieldset class="route-options" id="warehouse-mission" hidden>
           <legend>Inspection stops</legend>
           <div id="warehouse-stops"></div>
+          <p class="footnote" id="warehouse-budget" role="status"></p>
           <button type="button" class="primary" id="warehouse-dispatch">Start learned inspection</button>
         </fieldset>
       </section>
@@ -306,7 +307,7 @@
           <label><input type="checkbox" id="route-show-learned" checked> Learned route</label>
           <label><input type="checkbox" id="route-show-locations" checked> Storage locations</label>
         </fieldset>
-        <fieldset class="route-options">
+        <fieldset class="route-options" id="route-stop-options">
           <legend>Inspection stops</legend>
           <div id="route-stops"></div>
           <button type="button" class="secondary" id="route-plan" disabled>Plan selected stops</button>
@@ -316,7 +317,7 @@
           <h3 id="route-photo-title"></h3><img id="route-photo" alt="Storage location reference">
         </section>
         <section class="route-options" aria-label="Energy forecast">
-          <h3>Energy forecast</h3>
+          <h3 id="route-energy-title">Energy forecast</h3>
           <dl class="route-metrics">
             <div><dt>Travel and inspection</dt><dd id="route-time">—</dd></div>
             <div><dt>Ascent</dt><dd id="route-climb">—</dd></div>

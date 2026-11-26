@@ -45,7 +45,8 @@ export function createRouteReview(api, changed) {
     el("review-again").hidden = el("validate").hidden = el("approve").hidden = archive;
     el("seal").hidden = archive || !canSeal || !approved;
     el("seal").disabled = busy || !!sealed;
-    el("plan").hidden = archive;
+    el("stop-options").hidden = archive;
+    set("energy-title",archive ? "Calibration route forecast" : "Energy forecast");
     el("review-again").disabled = busy || !session;
     el("validate").disabled = busy || !route;
     el("approve").disabled = busy || !trusted() || approved || !el("confirm").checked;
