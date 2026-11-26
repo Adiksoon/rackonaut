@@ -1,0 +1,40 @@
+{
+  "mapping_id": "CAL-623FDBCB5D9B4E838FAA93E1E3A01478",
+  "configuration_id": "WH-B6D7FBC50E70F2418C5532E6D8867192",
+  "revision": 2,
+  "registered_points": 55775,
+  "route_approval_sha256": "f57c7d8532d54daa3d52565e1a1e1a0eb35cc7f0a779d8ec97c81bbfdb89ead1",
+  "locations": [
+    {
+      "storage_location_id": "A-01-01",
+      "position_m": [
+        5.4569849395272225,
+        0.45005486470688433,
+        0.7929331327032653
+      ],
+      "id_source": "aruco",
+      "reference_image": "locations/CAP-48F96B09272946EA88FC200720CFAEE3/reference.jpg"
+    },
+    {
+      "storage_location_id": "A-01-03",
+      "position_m": [
+        8.46782832564977,
+        0.4509261483599685,
+        0.872851754853153
+      ],
+      "id_source": "aruco",
+      "reference_image": "locations/CAP-221103E2B56442A69244B9F982E5BD77/reference.jpg"
+    }
+  ],
+  "first_autonomous_attempt": {
+    "id": "INS-CONTROL-20261126-155858-ED9F2248",
+    "stage": "ABORTED",
+    "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+    "stored_locations": [
+      "A-01-01"
+    ],
+    "map_source": "learned_map",
+    "safety": "RECOVERY",
+    "estimate_rate_hz_at_snapshot": 2.73
+  }
+}

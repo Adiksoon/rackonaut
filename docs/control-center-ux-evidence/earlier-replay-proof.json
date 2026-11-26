@@ -1,0 +1,12 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-160842-BD1AD3B4",
+  "stage": "ABORTED",
+  "reason": "Onboard lidar stopped advancing",
+  "map_source": "learned_map",
+  "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+  "zones": [
+    "D",
+    "A"
+  ],
+  "safety_phase": "RECOVERY"
+}
