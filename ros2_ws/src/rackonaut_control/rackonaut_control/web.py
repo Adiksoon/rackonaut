@@ -19,6 +19,7 @@ from .teaching import CAPTURE_ID, SESSION_ID, session_path
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
+          "/rackonaut-logo.png": ("rackonaut-logo.png", "image/png"),
           **{f"/{name}": (name, "text/javascript") for name in (
               "app.js", "business.js", "service.js", "manual.js", "teaching.js", "route.js", "twin.js", "rack-templates.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
@@ -206,7 +207,9 @@ def serve(control, port):
             try:
                 if path in STATIC:
                     filename, media_type = STATIC[path]
-                    self.reply(200, (control.web / filename).read_bytes(), media_type + "; charset=utf-8")
+                    if media_type.startswith("text/"):
+                        media_type += "; charset=utf-8"
+                    self.reply(200, (control.web / filename).read_bytes(), media_type)
                 elif path == "/api/layout":
                     self.json(200, control.layout)
                 elif path == "/api/state":

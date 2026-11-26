@@ -21,10 +21,8 @@ h1, h2, h3, p { margin: 0; }
 .topbar { min-height: 68px; padding: 12px max(24px, calc((100vw - 1232px)/2)); border-bottom: 1px solid var(--line);
   background: #ffffff; display: flex; gap: 24px; align-items: center; justify-content: space-between; }
 .identity, .statusbar { display: flex; align-items: center; gap: 13px; }
-.identity strong { display: block; font-size: 1.17rem; line-height: 1.2; letter-spacing: -.02em; }
-.identity span { font-size: .75rem; color: var(--muted); }
-.brandmark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: var(--accent); }
-.brandmark svg { width: 30px; fill: none; stroke: #f7fbff; stroke-width: 2.2; stroke-linecap: round; }
+.identity span { font-size: .88rem; font-weight: 600; color: var(--muted); }
+.brandmark { display: block; flex: none; width: 76px; height: auto; border-radius: 6px; background: #fff; }
 .environment { color: var(--muted); font-size: .68rem; letter-spacing: .16em; margin-right: 4px; }
 .signal { background: #f3f6fa; border: 1px solid #dce4ef; padding: 6px 10px; border-radius: 6px; color: var(--muted);
   white-space: nowrap; font-size: .76rem; }
@@ -500,7 +498,6 @@ main:has(.workspace[data-view="route"]:not([hidden])) { max-width: 1740px; }
   background: #102438; border-bottom: 0; color: #fff;
 }
 .identity span, .environment { color: #bacbd7; }
-.brandmark { flex: none; background: #14665f; }
 .topbar .signal { background: #20394d; border-color: #355067; color: #f0f6fa; }
 .topbar .signal.good::before { background: #72d3b7; }
 .topbar .global-stop { margin: 0; width: auto; background: #ffddd5; color: #721d22; border-color: #ffb19f; }
@@ -605,6 +602,7 @@ main nav .tab.active { font-weight: 700; }
 }
 @media (max-width: 620px) {
   .topbar { padding: 8px 12px; gap: 6px; }
+  .brandmark { width: 60px; }
   .topbar .environment, .topbar #api-state { display: none; }
   .statusbar { gap: 6px; }
   main nav { flex-wrap: wrap; }
@@ -612,6 +610,9 @@ main nav .tab.active { font-weight: 700; }
   .support-nav { padding-left: 3px; }
   .result-workbench { grid-template-columns: 1fr; }
   .results-toolbar { align-items: stretch; flex-direction: column; }
+}
+@media (max-width: 400px) {
+  .identity span { display: none; }
 }
 
 /* The canvas is shared across the operator and service workspaces. */
