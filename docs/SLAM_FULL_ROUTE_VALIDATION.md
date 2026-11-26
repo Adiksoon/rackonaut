@@ -4,7 +4,7 @@ Pierwszy pełny lot shadow ujawnił utratę lokalizacji bazowego SLAM w tunelu. 
 
 ## Metoda i bramka jakości
 
-Punktem odniesienia jest GOAL 21, commit `222c0d0d90d1bb91a9d6b2acd382dd0cb0e1ade6`. Pełny profil ROS 2 Humble i Gazebo Fortress uruchomiono z diagnostyką, a w oddzielnym węźle tryb `slam_shadow` z wyjściami pod `/rackonaut/slam_shadow/`. Walidator zestawił estymaty ze zinterpolowaną odometrią Gazebo przy znacznikach czasu skanów. Porównanie używa wspólnej ramy znanego doku. Nie stosowano dopasowania trajektorii po locie.
+Punktem odniesienia jest GOAL 21, commit `222c0d0d90d1bb91a9d6b2acd382dd0cb0e1ade6`. Próby wykonano na Ubuntu 22.04.5 LTS w WSL2, z ROS 2 Humble oraz Gazebo Fortress 6.16.0. Pełny profil uruchomiono z diagnostyką, a w oddzielnym węźle tryb `slam_shadow` z wyjściami pod `/rackonaut/slam_shadow/`. Walidator zestawił estymaty ze zinterpolowaną odometrią Gazebo przy znacznikach czasu skanów. Porównanie używa wspólnej ramy znanego doku. Nie stosowano dopasowania trajektorii po locie.
 
 Progi przyjęte przed próbami to **RMSE ≤ 30 mm**, **p95 ≤ 45 mm**, **maksimum ≤ 60 mm**, **dryf po powrocie ≤ 35 mm**, **minimum 3 Hz w czasie rzeczywistym** i **RTF ≥ 0,45**. Korytarze mają roboczą połówkę przekroju 0,33 m wokół zatwierdzonej osi, a ogranicznik ręcznego lotu rezerwuje 0,06 m przy ich granicy. Błąd równy 60 mm może zużyć cały margines granicy. Dlatego ocena obejmuje także dostępność estymat w każdej strefie i rzeczywisty przebieg wewnątrz zatwierdzonej przestrzeni. Zakres rezerwacji i ustawienia Safety, Energy oraz Collision Prevention pozostają takie jak w profilu referencyjnym.
 
@@ -88,6 +88,23 @@ Profil pełnej trasy ogranicza teraz dobór płaszczyzn przy krawędziach i w mi
 
 W obu odtworzeniach odstęp między estymatami wyniósł najwyżej 0,168 s czasu symulacji. Pierwsza wersja 16 m uzyskała **46,20 mm RMSE w alejce** na tym samym zapisie ręcznym. Zbudowano 10 pakietów ROS i zaliczono 53 testy jednostkowe. Próba sterowania wymaga zaliczenia bramki przez ten wariant na nowym pełnym locie shadow. [Pomiary porównawcze](slam-full-route-evidence/plane-selection-replay.json)
 
+## Zaliczenie bramki shadow na pełnej trasie
+
+Nową próbę `INS-CONTROL-20261126-122607-B3FE74B9` wykonano standardowym chronionym interfejsem ręcznym. Lokalizator referencyjny nadal dostarczał pozycję do sterowania, a nowy estymator LiDAR–IMU działał równolegle. Dron pokonał **70,87 m**, oddalił się **16,30 m** i osiągnął **6,704 m** wysokości. Kamera obserwowała A-01-01 oraz A-01-03. Stan `COMPLETE`, fizyczny kontakt doku oraz `RELEASED` potwierdziły zakończenie. Lot trwał **355,8 s** przy **RTF 0,5435**, z zużyciem **65,123 p.p.** energii.
+
+| Strefa | Próbki | RMSE | p95 | Maksimum |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 225 | 6,32 mm | 8,13 mm | 8,63 mm |
+| Tunel | 618 | 13,01 mm | 16,85 mm | 18,59 mm |
+| Alejka i zejście | 321 | 9,26 mm | 15,50 mm | 19,80 mm |
+| Cała trasa | 1 164 | 11,01 mm | 16,48 mm | 19,80 mm |
+
+Przebieg zawiera **3,27 estymaty/s czasu rzeczywistego**, z maksymalnym odstępem **0,168 s** czasu symulacji i ciągłym stanem `TRACKING`. Dryf przy doku wyniósł **0,23 mm**, a maksymalny błąd orientacji **0,327°**. Lokalizator przyjął **182 klatki kluczowe**, zarejestrował **54 486 wokseli**, wykonał dopasowanie w czasie p95 **119,2 ms** i użył do **187,91 MiB RSS**. Mediana obciążenia lokalizatora wyniosła **16,67% jednego rdzenia**, a p95 **28,89%**. Gazebo używało mediany **200,01% jednego rdzenia** i do **868 MiB RSS**.
+
+Bramka **PASS** została zapisana przed aktywacją sterowania SLAM. [Telemetria i błędy stref](slam-full-route-evidence/final-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/final-shadow-trace.jsonl) · [Chmura PLY](slam-full-route-evidence/final-shadow-map.ply)
+
+![Trasa i błędy zaliczonego lotu shadow](slam-full-route-evidence/final-shadow.png)
+
 ## Regresja autonomicznej inspekcji na domyślnym profilu
 
 Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)
@@ -96,10 +113,10 @@ Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z
 
 | # | Próba | Obecny stan |
 | --- | --- | --- |
-| 1 | Pełna trasa shadow | **FAIL.** Bazowy SLAM utracił estymaty w tunelu. Profil 16 m dał ciągłą estymatę na całej trasie. W dwóch niezależnych lotach przekroczył próg RMSE w alejce. |
-| 2 | Pełna trasa sterowana SLAM | Oczekuje na przejście bramki shadow. |
-| 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Oczekuje na przejście bramki shadow. |
-| 4 | Powtarzalna geometria regałów | **FAIL jakości.** 316 oraz 268 estymat w dwóch lotach. RMSE wynosił odpowiednio 33,55 i 30,66 mm przy progu 30 mm. |
+| 1 | Pełna trasa shadow | **PASS po korekcie.** Pełny lot 70,87 m, ciągła estymata, wszystkie progi strefowe, dwie obserwacje i fizyczny dok. |
+| 2 | Pełna trasa sterowana SLAM | Do wykonania po zaliczonej bramce shadow. |
+| 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Do wykonania po zaliczonej bramce shadow. |
+| 4 | Powtarzalna geometria regałów | **PASS w końcowym shadow.** 321 estymat w alejce i RMSE 9,26 mm. |
 | 5 | Powrót przez obserwowaną przestrzeń | Kontroler referencyjny wrócił i zadokował. Wymagany jest powrót z aktywnym SLAM. |
 | 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
 | 7 | Mapa referencyjna fizycznie niedostępna | Do wykonania na pełnej trasie. |
