@@ -1,6 +1,6 @@
 # Rackonaut · Integracja X3 z Full Robotics
 
-**Wynik GOAL 25 to częściowa zgodność.** Opcja `drone_model:=x3` wybiera X3 UAV w Full Robotics. Domyślnym modelem pozostaje dron referencyjny. X3 ukończył autonomiczną inspekcję z fabryczną mapą oraz pełny chroniony lot z aktywnym SLAM, zapisem dwóch stanowisk i fizycznym dokowaniem. W locie SLAM RMSE w alejce przekroczył limit GOAL 21A. Zatwierdzenie trasy i restart Teach-and-Repeat pozostały wstrzymane.
+**X3 zaliczył GOAL 21A i ukończył Teach-and-Repeat po pełnym restarcie.** Pełny lot kalibracyjny po korekcie rejestracji LiDAR uzyskał 29,09 mm RMSE w alejce. W poprzednim pełnym locie wynik wynosił 31,44 mm. Autonomiczne powtórzenie uzyskało 29,37 mm w tej samej strefie, zapisało dwie nowe obserwacje w Mock SAP i zakończyło się fizycznym dokowaniem. [Kwalifikacja SLAM](x3-full-robotics-evidence/x3-planar-teach-verification.json) · [Powtórzenie](x3-full-robotics-evidence/x3-planar-repeat-verification.json) · [Nagranie](x3-full-robotics-evidence/x3-autonomous-learned-route.mp4)
 
 ## Baza i audyt modułu Michała
 
@@ -135,13 +135,46 @@ W pełnej powtórce po ograniczeniu zejścia, `INS-CONTROL-20261126-163349-49ACF
 
 Dryf doku wyniósł 0,38 mm, częstotliwość estymaty 3,37 Hz w czasie rzeczywistym, a RTF 0,559. Najdłuższa luka między próbkami trwała 0,168 s czasu symulacji. Przy niezmienionych limitach GOAL 21A wynik bramki aktywnego SLAM to **FAIL**. RMSE w alejce przekroczył wartość 30 mm o 1,44 mm. [Metryki i warunki odbioru](x3-full-robotics-evidence/x3-active-slam-verification.json) · [Sparowane próbki](x3-full-robotics-evidence/x3-active-slam-trace.jsonl) · [Wykres](x3-full-robotics-evidence/x3-active-slam.png)
 
+### Przyczyna błędu w alejce i korekta SLAM
+
+W poprzednim pełnym aktywnym locie średni błąd w alejce wynosił +9,53 mm w osi X, +16,82 mm w Y i −23,09 mm w Z. W zarchiwizowanej podmapie alejki 4,67% z 55 138 wokseli zawierało obserwacje z niezgodnymi płaszczyznami. Rejestracja przesuwała punkt podparcia w stronę środka wszystkich punktów w wokselu, zachowując normalną najstarszej obserwacji. Na krawędzi regału punkt podparcia mógł w ten sposób opuścić płaszczyznę, do której należała jego normalna. Dopasowanie punkt–płaszczyzna wykorzystywało wynik jako cel następnego skanu. [Pomiary i odtworzenie skanów](x3-full-robotics-evidence/slam-plane-diagnosis.json)
+
+Korekta uwzględnia przy uśrednianiu obserwacje zgodne z płaszczyzną najstarszego punktu. Przesunięcie punktu podparcia przebiega wyłącznie stycznie do tej płaszczyzny, także przy odczycie zapieczętowanej mapy. Test jednostkowy sprawdza woksel z odwróconą normalną tej samej powierzchni, prostopadłą ścianą i równoległą płaszczyzną o innym odsunięciu. [Kod SLAM](../ros2_ws/src/rackonaut_localization/rackonaut_localization/slam.py) · [Test regresji](../ros2_ws/src/rackonaut_localization/test/test_localization.py)
+
+Na identycznym zapisie LiDAR–IMU X3 z dolotu, obu stanowisk i początku powrotu RMSE w alejce zmalał z 22,59 do 21,24 mm, a p95 z 32,66 do 31,09 mm. Maksimum wzrosło z 37,94 do 39,71 mm. Uśrednianie zgodnych obserwacji bez zachowania odsunięcia płaszczyzny dało RMSE 22,81 mm. Każdy wariant miał te same 849 sparowanych próbek. Rozbieżność zmierzono względem odometrii Gazebo po estymacji. [Metryki odtworzenia](x3-full-robotics-evidence/slam-plane-diagnosis.json)
+
+Stabilne sortowanie leksykograficzne kluczy wokseli skraca przebudowę lokalnego celu przy zachowaniu kolejności grup i wyboru najstarszego punktu. W próbach na żywo watchdog zatrzymywał lot przy utracie aktualności pomiarów. W jednej z prób niezależny odbiornik zarejestrował w momencie zatrzymania 390 ms przerwy w zegarze Gazebo i 406 ms przerwy w strumieniu IMU z mostka. Kolejne komunikaty przesunęły się odpowiednio o jeden krok fizyki i jeden okres IMU. [Kod SLAM](../ros2_ws/src/rackonaut_localization/rackonaut_localization/slam.py) · [Próby diagnostyczne](x3-full-robotics-evidence/slam-plane-diagnosis.json)
+
+### Bramka GOAL 21A po korekcie
+
+W kwalifikacji `INS-CONTROL-20261126-171703-B9A9C124` X3 z pustą mapą pomiarową przeleciał 73,18 m, rozpoznał i zapisał A-01-01 oraz A-01-03, fizycznie zadokował i zwolnił rezerwację Safety. Wszystkie 1 432 odcinki sparowanej trajektorii mieściły się w zarezerwowanej przestrzeni D–A. Gazebo dostarczało ground truth wyłącznie do niezależnej walidacji. [Kontrola grafu ROS](x3-full-robotics-evidence/x3-planar-teach-ros-graph.json) · [Sparowane próbki](x3-full-robotics-evidence/x3-planar-teach-trace.jsonl) · [Zdjęcie A-01-01](x3-full-robotics-evidence/x3-planar-teach-a-01-01.jpg) · [Zdjęcie A-01-03](x3-full-robotics-evidence/x3-planar-teach-a-01-03.jpg)
+
+| Odcinek aktywnego SLAM | Próbki | RMSE | p95 | Maks. |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 239 | 1,35 mm | 2,42 mm | 3,01 mm |
+| Tunel | 709 | 16,87 mm | 22,04 mm | 25,20 mm |
+| Alejka i zejście | 485 | **29,09 mm** | 36,64 mm | 39,96 mm |
+| Cała trasa | 1 433 | **20,67 mm** | 33,98 mm | 39,96 mm |
+
+Wynik przy dotychczasowych progach to **PASS**. RTF wyniósł 0,601, średnia częstotliwość estymat 3,62 Hz czasu rzeczywistego, dryf po powrocie 0,48 mm, a najdłuższa luka 0,168 s symulacji. Wszystkie komunikaty stanu lokalizatora z lotu wskazywały `TRACKING`. Zapis obejmuje 197 klatek kluczowych i 58 405 zmierzonych punktów. [Metryki bramki](x3-full-robotics-evidence/x3-planar-teach-verification.json) · [Chmura pomiarowa PLY](x3-full-robotics-evidence/x3-planar-teach-map.ply)
+
+Do kwalifikacji użyto renderowania GLX przez Mesa D3D12 na AMD Radeon 610M. Poprawkę zgodności kopiowania tekstur z Ogre Next zastosowano lokalnie do renderera testowego w osobnej przestrzeni montowań. Procesy testowe przypisano do 15 logicznych CPU. Model X3, świat, sensory i progi odbioru odpowiadały profilowi integracyjnemu. Dojazd i obrót przy stanowiskach wykonano jako osobne żądania przez chroniony interfejs ręczny. [Poprawka Ogre Next dla WSLg](https://github.com/OGRECave/ogre-next/pull/388)
+
 ### Teach-and-Repeat
 
-Ukończone kroki obejmują pustą mapę, chroniony lot kalibracyjny, zdjęcia i identyfikację dwóch stanowisk, zapis pomiarów oraz fizyczny dok. Wynik bramki C zatrzymał kampanię przed zatwierdzeniem grafu, zapisaniem aktywnej konfiguracji i restartem. Odtworzenie nauczonej trasy oraz nowe obserwacje w Mock SAP w tym trybie pozostają do walidacji. Osobna próba integralności wykazała, że rzeczywiste, poprawne archiwum z GOAL 24 przechodzi dla referencji i zostaje odrzucone dla X3. [Test zgodności archiwum](x3-full-robotics-evidence/archive-model-compatibility.json)
+Po zaliczeniu bramki C sprawdzono obwiednię i zatwierdzono 162 odcinki grafu. Konfigurację `WH-216C75B710D2AF0D46B298CEC6B92350` zapieczętowano i aktywowano w rewizji 2. Po pełnym restarcie Gazebo, ROS i Mock SAP ten sam katalog danych udostępnił źródło `learned_map`. Dyspozycja `INS-CONTROL-20261126-172401-E49D771D` użyła obu zapisanych identyfikatorów stanowisk i zatwierdzonego skrótu grafu. Plik lokalizacji fabrycznej był poza ścieżką odczytu podczas kalibracji i powtórzenia. [Manifest, zatwierdzenie i weryfikacja restartu](x3-full-robotics-evidence/x3-planar-teach-repeat-proof.json)
+
+X3 zaliczył wszystkie 162 odcinki, przeleciał 73,45 m i zakończył misję w `COMPLETE` z fizycznym stykiem oraz Safety `RELEASED`. Wszystkie 1 284 odcinki sparowanej trajektorii Gazebo mieściły się w przestrzeni D–A. Mock SAP przyjął dwie nowe obserwacje z bieżącej misji. Kamera pokazała zajęte A-01-01 z nieczytelną etykietą i puste A-01-03. [Wpisy Mock SAP](x3-full-robotics-evidence/x3-planar-repeat-observations.json) · [Sparowane próbki](x3-full-robotics-evidence/x3-planar-repeat-trace.jsonl) · [Nagranie pełnego cyklu, 91 s](x3-full-robotics-evidence/x3-autonomous-learned-route.mp4)
+
+Powtórzenie uzyskało 20,91 mm RMSE na całej trasie i 29,37 mm w alejce, gdzie p95 wyniósł 36,80 mm, a maksimum 43,85 mm. Dryf przy doku wyniósł 0,30 mm, częstotliwość 3,66 Hz i RTF 0,608. Najdłuższa przerwa wyniosła 0,168 s czasu symulacji. Wszystkie komunikaty stanu lokalizatora z lotu wskazywały `TRACKING`. [Metryki powtórzenia](x3-full-robotics-evidence/x3-planar-repeat-verification.json)
+
+Osobna próba integralności wykazała, że rzeczywiste, poprawne archiwum z GOAL 24 przechodzi dla referencji i zostaje odrzucone dla X3. [Test zgodności archiwum](x3-full-robotics-evidence/archive-model-compatibility.json)
 
 ## Regresja i porównanie modeli
 
 Dron referencyjny uruchomiono przez dotychczasowy launcher bez argumentu `drone_model`. Przeszedł scenariusz chronionego lotu i pełną inspekcję A-01-01/A-01-03 z fizycznym dokowaniem. Smoke potwierdził zegar, odometrię, ruch, kamerę, konwersję CV i sprzątnięcie grup procesów. Przeszło 67 testów ROS, 7 testów kontraktu i Mock SAP oraz próba HTTP. [Smoke referencji](x3-full-robotics-evidence/reference-smoke.txt) · [Chroniony manewr referencji](x3-full-robotics-evidence/reference-protected-flight.json)
+
+Po korekcie SLAM przeszło 69 testów ROS, 7 testów backendu i próba HTTP.
 
 Inspekcyjne porównanie używa tego samego świata `localization_showcase.sdf`, lokalizatora sterującego z fabryczną mapą, LiDAR-u 16 m, wirtualnej obecności Safety i Mock SAP. Część manewrowa używa tego samego żądania wznoszenia i przerwania łącza operatora. Czasy lotu i hamowania w tabeli są czasami symulacji. Do porównania pozy przy wejściu w `INSPECT` użyto najbliższej czasowo próbki Gazebo, bez przeliczania docelowych waypointów. Pojedyncze przebiegi stanowią charakterystykę sprawdzonych scenariuszy. [Dane obu modeli](x3-full-robotics-evidence/model-comparison.json)
 
@@ -172,13 +205,13 @@ X3 przebył 72,42 m wobec 70,80 m referencji. Dłuższa droga i czas zwiększył
 | B · Emergency Stop, chroniony powrót i zatwierdzony Recovery | **PASS** | Chroniony powrót i Recovery po Emergency Stop oraz ponownej ocenie po przerwie LiDAR-u zakończone stykiem doku. |
 | B · Recovery po wymuszonym zatrzymaniu lokalizatora | **FAIL** | Warunki nadzoru zmieniły się podczas próby. Safety utrzymało D i A. |
 | C · Autonomiczna inspekcja z fabryczną mapą LiDAR–IMU i pełny shadow | **PASS po korekcie** | Dwa wpisy w Mock SAP, fizyczny dok i zaliczone progi shadow. |
-| C · Pomiarowa mapa 3D z pustej sesji | **PASS** | 56 918 punktów w PLY, brak fabrycznego pliku lokalizacji podczas próby, dwa zapisane stanowiska. |
-| C · Bramka jakości pełnej trasy ze sterowaniem aktywnym SLAM | **FAIL** | Pełny lot i fizyczny dok. RMSE 31,44 mm w alejce wobec limitu 30 mm. |
-| D · Teach-and-Repeat po pełnym restarcie | **WSTRZYMANE** | Kalibracja i dwa zapisy zdjęć wykonane. Zatwierdzenie i powtórkę wstrzymano na bramce C. |
+| C · Pomiarowa mapa 3D z pustej sesji | **PASS** | 58 405 punktów w PLY i dwa zapisane stanowiska po korekcie SLAM. Fabryczny plik lokalizacji był wyłączony podczas próby. |
+| C · Bramka jakości pełnej trasy ze sterowaniem aktywnym SLAM | **PASS po korekcie** | RMSE 29,09 mm w alejce i 20,67 mm na trasie, 3,62 Hz, fizyczny dok, `RELEASED`. |
+| D · Teach-and-Repeat po pełnym restarcie | **PASS** | Zatwierdzona i zapieczętowana konfiguracja X3, 162 odcinki, dwie nowe obserwacje w Mock SAP, fizyczny dok i `RELEASED`. |
 | E · Regresja profilu referencyjnego | **PASS** | Smoke, chroniony lot i pełna inspekcja 2/2 z Mock SAP i fizycznym stykiem. |
 
 ## Ograniczenia i rekomendacja
 
-**Do demonstracji konkursowej rekomendowana jest referencja.** W porównywalnym scenariuszu miała krótszą drogę hamowania i niższy modelowany koszt energii. Ma również sprawdzony w GOAL 24 restart i autonomiczne wykonanie zatwierdzonej trasy. X3 można pokazać jako alternatywę do chronionego lotu, inspekcji z fabryczną mapą i pomiarowego mapowania. [Dowody Teach-and-Repeat referencji](LEARNED_WAREHOUSE_AUTONOMY.md)
+**Do demonstracji konkursowej rekomendowana jest referencja.** W porównywalnym scenariuszu miała krótszą drogę hamowania i niższy modelowany koszt energii. Teach-and-Repeat przeszedł dla referencji w GOAL 24 i dla X3 w kampanii opisanej powyżej. [Dowody Teach-and-Repeat referencji](LEARNED_WAREHOUSE_AUTONOMY.md)
 
-Aktualna integracja potwierdza dwie lokalizacje na stosie GOAL 24. Wynik 11/11 pozostaje historyczną próbą Michała. Najważniejsze ograniczenia X3 to powtarzalność lokalizacji w alejce i możliwa odmowa Recovery po utracie pozy. Nagranie pokazuje pełny cykl autonomicznej inspekcji X3 na fabrycznej mapie, od doku do doku. Obraz z kamery Gazebo i bieżąca telemetria zostały zapisane co około 0,5 s i odtworzone w około czterokrotnym przyspieszeniu. [Nagranie X3](x3-full-robotics-evidence/x3-autonomous-fixed-route.mp4)
+Aktualna integracja potwierdza dwie lokalizacje na stosie GOAL 24. Wynik 11/11 pozostaje historyczną próbą Michała. W kwalifikacji X3 zapas RMSE w alejce wyniósł 0,91 mm, a w autonomicznym powtórzeniu 0,63 mm. Przy wymuszonym zatrzymaniu lokalizatora Recovery odmówiło ruchu po utracie aktualnej pozycji. Oba nagrania pokazują pełne cykle od doku do doku, z obrazem kamery i telemetrią odtwarzanymi w około czterokrotnym przyspieszeniu. [Nagranie na mapie fabrycznej](x3-full-robotics-evidence/x3-autonomous-fixed-route.mp4) · [Nagranie na mapie nauczonej](x3-full-robotics-evidence/x3-autonomous-learned-route.mp4)

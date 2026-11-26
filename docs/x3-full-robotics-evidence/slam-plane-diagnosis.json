@@ -1,0 +1,491 @@
+{
+  "previous_full_active_run": {
+    "shaft": {
+      "count": 241,
+      "rmse_mm": 2.136,
+      "p95_mm": 3.246,
+      "max_mm": 3.973,
+      "angle_rmse_deg": 0.07321,
+      "angle_p95_deg": 0.1088,
+      "angle_max_deg": 0.131
+    },
+    "tunnel": {
+      "count": 704,
+      "rmse_mm": 21.031,
+      "p95_mm": 35.416,
+      "max_mm": 38.41,
+      "angle_rmse_deg": 0.24688,
+      "angle_p95_deg": 0.38557,
+      "angle_max_deg": 0.4166
+    },
+    "aisle": {
+      "count": 360,
+      "rmse_mm": 31.437,
+      "p95_mm": 41.763,
+      "max_mm": 44.744,
+      "angle_rmse_deg": 0.3703,
+      "angle_p95_deg": 0.41162,
+      "angle_max_deg": 0.4518,
+      "bias_xyz_mm": [
+        9.53,
+        16.82,
+        -23.09
+      ]
+    }
+  },
+  "archived_voxel_inspection": {
+    "voxel_side_m": 0.1,
+    "aisle_voxels": 55138,
+    "voxels_with_incompatible_planes_percent": 4.67,
+    "samples_with_incompatible_planes": 4047,
+    "plane_alignment_min_abs_dot": 0.94,
+    "plane_offset_gate_m": 0.035
+  },
+  "same_input_replay_scope": "Active X3 capture from the dock to both inspection points and the start of return. The same LiDAR–IMU observations were replayed for all variants. Ground truth was used only after estimation.",
+  "replays": {
+    "x3-stock": {
+      "replay": "x3-stock",
+      "states": {
+        "TRACKING": 849
+      },
+      "max_gap_sim_s": 0.16800000000000637,
+      "regions": {
+        "all": {
+          "n": 849,
+          "rmse": 14.839445533921529,
+          "p95": 28.303480739195084,
+          "max": 37.94368286199089,
+          "bias_xyz_mm": [
+            -5.121965247074161,
+            -1.7015079283776362,
+            -7.680030236390819
+          ],
+          "bias_rot_xyz_deg": [
+            -0.01106640029349159,
+            0.09906446557157268,
+            0.02537345485123418
+          ]
+        },
+        "shaft": {
+          "n": 172,
+          "rmse": 3.1402997958986103,
+          "p95": 4.493831152741147,
+          "max": 5.01205387352396,
+          "bias_xyz_mm": [
+            0.9518293532460239,
+            0.7378801603322122,
+            2.6061630621028904
+          ],
+          "bias_rot_xyz_deg": [
+            -0.0004075863756067282,
+            0.0008802352115275376,
+            -0.04255904421619079
+          ]
+        },
+        "tunnel": {
+          "n": 415,
+          "rmse": 11.146964528142249,
+          "p95": 14.86089691648095,
+          "max": 16.391378136947278,
+          "bias_xyz_mm": [
+            -0.9631509423651832,
+            -4.568515316129342,
+            -7.800603227638885
+          ],
+          "bias_rot_xyz_deg": [
+            -0.030442117697821885,
+            0.11717070308091777,
+            -0.012685586226459369
+          ]
+        },
+        "aisle": {
+          "n": 262,
+          "rmse": 22.58957052253018,
+          "p95": 32.6567221383527,
+          "max": 37.94368286199089,
+          "bias_xyz_mm": [
+            -15.696776726880643,
+            1.2383138832974145,
+            -14.24181441949375
+          ],
+          "bias_rot_xyz_deg": [
+            0.012626755160404885,
+            0.13484156120344096,
+            0.13025472159489795
+          ]
+        }
+      }
+    },
+    "x3-coherent": {
+      "replay": "x3-coherent",
+      "states": {
+        "TRACKING": 849
+      },
+      "max_gap_sim_s": 0.16800000000000637,
+      "regions": {
+        "all": {
+          "n": 849,
+          "rmse": 14.919273469528806,
+          "p95": 28.771108501212943,
+          "max": 38.07407874060017,
+          "bias_xyz_mm": [
+            -5.204906139212055,
+            -1.7864648343520018,
+            -7.5957915034483925
+          ],
+          "bias_rot_xyz_deg": [
+            -0.012186752349603232,
+            0.10045560679531469,
+            0.02469386752108722
+          ]
+        },
+        "shaft": {
+          "n": 172,
+          "rmse": 3.1542588517906416,
+          "p95": 4.511256976783418,
+          "max": 5.0564403739223875,
+          "bias_xyz_mm": [
+            0.9573525177722837,
+            0.7567962131897568,
+            2.6092667840391215
+          ],
+          "bias_rot_xyz_deg": [
+            -0.000959237466344322,
+            0.0005436851408014631,
+            -0.04259343418935178
+          ]
+        },
+        "tunnel": {
+          "n": 415,
+          "rmse": 11.074071545254277,
+          "p95": 14.832167657749107,
+          "max": 16.265622513972545,
+          "bias_xyz_mm": [
+            -0.8895538500068945,
+            -4.602785112132647,
+            -7.6877153831563785
+          ],
+          "bias_rot_xyz_deg": [
+            -0.031846434078212985,
+            0.1185455078922756,
+            -0.014196864672616933
+          ]
+        },
+        "aisle": {
+          "n": 262,
+          "rmse": 22.81435113604789,
+          "p95": 32.685382682149445,
+          "max": 38.07407874060017,
+          "bias_xyz_mm": [
+            -16.085744646927505,
+            1.0048787347387806,
+            -14.149690798750052
+          ],
+          "bias_rot_xyz_deg": [
+            0.011582848251360512,
+            0.13739278835767157,
+            0.1304689429202578
+          ]
+        }
+      }
+    },
+    "x3-coherent-tangent": {
+      "replay": "x3-coherent-tangent",
+      "states": {
+        "TRACKING": 849
+      },
+      "max_gap_sim_s": 0.16800000000000637,
+      "regions": {
+        "all": {
+          "n": 849,
+          "rmse": 14.034695166768934,
+          "p95": 27.527433485366174,
+          "max": 39.71209993113431,
+          "bias_xyz_mm": [
+            -4.125887847364641,
+            -2.1514746323684517,
+            -7.612436334447732
+          ],
+          "bias_rot_xyz_deg": [
+            -0.007840612102580977,
+            0.10192770334487516,
+            0.032798761856338426
+          ]
+        },
+        "shaft": {
+          "n": 172,
+          "rmse": 3.209020382656053,
+          "p95": 4.69643227274156,
+          "max": 5.149035949075634,
+          "bias_xyz_mm": [
+            1.071235017495194,
+            0.8414981628952902,
+            2.550821150603294
+          ],
+          "bias_rot_xyz_deg": [
+            -0.0022070553272990853,
+            0.0012775517811768832,
+            -0.04336676679605326
+          ]
+        },
+        "tunnel": {
+          "n": 415,
+          "rmse": 10.673704051982234,
+          "p95": 14.17313235642654,
+          "max": 15.789802051849545,
+          "bias_xyz_mm": [
+            -0.5581777255546462,
+            -4.459699414143223,
+            -7.579282864216309
+          ],
+          "bias_rot_xyz_deg": [
+            -0.027984424552721057,
+            0.11725807378512607,
+            -0.0023317385868292734
+          ]
+        },
+        "aisle": {
+          "n": 262,
+          "rmse": 21.23824050114384,
+          "p95": 31.09437070021173,
+          "max": 39.71209993113431,
+          "bias_xyz_mm": [
+            -13.18888339433808,
+            -0.46016942759300716,
+            -14.337012584733287
+          ],
+          "bias_rot_xyz_deg": [
+            0.020368206223600922,
+            0.14372053668934842,
+            0.13844619930720078
+          ]
+        }
+      }
+    }
+  },
+  "live_diagnostic_attempts": {
+    "planar": {
+      "mission": "INS-CONTROL-20261126-165441-46866BC4",
+      "last_sim_time_s": 49.98,
+      "last_event": "leg-stopped",
+      "last_route_leg": "junction",
+      "mission_stage": "ABORTED",
+      "manual_motion_protection": {
+        "state": "LOCALIZATION_LOST",
+        "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+        "requested": [
+          0.306,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.58
+      },
+      "localization_state": "TRACKING",
+      "localization_reason": "Synchronized LiDAR fit and inertial prediction",
+      "non_tracking_after_airborne": 0
+    },
+    "planar-lp2": {
+      "mission": "INS-CONTROL-20261126-165720-91D178E6",
+      "last_sim_time_s": 40.6,
+      "last_event": "leg-stopped",
+      "last_route_leg": "junction",
+      "mission_stage": "ABORTED",
+      "manual_motion_protection": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.4,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 1.5
+      },
+      "localization_state": "TRACKING",
+      "localization_reason": "Synchronized LiDAR fit and inertial prediction",
+      "non_tracking_after_airborne": 0
+    },
+    "planar-lp8": {
+      "mission": "INS-CONTROL-20261126-165935-47577E31",
+      "last_sim_time_s": 9.4,
+      "last_event": "leg-stopped",
+      "last_route_leg": "shaft",
+      "mission_stage": "MANUAL_FLIGHT",
+      "manual_motion_protection": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "clearance": 1.5
+      },
+      "localization_state": "LOST",
+      "localization_reason": "Matched scans stopped advancing",
+      "non_tracking_after_airborne": 1
+    },
+    "planar-v128": {
+      "mission": "INS-CONTROL-20261126-170213-8777EFFB",
+      "last_sim_time_s": 14.48,
+      "last_event": "leg-stopped",
+      "last_route_leg": "shaft",
+      "mission_stage": "MANUAL_FLIGHT",
+      "manual_motion_protection": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "clearance": 1.5
+      },
+      "localization_state": "LOST",
+      "localization_reason": "IMU data stopped advancing",
+      "non_tracking_after_airborne": 1
+    },
+    "planar-wslg": {
+      "mission": "INS-CONTROL-20261126-170508-1B91EAF0",
+      "last_sim_time_s": 17.12,
+      "last_event": "leg-stopped",
+      "last_route_leg": "shaft",
+      "mission_stage": "MANUAL_FLIGHT",
+      "manual_motion_protection": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "clearance": 1.5
+      },
+      "localization_state": "LOST",
+      "localization_reason": "IMU data stopped advancing",
+      "non_tracking_after_airborne": 1
+    },
+    "planar-pinned": {
+      "mission": "INS-CONTROL-20261126-170749-FDAF73E3",
+      "last_sim_time_s": 100.82,
+      "last_event": "leg-stopped",
+      "last_route_leg": "foot_A",
+      "mission_stage": "ABORTED",
+      "manual_motion_protection": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          -0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 1.5
+      },
+      "localization_state": "LOST",
+      "localization_reason": "Matched scans stopped advancing",
+      "non_tracking_after_airborne": 2,
+      "independent_timing_near_stop": [
+        {
+          "topic": "/clock",
+          "gap_wall": 0.3904,
+          "gap_sim": 0.004,
+          "sim": 100.804
+        },
+        {
+          "topic": "/rackonaut_drone/sensors/imu",
+          "gap_wall": 0.4062,
+          "gap_sim": 0.02,
+          "sim": 100.82
+        },
+        {
+          "topic": "/rackonaut/drone/imu",
+          "gap_wall": 0.4062,
+          "gap_sim": 0.02,
+          "sim": 100.82
+        }
+      ]
+    },
+    "planar-amd": {
+      "mission": "INS-CONTROL-20261126-171147-B7E0B151",
+      "last_sim_time_s": 169.0,
+      "last_event": "leg-timeout",
+      "last_route_leg": "A-01-01",
+      "mission_stage": "MANUAL_FLIGHT",
+      "manual_motion_protection": {
+        "state": "BLOCKED",
+        "detail": "Insufficient observed space",
+        "requested": [
+          0.182,
+          -0.069,
+          0.018,
+          0.4
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.243
+      },
+      "localization_state": "TRACKING",
+      "localization_reason": "Synchronized LiDAR fit and inertial prediction",
+      "non_tracking_after_airborne": 0,
+      "independent_timing_near_stop": [
+        {
+          "topic": "/rackonaut_drone/sensors/imu",
+          "gap_wall": 0.1641,
+          "gap_sim": 0.02,
+          "sim": 169.02
+        },
+        {
+          "topic": "/rackonaut/drone/imu",
+          "gap_wall": 0.1639,
+          "gap_sim": 0.02,
+          "sim": 169.02
+        }
+      ]
+    }
+  }
+}

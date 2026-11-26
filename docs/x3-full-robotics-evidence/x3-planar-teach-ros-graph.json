@@ -1,0 +1,43 @@
+{
+  "/rackonaut/drone/cmd_vel": {
+    "publishers": [
+      "/rackonaut_mission"
+    ],
+    "subscribers": [
+      "/rackonaut_drone_velocity_guard"
+    ]
+  },
+  "/rackonaut/drone/odom": {
+    "publishers": [
+      "/rackonaut_localization"
+    ],
+    "subscribers": [
+      "/rackonaut_control",
+      "/rackonaut_drone_velocity_guard",
+      "/rackonaut_energy",
+      "/rackonaut_mission",
+      "/rackonaut_safety"
+    ]
+  },
+  "/rackonaut/validation/ground_truth": {
+    "publishers": [
+      "/rackonaut_validation_bridge"
+    ],
+    "subscribers": [
+      "/rackonaut_localization_validation"
+    ]
+  },
+  "/clock": {
+    "publishers": [
+      "/ros_gz_bridge"
+    ],
+    "subscribers": [
+      "/rackonaut_energy",
+      "/rackonaut_mission",
+      "/static_transform_publisher_1pJlnNsBQCH5runE",
+      "/static_transform_publisher_IVZwXakgaXKn24xG",
+      "/static_transform_publisher_fFsBgDrdwGpfRAy5",
+      "/x3_independent_timing_observer"
+    ]
+  }
+}
