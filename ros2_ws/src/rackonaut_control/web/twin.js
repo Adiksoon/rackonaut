@@ -237,6 +237,48 @@ export function createTwin(layout, callbacks) {
   const startRotation = new T.Quaternion(), endRotation = new T.Quaternion();
 
   const labels = [];
+  const taughtLabels = new Map();
+  let taughtSignature = "";
+  function drawTaughtLocations(records, selected) {
+    const signature = JSON.stringify([selected, records]);
+    if (signature === taughtSignature) return;
+    taughtSignature = signature;
+    const present = new Set(records.map(record => record.record_id));
+    for (const [id, item] of taughtLabels) {
+      if (present.has(id)) continue;
+      item.element.remove();
+      item.arrow.removeFromParent();
+      item.arrow.line.material.dispose();
+      item.arrow.cone.material.dispose();
+      labels.splice(labels.indexOf(item), 1);
+      taughtLabels.delete(id);
+    }
+    for (const record of records) {
+      const id = record.record_id;
+      let item = taughtLabels.get(id);
+      if (!item) {
+        const element = addMarker(record.storage_location_id, "taught-marker", record.position_m, () => callbacks.onTaughtLocation(id));
+        item = labels[labels.length - 1];
+        item.arrow = new T.ArrowHelper(new T.Vector3(1, 0, 0), item.anchor, .8, 0x7edcff, .18, .15);
+        for (const child of item.arrow.children) {
+          child.material.depthTest = false;
+          child.renderOrder = 9;
+        }
+        scan.scene.add(item.arrow);
+        taughtLabels.set(id, item);
+      }
+      const status = record.status === "approved" ? "Approved" : record.status;
+      const focused = id === selected;
+      item.element.textContent = record.storage_location_id;
+      item.element.title = `${record.storage_location_id} · ${status} · camera viewpoint`;
+      item.element.setAttribute("aria-label", `View taught location ${record.storage_location_id}`);
+      item.element.setAttribute("aria-pressed", String(focused));
+      item.arrow.position.copy(at(record.position_m));
+      item.arrow.setDirection(at(record.camera_direction).normalize());
+      item.arrow.setColor(focused ? 0xffffff : 0x7edcff);
+      item.anchor.copy(item.arrow.position).add(new T.Vector3(0, .32, 0));
+    }
+  }
   function addMarker(value, kind, coords, action) {
     const element = node(action ? "button" : "span", "twin-marker " + kind, value);
     if (action) {
@@ -350,17 +392,19 @@ export function createTwin(layout, callbacks) {
     for (const { element, anchor, kind } of labels) {
       projected.copy(anchor).project(camera);
       const within = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < .97 && Math.abs(projected.y) < .97;
-      const show = within && (element === flightLabel ? drone.visible : !scanMode && warehouseModel.visible)
+      const show = within && (element === flightLabel ? drone.visible
+        : kind === "taught-marker" ? scanMode : !scanMode && warehouseModel.visible)
         && (kind !== "aerial-marker" || warehouse.aerial.infrastructure.visible);
       element.style.visibility = show ? "visible" : "hidden";
       if (!show) continue;
       const x = (projected.x + 1) * width / 2;
       const y = (1 - projected.y) * height / 2;
-      const shift = kind === "slot-marker" && (preset === "top" || width < 1000)
+      const dense = kind === "taught-marker" || kind === "slot-marker" && (preset === "top" || width < 1000);
+      const shift = dense
         ? denseOffsets.find((delta) => y + delta > 19 && y + delta < height - 18
             && used.every(([cx, cy]) => Math.abs(cx - x) > 58 || Math.abs(cy - (y + delta)) >= 17)) || 0
         : 0;
-      if (kind === "slot-marker") used.push([x, y + shift]);
+      if (dense) used.push([x, y + shift]);
       element.style.transform = `translate(${x}px,${y + shift}px) translate(-50%,-50%)`;
     }
     if (transition || moving || orbiting) queue();
@@ -608,6 +652,7 @@ export function createTwin(layout, callbacks) {
     if (!visible || !data) return;
     const { state, view, preview, job, selection } = data;
     if (scanMode) {
+      drawTaughtLocations(data.taught, data.taughtSelection);
       updateDrone(state);
       scan.update(state, data.activeFlight);
       return;
@@ -727,6 +772,13 @@ export function createTwin(layout, callbacks) {
       scan.setVisible(visible && scanMode);
       choosePreset(scanMode ? scanPreset : modelPreset, false);
       update(renderData);
+    },
+    focusTaughtLocation(position) {
+      if (!scanMode) return;
+      setFollow(false);
+      autoFrameScan = false;
+      const target = at(position);
+      cameraTo(target.clone().add(scanDirection(preset).normalize().multiplyScalar(6.8)), target);
     },
     focusDock() {
       if (!dockLabel) return;

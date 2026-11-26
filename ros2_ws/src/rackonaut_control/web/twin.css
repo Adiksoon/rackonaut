@@ -124,3 +124,7 @@ button.twin-marker { pointer-events: auto; }
   [data-map-mode="scan"] .twin-viewport { height: clamp(350px, 60vh, 570px); }
   .scan-window-actions { margin-left: 0; }
 }
+
+.twin-marker.taught-marker { color: #092141; background: #b9e9ff; border: 1px solid #72c6ef;
+  font-weight: 650; box-shadow: 0 0 0 2px #10223fbb; pointer-events: auto; z-index: 3; }
+.twin-marker.taught-marker:hover, .twin-marker.taught-marker[aria-pressed="true"] { color: #091a35; background: #f5fbff; }

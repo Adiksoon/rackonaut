@@ -13,11 +13,12 @@ from rackonaut_localization.node import SLAM_MAP
 
 from .measured_map import DETAIL, FRAME, MAP_TOPIC, VOXEL_METRES
 from .service import COOKIE
+from .teaching import CAPTURE_ID, SESSION_ID, session_path
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "service.js", "manual.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
+              "app.js", "business.js", "service.js", "manual.js", "teaching.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
@@ -26,7 +27,10 @@ RECOVERY = re.compile(r"/recoveries/(REC-[A-F0-9]{12}\.json)$")
 BUSINESS_PHOTO = re.compile(fr"/api/business/quality/{RUN}/Q-[A-F0-9]{{32}}/(?:original|annotated)\.png$")
 BUSINESS_VERIFY = re.compile(r"/api/business/issues/ISS-[A-F0-9]{20}/verify$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")
-MAPPING_RESULT = re.compile(r"/api/service/mapping/(CAL-[A-F0-9]{32})/(map\.ply|result\.json)$")
+MAPPING_RESULT = re.compile(fr"/api/service/mapping/({SESSION_ID})/(map\.ply|result\.json|locations\.json)$")
+TEACHING_PHOTO = re.compile(fr"/api/service/mapping/({SESSION_ID})/locations/({CAPTURE_ID})/reference\.jpg$")
+TEACHING_PREVIEW = re.compile(fr"/api/service/teaching/preview/({CAPTURE_ID})/reference\.jpg$")
+TEACHING_ACTION = re.compile(r"/api/service/teaching/(capture|save|rename|delete)$")
 
 
 def serve(control, port):
@@ -94,8 +98,35 @@ def serve(control, port):
                 self.json(200, control.cancel_calibration(selection))
             elif path == "/api/service/mapping/start":
                 self.json(200, control.start_manual(selection, mapping=True))
+            elif match := TEACHING_ACTION.fullmatch(path):
+                self.json(200, control.teach_location(match[1], selection, self.service_token()))
             else:
                 self.json(404, {"error": "Not found"})
+
+        def service_read(self, path):
+            if not self.local_request():
+                self.json(403, {"error": "Open the local Control Center URL to access Service."})
+            elif self.require_service():
+                if path == "/api/service/state":
+                    self.json(200, control.service_snapshot())
+                elif path == "/api/service/teaching":
+                    self.json(200, control.teaching_state())
+                elif match := TEACHING_PREVIEW.fullmatch(path):
+                    with control.teaching.operations:
+                        preview = control.teaching.get_preview(match[1], self.service_token(), monotonic())
+                    self.reply(200, preview.jpeg, "image/jpeg")
+                elif match := TEACHING_PHOTO.fullmatch(path):
+                    self.reply(200, control.teaching.photo(match[1], match[2]), "image/jpeg")
+                elif match := MAPPING_RESULT.fullmatch(path):
+                    root = control.data / "mapping"
+                    if not session_path(root, match[1], "result.json").is_file():
+                        raise FileNotFoundError
+                    result = session_path(root, match[1], match[2])
+                    content_type = "application/json" if match[2].endswith(".json") else "application/octet-stream"
+                    self.reply(200, result.read_bytes(), content_type,
+                               {"Content-Disposition": f'attachment; filename="{match[1]}-{match[2]}"'})
+                else:
+                    self.json(404, {"error": "Not found"})
 
         def measured_cloud(self, live):
             stream = control.map_stream()
@@ -155,21 +186,8 @@ def serve(control, port):
                     self.json(200, control.snapshot())
                 elif path in {"/api/measured-map", "/api/measured-scan"}:
                     self.measured_cloud(path == "/api/measured-scan")
-                elif path == "/api/service/state":
-                    if not self.local_request():
-                        self.json(403, {"error": "Open the local Control Center URL to access Service."})
-                    elif self.require_service():
-                        self.json(200, control.service_snapshot())
-                elif match := MAPPING_RESULT.fullmatch(path):
-                    if not self.local_request():
-                        self.json(403, {"error": "Open the local Control Center URL to access Service."})
-                    elif self.require_service():
-                        directory = control.data / "mapping" / match[1]
-                        if not (directory / "result.json").is_file():
-                            raise FileNotFoundError
-                        content_type = "application/json" if match[2].endswith(".json") else "application/octet-stream"
-                        self.reply(200, (directory / match[2]).read_bytes(), content_type,
-                                   {"Content-Disposition": f'attachment; filename="{match[1]}-{match[2]}"'})
+                elif path.startswith("/api/service/"):
+                    self.service_read(path)
                 elif path == "/api/business/summary":
                     inspection = parse_qs(urlsplit(self.path).query).get("inspection_id", [""])[0]
                     if re.fullmatch(RUN, inspection):
@@ -196,6 +214,8 @@ def serve(control, port):
                 self.json(404, {"error": "File not found"})
             except (BrokenPipeError, ConnectionResetError):
                 pass
+            except (ValueError, RuntimeError, OSError) as error:
+                self.json(409, {"error": str(error)})
 
         def do_POST(self):
             try:

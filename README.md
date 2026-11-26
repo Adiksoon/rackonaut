@@ -54,7 +54,7 @@ Use the **Service** tab to prepare a new warehouse configuration and return the 
 
 Use **Manual flight** to fly inside reserved space with the live camera, measured 3D scan and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
 
-Use **Service → Start Calibration → Open mapping flight** to build and export a LiDAR map. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md)
+Use **Service → Start Calibration → Open mapping flight** to build and export a LiDAR map. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
 
 ### C. Engineering Showcase
 

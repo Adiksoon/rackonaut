@@ -7,7 +7,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from math import atan2, hypot, radians
+from math import atan2, cos, hypot, radians
 from pathlib import Path
 from secrets import compare_digest, token_urlsafe
 from threading import RLock, Thread
@@ -39,6 +39,7 @@ from rackonaut_safety.geometry import route_zones
 from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
 from .planning import energy_forecast, plan
 from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
+from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching
 from .web import serve
 
 
@@ -140,6 +141,7 @@ class Control(Node):
         self.lock = RLock()
         self.service_access = ServiceAccess()
         self.calibration = Calibration(self.data / "calibration-draft.json")
+        self.teaching = Teaching(self.data, self.marker_map)
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
                                       and self.recovery_enabled and self.energy_enabled
                                       and self.localization_mode == "sensor_based")
@@ -203,6 +205,9 @@ class Control(Node):
     def on_localization(self, message):
         state = json.loads(message.data)
         with self.lock:
+            self.teaching.set_session(state.get("mapping_id") if state.get("source") == "slam" else None)
+            if state.get("state") != "TRACKING" and (self.localization or {}).get("state") == "TRACKING":
+                self.teaching.motion += 1
             if self.measured_map is not None:
                 previous = self.localization or {}
                 identifier = state.get("mapping_id")
@@ -285,6 +290,7 @@ class Control(Node):
             self.orientation = [q.x, q.y, q.z, q.w]
             self.speed = hypot(v.x, v.y, v.z)
             self.odom_at = monotonic()
+            self.teaching.add_pose(message, self.odom_at)
 
     def on_status(self, message):
         status = json.loads(message.data)
@@ -396,6 +402,8 @@ class Control(Node):
             with self.lock:
                 self.jpeg, self.camera_at = encoded.tobytes(), now
                 self.frame_number += 1
+                if self.teaching.session:
+                    self.teaching.add_camera(message, self.jpeg, now, datetime.now(timezone.utc).isoformat())
 
     def at_pad(self):
         if self.position is None or monotonic() - self.odom_at > 1.5:
@@ -560,6 +568,8 @@ class Control(Node):
             if sequence <= job.manual_sequence:
                 raise RuntimeError("An updated movement request was already processed.")
             job.manual_sequence, job.manual_at = sequence, monotonic()
+            if job.mapping_id and (action == "return" or any(axes)):
+                self.teaching.motion += 1
             self.manual_request.publish(String(data=json.dumps({
                 "inspection_id": job.run, "sequence": sequence, "sent": job.manual_at,
                 "action": action, "axes": axes, "speed": speed,
@@ -651,8 +661,91 @@ class Control(Node):
             if job is None and self.start_client.service_is_ready():
                 raise RuntimeError("An independent Mission Manager is present. It must be stopped first.")
             self.calibration.start(warehouse.strip() or None if warehouse else None,
-                                   job.run if active else None, monotonic())
+                                   job.run if active else None, monotonic(), self.teaching.create)
             return self.calibration.snapshot()
+
+    def teaching_gate(self, now):
+        mapping = self.mapping_status() or {}
+        job = self.job
+        if (self.calibration.state != MAPPING or mapping.get("mapping_phase") != "RECORDING"
+                or not job or not job.manual_token or job.mapping_id != mapping.get("mapping_id")
+                or self.stage(job) != MANUAL_STAGE or now-job.status_at > .45
+                or job.abort_requested or not job.status.get("motion_owned")):
+            return "Registration requires the active mapping flight."
+        telemetry = self.service_telemetry(now)
+        if (mapping.get("source") != "slam" or telemetry["localization"] != "TRACKING"
+                or not all(telemetry[key] for key in ("lidar", "imu", "connection"))):
+            return "Wait for fresh LiDAR–IMU localization in TRACKING."
+        safety = self.safety_status() or {}
+        energy = self.energy_state() or {}
+        required = safety.get("required", [])
+        zones = safety.get("zones", {})
+        # Safety's permit is a departure handshake. Verify the active reservation in flight.
+        if (safety.get("inspection_id") != job.run or safety.get("phase") != "RESERVED"
+                or safety.get("alarm") or not safety.get("signals_online") or not required
+                or not all(zones.get(zone, {}).get("sensor") == "FRESH"
+                           and zones[zone].get("occupied") is False
+                           and zones[zone].get("signals_acknowledged") for zone in required)
+                or not energy.get("fresh") or not energy.get("budget_verified") or energy.get("contact")):
+            return "Safety reservation and verified energy are required."
+        if (job.status.get("manual") or {}).get("state") != "HOLD":
+            return "Release the movement controls and hold position."
+        return None
+
+    def teaching_state(self):
+        with self.lock:
+            now = monotonic()
+            draft = self.calibration.draft
+            mode = self.calibration.state
+            reason = self.teaching_gate(now) if draft else None
+            if draft and reason is None:
+                try:
+                    self.teaching.inputs(now)
+                except RuntimeError as error:
+                    reason = str(error)
+        return {"mode": mode, "manifest": self.teaching.manifest(draft["calibration_id"]) if draft else None,
+                "capture_ready": draft is not None and reason is None, "reason": reason,
+                "editable": mode == MAPPING}
+
+    def teach_location(self, action, request, owner):
+        with self.teaching.operations:
+            with self.lock:
+                now = monotonic()
+                mapping = self.mapping_status() or {}
+                identity = mapping.get("mapping_id")
+                if (not identity or request.get("calibration_id") != identity or self.calibration.state != MAPPING
+                        or mapping.get("mapping_phase") != "RECORDING"):
+                    raise RuntimeError("Choose the current mapping flight.")
+                if action in {"capture", "save"}:
+                    if reason := self.teaching_gate(now):
+                        raise RuntimeError(reason)
+                    inputs = self.teaching.inputs(now)
+                    motion = self.teaching.motion
+                    quality = {key: mapping.get(key) for key in
+                               ("source", "state", "rms", "overlap", "weakest", "sigma", "scan_age_ms", "imu_age_ms")}
+                self.teaching.writing = action != "capture"
+            try:
+                if action in {"capture", "save"}:
+                    camera, sample = self.teaching.pair(*inputs, now)
+                    if not self.service_access.authorized(owner):
+                        raise RuntimeError("Unlock Service to continue.")
+                    if action == "capture":
+                        return self.teaching.preview(identity, owner, motion, quality, camera, sample, now)
+                    image = self.teaching.get_preview(request.get("capture_id"), owner, now)
+                    if (image.session != identity or image.motion != motion
+                            or hypot(*(a-b for a, b in zip(image.sample["position_m"], sample["position_m"]))) > HOVER_DISPLACEMENT
+                            or abs(sum(a*b for a, b in zip(image.sample["orientation_xyzw"], sample["orientation_xyzw"])))
+                            < cos(HOVER_ROTATION/2)):
+                        raise RuntimeError("The drone moved after the preview. Capture a new image.")
+                    with self.lock:
+                        if self.teaching.motion != motion or self.teaching_gate(monotonic()):
+                            raise RuntimeError("Wait for a stable hover and take a fresh capture.")
+                    return self.teaching.edit(action, identity, request, image)
+                if not self.service_access.authorized(owner):
+                    raise RuntimeError("Unlock Service to continue.")
+                return self.teaching.edit(action, identity, request)
+            finally:
+                self.teaching.writing = False
 
     def cancel_calibration(self, _request):
         with self.lock:
@@ -700,7 +793,7 @@ class Control(Node):
             phase = (session or {}).get("mapping_phase")
             if phase == "READY":
                 self.send_mapping(identifier, "arm", now)
-            elif phase == "RECORDING" and stable:
+            elif phase == "RECORDING" and stable and not self.teaching.writing:
                 self.send_mapping(identifier, "finish", now)
             if telemetry["safety"] == "RECOVERY" and not stable:
                 calibration.set_state(RECOVERY, "Mapping paused. Resolve the incident in Recovery before closing the session.")

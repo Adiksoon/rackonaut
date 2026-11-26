@@ -1,6 +1,7 @@
 import { createIntelligence } from "/business.js";
 import { createService } from "/service.js";
 import { createManual } from "/manual.js";
+import { createTeaching } from "/teaching.js";
 
 "use strict";
 
@@ -24,6 +25,7 @@ const headings = {
 };
 const service = createService();
 const manual = createManual(api, terminal, notice);
+const teaching = createTeaching(() => drawTwin(state?.mission), focusTaughtLocation);
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
@@ -85,6 +87,7 @@ async function loadTwin(mode = "model") {
     twin = createTwin(layout, {
       onAisle: toggleAisle,
       onSlot: toggleSlot,
+      onTaughtLocation: id => teaching.select(id),
       onReinspect: (id) => {
         choices.mode = "custom";
         choices.slots = new Set([id]);
@@ -108,7 +111,15 @@ function drawTwin(job) {
   if (!twin || !show3D || el("warehouse-panel").hidden) return;
   const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
-  twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected) });
+  twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected),
+    taught: view === "manual" ? teaching.locations() : [], taughtSelection: teaching.selection() });
+}
+
+async function focusTaughtLocation(record) {
+  if (scanFullscreen()) await leaveScanFullscreen();
+  await loadTwin("scan");
+  twin?.focusTaughtLocation(record.position_m);
+  el("teaching-details").scrollIntoView({ block: "nearest" });
 }
 
 async function api(url, data) {
@@ -749,6 +760,7 @@ function draw() {
   drawLocalization();
   drawRecovery();
   manual.update(state);
+  teaching.update(state, view);
   drawTwin(job);
 }
 

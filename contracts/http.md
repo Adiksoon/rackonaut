@@ -64,3 +64,18 @@ Bind development API and dashboard services to loopback. For a browser dashboard
 ## Functional Mock SAP profile
 
 Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. Its additional business, photo and verification routes are documented separately. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)
+
+## Local storage location teaching
+
+The loopback Control Center exposes the session below through its existing authenticated Service cookie. Camera timestamps are ROS time. Recorded poses use the measured `rackonaut_odom` frame, with XYZ in metres and orientation quaternion in XYZW order.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/teaching` | Returns the current mapping manifest, whether the draft is editable, and capture readiness. |
+| `POST /api/service/teaching/capture` | Accepts `calibration_id` and returns a pending synchronized capture, its reference JPEG URL, and an unambiguous location-marker ID when available. |
+| `POST /api/service/teaching/save` | Accepts `calibration_id`, `capture_id`, `revision`, `storage_location_id`, and optional `description`. Replacement also requires the existing `record_id` and `confirm: true`. |
+| `POST /api/service/teaching/rename` | Accepts `calibration_id`, `record_id`, `revision`, and `storage_location_id`. Preserves the pose and photo. |
+| `POST /api/service/teaching/delete` | Accepts `calibration_id`, `record_id`, `revision`, and `confirm: true`. Changes the active draft manifest. |
+| `GET /api/service/mapping/{calibration_id}/locations.json` | Downloads the approved location list for a completed map. The manifest names its PLY and result files and links the individual reference images. |
+
+Authentication failures return `401`. Ineligible flight state, a changed draft, or a conflicting location ID can return `409`. The pending photo is bound to the Service session that requested it. Client requests provide identifiers and confirmation only. The Mock SAP observation routes keep their existing payload and behavior.

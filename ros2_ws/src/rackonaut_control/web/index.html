@@ -143,6 +143,7 @@
           <button type="button" id="calibration-fly" class="primary">Open mapping flight</button>
           <a id="calibration-ply" hidden>Download point cloud</a>
           <a id="calibration-result" hidden>Download result and trajectory</a>
+          <a id="calibration-locations" hidden>Download registered locations</a>
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
@@ -209,6 +210,43 @@
           <div><dt>Permitted X / Y / Z / yaw</dt><dd id="manual-permitted">—</dd></div>
           <div><dt>Verified clearance</dt><dd id="manual-clearance">—</dd></div>
         </dl>
+      </section>
+      <section id="teaching-panel" class="teaching-panel" aria-labelledby="teaching-title" hidden>
+        <div class="card-head">
+          <div><h2 id="teaching-title">Registered Storage Locations</h2><p id="teaching-count"></p></div>
+          <button type="button" class="primary" id="teaching-capture">Register Storage Location</button>
+        </div>
+        <p id="teaching-feedback" class="footnote" role="status" hidden></p>
+        <p id="teaching-empty" class="footnote">No locations registered in this session.</p>
+        <ul id="teaching-list" class="teaching-list" aria-label="Registered locations"></ul>
+        <section id="teaching-details" class="teaching-details" aria-labelledby="teaching-record-title" hidden>
+          <h3 id="teaching-record-title"></h3>
+          <img id="teaching-reference" alt="Saved onboard camera reference">
+          <p id="teaching-record-data"></p>
+          <div class="manual-actions" id="teaching-edit-tools">
+            <button type="button" class="secondary" id="teaching-rename">Change ID</button>
+            <button type="button" class="secondary" id="teaching-recapture">Re-register pose and photo</button>
+            <button type="button" class="danger" id="teaching-remove">Remove</button>
+          </div>
+        </section>
+        <form id="teaching-form" class="teaching-form" hidden>
+          <h3 id="teaching-form-title">Register Storage Location</h3>
+          <img id="teaching-preview" alt="Onboard camera capture to review" hidden>
+          <p id="teaching-suggestion" class="footnote" hidden></p>
+          <label id="teaching-id-field">Storage Location ID
+            <input id="teaching-id" required maxlength="64" pattern="[A-Za-z0-9][A-Za-z0-9._:\-]{0,63}" autocomplete="off">
+          </label>
+          <label id="teaching-description-field">Operator description <span class="footnote">(optional)</span>
+            <textarea id="teaching-description" maxlength="500" rows="2"></textarea>
+          </label>
+          <label id="teaching-confirm-field" class="teaching-confirm" hidden>
+            <input type="checkbox" id="teaching-confirm"> <span id="teaching-confirm-label"></span>
+          </label>
+          <div class="manual-actions">
+            <button type="submit" class="primary" id="teaching-save">Save location</button>
+            <button type="button" class="secondary" id="teaching-cancel">Cancel</button>
+          </div>
+        </form>
       </section>
     </aside>
     <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
