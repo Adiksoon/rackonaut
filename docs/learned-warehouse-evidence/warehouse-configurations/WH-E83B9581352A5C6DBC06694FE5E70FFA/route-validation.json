@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+  "frame": "rackonaut_odom",
+  "location_revision": 2,
+  "route_sha256": "a82ee2a5f65a69cb558c6722e0c6b545392c4ac64eeea90c019b5c1199df6caf",
+  "scope": "historical_envelope",
+  "live_clearance": "required",
+  "valid": true,
+  "validated_segments": 106,
+  "issues": []
+}

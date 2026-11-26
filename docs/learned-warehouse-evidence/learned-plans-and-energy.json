@@ -1,0 +1,130 @@
+{
+  "initial": {
+    "id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+    "mapping_id": "CAL-07BBB71CDCDD4BF9AB2B52F0A917BA5A",
+    "keyframes": 182,
+    "points_ply": 55545,
+    "summary": {
+      "raw_samples": 927,
+      "waypoints": 109,
+      "recorded_distance_m": 71.47354212861447,
+      "learned_distance_m": 71.33732040541099,
+      "max_deviation_m": 0.014635482994440112
+    },
+    "calibration_energy": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.912,
+          "start_sim_time": 6.74,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 33.63,
+          "end_sim_time": 203.68,
+          "completed_after": []
+        }
+      ],
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "lidar": {
+      "topic": "/rackonaut/drone/lidar/points",
+      "frame": "rackonaut_reference_drone/base_link/local_lidar",
+      "width": 192,
+      "height": 37,
+      "range_m": [
+        0.1,
+        16.0
+      ],
+      "position_m": [
+        0.0,
+        0.0,
+        0.09
+      ],
+      "collision_range_m": 8.0
+    },
+    "forecasts": {
+      "single": {
+        "seconds": 211.09881169173167,
+        "percent": 70.36700103890587,
+        "climb_m": 12.879369044105037,
+        "distance_m": 71.33750994152642,
+        "return_percent": 34.11920830310108,
+        "reserve_percent": 8.0,
+        "required_percent": 78.36700103890587
+      },
+      "both": {
+        "seconds": 214.09881169173167,
+        "percent": 71.14700103890587,
+        "climb_m": 12.879369044105037,
+        "distance_m": 71.33750994152642,
+        "return_percent": 34.11920830310108,
+        "reserve_percent": 8.0,
+        "required_percent": 79.14700103890587
+      }
+    }
+  },
+  "final": {
+    "id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+    "keyframes": 183,
+    "points_ply": 56059,
+    "summary": {
+      "raw_samples": 934,
+      "waypoints": 107,
+      "recorded_distance_m": 71.5803327563433,
+      "learned_distance_m": 71.44801959328463,
+      "max_deviation_m": 0.014272307129817249
+    },
+    "calibration_energy": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.872,
+          "start_sim_time": 8.98,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 33.206,
+          "end_sim_time": 207.18,
+          "completed_after": []
+        }
+      ],
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "lidar": {
+      "topic": "/rackonaut/drone/lidar/points",
+      "frame": "rackonaut_reference_drone/base_link/local_lidar",
+      "width": 192,
+      "height": 37,
+      "range_m": [
+        0.1,
+        16.0
+      ],
+      "position_m": [
+        0.0,
+        0.0,
+        0.09
+      ],
+      "collision_range_m": 8.0
+    },
+    "forecasts": {
+      "single": {
+        "seconds": 211.86054872366856,
+        "percent": 70.58342450581857,
+        "climb_m": 12.897122871288136,
+        "distance_m": 71.44763711829641,
+        "return_percent": 34.15248568434544,
+        "reserve_percent": 8.0,
+        "required_percent": 78.58342450581857
+      },
+      "both": {
+        "seconds": 214.86054872366856,
+        "percent": 71.36342450581857,
+        "climb_m": 12.897122871288136,
+        "distance_m": 71.44763711829641,
+        "return_percent": 34.15248568434544,
+        "reserve_percent": 8.0,
+        "required_percent": 79.36342450581857
+      }
+    }
+  }
+}

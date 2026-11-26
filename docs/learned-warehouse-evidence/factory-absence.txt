@@ -1,0 +1,6 @@
+2026-11-26T14:36:28Z factory file absent before calibration
+2026-11-26T15:07:16Z factory file absent during full learned mission
+2026-11-26T15:16:34Z old application processes stopped and factory file absent before independent restart
+2026-11-26T15:18:54Z factory file absent during independent learned replay
+2026-11-26T15:22:32Z factory file absent after independent learned docking
+ros2_ws/install/rackonaut_warehouse/share/rackonaut_warehouse/config/localization_map.json: OK

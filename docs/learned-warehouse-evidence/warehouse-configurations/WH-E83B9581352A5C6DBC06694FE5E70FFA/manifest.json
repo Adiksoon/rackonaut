@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+  "frame": "rackonaut_odom",
+  "name": "Learned warehouse",
+  "revision": 2,
+  "dock": [
+    -4.7,
+    10.3,
+    0.05
+  ],
+  "route_sha256": "a82ee2a5f65a69cb558c6722e0c6b545392c4ac64eeea90c019b5c1199df6caf",
+  "files": {
+    "localization.npz": "0ab18f527867ff710752393e832dfc086028f85c1e7dad5bba195807219540f0",
+    "locations/CAP-21E330DA68ED40B882C9DCB194532DE3/reference.jpg": "51271eb144d6597f9ca734e5b3410b3408acfa77be2447d3f24bcf96ca12fb4a",
+    "locations/CAP-DC93FB20700142EA9FA240ED8CD8D03B/reference.jpg": "593f70da4eef2c0947b0dfa4d572e88fdda25395b73b25ec20c597f4a32bca3a",
+    "locations.json": "d6384f539e7f1f4277791caf16166d2700169d9de6bc1482b959d0d1f6df1073",
+    "map.ply": "2cf90f4052a258d332672b447fb574c2cb7b3fab832ecb6f9651dae4de056409",
+    "result.json": "3b3c7bfbea91115b0d4b5e63a25864fedc19c087e7f5e47ba124fc6effec54c7",
+    "route-validation.json": "b9acffd35e894d1db9de3298059c71237934b2141b5de7416c2b7097ee4bb25b",
+    "route.json": "7374380d7b500aadefb8551062ea4dc01518a46e6b28dff7190150f22e28ac16",
+    "safety.json": "6f29993edcb67aa653a63789cefdf0a97738e6f5dad30768690a3f0ce4feace3",
+    "sensors.json": "5dcf65a546d5bd9455ca9cac2bb17e7469100284fd5b312bc6709093d62e4464",
+    "trajectory.jsonl": "82a3810b592c1b6584c616f4991cf28e8e4b827a67ee80b4237c5788ebcad598"
+  },
+  "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA"
+}

@@ -1,0 +1,21 @@
+{
+  "pre_activation": {
+    "mission": null,
+    "source": "learned_map",
+    "active": "WH-E83B9581352A5C6DBC06694FE5E70FFA"
+  },
+  "localized": {
+    "position": [
+      -4.7,
+      10.3,
+      0.051,
+      -0.001
+    ],
+    "status": "TRACKING",
+    "source": "learned_map",
+    "id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "revision": 2,
+    "contact": "gazebo_dock_switch",
+    "count": 183
+  }
+}

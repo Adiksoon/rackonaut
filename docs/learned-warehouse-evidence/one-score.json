@@ -1,0 +1,112 @@
+{
+  "trial": "one",
+  "id": "INS-CONTROL-20261126-144507-4D54A141",
+  "mode": "learned",
+  "stage": "COMPLETE",
+  "configuration": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "revision": 2,
+  "route_sha256": "0aa6d4c378d048fbc6f7b99d7cc58e87a0c44c21e43215829fb909a1ab1b809c",
+  "selected": [
+    "A-01-03"
+  ],
+  "confirmed": {
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-144507-4D54A141",
+      "observation_id": "OBS-512D5DD6AA4E48FD8E104A46A4A03C7E",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-26T14:47:51.413Z"
+    }
+  },
+  "report": {
+    "url": "/reports/INS-CONTROL-20261126-144507-4D54A141",
+    "events": 1,
+    "rows": [
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-512D5DD6AA4E48FD8E104A46A4A03C7E",
+        "outcome": "missing_pallet"
+      }
+    ],
+    "discrepancies": [
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-512D5DD6AA4E48FD8E104A46A4A03C7E",
+        "outcome": "missing_pallet"
+      }
+    ]
+  },
+  "safety": "RELEASED",
+  "dock_contact": "gazebo_dock_switch",
+  "sim_s": 176.32,
+  "wall_s": 309.1,
+  "model_energy_used": 61.020999999999994,
+  "model_end": 38.258,
+  "rate_wall_hz": 3.4358,
+  "rtf": 0.5704,
+  "max_gap_sim_s": 0.16800000000000637,
+  "losses_visible_in_sampled_status": [],
+  "gate_pass": true,
+  "localization": {
+    "all": {
+      "samples": 1062,
+      "rmse_mm": 13.7,
+      "p95_mm": 20.549,
+      "max_mm": 24.124
+    },
+    "shaft": {
+      "samples": 196,
+      "rmse_mm": 4.701,
+      "p95_mm": 5.99,
+      "max_mm": 6.55
+    },
+    "tunnel": {
+      "samples": 567,
+      "rmse_mm": 14.469,
+      "p95_mm": 20.106,
+      "max_mm": 21.569
+    },
+    "aisle": {
+      "samples": 299,
+      "rmse_mm": 15.973,
+      "p95_mm": 22.131,
+      "max_mm": 24.124
+    }
+  },
+  "dock_drift_mm": 0.49183330509431744,
+  "views": {
+    "A-01-03": {
+      "node": "W0058",
+      "taught_pose": [
+        8.453449826578314,
+        0.44847195546008256,
+        0.8723981292096495
+      ],
+      "reached_pose": [
+        8.4628,
+        0.4507,
+        0.8756,
+        1.6411
+      ],
+      "measured_pose_error_mm": 10.200000000000001,
+      "yaw_error_deg": 0.040107045659157625,
+      "independent_pose_error_mm": 27.23340150313553,
+      "energy_remaining_at_view": 67.567,
+      "remaining_loop_cost": 34.16,
+      "sim_time": 139.84
+    }
+  },
+  "graph_nodes_visited": 108,
+  "graph_nodes_expected": 108,
+  "path_learned_m": 71.33732040541095,
+  "path_executed_m": 71.01181467739895,
+  "path_cross_track_p95_mm": 20.74397311123164,
+  "path_cross_track_max_mm": 33.1347691520557
+}

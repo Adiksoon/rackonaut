@@ -1,0 +1,165 @@
+{
+  "trial": "independent",
+  "id": "INS-CONTROL-20261126-151646-BD5C167B",
+  "mode": "learned",
+  "stage": "COMPLETE",
+  "configuration": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+  "revision": 2,
+  "route_sha256": "a82ee2a5f65a69cb558c6722e0c6b545392c4ac64eeea90c019b5c1199df6caf",
+  "selected": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "confirmed": {
+    "A-01-01": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-151646-BD5C167B",
+      "observation_id": "OBS-CDD01ACF0CD747DF9B438F409F07B79E",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-26T15:19:17.407Z"
+    },
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-151646-BD5C167B",
+      "observation_id": "OBS-99D10E3081EB49409909B396DA9464FB",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-26T15:19:34.649Z"
+    }
+  },
+  "report": {
+    "url": "/reports/INS-CONTROL-20261126-151646-BD5C167B",
+    "events": 2,
+    "rows": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-CDD01ACF0CD747DF9B438F409F07B79E",
+        "outcome": "unreadable_label"
+      },
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-99D10E3081EB49409909B396DA9464FB",
+        "outcome": "missing_pallet"
+      }
+    ],
+    "discrepancies": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-CDD01ACF0CD747DF9B438F409F07B79E",
+        "outcome": "unreadable_label"
+      },
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-99D10E3081EB49409909B396DA9464FB",
+        "outcome": "missing_pallet"
+      }
+    ]
+  },
+  "safety": "RELEASED",
+  "dock_contact": "gazebo_dock_switch",
+  "sim_s": 180.38,
+  "wall_s": 315.7,
+  "model_energy_used": 61.961999999999996,
+  "model_end": 37.957,
+  "rate_wall_hz": 3.4431,
+  "rtf": 0.5714,
+  "max_gap_sim_s": 0.16800000000000637,
+  "losses_visible_in_sampled_status": [],
+  "gate_pass": true,
+  "localization": {
+    "all": {
+      "samples": 1087,
+      "rmse_mm": 12.97,
+      "p95_mm": 18.873,
+      "max_mm": 20.556,
+      "rate_wall_hz": 3.443,
+      "rtf": 0.5715
+    },
+    "shaft": {
+      "samples": 204,
+      "rmse_mm": 4.607,
+      "p95_mm": 6.164,
+      "max_mm": 6.591,
+      "rate_wall_hz": 3.473,
+      "rtf": 0.5764
+    },
+    "tunnel": {
+      "samples": 579,
+      "rmse_mm": 14.391,
+      "p95_mm": 19.397,
+      "max_mm": 20.556,
+      "rate_wall_hz": 3.432,
+      "rtf": 0.5698
+    },
+    "aisle": {
+      "samples": 304,
+      "rmse_mm": 13.886,
+      "p95_mm": 18.022,
+      "max_mm": 19.197,
+      "rate_wall_hz": 3.446,
+      "rtf": 0.572
+    }
+  },
+  "dock_drift_mm": 0.26153393661244034,
+  "views": {
+    "A-01-01": {
+      "node": "W0046",
+      "taught_pose": [
+        5.457046545038934,
+        0.4495405257481234,
+        0.7936417693926958
+      ],
+      "reached_pose": [
+        5.4494,
+        0.4486,
+        0.7955,
+        1.7141
+      ],
+      "measured_pose_error_mm": 7.9,
+      "yaw_error_deg": 1.827735366467326,
+      "independent_pose_error_mm": 13.883820752449948,
+      "energy_remaining_at_view": 70.957,
+      "remaining_loop_cost": 37.14,
+      "sim_time": 89.48
+    },
+    "A-01-03": {
+      "node": "W0055",
+      "taught_pose": [
+        8.455739598799596,
+        0.44765719755782557,
+        0.8735421184670498
+      ],
+      "reached_pose": [
+        8.4648,
+        0.447,
+        0.8763,
+        1.6398
+      ],
+      "measured_pose_error_mm": 9.5,
+      "yaw_error_deg": 0.06302535746439056,
+      "independent_pose_error_mm": 25.138752084867942,
+      "energy_remaining_at_view": 67.678,
+      "remaining_loop_cost": 34.21,
+      "sim_time": 99.5
+    }
+  },
+  "graph_nodes_visited": 106,
+  "graph_nodes_expected": 106,
+  "path_learned_m": 71.44801959328461,
+  "path_executed_m": 71.05181803429093,
+  "path_cross_track_p95_mm": 20.672888904517162,
+  "path_cross_track_max_mm": 33.382358737953616
+}

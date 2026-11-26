@@ -58,6 +58,8 @@ Use **Service → Start Calibration → Open mapping flight** to build and expor
 
 After verified docking, choose **Review Route** in Service to compare the recorded trajectory with its directed waypoint graph, validate the recorded flight envelope, and approve the proposal for the calibration archive. [Learn a flight route](docs/ROUTE_TEACHING.md)
 
+Launch `scripts/robotics/checkpoint live learned_warehouse:=true` for teach-and-repeat with a saved measured map. Service manages configuration integrity, activation at the dock and taught inspection locations. [Autonomous inspection of a learned warehouse](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

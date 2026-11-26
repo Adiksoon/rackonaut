@@ -1,0 +1,266 @@
+/rackonaut_mission
+  Subscribers:
+    /clock: rosgraph_msgs/msg/Clock
+    /rackonaut/calibration/request: std_msgs/msg/String
+    /rackonaut/drone/lidar/points: sensor_msgs/msg/PointCloud2
+    /rackonaut/drone/odom: nav_msgs/msg/Odometry
+    /rackonaut/energy/state: std_msgs/msg/String
+    /rackonaut/localization/estimate: nav_msgs/msg/Odometry
+    /rackonaut/localization/state: std_msgs/msg/String
+    /rackonaut/recovery/operator: std_msgs/msg/String
+    /rackonaut/safety/state: std_msgs/msg/String
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/drone/cmd_vel: geometry_msgs/msg/Twist
+    /rackonaut/drone/flight_enabled: std_msgs/msg/Bool
+    /rackonaut/mission/markers: visualization_msgs/msg/MarkerArray
+    /rackonaut/mission/path: nav_msgs/msg/Path
+    /rackonaut/mission/plan: nav_msgs/msg/Path
+    /rackonaut/mission/status: std_msgs/msg/String
+    /rosout: rcl_interfaces/msg/Log
+  Service Servers:
+    /rackonaut/mission/abort: std_srvs/srv/Trigger
+    /rackonaut/mission/start: std_srvs/srv/Trigger
+    /rackonaut_mission/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_mission/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_mission/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_mission/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_mission/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_mission/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+    /rackonaut_perception/rearm: std_srvs/srv/Trigger
+  Action Servers:
+
+  Action Clients:
+
+/rackonaut_localization
+  Subscribers:
+    /rackonaut/drone/imu: sensor_msgs/msg/Imu
+    /rackonaut/drone/lidar/points: sensor_msgs/msg/PointCloud2
+    /rackonaut/energy/state: std_msgs/msg/String
+    /rackonaut/localization/mapping_command: std_msgs/msg/String
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/drone/odom: nav_msgs/msg/Odometry
+    /rackonaut/localization/estimate: nav_msgs/msg/Odometry
+    /rackonaut/localization/measured_map: sensor_msgs/msg/PointCloud2
+    /rackonaut/localization/slam_map: sensor_msgs/msg/PointCloud2
+    /rackonaut/localization/state: std_msgs/msg/String
+    /rosout: rcl_interfaces/msg/Log
+    /tf: tf2_msgs/msg/TFMessage
+  Service Servers:
+    /rackonaut/localization/export_map: std_srvs/srv/Trigger
+    /rackonaut_localization/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_localization/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_localization/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_localization/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_localization/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_localization/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+
+/rackonaut_localization_validation
+  Subscribers:
+    /rackonaut/localization/estimate: nav_msgs/msg/Odometry
+    /rackonaut/validation/ground_truth: nav_msgs/msg/Odometry
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/localization/validation: std_msgs/msg/String
+    /rosout: rcl_interfaces/msg/Log
+  Service Servers:
+    /rackonaut_localization_validation/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_localization_validation/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_localization_validation/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_localization_validation/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_localization_validation/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_localization_validation/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+
+/rackonaut_perception
+  Subscribers:
+    /clock: rosgraph_msgs/msg/Clock
+    /rackonaut/camera/camera_info: sensor_msgs/msg/CameraInfo
+    /rackonaut/camera/image_raw: sensor_msgs/msg/Image
+    /rackonaut/mission/status: std_msgs/msg/String
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/perception/annotated: sensor_msgs/msg/Image
+    /rosout: rcl_interfaces/msg/Log
+  Service Servers:
+    /rackonaut_perception/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_perception/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_perception/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_perception/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_perception/rearm: std_srvs/srv/Trigger
+    /rackonaut_perception/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_perception/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:
+
+Type: geometry_msgs/msg/Twist
+
+Publisher count: 1
+
+Node name: rackonaut_mission
+Node namespace: /
+Topic type: geometry_msgs/msg/Twist
+Endpoint type: PUBLISHER
+GID: 01.0f.b3.f7.ba.df.75.e1.00.00.00.00.00.00.25.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 2
+
+Node name: rosbag2_recorder
+Node namespace: /
+Topic type: geometry_msgs/msg/Twist
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.95.e1.bb.63.00.00.00.00.00.00.13.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: ros_gz_bridge
+Node namespace: /
+Topic type: geometry_msgs/msg/Twist
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.f8.de.d4.d7.00.00.00.00.00.00.15.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Type: nav_msgs/msg/Odometry
+
+Publisher count: 1
+
+Node name: rackonaut_localization
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: PUBLISHER
+GID: 01.0f.b3.f7.9e.dd.da.30.00.00.00.00.00.00.18.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 4
+
+Node name: rackonaut_control
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.99.dd.f6.54.00.00.00.00.00.00.22.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: rackonaut_energy
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.9c.dd.57.36.00.00.00.00.00.00.14.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: rackonaut_safety
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.a6.dd.da.5f.00.00.00.00.00.00.16.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Node name: rackonaut_mission
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.ba.df.75.e1.00.00.00.00.00.00.13.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Type: nav_msgs/msg/Odometry
+
+Publisher count: 1
+
+Node name: rackonaut_validation_bridge
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: PUBLISHER
+GID: 01.0f.b3.f7.e5.de.52.37.00.00.00.00.00.00.12.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: rackonaut_localization_validation
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.a4.dd.1f.85.00.00.00.00.00.00.11.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite

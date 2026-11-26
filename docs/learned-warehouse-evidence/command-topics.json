@@ -1,0 +1,24 @@
+{
+  "mission": "INS-CONTROL-20261126-150930-DE9D9F63",
+  "ros_domain": 228,
+  "topics": [
+    {
+      "topic": "/clock",
+      "messages": 46225,
+      "first_wall_ns": 1795705767531183838,
+      "last_wall_ns": 1795706101265576835
+    },
+    {
+      "topic": "/rackonaut/drone/cmd_vel",
+      "messages": 3247,
+      "first_wall_ns": 1795705774106212871,
+      "last_wall_ns": 1795706098607010900
+    },
+    {
+      "topic": "/rackonaut/manual/request",
+      "messages": 0,
+      "first_wall_ns": null,
+      "last_wall_ns": null
+    }
+  ]
+}

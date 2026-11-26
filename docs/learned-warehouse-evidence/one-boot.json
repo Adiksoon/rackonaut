@@ -1,0 +1,21 @@
+{
+  "pre_activation": {
+    "mission": null,
+    "source": "slam",
+    "active": null
+  },
+  "localized": {
+    "position": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.001
+    ],
+    "status": "TRACKING",
+    "source": "learned_map",
+    "id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+    "revision": 2,
+    "contact": "gazebo_dock_switch",
+    "count": 182
+  }
+}
