@@ -21,6 +21,30 @@ ign sdf -k "$XDG_CACHE_HOME/rackonaut_drone/x3.sdf"
 
 Domyślny katalog rewizji w cache Fortress to `~/.ignition/fuel/fuel.gazebosim.org/openrobotics/models/x3%20uav/4`. W razie niestandardowej lokalizacji podaj katalog rewizji przez `prepare_model --source`. Gotowy SDF i zasoby pozostają lokalne. Pobranie jest potrzebne tylko przy przygotowaniu modelu. Potem symulacja korzysta z lokalnych plików.
 
+## Pełna inspekcja z X3
+
+Osobny launcher modułu drona uruchamia X3, Control Center, magazyn z wirtualnym czujnikiem obecności i lokalne Mock API z 11 lokalizacjami. Przygotuj model zgodnie z instrukcją wyżej, zainstaluj zależności API przez `python3.10 scripts/api/setup.py` i uruchom:
+
+```bash
+source scripts/robotics/activate.bash
+LP_NUM_THREADS=4 ros2 launch rackonaut_drone inventory.launch.py
+```
+
+Otwórz [Control Center](http://127.0.0.1:8765/). Poczekaj na gotowość drona, obrazu, API i stref. Wybierz **Full inventory**, pozostaw pracownika poza strefami i uruchom inspekcję. Po lądowaniu wybierz **Open report**. Profil używa scenariuszy Fixture API, w którym porównania inwentarza mogą pozostać w stanie `pending`.
+
+Jeśli działa już inna instancja Rackonaut, ustaw osobną domenę i partycję przed aktywacją projektu i użyj osobnych portów. Przykład z odizolowanej próby:
+
+```bash
+export RACKONAUT_ROS_DOMAIN_ID=76 RACKONAUT_GZ_PARTITION=rackonaut-x3-full-inventory
+source scripts/robotics/activate.bash
+LP_NUM_THREADS=4 ros2 launch rackonaut_drone inventory.launch.py \
+  http_port:=18765 mock_port:=18000 data_dir:="$PWD/ros2_ws/log/x3-full-trial"
+```
+
+Domyślny katalog raportów to `ros2_ws/log/ros/x3-inventory`. `gazebo_gui:=true` włącza okno Gazebo. Przez Ctrl+C zamkniesz profil. W trakcie misji komendy ruchu wysyła Mission Manager. Osobny launcher referencyjny Control Center jest dostępny według instrukcji w głównym README.
+
+**Wynik próby pełnej inspekcji.** Na WSL2 Ubuntu 22.04.5, ROS 2 Humble i Gazebo Fortress 6.18.0 X3 potwierdził **11/11** lokalizacji bez pominięć w **233,0 s** z włączoną kontrolą jakości. Po ośmiu punktach w A przeleciał korytarzem do B, odwiedził trzy kolejne punkty, wylądował i zwolnił strefy A, B oraz T. W archiwum znalazło się osiem zapisów kontroli jakości, a raport HTML zwrócił HTTP 200. Identyfikator `INS-CONTROL-20261126-104105-66B6872F`. [Wynik i telemetria](docs/evidence/x3-full-inventory.json)
+
 ## Sterowanie i obraz
 
 Polecenia poniżej wykonuj w osobnych terminalach po aktywacji projektu z tym samym `RACKONAUT_ROS_DOMAIN_ID` i `RACKONAUT_GZ_PARTITION`. Jeśli działa już demonstrator, ustaw inną domenę i partycję **przed** aktywacją, np. `RACKONAUT_ROS_DOMAIN_ID=66` i `RACKONAUT_GZ_PARTITION=rackonaut-x3-local`. Uruchom tylko jednego wydawcę poleceń na temacie sterowania. Zakończ teleop przed uruchomieniem testu automatycznego.
