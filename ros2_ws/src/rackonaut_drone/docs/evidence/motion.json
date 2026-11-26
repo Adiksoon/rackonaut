@@ -1,0 +1,50 @@
+{
+  "camera": {
+    "width": 320,
+    "height": 240,
+    "encoding": "rgb8",
+    "frame": "rackonaut_camera_optical_frame",
+    "stamp_s": 0.36,
+    "fx": 276.2335205078125,
+    "fy": 276.2335395812988
+  },
+  "dynamic_tf_matches_odometry": true,
+  "publishers": {
+    "/clock": {
+      "node": "x3_clock_bridge",
+      "reliability": "RELIABLE"
+    },
+    "/tf": {
+      "node": "x3_bridge",
+      "reliability": "RELIABLE"
+    },
+    "/tf_static": {
+      "node": "x3_camera_tf",
+      "reliability": "RELIABLE"
+    },
+    "/rackonaut/camera/image_raw": {
+      "node": "x3_bridge",
+      "reliability": "RELIABLE"
+    },
+    "/rackonaut/camera/camera_info": {
+      "node": "x3_bridge",
+      "reliability": "RELIABLE"
+    },
+    "/rackonaut/drone/odom": {
+      "node": "x3_bridge",
+      "reliability": "RELIABLE"
+    },
+    "/rackonaut/drone/cmd_vel": {
+      "node": "rackonaut_x3_probe",
+      "reliability": "RELIABLE"
+    }
+  },
+  "motion": {
+    "climb_m": 0.17826410593550251,
+    "yaw_rad": 0.45489452707962164,
+    "body_forward_m": 0.18443514750235723,
+    "cross_track_m": 0.0034395256740784586,
+    "watchdog_zero_s_after_publish_ceased": 0.4584409389990469,
+    "hover_speed_m_s": 0.09204086831270603
+  }
+}
