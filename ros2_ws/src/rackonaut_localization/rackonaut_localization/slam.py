@@ -30,6 +30,16 @@ def measured_surfaces(sample, neighbors_count=14, maximum_distance=.46, flatness
     return sample[planar], axes[planar, :, 0]
 
 
+def group_voxels(voxels):
+    # Stable lexicographic order preserves the oldest point in each voxel.
+    order = np.lexsort(voxels.T[::-1])
+    ordered = voxels[order]
+    first_in_group = np.r_[True, np.any(ordered[1:] != ordered[:-1], axis=1)]
+    membership = np.empty(len(voxels), dtype=np.intp)
+    membership[order] = np.cumsum(first_in_group) - 1
+    return order[first_in_group], membership
+
+
 def planar_voxel_support(points, normals, first, membership, weight):
     """Redistribute samples along the oldest observed plane in each voxel."""
     origin, plane = points[first], normals[first]
@@ -89,7 +99,7 @@ class MeasuredRegistration:
         normals = np.vstack([entry.normals for entry in local])
         voxels = np.floor(combined / self.map_voxel).astype(np.int32)
         if self.centroid_weight:
-            _, indices, membership = np.unique(voxels, axis=0, return_index=True, return_inverse=True)
+            indices, membership = group_voxels(voxels)
             support = planar_voxel_support(combined, normals, indices, membership, self.centroid_weight)
         else:
             _, indices = np.unique(voxels, axis=0, return_index=True)

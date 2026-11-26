@@ -5,10 +5,16 @@ from scipy.spatial.transform import Rotation
 
 from rackonaut_localization.inertial import GRAVITY, State, propagate
 from rackonaut_localization.registration import StaticMap
-from rackonaut_localization.slam import MeasuredRegistration, planar_voxel_support
+from rackonaut_localization.slam import MeasuredRegistration, group_voxels, planar_voxel_support
 
 
 class LocalizationTests(TestCase):
+    def test_group_voxels_retains_the_first_index_and_sorted_group_order(self):
+        voxels = np.array([[2, -1, 1], [-1, 3, 0], [2, -1, 1], [2, -1, -1], [-1, 3, 0]])
+        first, membership = group_voxels(voxels)
+        np.testing.assert_array_equal(first, [1, 3, 0])
+        np.testing.assert_array_equal(membership, [2, 0, 2, 1, 0])
+
     def test_voxel_support_preserves_oldest_plane_at_a_shelf_edge(self):
         points = np.array([[.01, .02, .01], [.07, .02, .03], [.09, .09, .07], [.09, .09, .08]])
         normals = np.array([[0., 0., 1.], [0., 0., -1.], [1., 0., 0.], [0., 0., 1.]])
