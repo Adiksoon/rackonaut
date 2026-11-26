@@ -43,14 +43,29 @@ Porównanie rzeczywistych zapisów wykazało, że dłuższe pomiary ujawniają o
 
 Odtworzenie pełnego zapisu 16 m przez tę implementację dało **944 estymaty** i wyniki **18,6 mm RMSE**, **25,6 mm p95**, **31,8 mm maksimum**, przy 173 zarejestrowanych klatkach kluczowych na końcu lotu. To próba z odtwarzania danych. Niezależna próba shadow na żywo stanowi bramkę dla sterowania.
 
+### Niezależny lot shadow 16 m
+
+Lot `INS-CONTROL-20261126-115445-100F3CAC` przez standardowy interfejs Manual Flight i lokalizację referencyjną pokonał **70,67 m** oraz oddalił się przestrzennie o **16,29 m**. Dron odwiedził oba stanowiska, wrócił przez tunel i zakończył lot potwierdzonym kontaktem oraz `RELEASED`. Zakres wysokości wyniósł **0,054–6,704 m**. Czas lotu to **335,1 s** rzeczywistych i **189,88 s** symulowanych, z **RTF 0,567**. Zużyto **64,198 p.p.** energii.
+
+| Strefa | Próbki | RMSE | p95 | Maksimum |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 225 | 7,3 mm | 11,3 mm | 12,3 mm |
+| Tunel | 602 | 22,0 mm | 28,6 mm | 33,6 mm |
+| Alejka i zejście | 316 | **33,5 mm** | 41,6 mm | 46,6 mm |
+| Cała trasa | 1 143 | 24,0 mm | 37,4 mm | 46,6 mm |
+
+Estymata shadow utrzymała **3,41 Hz** w czasie rzeczywistym. Najdłuższy odstęp wyniósł 0,168 s czasu symulacji, dryf przy doku 2,16 mm, a maksymalny błąd orientacji 0,257°. Estymator przyjął **181 klatek kluczowych** i zarejestrował **55 636 wokseli**. Czas obliczenia pytania o dopasowanie wyniósł p95 **125,9 ms**. Z 372 próbek procesu zmierzono medianę **15,56% jednego rdzenia** i p95 **27,78%**. Najwyższe RSS wyniosło **185,35 MiB**. Gazebo w tym samym oknie zajmowało medianę **198,33% jednego rdzenia** i maksymalnie **864 MiB RSS**.
+
+W alejce dominuje utrzymujące się przesunięcie w osi X, średnio −28,3 mm. **Bramka całościowa pozostaje niezaliczona**, ponieważ RMSE w tej strefie przekroczył lokalny próg 30 mm. Sterowanie pozostało na lokalizatorze referencyjnym. [Wykres](slam-full-route-evidence/extended-shadow.png) · [Pomiary](slam-full-route-evidence/extended-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/extended-shadow-trace.jsonl)
+
 ## Scenariusze
 
 | # | Próba | Obecny stan |
 | --- | --- | --- |
-| 1 | Pełna trasa shadow | **FAIL.** Trasa fizycznie wykonana, bazowy SLAM przekroczył bramkę i utracił estymaty w tunelu. |
+| 1 | Pełna trasa shadow | **FAIL.** Bazowy SLAM utracił estymaty w tunelu. Profil 16 m dał ciągłą estymatę na całej trasie, lecz przekroczył próg RMSE w alejce. |
 | 2 | Pełna trasa sterowana SLAM | Oczekuje na przejście bramki shadow. |
 | 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Oczekuje na przejście bramki shadow. |
-| 4 | Powtarzalna geometria regałów | Kontroler referencyjny przeleciał wzdłuż regałów. Brakuje ciągłych estymat bazowego SLAM w tej strefie. |
+| 4 | Powtarzalna geometria regałów | W shadow 16 m uzyskano 316 estymat w alejce. Lokalny RMSE wyniósł 33,5 mm przy progu 30 mm. |
 | 5 | Powrót przez obserwowaną przestrzeń | Kontroler referencyjny wrócił i zadokował. Wymagany jest powrót z aktywnym SLAM. |
 | 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
 | 7 | Mapa referencyjna fizycznie niedostępna | Do wykonania na pełnej trasie. |
