@@ -75,6 +75,19 @@ RMSE w alejce ponownie przekroczył 30 mm. Bramka **FAIL** zakończyła skrypt p
 
 ![Trajektoria i błąd kolejnej pełnej próby shadow](slam-full-route-evidence/autonomous-shadow.png)
 
+## Ograniczenie dryfu przy wejściu do alejki
+
+W trzecim shadow, z eksperymentalnym uśrednianiem położeń wewnątrz wokseli, autonomiczny lot `INS-CONTROL-20261126-122013-050FDCFD` osiągnął **24,81 mm RMSE w alejce** i fizycznie zadokował. Pełna bramka nadal dała **FAIL**. W oknie lotu pojawiły się dwa komunikaty stanu innego niż `TRACKING`. Nagranie pakietów z kolejnego pełnego lotu ręcznego pokazało też, że ten wariant może dać **38,44 mm RMSE w alejce** przy powolniejszym przelocie. [Wyniki shadow](slam-full-route-evidence/centroid-only-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/centroid-only-shadow-trace.jsonl)
+
+Profil pełnej trasy ogranicza teraz dobór płaszczyzn przy krawędziach i w mieszanych skupiskach punktów. W powtarzających się obserwacjach tego samego wokselu zachowuje normalną najstarszej lokalnej obserwacji, a do położenia domiesza niewielki udział średniej. Zmiany wynikają z różnicy między zapisem autonomicznym a ręcznym. W odtworzeniu ręcznym odchylenia X i Z narastały już w tunelu, przed zejściem do regałów. Oba zestawy danych idą przez ten sam estimator. Ground truth służy obliczeniu błędów po estymacji.
+
+| Pełny zapis | Próbki | RMSE całej trasy | RMSE alejki | Maksymalny błąd | Dryf przy powrocie |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Autonomiczny, 16 m | 944 | 15,42 mm | 21,57 mm | 32,59 mm | 1,00 mm |
+| Ręczny, 16 m | 1 168 | 18,38 mm | 25,42 mm | 40,87 mm | 0,63 mm |
+
+W obu odtworzeniach odstęp między estymatami wyniósł najwyżej 0,168 s czasu symulacji. Pierwsza wersja 16 m uzyskała **46,20 mm RMSE w alejce** na tym samym zapisie ręcznym. Zbudowano 10 pakietów ROS i zaliczono 53 testy jednostkowe. Próba sterowania wymaga zaliczenia bramki przez ten wariant na nowym pełnym locie shadow. [Pomiary porównawcze](slam-full-route-evidence/plane-selection-replay.json)
+
 ## Regresja autonomicznej inspekcji na domyślnym profilu
 
 Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)

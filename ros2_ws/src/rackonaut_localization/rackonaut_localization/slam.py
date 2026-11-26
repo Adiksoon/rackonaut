@@ -36,6 +36,7 @@ class MeasuredRegistration:
     frame_limit = 14
     discard_index = 1
     map_voxel = .075
+    centroid_weight = 0.
     surface_type = SurfaceRegistration
 
     def __init__(self):
@@ -61,8 +62,16 @@ class MeasuredRegistration:
         local = self.local_frames(position)
         combined = np.vstack([entry.points for entry in local])
         normals = np.vstack([entry.normals for entry in local])
-        _, indices = np.unique(np.floor(combined / self.map_voxel).astype(np.int32), axis=0, return_index=True)
-        self.target = self.surface_type(combined[indices], normals[indices])
+        voxels = np.floor(combined / self.map_voxel).astype(np.int32)
+        if self.centroid_weight:
+            _, indices, membership, counts = np.unique(voxels, axis=0, return_index=True,
+                                                       return_inverse=True, return_counts=True)
+            centers = np.column_stack([np.bincount(membership, weights=axis) / counts for axis in combined.T])
+            support = (1. - self.centroid_weight) * combined[indices] + self.centroid_weight * centers
+        else:
+            _, indices = np.unique(voxels, axis=0, return_index=True)
+            support = combined[indices]
+        self.target = self.surface_type(support, normals[indices])
         return True
 
     def match(self, raw, offset, position, orientation):
@@ -91,14 +100,14 @@ class SurveySurfaces(SurfaceRegistration):
         allowance = np.minimum(.83, .19 + .027 * beam_range)
         close = (distance < allowance) & (np.abs(residual) < .10)
         n = normals[close]
-        weights = np.minimum(1., .019 / np.maximum(np.abs(residual[close]), 1.e-6))
+        weights = np.minimum(1., .014 / np.maximum(np.abs(residual[close]), 1.e-6))
         weights *= np.maximum(.15, 1. - distance[close] / allowance[close])
         incidence = np.abs(np.einsum("ij,ij->i", n, mapped[close])) / beam_range[close]
         weights *= np.maximum(.14, incidence) ** .65
         directions = np.argmax(np.abs(n), axis=1)
         counts = np.bincount(directions, minlength=3)
         # Keep the dominant wall or floor from overwhelming transverse returns.
-        weights *= np.clip((len(n) / (3 * np.maximum(1, counts[directions]))) ** .55, .45, 2.1)
+        weights *= np.clip((len(n) / (3 * np.maximum(1, counts[directions]))) ** .32, .45, 2.1)
         return close, weights
 
 
@@ -108,15 +117,18 @@ class FullRouteRegistration(MeasuredRegistration):
     frame_limit = 240
     discard_index = 0
     map_voxel = .10
+    centroid_weight = .18
     surface_type = SurveySurfaces
 
     def surfaces(self, raw):
         radius = np.linalg.norm(raw, axis=1)
         sample = voxel_sample(raw[(radius >= .098) & (radius <= FULL_ROUTE_RANGE - .05)], .10, 4700)
         maximum_distance = np.clip(.18 + .17 * np.linalg.norm(sample, axis=1), .35, 2.3)
-        return measured_surfaces(sample, neighbors_count=16, maximum_distance=maximum_distance, flatness=.21)
+        return measured_surfaces(sample, neighbors_count=16, maximum_distance=maximum_distance, flatness=.12)
 
     def local_frames(self, position):
         ranked = sorted(((np.linalg.norm(entry.position - position), index, entry)
                          for index, entry in enumerate(self.keyframes)), key=lambda item: item[:2])
-        return [entry for distance, _, entry in ranked[:60] if distance <= 12.]
+        # Preserve the earliest observation and its normal for each overlapping voxel.
+        ordered = sorted((index, entry) for distance, index, entry in ranked[:60] if distance <= 12.)
+        return [entry for _, entry in ordered]
