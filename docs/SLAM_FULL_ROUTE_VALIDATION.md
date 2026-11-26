@@ -1,6 +1,8 @@
 # Rackonaut · Walidacja SLAM na pełnej trasie
 
-Pierwszy pełny lot shadow ujawnił utratę lokalizacji bazowego SLAM w tunelu. Dotychczasowy lokalizator produkcyjny doprowadził drona do A-01-01 i A-01-03, po czym fizycznie zadokował. Wynik bramki SLAM dla tej próby to **FAIL**.
+**PASS.** Dwa chronione loty ze sterowaniem wyłącznie z lokalizacji SLAM odwiedziły A-01-01 i A-01-03 i fizycznie zadokowały. Oba wykonano bez dostępnej mapy referencyjnej. W drugim, niezależnym uruchomieniu LiDAR wykrył przesunięty karton i Collision Prevention wyzerował ruch w jego stronę.
+
+Pierwszy pełny lot shadow ujawnił utratę lokalizacji bazowego SLAM w tunelu. Dotychczasowy lokalizator produkcyjny doprowadził drona do A-01-01 i A-01-03, po czym fizycznie zadokował. Wynik bramki SLAM dla próby bazowej to **FAIL**.
 
 ## Metoda i bramka jakości
 
@@ -126,6 +128,27 @@ Graf ROS z lotu pokazał jeden nadajnik komend ruchu, `rackonaut_mission`, jeden
 
 ![Podgląd kamery i zebranej mapy podczas aktywnego lotu SLAM](slam-full-route-evidence/active-first-at-rack.png)
 
+## Niezależne powtórzenie ze zmienioną geometrią
+
+Lot `INS-CONTROL-20261126-123912-DA6A34EA` uruchomiono z nowym procesem lokalizacji, nowym światem Gazebo i domeną ROS 218. Pierwszy lot używał domeny 216. Nowa sesja `CAL-A24C51F5359147D687E0B3D49CA9E5E9` rozpoczęła mapowanie od zera przy doku. Przed startem przeniesiono karton `avoidance_aisle_box` na `(6,95; 1,30; 0,82) m` i potwierdzono tę pozycję w strumieniu Gazebo. Plik referencyjny nadal znajdował się poza miejscem odczytu przez cały lot. Po obu próbach przywrócono go i potwierdzono identyczną sumę SHA-256. [Odczyt pozycji kartonu](slam-full-route-evidence/active-obstacle-gazebo-pose.txt)
+
+Po obserwacji A-01-01 pilot testowy poprosił o przesunięcie w bok z prędkością **0,40 m/s** w stronę kartonu. **15,28 m od doku** Collision Prevention ustawił dopuszczoną prędkość na **0,00 m/s** z powodem `Obstacle in swept volume`. Telemetria zarejestrowała **132 powroty od przeszkody** oraz **0,159 m** zweryfikowanej przestrzeni dla danego polecenia. Safety nadal miało stan `RESERVED`, a Energy potwierdzało budżet powrotu przy **60,971%** baterii. Dron pozostał w alejce, wykonał obserwację A-01-03, a następnie wrócił i fizycznie zadokował. Wszystkie **1 211** odcinków między próbkami środka drona mieściły się w zatwierdzonej przestrzeni.
+
+Długość drugiego lotu wyniosła **71,04 m**, maksymalny dystans od doku **16,31 m** i zakres wysokości **0,054–6,721 m**. Lot trwał **375,4 s** rzeczywistych i **201,26 s** symulowanych, z **RTF 0,5361**. Zużyto **67,437 p.p.** energii. Po fizycznym dokowaniu Safety przeszło w `RELEASED`.
+
+| Strefa | Próbki | RMSE | p95 | Maksimum |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 226 | 3,74 mm | 4,72 mm | 7,08 mm |
+| Tunel | 624 | 12,74 mm | 16,94 mm | 18,02 mm |
+| Alejka i zejście | 362 | 18,68 mm | 26,62 mm | 31,96 mm |
+| Cała trasa | 1 212 | 13,80 mm | 22,44 mm | 31,96 mm |
+
+Osiągnięto **3,23 Hz**, największy odstęp **0,168 s** czasu symulacji, dryf przy doku **0,73 mm** oraz maksymalny błąd orientacji **0,277°**. Przyjęto **187 klatek kluczowych** i zapisano **55 626 punktów PLY**. W objętości kartonu, z 3–4 cm tolerancji względem rozmiaru modelu, znaleziono **54 punkty** drugiej mapy i **0 punktów** pierwszej. Czas dopasowania skanu to **128,1 ms p95**. Lokalizator użył mediany **19,98% jednego rdzenia**, p95 **32,22%** i maksymalnie **191,13 MiB RSS**. Proces Gazebo drugiej próby użył mediany **202,23% jednego rdzenia** i maksymalnie **859,38 MiB RSS**.
+
+[Metryki](slam-full-route-evidence/active-obstacle-verification.json) · [Trajektorie](slam-full-route-evidence/active-obstacle-trace.jsonl) · [Porównanie obu lotów i zdarzenie blokady](slam-full-route-evidence/end-to-end-proof.json) · [Graf ROS](slam-full-route-evidence/active-obstacle-ros-graph.txt) · [Mapa PLY](slam-full-route-evidence/active-obstacle-map.ply) · [Wykres błędów](slam-full-route-evidence/active-obstacle.png)
+
+![Blokada ruchu przez Collision Prevention w drugim locie](slam-full-route-evidence/active-obstacle-blocked.png)
+
 ## Regresja autonomicznej inspekcji na domyślnym profilu
 
 Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)
@@ -136,10 +159,12 @@ Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z
 | --- | --- | --- |
 | 1 | Pełna trasa shadow | **PASS po korekcie.** Pełny lot 70,87 m, ciągła estymata, wszystkie progi strefowe, dwie obserwacje i fizyczny dok. |
 | 2 | Pełna trasa sterowana SLAM | **PASS.** 70,92 m, dwie obserwacje, fizyczny dok i zaliczona bramka strefowa. |
-| 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Do wykonania po zaliczonej bramce shadow. |
+| 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | **PASS.** Nowy proces, domena ROS i sesja mapowania. 71,04 m, dwie obserwacje i fizyczny dok. |
 | 4 | Powtarzalna geometria regałów | **PASS w locie sterowanym SLAM.** 320 estymat w alejce i RMSE 11,85 mm. |
 | 5 | Powrót przez obserwowaną przestrzeń | **PASS.** Powrót przez tunel i szyb z aktywnym SLAM oraz fizyczne dokowanie. |
-| 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
-| 7 | Mapa referencyjna fizycznie niedostępna | **PASS.** Plik instalacyjny był poza katalogiem odczytu od startu profilu do końca pełnego lotu. |
-| 8 | Zabezpieczenia w oddaleniu od doku | Do wykonania podczas pełnej trasy sterowanej SLAM. |
+| 6 | Zmieniona geometria w alejce | **PASS.** Fizycznie przeniesiony karton został zaobserwowany przez LiDAR i zapisany w drugiej chmurze. |
+| 7 | Mapa referencyjna fizycznie niedostępna | **PASS.** Plik instalacyjny był poza katalogiem odczytu od uruchomienia każdego profilu do fizycznego dokowania. |
+| 8 | Zabezpieczenia w oddaleniu od doku | **PASS.** LiDAR zablokował ruch w stronę kartonu 15,28 m od doku. Safety utrzymało rezerwację, a Energy potwierdziło budżet powrotu. |
 | 9 | Regresja produkcyjnej trasy autonomicznej | **PASS na domyślnym profilu po zmianach.** Dwie obserwacje, stan `COMPLETE`, potwierdzony dok i `RELEASED`. |
+
+Zakres walidacji obejmuje zatwierdzony przebieg D–A w symulowanym magazynie, dwie pozycje obserwacji oraz jedną zmianę geometrii. Dwa loty sterowane SLAM używały istniejącego chronionego interfejsu Manual Flight z programowo wysyłanymi poleceniami. Regresja autonomicznej inspekcji używała dotychczasowego profilu referencyjnego.
