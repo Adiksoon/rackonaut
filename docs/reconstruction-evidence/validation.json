@@ -1,0 +1,497 @@
+{
+  "world_sha256": "8dfc2626259d80f1e587f236ca801db11e0a18f9776ccdc0efc40f9de46fb085",
+  "archives": [
+    {
+      "archive": {
+        "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+        "frame": "rackonaut_odom"
+      },
+      "points": 56549,
+      "map_sha256": "0c202417d1a7834ac5453a8a5f480862d00de5077248182e787144053fa3666a",
+      "detected": 2,
+      "world_rows": 4,
+      "matched": [
+        {
+          "row": "R01",
+          "world_row": "rack_row_2",
+          "centre_error_xy_m": [
+            -4.959919123547092,
+            0.038897413958454585
+          ],
+          "yaw_error_deg": 0.12530713004742058,
+          "dimensions_observed_m": [
+            9.43153186267337,
+            1.1966499092735083,
+            5.29664636194706
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.47827240682927846,
+          "level_z_errors_m": [
+            -0.020135778665542614,
+            -0.12569221305847167,
+            -0.1236636047363282
+          ],
+          "patch_centre_to_cloud_p50_m": 0.07232873362485834,
+          "patch_centre_to_cloud_p95_m": 0.12278673260213918
+        },
+        {
+          "row": "R02",
+          "world_row": "rack_row_3",
+          "centre_error_xy_m": [
+            -4.662913877854438,
+            -0.042182025946281954
+          ],
+          "yaw_error_deg": 0.12530713004742058,
+          "dimensions_observed_m": [
+            9.696881981041741,
+            1.1990999933385638,
+            5.389181408882141
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.49172829518467254,
+          "level_z_errors_m": [
+            -0.021783161640167248,
+            -0.128458345413208,
+            -0.1274787788391114
+          ],
+          "patch_centre_to_cloud_p50_m": 0.052884007091042,
+          "patch_centre_to_cloud_p95_m": 0.09669162864806828
+        }
+      ],
+      "false_positives": 0,
+      "coverage": {
+        "rack_row_1": {
+          "returns_in_expanded_envelope": 0,
+          "reconstructed": false
+        },
+        "rack_row_2": {
+          "returns_in_expanded_envelope": 4025,
+          "reconstructed": true
+        },
+        "rack_row_3": {
+          "returns_in_expanded_envelope": 3859,
+          "reconstructed": true
+        },
+        "rack_row_4": {
+          "returns_in_expanded_envelope": 890,
+          "reconstructed": false
+        }
+      },
+      "locations": [
+        {
+          "id": "A-01-01",
+          "status": "unplaced",
+          "reason": "The photo does not contain one decoded ArUco marker for this location."
+        },
+        {
+          "id": "A-01-03",
+          "status": "unplaced",
+          "reason": "The photo does not contain one decoded ArUco marker for this location."
+        }
+      ]
+    },
+    {
+      "archive": {
+        "mapping_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+        "frame": "rackonaut_odom",
+        "route_waypoints": 95
+      },
+      "points": 55955,
+      "map_sha256": "c597087e569c6907e42e604acc2143f168ee2fc4ad818b05d4e668dbc9fc118d",
+      "detected": 2,
+      "world_rows": 4,
+      "matched": [
+        {
+          "row": "R01",
+          "world_row": "rack_row_2",
+          "centre_error_xy_m": [
+            -5.016410065787376,
+            0.026118662400977488
+          ],
+          "yaw_error_deg": 0.1253673228584295,
+          "dimensions_observed_m": [
+            9.282497739498364,
+            1.2149963752519266,
+            5.337554478645325
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.47071489551208745,
+          "level_z_errors_m": [
+            -0.01923518228530885,
+            -0.1295441036224365,
+            -0.12925213623046883
+          ],
+          "patch_centre_to_cloud_p50_m": 0.06889352761175604,
+          "patch_centre_to_cloud_p95_m": 0.11982389064910424
+        },
+        {
+          "row": "R02",
+          "world_row": "rack_row_3",
+          "centre_error_xy_m": [
+            -4.7691523447625865,
+            -0.0637718834718255
+          ],
+          "yaw_error_deg": 0.1253673228584295,
+          "dimensions_observed_m": [
+            9.812579302567723,
+            1.1702098379255532,
+            5.446073042750358
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.4975952993188501,
+          "level_z_errors_m": [
+            -0.023693013668060314,
+            -0.128411376953125,
+            -0.12966460037231453
+          ],
+          "patch_centre_to_cloud_p50_m": 0.06209201559060561,
+          "patch_centre_to_cloud_p95_m": 0.10080292641820995
+        }
+      ],
+      "false_positives": 0,
+      "coverage": {
+        "rack_row_1": {
+          "returns_in_expanded_envelope": 0,
+          "reconstructed": false
+        },
+        "rack_row_2": {
+          "returns_in_expanded_envelope": 3814,
+          "reconstructed": true
+        },
+        "rack_row_3": {
+          "returns_in_expanded_envelope": 3760,
+          "reconstructed": true
+        },
+        "rack_row_4": {
+          "returns_in_expanded_envelope": 893,
+          "reconstructed": false
+        }
+      },
+      "locations": [
+        {
+          "id": "A-01-01",
+          "status": "unplaced",
+          "reason": "The photo does not contain one decoded ArUco marker for this location."
+        },
+        {
+          "id": "A-01-03",
+          "status": "projected",
+          "rack_id": "R02",
+          "level": 1,
+          "world_row": "rack_row_3",
+          "correct_row": true,
+          "error_to_marker_m": 0.03451410429626588,
+          "error_to_placard_centre_m": 0.14889682989459682
+        }
+      ]
+    },
+    {
+      "archive": {
+        "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+        "frame": "rackonaut_odom",
+        "lidar": {
+          "topic": "/rackonaut/drone/lidar/points",
+          "frame": "rackonaut_reference_drone/base_link/local_lidar",
+          "width": 192,
+          "height": 37,
+          "range_m": [
+            0.1,
+            16.0
+          ],
+          "position_m": [
+            0.0,
+            0.0,
+            0.09
+          ],
+          "collision_range_m": 8.0
+        },
+        "keyframes": 183,
+        "keyframe_returns": 488727,
+        "route_waypoints": 107
+      },
+      "points": 56059,
+      "map_sha256": "2cf90f4052a258d332672b447fb574c2cb7b3fab832ecb6f9651dae4de056409",
+      "detected": 2,
+      "world_rows": 4,
+      "matched": [
+        {
+          "row": "R01",
+          "world_row": "rack_row_2",
+          "centre_error_xy_m": [
+            -4.90159782427571,
+            0.046304714239375766
+          ],
+          "yaw_error_deg": 0.039644789575106226,
+          "dimensions_observed_m": [
+            9.555887680610933,
+            1.2050255456716124,
+            5.364221213757992
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.4845784827896011,
+          "level_z_errors_m": [
+            -0.013400483608245861,
+            -0.11800106811523436,
+            -0.12008446502685555
+          ],
+          "patch_centre_to_cloud_p50_m": 0.06644675881432457,
+          "patch_centre_to_cloud_p95_m": 0.10744835695734356
+        },
+        {
+          "row": "R02",
+          "world_row": "rack_row_3",
+          "centre_error_xy_m": [
+            -4.711642478083158,
+            -0.046468592353959615
+          ],
+          "yaw_error_deg": 0.039644789575106226,
+          "dimensions_observed_m": [
+            9.9205731036523,
+            1.1893032277879132,
+            5.42011598199606
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.5030716584002181,
+          "level_z_errors_m": [
+            -0.021506253361701977,
+            -0.12709566402435302,
+            -0.12711924362182625
+          ],
+          "patch_centre_to_cloud_p50_m": 0.054227873675906736,
+          "patch_centre_to_cloud_p95_m": 0.09907500905885407
+        }
+      ],
+      "false_positives": 0,
+      "coverage": {
+        "rack_row_1": {
+          "returns_in_expanded_envelope": 0,
+          "reconstructed": false
+        },
+        "rack_row_2": {
+          "returns_in_expanded_envelope": 4126,
+          "reconstructed": true
+        },
+        "rack_row_3": {
+          "returns_in_expanded_envelope": 3893,
+          "reconstructed": true
+        },
+        "rack_row_4": {
+          "returns_in_expanded_envelope": 883,
+          "reconstructed": false
+        }
+      },
+      "locations": [
+        {
+          "id": "A-01-01",
+          "status": "projected",
+          "rack_id": "R02",
+          "level": null,
+          "world_row": "rack_row_3",
+          "correct_row": true,
+          "error_to_marker_m": 0.022923873022612326,
+          "error_to_placard_centre_m": 0.14296046566188028
+        },
+        {
+          "id": "A-01-03",
+          "status": "projected",
+          "rack_id": "R02",
+          "level": 1,
+          "world_row": "rack_row_3",
+          "correct_row": true,
+          "error_to_marker_m": 0.025261823378201702,
+          "error_to_placard_centre_m": 0.14334613033510313
+        }
+      ]
+    },
+    {
+      "archive": {
+        "mapping_id": "CAL-623FDBCB5D9B4E838FAA93E1E3A01478",
+        "frame": "rackonaut_odom",
+        "lidar": {
+          "topic": "/rackonaut/drone/lidar/points",
+          "frame": "rackonaut_reference_drone/base_link/local_lidar",
+          "width": 192,
+          "height": 37,
+          "range_m": [
+            0.1,
+            16.0
+          ],
+          "position_m": [
+            0.0,
+            0.0,
+            0.09
+          ],
+          "collision_range_m": 8.0
+        },
+        "keyframes": 182,
+        "keyframe_returns": 488243,
+        "route_waypoints": 98
+      },
+      "points": 55775,
+      "map_sha256": "1969c5bad2f255ac38548aceede96c57dc390f5290758ade0022817823d6c21f",
+      "detected": 2,
+      "world_rows": 4,
+      "matched": [
+        {
+          "row": "R01",
+          "world_row": "rack_row_2",
+          "centre_error_xy_m": [
+            -4.930731530612505,
+            0.05307490822739114
+          ],
+          "yaw_error_deg": 0.05215888798255315,
+          "dimensions_observed_m": [
+            9.49017849571099,
+            1.17988528264204,
+            5.309923583567142
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.48124637402185555,
+          "level_z_errors_m": [
+            -0.014392006874084484,
+            -0.11924549388885497,
+            -0.12005728530883797
+          ],
+          "patch_centre_to_cloud_p50_m": 0.06172907843037973,
+          "patch_centre_to_cloud_p95_m": 0.10703850727582268
+        },
+        {
+          "row": "R02",
+          "world_row": "rack_row_3",
+          "centre_error_xy_m": [
+            -4.591286954784577,
+            -0.027046306951256316
+          ],
+          "yaw_error_deg": 0.05215888798255315,
+          "dimensions_observed_m": [
+            9.88102539303376,
+            1.2012542431080777,
+            5.2065500301122665
+          ],
+          "dimensions_reference_m": [
+            19.72,
+            1.3200000000000003,
+            5.7
+          ],
+          "length_fraction": 0.5010661964013063,
+          "level_z_errors_m": [
+            -0.020321059703826916,
+            -0.12661477375030517,
+            -0.1260444526672364
+          ],
+          "patch_centre_to_cloud_p50_m": 0.053813316338254924,
+          "patch_centre_to_cloud_p95_m": 0.1100801800870772
+        }
+      ],
+      "false_positives": 0,
+      "coverage": {
+        "rack_row_1": {
+          "returns_in_expanded_envelope": 0,
+          "reconstructed": false
+        },
+        "rack_row_2": {
+          "returns_in_expanded_envelope": 4091,
+          "reconstructed": true
+        },
+        "rack_row_3": {
+          "returns_in_expanded_envelope": 3966,
+          "reconstructed": true
+        },
+        "rack_row_4": {
+          "returns_in_expanded_envelope": 884,
+          "reconstructed": false
+        }
+      },
+      "locations": [
+        {
+          "id": "A-01-01",
+          "status": "projected",
+          "rack_id": "R02",
+          "level": null,
+          "world_row": "rack_row_3",
+          "correct_row": true,
+          "error_to_marker_m": 0.02185007040585593,
+          "error_to_placard_centre_m": 0.1419133980601208
+        },
+        {
+          "id": "A-01-03",
+          "status": "projected",
+          "rack_id": "R02",
+          "level": 1,
+          "world_row": "rack_row_3",
+          "correct_row": true,
+          "error_to_marker_m": 0.030283837208970616,
+          "error_to_placard_centre_m": 0.14548639644248623
+        }
+      ]
+    }
+  ],
+  "changed_cloud_tests": [
+    {
+      "case": "remove one observed row",
+      "points": 51624,
+      "rows": 1,
+      "yaw_deg_mod_180": [
+        179.87077965897717
+      ],
+      "detail": {
+        "horizontal_points": 25190,
+        "vertical_points": 14584,
+        "repeated_stacks": 1
+      }
+    },
+    {
+      "case": "partial low scan",
+      "points": 16013,
+      "rows": 0,
+      "yaw_deg_mod_180": [],
+      "detail": {
+        "horizontal_points": 12718,
+        "vertical_points": 1510,
+        "repeated_stacks": 0
+      }
+    },
+    {
+      "case": "rotate 27 degrees and translate",
+      "points": 56549,
+      "rows": 2,
+      "yaw_deg_mod_180": [
+        26.87469286995265,
+        26.87469286995265
+      ],
+      "detail": {
+        "horizontal_points": 27872,
+        "vertical_points": 15212,
+        "repeated_stacks": 2
+      }
+    }
+  ]
+}

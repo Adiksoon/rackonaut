@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rackonaut · Measured warehouse</title>
+  <link rel="stylesheet" href="./viewer.css">
+  <script type="importmap">
+    {"imports":{"three":"../../../ros2_ws/src/rackonaut_control/web/vendor/three.module.min.js"}}
+  </script>
+  <script type="module" src="./viewer.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./"><span aria-hidden="true">R</span> Rackonaut</a>
+    <div class="archive-controls">
+      <label for="archive">Calibration</label>
+      <select id="archive">
+        <option value="goal24">GOAL 24</option>
+        <option value="goal26">GOAL 26</option>
+        <option value="file" disabled>Local file</option>
+      </select>
+      <label class="open-file">Open reconstruction<input type="file" id="open" accept=".json,application/json"></label>
+    </div>
+  </header>
+  <main>
+    <header class="heading">
+      <div><h1>Measured warehouse</h1><p id="archive-description">Loading calibration archive…</p></div>
+      <div class="layers" role="group" aria-label="Comparison view">
+        <button type="button" data-mode="cloud" aria-pressed="false">LiDAR cloud</button>
+        <button type="button" data-mode="model" aria-pressed="true">Rack model</button>
+        <button type="button" data-mode="overlay" aria-pressed="false">Overlay</button>
+      </div>
+    </header>
+    <p id="error" role="alert" hidden></p>
+    <div class="workspace">
+      <section class="stage" id="stage" aria-label="Interactive warehouse view">
+        <div id="viewport"></div>
+        <div id="markers"></div>
+        <div class="views" role="group" aria-label="Camera view">
+          <button type="button" id="isometric" aria-pressed="true">Isometric</button>
+          <button type="button" id="top" aria-pressed="false">Top</button>
+          <button type="button" id="fit">Fit view</button>
+        </div>
+        <div class="stage-notes"><span id="legend"></span><span id="view-help">Drag to orbit · Scroll to zoom</span></div>
+      </section>
+      <aside class="inspector">
+        <dl class="stats">
+          <div><dt>Rack rows</dt><dd id="row-count">—</dd></div>
+          <div><dt>LiDAR points</dt><dd id="point-count">—</dd></div>
+        </dl>
+        <section aria-labelledby="locations-title">
+          <h2 id="locations-title">Taught locations</h2>
+          <div id="location-list" class="location-list"></div>
+          <div id="location-detail" class="location-detail" hidden>
+            <p id="location-explanation"></p>
+            <img id="location-photo" alt="Camera image recorded during calibration" hidden>
+          </div>
+        </section>
+        <details class="geometry">
+          <summary>Estimated rack dimensions</summary>
+          <div id="rack-details"></div>
+        </details>
+        <p class="hint">Rack surfaces follow measured support. Gaps remain open. Location markers are projected estimates when the camera and LiDAR agree.</p>
+      </aside>
+    </div>
+  </main>
+</body>
+</html>
