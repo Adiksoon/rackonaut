@@ -264,15 +264,17 @@ class Manager(Node):
                 else:
                     self.recover("Mission aborted. Verify and recover the drone.", self.required, "mission_aborted")
                 return
-            if stage == CALIBRATION_INTERRUPTED:
+            manual_docked = stage == "COMPLETE" and self.mission.get("manual", {}).get("state") == "DOCKED"
+            if stage == CALIBRATION_INTERRUPTED or manual_docked:
                 if self.calibration_terminal_at is None:
                     self.calibration_terminal_at = now
                 if (now-self.mission_at <= .65 and self.mission.get("landed") is True
                         and self.mission.get("motion_owned") is False and self.at_pad(now)
                         and physical_dock(self.energy, now - self.energy_at)):
-                    self.release("Inspection interrupted for calibration and physical dock contact confirmed.")
+                    self.release("Manual flight ended at the physical dock." if manual_docked else
+                                 "Inspection interrupted for calibration and physical dock contact confirmed.")
                 elif now - self.calibration_terminal_at > 1.:
-                    self.recover("Calibration ended without verified physical dock contact.", self.required, "touchdown_unknown")
+                    self.recover("Physical dock contact could not be independently verified.", self.required, "touchdown_unknown")
                 return
             if stage in {"COMPLETE", "COMPLETE_WITH_MISSES"}:
                 if self.mission.get("landed") and self.at_pad(now):

@@ -7,10 +7,11 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from math import atan2, hypot
+from math import atan2, hypot, radians
 from pathlib import Path
+from secrets import compare_digest, token_urlsafe
 from threading import RLock, Thread
-from time import monotonic
+from time import monotonic, time
 from urllib.request import urlopen
 from uuid import uuid4
 
@@ -29,7 +30,9 @@ from std_srvs.srv import Trigger
 from tf2_msgs.msg import TFMessage
 
 from rackonaut_avoidance.sensor import Scanner
+from rackonaut_energy.model import Model
 from rackonaut_mission.report import TERMINAL, export, fetch_api
+from rackonaut_mission.manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, decode_axes, departure_energy
 from rackonaut_safety.geometry import route_zones
 
 from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
@@ -43,6 +46,9 @@ class Job:
     run: str
     plan: dict
     processes: list
+    manual_token: str | None = None
+    manual_sequence: int = -1
+    manual_at: float = -1e6
     created: float = field(default_factory=monotonic)
     status: dict = field(default_factory=dict)
     status_at: float = 0.
@@ -132,6 +138,8 @@ class Control(Node):
                                       and self.localization_mode == "sensor_based")
         if self.calibration_supported:
             self.calibration_request = self.create_publisher(String, "/rackonaut/calibration/request", 5)
+            self.manual_request = self.create_publisher(String, MANUAL_TOPIC, 1)
+            self.layout["manual_flight"] = True
         self.odom_at = 0.
         self.position, self.speed = None, 0.
         self.orientation = None
@@ -262,6 +270,8 @@ class Control(Node):
                 self.remember_recovery(self.job.recovery)
                 self.job.recovery_at = monotonic()
                 if self.job.finished_at is not None:
+                    if self.job.manual_token and "manual" in status:
+                        self.job.status["manual"] = status["manual"]
                     return
             self.job.status = status
             if status["stage"] in TERMINAL and self.job.finished_at is None:
@@ -376,7 +386,7 @@ class Control(Node):
             return False
         stage = self.stage(self.job)
         if stage in TERMINAL:
-            return self.job.archive is None and not self.job.export_error
+            return not self.job.manual_token and self.job.archive is None and not self.job.export_error
         return stage != "ERROR"
 
     def preview(self, selection):
@@ -390,7 +400,19 @@ class Control(Node):
             route["energy"] = energy_forecast(self.layout, route, telemetry) if telemetry and telemetry["fresh"] else None
         return route
 
-    def begin(self, selection):
+    def start_manual(self, request):
+        if not self.calibration_supported:
+            raise RuntimeError("Manual flight requires the protected Full Robotics profile.")
+        zones = request.get("aisles", ["A"])
+        available = {location["aisle"] for location in self.layout["slots"].values()}
+        if (not isinstance(zones, list) or not zones
+                or any(not isinstance(zone, str) or zone not in available for zone in zones)):
+            raise ValueError("Select functional aisles for the reservation.")
+        slots = [next(slot for slot, location in self.layout["slots"].items() if location["aisle"] == zone)
+                 for zone in sorted(set(zones))]
+        return self.begin({"mode": "custom", "slots": slots}, manual=True)
+
+    def begin(self, selection, manual=False):
         planned = self.preview(selection)
         with self.lock:
             if self.calibration.state != PRODUCTION:
@@ -407,13 +429,22 @@ class Control(Node):
                 telemetry = self.energy_state()
                 if not telemetry or not telemetry["fresh"] or not telemetry["contact"]:
                     raise RuntimeError("Fresh battery data and confirmed dock position are required.")
-                forecast = energy_forecast(self.layout, planned, telemetry)
-                if not forecast["can_start"]:
-                    raise RuntimeError(f"Insufficient energy for the first stop and safe return ({forecast['minimum_percent']:.1f}% required).")
-            if not self.backend_state["online"]:
+                if manual:
+                    if not telemetry.get("budget_verified"):
+                        raise RuntimeError("Energy telemetry cannot verify a safe manual departure.")
+                    pad = planned["route"]["pad"]
+                    minimum = departure_energy(Model(**telemetry["model"]),
+                                               (pad["x"], pad["y"], pad["z"], radians(pad["yaw_deg"])))
+                    if telemetry["percent"] < minimum:
+                        raise RuntimeError(f"Insufficient energy for manual takeoff and verified return ({minimum:.1f}% required).")
+                else:
+                    forecast = energy_forecast(self.layout, planned, telemetry)
+                    if not forecast["can_start"]:
+                        raise RuntimeError(f"Insufficient energy for the first stop and safe return ({forecast['minimum_percent']:.1f}% required).")
+            if not manual and not self.backend_state["online"]:
                 raise RuntimeError("The inventory API is unavailable.")
             missing = set(planned["slots"]) - set(self.backend_state["slots"])
-            if missing:
+            if missing and not manual:
                 raise RuntimeError(f"Inventory API does not cover {', '.join(sorted(missing))}.")
             if self.safety_enabled:
                 status = self.safety_status()
@@ -436,11 +467,12 @@ class Control(Node):
             scan_hold = "2.5" if self.laser_enabled else "1.3"
             processes = []
             try:
-                processes.append(self.spawn(directory, "rackonaut_perception", "inspect", {
-                    **common, "marker_map": self.marker_map, "mission_scoped": "true",
-                    "quality_enabled": str(planned["quality"]).lower(), "quality_dir": self.data / "quality",
-                    "adaptive": str(planned["adaptive"]).lower(),
-                }))
+                if not manual:
+                    processes.append(self.spawn(directory, "rackonaut_perception", "inspect", {
+                        **common, "marker_map": self.marker_map, "mission_scoped": "true",
+                        "quality_enabled": str(planned["quality"]).lower(), "quality_dir": self.data / "quality",
+                        "adaptive": str(planned["adaptive"]).lower(),
+                    }))
                 processes.append(self.spawn(directory, "rackonaut_mission", "run_mission", {
                     **common, "route_file": route, "scan_hold_seconds": scan_hold if planned["quality"] else "0.0",
                     **({"travel_timeout": "70.0", "obstacle_avoidance": "true"} if self.avoidance_enabled
@@ -449,16 +481,45 @@ class Control(Node):
                     **({"sensor_localization": "true"} if self.localization_mode == "sensor_based" else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
+                    **({"manual_flight": "true"} if manual else {}),
                 }))
             except OSError:
                 stop_workers(processes)
                 raise
-            self.job = Job(run, planned, processes)
+            token = token_urlsafe(24) if manual else None
+            points = planned.get("safety_points", planned["points"])
+            if manual:
+                planned = {**planned, "mode": "manual", "slots": [], "points": []}
+            self.job = Job(run, planned, processes, manual_token=token)
             self.perception_frame_seen = False
             if self.safety_enabled:
-                points = planned.get("safety_points", planned["points"])
                 self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": points})))
-            return {"inspection_id": run}
+            return {"inspection_id": run, **({"token": token} if manual else {})}
+
+    def manual_command(self, request, action):
+        sequence, sent = request.get("sequence"), request.get("issued_ms")
+        if (type(sequence) is not int or not 0 <= sequence < 2**53
+                or type(sent) not in (int, float) or not -.25 <= time() - sent / 1000 <= COMMAND_AGE):
+            raise ValueError("Manual request is stale or out of sequence.")
+        axes, speed = decode_axes(request) if action == "movement" else ((), 0.)
+        with self.lock:
+            job, token = self.job, request.get("token")
+            if (not job or not job.manual_token or request.get("inspection_id") != job.run
+                    or not isinstance(token, str) or not token.isascii() or not compare_digest(job.manual_token, token)):
+                raise RuntimeError("The browser does not own this manual flight session.")
+            stage = self.stage(job)
+            if stage in TERMINAL | {"ERROR"} or job.abort_requested:
+                raise RuntimeError("The manual flight session has ended.")
+            if action == "return" and stage not in {"VERTICAL_TAKEOFF", MANUAL_STAGE}:
+                raise RuntimeError("Wait for manual takeoff before requesting a return.")
+            if sequence <= job.manual_sequence:
+                raise RuntimeError("An updated movement request was already processed.")
+            job.manual_sequence, job.manual_at = sequence, monotonic()
+            self.manual_request.publish(String(data=json.dumps({
+                "inspection_id": job.run, "sequence": sequence, "sent": job.manual_at,
+                "action": action, "axes": axes, "speed": speed,
+            })))
+            return {"accepted": True}
 
     @staticmethod
     def spawn(directory, package, executable, parameters):
@@ -523,6 +584,8 @@ class Control(Node):
                 raise RuntimeError("A calibration is already active.")
             job = self.job
             active = job and self.stage(job) not in TERMINAL | {"ERROR"}
+            if active and job.manual_token:
+                raise RuntimeError("Return the manual flight to the dock before starting calibration.")
             safety = self.safety_status()
             if safety and safety["phase"] == "RECOVERY":
                 raise RuntimeError("Resolve the current incident in the Recovery Center first.")
@@ -660,7 +723,8 @@ class Control(Node):
     def poll_mission(self, job, now):
         stage = self.stage(job)
         if stage in TERMINAL:
-            self.poll_archive(job, now)
+            if not job.manual_token:
+                self.poll_archive(job, now)
             return
         if stage == "ERROR":
             return
@@ -668,7 +732,7 @@ class Control(Node):
             stop_workers(job.processes)
             job.error = "A mission worker stopped. Check the dispatch logs."
             return
-        ready_to_start = stage == "WAITING" and self.perception_frame_seen
+        ready_to_start = stage == "WAITING" and (now-job.manual_at < COMMAND_AGE if job.manual_token else self.perception_frame_seen)
         if self.safety_enabled:
             status = self.safety_status()
             matching = status and status["inspection_id"] == job.run
@@ -732,7 +796,7 @@ class Control(Node):
                 current = {"inspection_id": job.run, "stage": self.stage(job), "slots": job.plan["slots"],
                            "quality": job.plan["quality"], "adaptive": job.plan["adaptive"],
                            "mode": job.plan["mode"], "status": job.status,
-                           "planned": job.planned or job.plan["points"], "flown": job.flown,
+                           "planned": [] if job.manual_token else job.planned or job.plan["points"], "flown": job.flown,
                            "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
                            "result": job.archive, "error": job.error or job.export_error}
             result = {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),

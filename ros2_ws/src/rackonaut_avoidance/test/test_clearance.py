@@ -4,6 +4,7 @@ from unittest import TestCase
 import numpy as np
 from sensor_msgs.msg import PointCloud2, PointField
 
+from rackonaut_avoidance.manual import ZERO, protect
 from rackonaut_avoidance.planner import Navigator, sweep
 from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, HEIGHT, WIDTH, rotation, unpack
 
@@ -49,3 +50,38 @@ class ClearanceTests(TestCase):
         angle = pi / 4
         matrix = rotation(np.array([0., 0., np.sin(angle), np.cos(angle)]))
         np.testing.assert_allclose(matrix @ [1., 0., 0.], [0., 1., 0.], atol=1e-7)
+
+    def test_manual_obstacles_stop_forward_side_and_vertical_commands(self):
+        pose = (0., 0., .79, 0.)
+        for point, request in [
+            ((.58, 0., .79), (.3, 0., 0., 0.)),
+            ((0., -.58, .79), (0., -.3, 0., 0.)),
+            ((0., 0., 1.09), (0., 0., .2, 0.)),
+            ((0., 0., .45), (0., 0., -.2, 0.)),
+        ]:
+            with self.subTest(point=point):
+                motion = protect(self.frame([point]), pose, ZERO, request, 2.1, lambda a, b: True)
+                self.assertEqual(motion.velocity, ZERO)
+                self.assertEqual(motion.state, "BLOCKED")
+                self.assertIsNotNone(motion.scan.hit)
+
+    def test_manual_yaw_requires_observed_rotor_clearance(self):
+        pose = (0., 0., .79, 0.)
+        request = (0., 0., 0., .3)
+        self.assertEqual(protect(self.frame(), pose, ZERO, request, 2.1, lambda a, b: True).velocity, request)
+        self.assertEqual(protect(self.frame(ranges=np.nan), pose, ZERO, request, 2.1,
+                                 lambda a, b: True).velocity, ZERO)
+        self.assertEqual(protect(self.frame([(.4, 0., .79)]), pose, ZERO, request, 2.1,
+                                 lambda a, b: True).velocity, ZERO)
+
+    def test_manual_speed_reduces_before_wall_and_then_brakes(self):
+        pose = (0., 0., .79, 0.)
+        cloud = self.frame([(.85, 0., .79)])
+        request = (.4, 0., 0., 0.)
+        reduced = protect(cloud, pose, ZERO, request, 2.1, lambda a, b: True)
+        self.assertEqual(reduced.state, "LIMITED")
+        self.assertGreater(reduced.velocity[0], 0.)
+        self.assertLess(reduced.velocity[0], request[0])
+        braking = protect(cloud, pose, (.4, 0., 0.), request, 2.4, lambda a, b: True)
+        self.assertEqual(braking.state, "BRAKING")
+        self.assertEqual(braking.velocity, ZERO)

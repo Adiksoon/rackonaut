@@ -15,7 +15,7 @@ from .service import COOKIE
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "service.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
+              "app.js", "business.js", "service.js", "manual.js", "twin.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
@@ -197,6 +197,9 @@ def serve(control, port):
                 if not isinstance(selection, dict):
                     raise ValueError("Expected a JSON object.")
                 actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort,
+                           "/api/manual/start": control.start_manual,
+                           "/api/manual/movement": lambda body: control.manual_command(body, "movement"),
+                           "/api/manual/return": lambda body: control.manual_command(body, "return"),
                            "/api/simulation/worker": control.move_worker, "/api/simulation/obstacle": control.move_obstacle}
                 if service:
                     self.service_action(path, selection)

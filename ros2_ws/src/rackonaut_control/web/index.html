@@ -29,6 +29,7 @@
   <nav aria-label="Control Center">
     <button type="button" class="tab active" data-view="plan" aria-current="page">Plan</button>
     <button type="button" class="tab" data-view="live">Live flight</button>
+    <button type="button" class="tab" id="manual-tab" data-view="manual" hidden>Manual flight</button>
     <button type="button" class="tab" data-view="results">Results</button>
     <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
     <button type="button" class="tab service-tab" data-view="service"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2m-3 3v1"/></svg>Service</button>
@@ -183,6 +184,30 @@
           <button type="button" id="live-plan" class="secondary" hidden>Plan an inspection</button>
         </div>
       </div>
+      <section id="manual-controls" class="manual-controls" aria-labelledby="manual-title" hidden>
+        <div class="card-head"><div><h2 id="manual-title">Protected manual flight</h2><p id="manual-detail" role="status"></p></div><span id="manual-status" class="run-state"></span></div>
+        <div class="manual-actions">
+          <label>Reserve aisles <select id="manual-aisles"><option value="A">A</option><option value="B">B</option><option value="A,B">A and B</option></select></label>
+          <button type="button" class="primary" id="manual-start">Start and take off</button>
+          <button type="button" class="secondary" id="manual-return">Return and end session</button>
+        </div>
+        <fieldset id="manual-motion" disabled>
+          <legend>Hold to move</legend>
+          <div class="manual-direction">
+            <button type="button" data-move="w">Forward <kbd>W</kbd></button><button type="button" data-move="s">Back <kbd>S</kbd></button>
+            <button type="button" data-move="a">Left <kbd>A</kbd></button><button type="button" data-move="d">Right <kbd>D</kbd></button>
+            <button type="button" data-move="r">Up <kbd>R</kbd></button><button type="button" data-move="f">Down <kbd>F</kbd></button>
+            <button type="button" data-move="q">Yaw left <kbd>Q</kbd></button><button type="button" data-move="e">Yaw right <kbd>E</kbd></button>
+          </div>
+          <div class="manual-actions"><label>Speed <input id="manual-speed" type="range" min="20" max="100" step="10" value="60"><output for="manual-speed" id="manual-speed-value">60%</output></label>
+            <button type="button" class="secondary" id="manual-hold">Hold position <kbd>Space</kbd></button></div>
+        </fieldset>
+        <dl class="manual-telemetry">
+          <div><dt>Requested X / Y / Z / yaw</dt><dd id="manual-requested">—</dd></div>
+          <div><dt>Permitted X / Y / Z / yaw</dt><dd id="manual-permitted">—</dd></div>
+          <div><dt>Verified clearance</dt><dd id="manual-clearance">—</dd></div>
+        </dl>
+      </section>
     </aside>
     <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
       <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id" hidden></p></div></div>

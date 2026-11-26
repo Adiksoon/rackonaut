@@ -1,5 +1,6 @@
 import { createIntelligence } from "/business.js";
 import { createService } from "/service.js";
+import { createManual } from "/manual.js";
 
 "use strict";
 
@@ -16,11 +17,13 @@ const retryReasons = { initial: "Reference view", unreadable: "Unreadable label"
 const headings = {
   plan: ["Plan inspection", "Choose where the drone should inspect."],
   live: ["Live flight", "Follow the drone and its current inspection."],
+  manual: ["Manual flight", "Guide the drone in the reserved space with collision protection active."],
   results: ["Inspection results", "Review what the drone found."],
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
   service: ["Service Center", "Check system readiness and prepare a warehouse calibration."],
 };
 const service = createService();
+const manual = createManual(api, terminal, notice);
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
@@ -118,7 +121,7 @@ async function api(url, data) {
 }
 
 function drawWorkspace() {
-  const showMap = view === "plan" || view === "live" || (view === "results" && resultsMap);
+  const showMap = view === "plan" || view === "live" || view === "manual" || (view === "results" && resultsMap);
   const warehouse = el("warehouse-panel");
   if (warehouse.hidden === showMap) {
     warehouse.hidden = !showMap;
@@ -147,9 +150,10 @@ function setView(next, focus = false) {
   el("workspace").hidden = next === "diagnostics" || next === "service";
   el("system-details").hidden = next !== "diagnostics";
   service.show(next === "service");
+  manual.show(next === "manual");
   drawWorkspace();
   for (const [name, panel] of [["plan", "plan-panel"], ["live", "live-panel"], ["results", "results-panel"]]) {
-    el(panel).hidden = name !== next;
+    el(panel).hidden = name !== next && !(name === "live" && next === "manual");
   }
   for (const button of document.querySelectorAll(".tab")) {
     const active = button.dataset.view === next;
@@ -713,7 +717,7 @@ function draw() {
   el("no-camera").hidden = !!state?.camera;
   const confirmed = Object.keys(status.confirmed || {}).length;
   const total = job?.slots?.length || 0;
-  el("flight-progress").hidden = !job;
+  el("flight-progress").hidden = !job || job.mode === "manual" || view === "manual";
   put("active-target", status.target === "PAD" ? "Launch pad" : status.target === "CORRIDOR" ? "Transfer corridor" : status.target || "—");
   put("progress-count", `${confirmed} / ${total}`);
   el("progress-bar").max = total || 1;
@@ -723,13 +727,13 @@ function draw() {
   const canStop = !!job && !terminal.has(stage);
   el("abort").hidden = !canStop;
   el("abort").disabled = !canStop || stopping;
-  put("abort", stopping ? "Stopping inspection…" : "Stop inspection");
+  put("abort", stopping ? "Stopping flight…" : job?.mode === "manual" ? "Stop flight" : "Stop inspection");
   const recoveryInMotion = state?.recovery?.permit_request === true;
   el("global-stop").hidden = !(canStop || recoveryInMotion);
   el("global-stop").disabled = stopping;
   el("scan-stop").hidden = !scanFullscreen() || el("global-stop").hidden;
   el("scan-stop").disabled = stopping;
-  el("live-plan").hidden = !!job;
+  el("live-plan").hidden = !!job || view === "manual";
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
   drawScans();
@@ -740,6 +744,7 @@ function draw() {
   drawAvoidance(job);
   drawLocalization();
   drawRecovery();
+  manual.update(state);
   drawTwin(job);
 }
 
@@ -754,7 +759,7 @@ async function poll() {
         lastRun = job.inspection_id;
         lastStage = null;
         wantedRun = null;
-        if (!terminal.has(job.stage) && view === "plan") setView("live");
+        if (!terminal.has(job.stage) && view === "plan") setView(job.mode === "manual" ? "manual" : "live");
       }
       if (terminal.has(job.stage) && lastStage !== job.stage) {
         if (stopping) { stopping = false; notice(); }
@@ -835,6 +840,7 @@ async function init() {
   });
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("diagnostics-tab").hidden = false;
+  el("manual-tab").hidden = !layout.manual_flight;
   el("safety-details-link").addEventListener("click", (event) => {
     event.preventDefault();
     setView("diagnostics", true);
@@ -933,7 +939,7 @@ async function init() {
   const camera = el("camera");
   camera.onload = camera.onerror = () => { cameraLoading = false; };
   setInterval(() => {
-    if (!document.hidden && view === "live" && state?.camera && !cameraLoading) {
+    if (!document.hidden && (view === "live" || view === "manual") && state?.camera && !cameraLoading) {
       cameraLoading = true;
       camera.src = "/api/frame.jpg?t=" + Date.now();
     }
