@@ -16,14 +16,14 @@ git switch -c feature/warehouse
 source scripts/robotics/activate.bash
 ```
 
-If the robotics dependencies are already installed, continue to the check below. To resolve missing packages, refresh the project-local rosdep cache and review the install plan in the activated shell.
+If the robotics dependencies are already installed, continue to the check below. To resolve missing packages, refresh the project-local rosdep cache and review the install plan in the activated shell. The workspace declares `ament_python` as a build tool in its Python package manifests. Colcon handles that build type. Skip the unresolved rosdep key when generating the plan.
 
 ```bash
 rosdep update --rosdistro humble
-scripts/robotics/dependencies
+rosdep install --simulate --from-paths ros2_ws/src --ignore-src --rosdistro humble --skip-keys=ament_python
 ```
 
-If the plan shows missing ROS dependencies, install them explicitly with `rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble`. System installs may prompt for administrator privileges. Initial system setup can require `sudo rosdep init` if `/etc/ros/rosdep/sources.list.d/` has no configured sources. See the Humble installation guide for that case.
+If the plan shows missing ROS dependencies, install them explicitly with `rosdep install --from-paths ros2_ws/src --ignore-src --rosdistro humble --skip-keys=ament_python`. System installs may prompt for administrator privileges. Initial system setup can require `sudo rosdep init` if `/etc/ros/rosdep/sources.list.d/` has no configured sources. See the Humble installation guide for that case.
 
 ```bash
 scripts/robotics/check
@@ -51,3 +51,7 @@ Check off each item and send your commit, operating system, and smoke result to 
 - [ ] Mock or reference component started.
 - [ ] Smoke test passed.
 - [ ] Ready for development.
+
+## Warehouse backend
+
+From GOAL 17, Adrian owns Mock SAP inventory comparison and warehouse recommendations. The [integration guide](../SAP_BUSINESS_INTELLIGENCE.md) describes the functional profile and the fixture fallback.

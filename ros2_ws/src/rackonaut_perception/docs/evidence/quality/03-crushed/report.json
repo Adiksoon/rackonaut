@@ -1,0 +1,43 @@
+{
+  "quality_schema_version": "0.1",
+  "quality_id": "Q-2CDCF19F078641E3B567DC576DD740DD",
+  "inspection_id": "INS-05A-MISSION",
+  "observation_id": "OBS-C42D87781C60469F9D4F2E870DD49419",
+  "observation_timestamp": "2026-11-25T09:13:44.151Z",
+  "slot_id": "A-01-04",
+  "pallet_id": "P999",
+  "status": "DAMAGED",
+  "reason": "Collapsed upper contour",
+  "timestamp": "2026-11-25T09:13:45.769Z",
+  "camera": {
+    "frame_id": "rackonaut_camera_optical_frame",
+    "stamp": {
+      "sec": 41,
+      "nanosec": 0
+    },
+    "width": 320,
+    "height": 240
+  },
+  "defect_polygon_px": [
+    [
+      195,
+      35
+    ],
+    [
+      253,
+      35
+    ],
+    [
+      253,
+      54
+    ],
+    [
+      195,
+      54
+    ]
+  ],
+  "images": {
+    "original": "camera.png",
+    "annotated": "annotated.png"
+  }
+}

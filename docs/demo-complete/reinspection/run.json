@@ -1,0 +1,179 @@
+{
+  "mission": {
+    "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+    "stage": "COMPLETE",
+    "target": "PAD",
+    "target_pose": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "position": [
+      0.0,
+      0.0,
+      0.05,
+      0.0
+    ],
+    "elapsed_seconds": 75.7,
+    "total": 2,
+    "planned_slots": [
+      "A-01-05",
+      "A-01-07"
+    ],
+    "visited": [
+      "A-01-05",
+      "A-01-07"
+    ],
+    "confirmed": {
+      "A-01-05": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+        "observation_id": "OBS-B9BE77246AF546CDB231B06D5F0B4084",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T10:54:05.880Z"
+      },
+      "A-01-07": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+        "observation_id": "OBS-829D52DE7A1B415EAD7BF6C637FBB606",
+        "slot_id": "A-01-07",
+        "pallet_id": null,
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "timestamp": "2026-11-25T10:54:14.382Z"
+      }
+    },
+    "missed": [],
+    "landed": true,
+    "detail": "Landed on the launch pad"
+  },
+  "api": {
+    "health": {
+      "status": "ok",
+      "mode": "fixture"
+    },
+    "observations": [
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+        "observation_id": "OBS-B9BE77246AF546CDB231B06D5F0B4084",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T10:54:05.880Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+        "observation_id": "OBS-829D52DE7A1B415EAD7BF6C637FBB606",
+        "slot_id": "A-01-07",
+        "pallet_id": null,
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "timestamp": "2026-11-25T10:54:14.382Z"
+      }
+    ],
+    "summary": {
+      "inspection_id": "INS-CONTROL-20261125-105328-71DD2F58",
+      "slots_total": 11,
+      "slots_observed": 2,
+      "observations_total": 2,
+      "discrepancy_count": 0,
+      "outcomes": {
+        "match": 0,
+        "wrong_pallet": 0,
+        "missing_pallet": 0,
+        "unexpected_pallet": 0,
+        "unreadable_label": 0,
+        "uninspected": 9,
+        "uncertain": 0,
+        "pending": 2
+      },
+      "slots": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-02",
+          "expected_pallet_id": "P002",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-04",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-05",
+          "expected_pallet_id": "P005",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-B9BE77246AF546CDB231B06D5F0B4084",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-06",
+          "expected_pallet_id": "P006",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-07",
+          "expected_pallet_id": "P007",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-829D52DE7A1B415EAD7BF6C637FBB606",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-08",
+          "expected_pallet_id": "P008",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-01-01",
+          "expected_pallet_id": "P021",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-01-02",
+          "expected_pallet_id": "P022",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-02-01",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ]
+    },
+    "discrepancies": []
+  }
+}

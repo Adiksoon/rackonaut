@@ -1,0 +1,40 @@
+{
+  "inspection_id": "INS-MISSION-G04-RECOVERY",
+  "stage": "COMPLETE_WITH_MISSES",
+  "target": "PAD",
+  "target_pose": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "position": [
+    0.0,
+    0.0,
+    0.05,
+    0.0
+  ],
+  "elapsed_seconds": 62.5,
+  "total": 2,
+  "visited": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "confirmed": {
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-MISSION-G04-RECOVERY",
+      "observation_id": "OBS-F5DCB1B4B6BB4626920070E891E33D3C",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-25T08:41:27.746Z"
+    }
+  },
+  "missed": [
+    "A-01-01"
+  ],
+  "landed": true,
+  "detail": "Landed on the launch pad"
+}

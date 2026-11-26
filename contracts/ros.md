@@ -34,3 +34,30 @@ The optical frame is +X right, +Y down and +Z forward. The drone frame is +X for
 The checked-in bridge configuration links Fortress's `/world/rackonaut/clock` to ROS `/clock`. Native fixture channels are `/rackonaut_reference/cmd_vel` (controller input), `/rackonaut_reference/odom` (3D simulation odometry), `/rackonaut_reference/tf` (simulation-derived pose), `/rackonaut_reference/rgb` and `/rackonaut_reference/camera_info`. Production modules use the ROS interface names in the table. The reference fixture uses original primitive geometry and has an RGB camera only. Its simulated odometry is suitable for validation and must be identified as simulator-derived in results.
 
 Before substituting a drone, Michał confirms the model version and license, native transport names, command frame and zeroing behavior, camera encoding and header agreement, pose/TF source, and compatibility with the same warehouse world. Depth, LiDAR, map frames and SLAM require a separate agreement.
+
+## Opt-in obstacle avoidance showcase
+
+The `avoidance:=true` reference profile publishes an organized `sensor_msgs/msg/PointCloud2` on `/rackonaut/drone/lidar/points`. The cloud carries simulator acquisition time, a 192 × 37 layout and Cartesian coordinates in meters with a nominal cadence of 6 Hz in simulation time. The fixed TF from `rackonaut_base_link` to `rackonaut_reference_drone/base_link/local_lidar` translates 0.09 m along +Z with identity rotation. The companion RGB camera and existing motion bridge retain their interfaces. Mission status carries the optional `avoidance` diagnostics. [Profile and validation](../docs/OBSTACLE_AVOIDANCE.md)
+
+## Opt-in sensor localization showcase
+
+The `localization:=sensor_based` profile makes `rackonaut_localization` the owner of `/rackonaut/drone/odom` and of the dynamic TF from `rackonaut_odom` to `rackonaut_base_link`. The `shadow` profile exposes estimates while retaining the Gazebo source for control.
+
+| Topic | Type | Meaning |
+|---|---|---|
+| `/rackonaut/drone/imu` | `sensor_msgs/msg/Imu` | Body angular rates and specific force, 50 Hz nominal, frame `rackonaut_reference_drone/base_link/local_imu` at the body origin |
+| `/rackonaut/localization/estimate` | `nav_msgs/msg/Odometry` | Registered pose at the exact acquisition stamp of the corresponding LiDAR cloud |
+| `/rackonaut/localization/measured_map` | `sensor_msgs/msg/PointCloud2` | Accumulated observed endpoints in `rackonaut_odom` |
+| `/rackonaut/localization/state` | `std_msgs/msg/String` | Localization status, quality metrics and reduced display layers |
+| `/rackonaut/dock/contacts` | `ros_gz_interfaces/msg/Contacts` | Physical collision contact with the dock switch |
+| `/rackonaut/validation/ground_truth` | `nav_msgs/msg/Odometry` | Optional independent validator input, enabled by `localization_diagnostics:=true` |
+
+The estimator uses the IMU rates and specific force. In sensor mode the avoidance module uses the registered pose at the cloud stamp. The Energy Manager uses the active estimated odometry and independently checks the dock contact. [Profile and validation](../docs/SENSOR_LOCALIZATION.md)
+
+## Opt-in autonomous recovery
+
+`recovery:=true` requires `localization:=sensor_based`, the protected aerial scene and Safety. The loopback Control Center publishes evaluate, authorize and abort requests as `std_msgs/msg/String` on `/rackonaut/recovery/operator`. The request targets the interrupted inspection. Approval must also match the current recovery ID and proposal token. The Mission Manager rechecks prerequisites and retains ownership of the motion topic.
+
+The `recovery` field of `/rackonaut/mission/status` carries the recovery procedure ID, parent inspection, proposed path, result and permit request. `/rackonaut/safety/state` reports the separately verified recovery permit for that ID. The original mission stage and result remain terminal throughout the procedure. Safety releases the reservation after the permitted recovery completes with stable position and physical dock contact. `/rackonaut/energy/state` reports whether the budget has been accounted for and the energy charged for odometry gaps in this profile. [Recovery profile](../docs/AUTONOMOUS_RECOVERY.md)
+
+In this profile, Mission Manager owns the `std_msgs/msg/Bool` command on `/rackonaut/drone/flight_enabled`. A profile-local bridge forwards it to the existing simulated flight controller. At touchdown Recovery disables thrust, then checks physical dock contact before completion.

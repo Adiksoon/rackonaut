@@ -1,0 +1,10 @@
+average rate: 2.653
+	min: 0.353s max: 0.407s std dev: 0.01960s window: 4
+average rate: 2.678
+	min: 0.351s max: 0.407s std dev: 0.01737s window: 7
+average rate: 2.647
+	min: 0.351s max: 0.407s std dev: 0.01791s window: 10
+average rate: 2.647
+	min: 0.351s max: 0.412s std dev: 0.01980s window: 13
+average rate: 2.645
+	min: 0.351s max: 0.412s std dev: 0.02011s window: 16

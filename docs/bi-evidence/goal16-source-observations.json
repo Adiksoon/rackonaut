@@ -1,0 +1,36 @@
+[
+  [
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261125-164502-741B32D9",
+      "observation_id": "OBS-ACA757CF181040919ED8489B3AD868DD",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-25T16:47:18.695Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261125-164502-741B32D9",
+      "observation_id": "OBS-9FBCDC6DF57C4242B998DA27572DADE9",
+      "slot_id": "A-01-01",
+      "pallet_id": "P001",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-25T16:47:26.913Z"
+    }
+  ],
+  [
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261125-165006-F71CB32F",
+      "observation_id": "OBS-645019CC56F34379950B498E217A8373",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-25T16:52:24.647Z"
+    }
+  ]
+]

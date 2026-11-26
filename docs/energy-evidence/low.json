@@ -1,0 +1,121 @@
+{
+  "reply": {
+    "error": "Insufficient energy for the first stop and safe return (34.1% required)."
+  },
+  "state": {
+    "robot": true,
+    "at_pad": true,
+    "busy": false,
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "orientation": [
+      -2.841465449468562e-17,
+      -1.708381781590155e-18,
+      -5.251308265614071e-19,
+      1
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 4.842,
+      "dock": "AVAILABLE",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 11.08,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 6,
+        "reserve": 8,
+        "ready": 88
+      }
+    },
+    "backend": {
+      "online": true,
+      "mode": "fixture",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08",
+        "B-01-01",
+        "B-01-02",
+        "B-02-01"
+      ]
+    },
+    "mission": null,
+    "camera": 55,
+    "camera_type": "raw",
+    "history": [],
+    "safety_enabled": true,
+    "safety": {
+      "inspection_id": null,
+      "phase": "AVAILABLE",
+      "permit": false,
+      "permit_departure": null,
+      "sensor": "FRESH",
+      "sensor_mode": "virtual",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [],
+      "message": "Waiting for presence, odometry and signals.",
+      "alarm": null,
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "OPEN",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "events": []
+    },
+    "last_reservation": [],
+    "overview": true
+  }
+}

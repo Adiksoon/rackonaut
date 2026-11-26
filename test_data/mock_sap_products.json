@@ -1,0 +1,15 @@
+{
+  "source": "mock_sap",
+  "synthetic": true,
+  "handling_units": [
+    {"hu_id":"P001","sku":"EL-440","product_name":"Series 440 control relay","batch":"EL-2408","lifecycle_status":"DISCONTINUED","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P002","sku":"MT-125","product_name":"Mounting bracket kit","batch":"MT-2611","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P003","sku":"EL-812","product_name":"Industrial junction box","batch":"EL-2606","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P005","sku":"PK-140","product_name":"Protective packaging inserts","batch":"PK-2610","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P006","sku":"MT-620","product_name":"Bearing assembly","batch":"MT-2605","lifecycle_status":"BLOCKED","quality_status":"ON_HOLD","stock_status":"RESTRICTED"},
+    {"hu_id":"P007","sku":"EL-224","product_name":"Cable routing module","batch":"EL-2611","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P008","sku":"HY-310","product_name":"Hydraulic fitting set","batch":"HY-2609","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P021","sku":"EL-590","product_name":"Modular sensor housing","batch":"EL-2610","lifecycle_status":"ACTIVE","quality_status":"RELEASED","stock_status":"ON_HAND"},
+    {"hu_id":"P022","sku":"MT-271","product_name":"Precision mounting rail","batch":"MT-2609","lifecycle_status":"UNKNOWN","quality_status":"PENDING","stock_status":"ON_HAND"}
+  ]
+}

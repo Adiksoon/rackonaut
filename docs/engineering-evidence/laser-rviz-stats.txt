@@ -1,0 +1,1055 @@
+sim_time {
+  sec: 18
+  nsec: 256000000
+}
+real_time {
+  sec: 48
+  nsec: 202177732
+}
+iterations: 4564
+real_time_factor: 0.8419
+
+sim_time {
+  sec: 18
+  nsec: 280000000
+}
+real_time {
+  sec: 48
+  nsec: 302688297
+}
+iterations: 4570
+real_time_factor: 0.3645
+
+sim_time {
+  sec: 18
+  nsec: 304000000
+}
+real_time {
+  sec: 48
+  nsec: 434624700
+}
+iterations: 4576
+real_time_factor: 0.2202
+
+sim_time {
+  sec: 18
+  nsec: 384000000
+}
+real_time {
+  sec: 48
+  nsec: 535838665
+}
+iterations: 4596
+real_time_factor: 0.6837
+
+sim_time {
+  sec: 18
+  nsec: 432000000
+}
+real_time {
+  sec: 48
+  nsec: 734306158
+}
+iterations: 4608
+real_time_factor: 0.8255
+
+sim_time {
+  sec: 18
+  nsec: 504000000
+}
+real_time {
+  sec: 48
+  nsec: 881903514
+}
+iterations: 4626
+real_time_factor: 0.2059
+
+sim_time {
+  sec: 18
+  nsec: 596000000
+}
+real_time {
+  sec: 48
+  nsec: 991920252
+}
+iterations: 4649
+real_time_factor: 0.9638
+
+sim_time {
+  sec: 18
+  nsec: 604000000
+}
+real_time {
+  sec: 49
+  nsec: 134467324
+}
+iterations: 4651
+real_time_factor: 0.7944
+
+sim_time {
+  sec: 18
+  nsec: 652000000
+}
+real_time {
+  sec: 49
+  nsec: 314163899
+}
+iterations: 4663
+real_time_factor: 0.2622
+
+sim_time {
+  sec: 18
+  nsec: 740000000
+}
+real_time {
+  sec: 49
+  nsec: 416446341
+}
+iterations: 4685
+real_time_factor: 0.8429
+
+sim_time {
+  sec: 18
+  nsec: 768000000
+}
+real_time {
+  sec: 49
+  nsec: 517135847
+}
+iterations: 4692
+real_time_factor: 0.6678
+
+sim_time {
+  sec: 18
+  nsec: 804000000
+}
+real_time {
+  sec: 49
+  nsec: 661953515
+}
+iterations: 4701
+real_time_factor: 0.4543
+
+sim_time {
+  sec: 18
+  nsec: 904000000
+}
+real_time {
+  sec: 49
+  nsec: 842987791
+}
+iterations: 4726
+real_time_factor: 0.8906
+
+sim_time {
+  sec: 18
+  nsec: 988000000
+}
+real_time {
+  sec: 50
+  nsec: 28494208
+}
+iterations: 4747
+real_time_factor: 0.7042
+
+sim_time {
+  sec: 19
+  nsec: 40000000
+}
+real_time {
+  sec: 50
+  nsec: 131097650
+}
+iterations: 4760
+real_time_factor: 0.3064
+
+sim_time {
+  sec: 19
+  nsec: 96000000
+}
+real_time {
+  sec: 50
+  nsec: 349409825
+}
+iterations: 4774
+real_time_factor: 0.8133
+
+sim_time {
+  sec: 19
+  nsec: 104000000
+}
+real_time {
+  sec: 50
+  nsec: 492788142
+}
+iterations: 4776
+real_time_factor: 0.5463
+
+sim_time {
+  sec: 19
+  nsec: 204000000
+}
+real_time {
+  sec: 50
+  nsec: 594202749
+}
+iterations: 4801
+real_time_factor: 0.9861
+
+sim_time {
+  sec: 19
+  nsec: 256000000
+}
+real_time {
+  sec: 50
+  nsec: 772417101
+}
+iterations: 4814
+real_time_factor: 0.8469
+
+sim_time {
+  sec: 19
+  nsec: 280000000
+}
+real_time {
+  sec: 50
+  nsec: 874000118
+}
+iterations: 4820
+real_time_factor: 0.3596
+
+sim_time {
+  sec: 19
+  nsec: 304000000
+}
+real_time {
+  sec: 51
+  nsec: 5047730
+}
+iterations: 4826
+real_time_factor: 0.2212
+
+sim_time {
+  sec: 19
+  nsec: 384000000
+}
+real_time {
+  sec: 51
+  nsec: 106510849
+}
+iterations: 4846
+real_time_factor: 0.6814
+
+sim_time {
+  sec: 19
+  nsec: 428000000
+}
+real_time {
+  sec: 51
+  nsec: 305421032
+}
+iterations: 4857
+real_time_factor: 0.8196
+
+sim_time {
+  sec: 19
+  nsec: 504000000
+}
+real_time {
+  sec: 51
+  nsec: 453139762
+}
+iterations: 4876
+real_time_factor: 0.9059
+
+sim_time {
+  sec: 19
+  nsec: 592000000
+}
+real_time {
+  sec: 51
+  nsec: 563963538
+}
+iterations: 4898
+real_time_factor: 0.9575
+
+sim_time {
+  sec: 19
+  nsec: 604000000
+}
+real_time {
+  sec: 51
+  nsec: 714353994
+}
+iterations: 4901
+real_time_factor: 0.7631
+
+sim_time {
+  sec: 19
+  nsec: 652000000
+}
+real_time {
+  sec: 51
+  nsec: 897841133
+}
+iterations: 4913
+real_time_factor: 0.2496
+
+sim_time {
+  sec: 19
+  nsec: 740000000
+}
+real_time {
+  sec: 52
+  nsec: 1816971
+}
+iterations: 4935
+real_time_factor: 0.8279
+
+sim_time {
+  sec: 19
+  nsec: 764000000
+}
+real_time {
+  sec: 52
+  nsec: 102173573
+}
+iterations: 4941
+real_time_factor: 0.6558
+
+sim_time {
+  sec: 19
+  nsec: 804000000
+}
+real_time {
+  sec: 52
+  nsec: 245118793
+}
+iterations: 4951
+real_time_factor: 0.4258
+
+sim_time {
+  sec: 19
+  nsec: 904000000
+}
+real_time {
+  sec: 52
+  nsec: 431040874
+}
+iterations: 4976
+real_time_factor: 0.8881
+
+sim_time {
+  sec: 19
+  nsec: 984000000
+}
+real_time {
+  sec: 52
+  nsec: 616309928
+}
+iterations: 4996
+real_time_factor: 0.687
+
+sim_time {
+  sec: 20
+  nsec: 40000000
+}
+real_time {
+  sec: 52
+  nsec: 719647159
+}
+iterations: 5010
+real_time_factor: 0.2963
+
+sim_time {
+  sec: 20
+  nsec: 92000000
+}
+real_time {
+  sec: 52
+  nsec: 938444039
+}
+iterations: 5023
+real_time_factor: 0.8119
+
+sim_time {
+  sec: 20
+  nsec: 104000000
+}
+real_time {
+  sec: 53
+  nsec: 82561909
+}
+iterations: 5026
+real_time_factor: 0.4851
+
+sim_time {
+  sec: 20
+  nsec: 204000000
+}
+real_time {
+  sec: 53
+  nsec: 183953115
+}
+iterations: 5051
+real_time_factor: 0.9833
+
+sim_time {
+  sec: 20
+  nsec: 256000000
+}
+real_time {
+  sec: 53
+  nsec: 361156212
+}
+iterations: 5064
+real_time_factor: 0.8517
+
+sim_time {
+  sec: 20
+  nsec: 304000000
+}
+real_time {
+  sec: 53
+  nsec: 578475136
+}
+iterations: 5076
+real_time_factor: 0.2971
+
+sim_time {
+  sec: 20
+  nsec: 384000000
+}
+real_time {
+  sec: 53
+  nsec: 680240491
+}
+iterations: 5096
+real_time_factor: 0.6795
+
+sim_time {
+  sec: 20
+  nsec: 424000000
+}
+real_time {
+  sec: 53
+  nsec: 879078890
+}
+iterations: 5106
+real_time_factor: 0.8167
+
+sim_time {
+  sec: 20
+  nsec: 504000000
+}
+real_time {
+  sec: 54
+  nsec: 26706463
+}
+iterations: 5126
+real_time_factor: 0.9048
+
+sim_time {
+  sec: 20
+  nsec: 588000000
+}
+real_time {
+  sec: 54
+  nsec: 134503513
+}
+iterations: 5147
+real_time_factor: 0.9576
+
+sim_time {
+  sec: 20
+  nsec: 604000000
+}
+real_time {
+  sec: 54
+  nsec: 279642052
+}
+iterations: 5151
+real_time_factor: 0.7489
+
+sim_time {
+  sec: 20
+  nsec: 652000000
+}
+real_time {
+  sec: 54
+  nsec: 463498546
+}
+iterations: 5163
+real_time_factor: 0.2564
+
+sim_time {
+  sec: 20
+  nsec: 740000000
+}
+real_time {
+  sec: 54
+  nsec: 565501464
+}
+iterations: 5185
+real_time_factor: 0.8433
+
+sim_time {
+  sec: 20
+  nsec: 804000000
+}
+real_time {
+  sec: 54
+  nsec: 792579273
+}
+iterations: 5201
+real_time_factor: 0.8144
+
+sim_time {
+  sec: 20
+  nsec: 904000000
+}
+real_time {
+  sec: 54
+  nsec: 974083885
+}
+iterations: 5226
+real_time_factor: 0.8933
+
+sim_time {
+  sec: 20
+  nsec: 984000000
+}
+real_time {
+  sec: 55
+  nsec: 157335586
+}
+iterations: 5246
+real_time_factor: 0.6473
+
+sim_time {
+  sec: 21
+  nsec: 40000000
+}
+real_time {
+  sec: 55
+  nsec: 259180212
+}
+iterations: 5260
+real_time_factor: 0.3078
+
+sim_time {
+  sec: 21
+  nsec: 88000000
+}
+real_time {
+  sec: 55
+  nsec: 474012358
+}
+iterations: 5272
+real_time_factor: 0.81
+
+sim_time {
+  sec: 21
+  nsec: 104000000
+}
+real_time {
+  sec: 55
+  nsec: 621647223
+}
+iterations: 5276
+real_time_factor: 0.4387
+
+sim_time {
+  sec: 21
+  nsec: 204000000
+}
+real_time {
+  sec: 55
+  nsec: 723077963
+}
+iterations: 5301
+real_time_factor: 0.9853
+
+sim_time {
+  sec: 21
+  nsec: 252000000
+}
+real_time {
+  sec: 55
+  nsec: 908406331
+}
+iterations: 5313
+real_time_factor: 0.8366
+
+sim_time {
+  sec: 21
+  nsec: 256000000
+}
+real_time {
+  sec: 56
+  nsec: 60481107
+}
+iterations: 5314
+real_time_factor: 0.6368
+
+sim_time {
+  sec: 21
+  nsec: 316000000
+}
+real_time {
+  sec: 56
+  nsec: 180662573
+}
+iterations: 5329
+real_time_factor: 0.135
+
+sim_time {
+  sec: 21
+  nsec: 416000000
+}
+real_time {
+  sec: 56
+  nsec: 282209783
+}
+iterations: 5354
+real_time_factor: 0.9816
+
+sim_time {
+  sec: 21
+  nsec: 420000000
+}
+real_time {
+  sec: 56
+  nsec: 448583154
+}
+iterations: 5355
+real_time_factor: 0.8112
+
+sim_time {
+  sec: 21
+  nsec: 504000000
+}
+real_time {
+  sec: 56
+  nsec: 596645293
+}
+iterations: 5376
+real_time_factor: 0.9146
+
+sim_time {
+  sec: 21
+  nsec: 584000000
+}
+real_time {
+  sec: 56
+  nsec: 705599878
+}
+iterations: 5396
+real_time_factor: 0.9509
+
+sim_time {
+  sec: 21
+  nsec: 604000000
+}
+real_time {
+  sec: 56
+  nsec: 853296392
+}
+iterations: 5401
+real_time_factor: 0.7133
+
+sim_time {
+  sec: 21
+  nsec: 652000000
+}
+real_time {
+  sec: 57
+  nsec: 35718312
+}
+iterations: 5413
+real_time_factor: 0.2482
+
+sim_time {
+  sec: 21
+  nsec: 740000000
+}
+real_time {
+  sec: 57
+  nsec: 137688328
+}
+iterations: 5435
+real_time_factor: 0.847
+
+sim_time {
+  sec: 21
+  nsec: 756000000
+}
+real_time {
+  sec: 57
+  nsec: 292335956
+}
+iterations: 5439
+real_time_factor: 0.699
+
+sim_time {
+  sec: 21
+  nsec: 824000000
+}
+real_time {
+  sec: 57
+  nsec: 395895039
+}
+iterations: 5456
+real_time_factor: 0.2191
+
+sim_time {
+  sec: 21
+  nsec: 904000000
+}
+real_time {
+  sec: 57
+  nsec: 561622069
+}
+iterations: 5476
+real_time_factor: 0.8913
+
+sim_time {
+  sec: 21
+  nsec: 980000000
+}
+real_time {
+  sec: 57
+  nsec: 663370944
+}
+iterations: 5495
+real_time_factor: 0.6387
+
+sim_time {
+  sec: 22
+  nsec: 4000000
+}
+real_time {
+  sec: 57
+  nsec: 809986857
+}
+iterations: 5501
+real_time_factor: 0.5943
+
+sim_time {
+  sec: 22
+  nsec: 84000000
+}
+real_time {
+  sec: 58
+  nsec: 67799388
+}
+iterations: 5521
+real_time_factor: 0.8015
+
+sim_time {
+  sec: 22
+  nsec: 104000000
+}
+real_time {
+  sec: 58
+  nsec: 222185931
+}
+iterations: 5526
+real_time_factor: 0.3867
+
+sim_time {
+  sec: 22
+  nsec: 204000000
+}
+real_time {
+  sec: 58
+  nsec: 323721478
+}
+iterations: 5551
+real_time_factor: 0.9853
+
+sim_time {
+  sec: 22
+  nsec: 248000000
+}
+real_time {
+  sec: 58
+  nsec: 508827171
+}
+iterations: 5562
+real_time_factor: 0.8347
+
+sim_time {
+  sec: 22
+  nsec: 256000000
+}
+real_time {
+  sec: 58
+  nsec: 658583179
+}
+iterations: 5564
+real_time_factor: 0.5696
+
+sim_time {
+  sec: 22
+  nsec: 316000000
+}
+real_time {
+  sec: 58
+  nsec: 779395137
+}
+iterations: 5579
+real_time_factor: 0.1325
+
+sim_time {
+  sec: 22
+  nsec: 416000000
+}
+real_time {
+  sec: 59
+  nsec: 47281449
+}
+iterations: 5604
+real_time_factor: 0.8117
+
+sim_time {
+  sec: 22
+  nsec: 504000000
+}
+real_time {
+  sec: 59
+  nsec: 195641903
+}
+iterations: 5626
+real_time_factor: 0.9167
+
+sim_time {
+  sec: 22
+  nsec: 580000000
+}
+real_time {
+  sec: 59
+  nsec: 302583761
+}
+iterations: 5645
+real_time_factor: 0.9519
+
+sim_time {
+  sec: 22
+  nsec: 604000000
+}
+real_time {
+  sec: 59
+  nsec: 450971400
+}
+iterations: 5651
+real_time_factor: 0.6879
+
+sim_time {
+  sec: 22
+  nsec: 648000000
+}
+real_time {
+  sec: 59
+  nsec: 630659813
+}
+iterations: 5662
+real_time_factor: 0.259
+
+sim_time {
+  sec: 22
+  nsec: 740000000
+}
+real_time {
+  sec: 59
+  nsec: 733220593
+}
+iterations: 5685
+real_time_factor: 0.8787
+
+sim_time {
+  sec: 22
+  nsec: 756000000
+}
+real_time {
+  sec: 59
+  nsec: 891861170
+}
+iterations: 5689
+real_time_factor: 0.7298
+
+sim_time {
+  sec: 22
+  nsec: 820000000
+}
+real_time {
+  sec: 59
+  nsec: 995754771
+}
+iterations: 5705
+real_time_factor: 0.2244
+
+sim_time {
+  sec: 22
+  nsec: 904000000
+}
+real_time {
+  sec: 60
+  nsec: 161322398
+}
+iterations: 5726
+real_time_factor: 0.8925
+
+sim_time {
+  sec: 22
+  nsec: 980000000
+}
+real_time {
+  sec: 60
+  nsec: 265079679
+}
+iterations: 5745
+real_time_factor: 0.6077
+
+sim_time {
+  sec: 23
+  nsec: 4000000
+}
+real_time {
+  sec: 60
+  nsec: 405797174
+}
+iterations: 5751
+real_time_factor: 0.6025
+
+sim_time {
+  sec: 23
+  nsec: 80000000
+}
+real_time {
+  sec: 60
+  nsec: 659781261
+}
+iterations: 5770
+real_time_factor: 0.8016
+
+sim_time {
+  sec: 23
+  nsec: 104000000
+}
+real_time {
+  sec: 60
+  nsec: 807547287
+}
+iterations: 5776
+real_time_factor: 0.3564
+
+sim_time {
+  sec: 23
+  nsec: 204000000
+}
+real_time {
+  sec: 60
+  nsec: 908654980
+}
+iterations: 5801
+real_time_factor: 0.9892
+
+sim_time {
+  sec: 23
+  nsec: 244000000
+}
+real_time {
+  sec: 61
+  nsec: 90483921
+}
+iterations: 5811
+real_time_factor: 0.8345
+
+sim_time {
+  sec: 23
+  nsec: 256000000
+}
+real_time {
+  sec: 61
+  nsec: 234570687
+}
+iterations: 5814
+real_time_factor: 0.5184
+
+sim_time {
+  sec: 23
+  nsec: 312000000
+}
+real_time {
+  sec: 61
+  nsec: 335889482
+}
+iterations: 5828
+real_time_factor: 0.1401
+
+sim_time {
+  sec: 23
+  nsec: 388000000
+}
+real_time {
+  sec: 61
+  nsec: 438667443
+}
+iterations: 5847
+real_time_factor: 0.6064
+
+sim_time {
+  sec: 23
+  nsec: 412000000
+}
+real_time {
+  sec: 61
+  nsec: 644625945
+}
+iterations: 5853
+real_time_factor: 0.792
+
+sim_time {
+  sec: 23
+  nsec: 504000000
+}
+real_time {
+  sec: 61
+  nsec: 791744367
+}
+iterations: 5876
+real_time_factor: 0.9247
+
+sim_time {
+  sec: 23
+  nsec: 576000000
+}
+real_time {
+  sec: 61
+  nsec: 899780760
+}
+iterations: 5894
+real_time_factor: 0.4152
+
+sim_time {
+  sec: 23
+  nsec: 604000000
+}
+real_time {
+  sec: 62
+  nsec: 50967736
+}
+iterations: 5901
+real_time_factor: 0.6479
+
+sim_time {
+  sec: 23
+  nsec: 648000000
+}
+real_time {
+  sec: 62
+  nsec: 236780057
+}
+iterations: 5912
+real_time_factor: 0.2492

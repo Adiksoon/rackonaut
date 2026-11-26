@@ -1,0 +1,121 @@
+{
+  "baseline": {
+    "world_samples": 96,
+    "duration_wall_s": 13.4079,
+    "rtf": 0.4135,
+    "localization_sample_count": 45,
+    "localization_states": {
+      "TRACKING": 45,
+      "DEGRADED": 0,
+      "LOST": 0
+    },
+    "scan_age_ms": {
+      "median": 209.0,
+      "p95": 397.2,
+      "max": 437.0
+    },
+    "imu_age_ms": {
+      "median": 18.0,
+      "p95": 72.6,
+      "max": 143.0
+    },
+    "scan_hz_wall": {
+      "median": 2.5,
+      "p95": 2.5,
+      "max": 2.5
+    },
+    "lasers": {
+      "A": {
+        "age_ms": {
+          "median": 250.0,
+          "p95": 571.2,
+          "max": 622.0
+        },
+        "states": [
+          "FRESH"
+        ]
+      },
+      "B": {
+        "age_ms": {
+          "median": 253.0,
+          "p95": 509.2,
+          "max": 556.0
+        },
+        "states": [
+          "FRESH"
+        ]
+      },
+      "T": {
+        "age_ms": {
+          "median": 317.0,
+          "p95": 687.2,
+          "max": 772.0
+        },
+        "states": [
+          "FRESH",
+          "STALE"
+        ]
+      }
+    },
+    "map_voxels": 1147
+  },
+  "rviz": {
+    "world_samples": 96,
+    "duration_wall_s": 14.0346,
+    "rtf": 0.3842,
+    "localization_sample_count": 47,
+    "localization_states": {
+      "TRACKING": 47,
+      "DEGRADED": 0,
+      "LOST": 0
+    },
+    "scan_age_ms": {
+      "median": 250.0,
+      "p95": 449.2,
+      "max": 496.0
+    },
+    "imu_age_ms": {
+      "median": 36.0,
+      "p95": 147.7,
+      "max": 179.0
+    },
+    "scan_hz_wall": {
+      "median": 2.4,
+      "p95": 2.4,
+      "max": 2.4
+    },
+    "lasers": {
+      "A": {
+        "age_ms": {
+          "median": 251.0,
+          "p95": 500.0,
+          "max": 536.0
+        },
+        "states": [
+          "FRESH"
+        ]
+      },
+      "B": {
+        "age_ms": {
+          "median": 266.0,
+          "p95": 477.5,
+          "max": 521.0
+        },
+        "states": [
+          "FRESH"
+        ]
+      },
+      "T": {
+        "age_ms": {
+          "median": 315.0,
+          "p95": 599.1,
+          "max": 731.0
+        },
+        "states": [
+          "FRESH"
+        ]
+      }
+    },
+    "map_voxels": 1147
+  }
+}

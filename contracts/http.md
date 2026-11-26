@@ -60,3 +60,7 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/observations -Cont
 ```
 
 Bind development API and dashboard services to loopback. For a browser dashboard, the mock allows `localhost` and `127.0.0.1` origins with HTTP or HTTPS and optional ports. Keep the API base URL configurable and refresh results with ordinary GET requests.
+
+## Functional Mock SAP profile
+
+Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. Its additional business, photo and verification routes are documented separately. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)

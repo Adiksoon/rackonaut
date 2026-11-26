@@ -1,0 +1,50 @@
+{
+  "original_inspection": {
+    "inspection_id": "INS-CONTROL-20261125-164502-741B32D9",
+    "result": "ABORTED",
+    "events": 2,
+    "rows": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": "P001",
+        "observation_id": "OBS-9FBCDC6DF57C4242B998DA27572DADE9",
+        "outcome": "pending"
+      },
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": null,
+        "outcome": "uninspected"
+      }
+    ],
+    "world_time": 168.7,
+    "energy": 45.127,
+    "physical_dock_contact": true,
+    "charging": true,
+    "safety": "RELEASED"
+  },
+  "new_inspection": {
+    "inspection_id": "INS-CONTROL-20261125-165006-F71CB32F",
+    "result": "COMPLETE",
+    "events": 1,
+    "rows": [
+      {
+        "slot_id": "A-01-03",
+        "expected_pallet_id": "P003",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-645019CC56F34379950B498E217A8373",
+        "outcome": "pending"
+      }
+    ],
+    "world_time": 332.6,
+    "energy": 32.413,
+    "physical_dock_contact": true,
+    "charging": true,
+    "safety": "RELEASED"
+  },
+  "gazebo_server_pid": 228198,
+  "simulation_clock_increased_monotonically": true,
+  "original_archive_sha256_before_and_after_new_inspection": "c5728a6c0cec5d2e40a142f1e98670976105155fdce579be82793a093aeb31ca"
+}

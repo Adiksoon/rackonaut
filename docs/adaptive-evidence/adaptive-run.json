@@ -1,0 +1,551 @@
+{
+  "mission": {
+    "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+    "stage": "COMPLETE",
+    "target": "PAD",
+    "target_pose": [
+      0.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "position": [
+      -0.0,
+      0.0,
+      0.05,
+      0.0
+    ],
+    "elapsed_seconds": 147.0,
+    "total": 4,
+    "planned_slots": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-05"
+    ],
+    "visited": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-05"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-D1405D8FDCE6410F9A7BBD16C0CFE061",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:05:47.686Z"
+      },
+      "A-01-02": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-4C90B6F55FAB42C193BF6AC64E3715F3",
+        "slot_id": "A-01-02",
+        "pallet_id": "P003",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:06:07.015Z"
+      },
+      "A-01-03": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-8934F46E2DFE497FA15F70FBF64A66EE",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-25T12:06:22.610Z"
+      },
+      "A-01-05": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-1D9C576D5DED4EECA824217DB085A156",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T12:06:49.633Z"
+      }
+    },
+    "missed": [],
+    "landed": true,
+    "detail": "Landed on the launch pad",
+    "adaptive": {
+      "attempt": 3,
+      "reason": "uncertain",
+      "attempts": [
+        {
+          "slot_id": "A-01-01",
+          "attempt": 1,
+          "reason": "initial",
+          "issue": "unreadable",
+          "observation_id": "OBS-733715A4E4F7467281AC0B332A32BF4A",
+          "quality_id": null,
+          "reading": [
+            "occupied",
+            "unreadable",
+            null
+          ],
+          "outcome": "Label unreadable \u2014 adjusting viewpoint"
+        },
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "reason": "unreadable",
+          "issue": null,
+          "observation_id": "OBS-D1405D8FDCE6410F9A7BBD16C0CFE061",
+          "quality_id": "Q-AC14CBC73862466592C1C33E69C21DEF",
+          "reading": [
+            "occupied",
+            "readable",
+            "P001"
+          ],
+          "outcome": "Label recovered successfully"
+        },
+        {
+          "slot_id": "A-01-02",
+          "attempt": 1,
+          "reason": "initial",
+          "issue": "damage",
+          "observation_id": "OBS-671E070894114807969BBCCB9B562FE7",
+          "quality_id": "Q-35E78791CC174EA28ED7F2AAA97FE4A2",
+          "reading": [
+            "occupied",
+            "readable",
+            "P003"
+          ],
+          "outcome": "Damage detected \u2014 capturing additional evidence"
+        },
+        {
+          "slot_id": "A-01-02",
+          "attempt": 2,
+          "reason": "damage",
+          "issue": null,
+          "observation_id": "OBS-4C90B6F55FAB42C193BF6AC64E3715F3",
+          "quality_id": "Q-1F466E82395D46CA92B341A52543B728",
+          "reading": [
+            "occupied",
+            "readable",
+            "P003"
+          ],
+          "outcome": "Additional damage evidence saved"
+        },
+        {
+          "slot_id": "A-01-03",
+          "attempt": 1,
+          "reason": "initial",
+          "issue": null,
+          "observation_id": "OBS-8934F46E2DFE497FA15F70FBF64A66EE",
+          "quality_id": null,
+          "reading": [
+            "empty",
+            "not_applicable",
+            null
+          ],
+          "outcome": "Reading confirmed"
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 1,
+          "reason": "initial",
+          "issue": "unreadable",
+          "observation_id": "OBS-084E65459AD049909EFDEE855AAE04E5",
+          "quality_id": "Q-0D8EDC009E5A42BA96FEF48725D635FE",
+          "reading": [
+            "occupied",
+            "unreadable",
+            null
+          ],
+          "outcome": "Label unreadable \u2014 adjusting viewpoint"
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 2,
+          "reason": "unreadable",
+          "issue": "uncertain",
+          "observation_id": "OBS-E6A85AA118DC4F1081F93ED8D0D278E0",
+          "quality_id": null,
+          "reading": [
+            "uncertain",
+            "unknown",
+            null
+          ],
+          "outcome": "Occupancy uncertain \u2014 inspecting from another angle"
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 3,
+          "reason": "uncertain",
+          "issue": "unreadable",
+          "observation_id": "OBS-1D9C576D5DED4EECA824217DB085A156",
+          "quality_id": "Q-D1758B694C614D20919BFD508FA00754",
+          "reading": [
+            "occupied",
+            "unreadable",
+            null
+          ],
+          "outcome": "Manual verification required for A-01-05"
+        }
+      ],
+      "moves": [
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "stage": "REPOSITION",
+          "from": [
+            5.4600000002255085,
+            0.4500000003416923,
+            0.7899975650270388
+          ],
+          "target": [
+            6.01,
+            0.63,
+            0.82
+          ],
+          "actual": [
+            6.00782794679744,
+            0.6308379735908443,
+            0.8214754314306544
+          ]
+        },
+        {
+          "slot_id": "A-01-01",
+          "attempt": 2,
+          "stage": "RECENTER",
+          "from": [
+            6.010002211321925,
+            0.6300087515334019,
+            0.8200007833119263
+          ],
+          "target": [
+            5.46,
+            0.45,
+            0.79
+          ],
+          "actual": [
+            5.462421629545521,
+            0.45197777428801195,
+            0.7907247663236241
+          ]
+        },
+        {
+          "slot_id": "A-01-02",
+          "attempt": 2,
+          "stage": "REPOSITION",
+          "from": [
+            5.4599999992003925,
+            0.450000000025643,
+            2.8900480287101846
+          ],
+          "target": [
+            5.46,
+            0.59,
+            2.89
+          ],
+          "actual": [
+            5.4598569349397055,
+            0.5839889551859334,
+            2.8897119496594628
+          ]
+        },
+        {
+          "slot_id": "A-01-02",
+          "attempt": 2,
+          "stage": "RECENTER",
+          "from": [
+            5.460000348110039,
+            0.5899401628285571,
+            2.8900089337435735
+          ],
+          "target": [
+            5.46,
+            0.45,
+            2.89
+          ],
+          "actual": [
+            5.4601430947544545,
+            0.45615256282343397,
+            2.8897650791497242
+          ]
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 2,
+          "stage": "REPOSITION",
+          "from": [
+            11.060000073231214,
+            0.4500017088480416,
+            0.7899857836933903
+          ],
+          "target": [
+            11.61,
+            0.63,
+            0.82
+          ],
+          "actual": [
+            11.608802680460354,
+            0.6313361644378116,
+            0.8212727448625263
+          ]
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 2,
+          "stage": "RECENTER",
+          "from": [
+            11.609963884203387,
+            0.6300086136002465,
+            0.820029652978582
+          ],
+          "target": [
+            11.06,
+            0.45,
+            0.79
+          ],
+          "actual": [
+            11.062217353046192,
+            0.45180010229633966,
+            0.7908287958972172
+          ]
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 3,
+          "stage": "REPOSITION",
+          "from": [
+            11.062217353046192,
+            0.45180010229633966,
+            0.7908287958972172
+          ],
+          "target": [
+            10.68,
+            0.53,
+            0.89
+          ],
+          "actual": [
+            10.681157380347397,
+            0.5312896295168087,
+            0.8890543181351407
+          ]
+        },
+        {
+          "slot_id": "A-01-05",
+          "attempt": 3,
+          "stage": "RECENTER",
+          "from": [
+            10.680245362518182,
+            0.5299750695650385,
+            0.8901898273480809
+          ],
+          "target": [
+            11.06,
+            0.45,
+            0.79
+          ],
+          "actual": [
+            11.05909688194463,
+            0.45171945165437594,
+            0.7901591033801604
+          ]
+        }
+      ],
+      "retries": 4,
+      "resolved": [
+        "A-01-01"
+      ],
+      "manual_review": {
+        "A-01-05": "unreadable"
+      },
+      "outcome": "Manual verification required for A-01-05"
+    }
+  },
+  "api": {
+    "health": {
+      "status": "ok",
+      "mode": "fixture"
+    },
+    "observations": [
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-733715A4E4F7467281AC0B332A32BF4A",
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T12:05:40.284Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-D1405D8FDCE6410F9A7BBD16C0CFE061",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:05:47.686Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-671E070894114807969BBCCB9B562FE7",
+        "slot_id": "A-01-02",
+        "pallet_id": "P003",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:06:02.177Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-4C90B6F55FAB42C193BF6AC64E3715F3",
+        "slot_id": "A-01-02",
+        "pallet_id": "P003",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T12:06:07.015Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-8934F46E2DFE497FA15F70FBF64A66EE",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-25T12:06:22.610Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-084E65459AD049909EFDEE855AAE04E5",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T12:06:35.306Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-E6A85AA118DC4F1081F93ED8D0D278E0",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "uncertain",
+        "label_status": "unknown",
+        "timestamp": "2026-11-25T12:06:41.799Z"
+      },
+      {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+        "observation_id": "OBS-1D9C576D5DED4EECA824217DB085A156",
+        "slot_id": "A-01-05",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-25T12:06:49.633Z"
+      }
+    ],
+    "summary": {
+      "inspection_id": "INS-CONTROL-20261125-120505-DFCC4DAD",
+      "slots_total": 11,
+      "slots_observed": 4,
+      "observations_total": 8,
+      "discrepancy_count": 0,
+      "outcomes": {
+        "match": 0,
+        "wrong_pallet": 0,
+        "missing_pallet": 0,
+        "unexpected_pallet": 0,
+        "unreadable_label": 0,
+        "uninspected": 7,
+        "uncertain": 0,
+        "pending": 4
+      },
+      "slots": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": "P001",
+          "observation_id": "OBS-D1405D8FDCE6410F9A7BBD16C0CFE061",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-02",
+          "expected_pallet_id": "P002",
+          "observed_pallet_id": "P003",
+          "observation_id": "OBS-4C90B6F55FAB42C193BF6AC64E3715F3",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-8934F46E2DFE497FA15F70FBF64A66EE",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-04",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-05",
+          "expected_pallet_id": "P005",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-1D9C576D5DED4EECA824217DB085A156",
+          "outcome": "pending"
+        },
+        {
+          "slot_id": "A-01-06",
+          "expected_pallet_id": "P006",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-07",
+          "expected_pallet_id": "P007",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "A-01-08",
+          "expected_pallet_id": "P008",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-01-01",
+          "expected_pallet_id": "P021",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-01-02",
+          "expected_pallet_id": "P022",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        },
+        {
+          "slot_id": "B-02-01",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ]
+    },
+    "discrepancies": []
+  }
+}

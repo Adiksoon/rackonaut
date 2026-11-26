@@ -1,0 +1,10 @@
+- ros_topic_name: /rackonaut/drone/imu
+  gz_topic_name: /rackonaut_reference/local_imu
+  ros_type_name: sensor_msgs/msg/Imu
+  gz_type_name: gz.msgs.IMU
+  direction: GZ_TO_ROS
+- ros_topic_name: /rackonaut/dock/contacts
+  gz_topic_name: /world/rackonaut/model/rackonaut_dock/link/body/sensor/dock_presence/contact
+  ros_type_name: ros_gz_interfaces/msg/Contacts
+  gz_type_name: gz.msgs.Contacts
+  direction: GZ_TO_ROS

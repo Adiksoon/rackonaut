@@ -45,3 +45,6 @@ node_modules/
 *.db3
 *.mcap
 /rosbags/
+
+# Local functional Mock SAP database
+.rackonaut-data/

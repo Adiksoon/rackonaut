@@ -1,0 +1,411 @@
+{
+  "stale": {
+    "robot": true,
+    "at_pad": true,
+    "busy": false,
+    "position": [
+      0.0,
+      0.0,
+      0.05,
+      -0.0
+    ],
+    "backend": {
+      "online": true,
+      "mode": "fixture",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08",
+        "B-01-01",
+        "B-01-02",
+        "B-02-01"
+      ]
+    },
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-112012-EE808578",
+      "stage": "ERROR",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08"
+      ],
+      "quality": true,
+      "mode": "aisle",
+      "status": {},
+      "planned": [
+        [
+          0.0,
+          0.0,
+          0.05
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          5.46,
+          0.45,
+          0.79
+        ],
+        [
+          5.46,
+          0.45,
+          2.89
+        ],
+        [
+          8.26,
+          0.45,
+          0.79
+        ],
+        [
+          8.26,
+          0.45,
+          2.89
+        ],
+        [
+          11.06,
+          0.45,
+          0.79
+        ],
+        [
+          11.06,
+          0.45,
+          2.89
+        ],
+        [
+          13.4,
+          -0.33,
+          0.87
+        ],
+        [
+          13.86,
+          0.45,
+          2.89
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.05
+        ]
+      ],
+      "flown": [],
+      "evidence": [],
+      "result": null,
+      "error": "Zone occupied: Aisle A."
+    },
+    "camera": 713,
+    "camera_type": "raw",
+    "history": [],
+    "safety_enabled": true,
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-112012-EE808578",
+      "phase": "REJECTED",
+      "permit": false,
+      "sensor": "STALE",
+      "sensor_mode": "laser",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [],
+      "message": "Zone occupied: Aisle A.",
+      "alarm": null,
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": false
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T11:20:12.332+00:00",
+          "monotonic_ns": 21871244953520,
+          "inspection_id": "INS-CONTROL-20261125-112012-EE808578",
+          "event": "start_blocked",
+          "zones": [
+            "A"
+          ],
+          "message": "Zone occupied: Aisle A."
+        }
+      ],
+      "scans": {
+        "A": {
+          "age_ms": 751,
+          "points": [],
+          "hits": []
+        },
+        "B": {
+          "age_ms": 1104,
+          "points": [],
+          "hits": []
+        },
+        "T": {
+          "age_ms": 1051,
+          "points": [],
+          "hits": []
+        }
+      }
+    },
+    "last_reservation": [],
+    "overview": true
+  },
+  "denied": {
+    "robot": true,
+    "at_pad": true,
+    "busy": false,
+    "position": [
+      0.0,
+      0.0,
+      0.05,
+      -0.0
+    ],
+    "backend": {
+      "online": true,
+      "mode": "fixture",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08",
+        "B-01-01",
+        "B-01-02",
+        "B-02-01"
+      ]
+    },
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-112128-AD65549C",
+      "stage": "ERROR",
+      "slots": [
+        "A-01-01"
+      ],
+      "quality": false,
+      "mode": "custom",
+      "status": {},
+      "planned": [
+        [
+          0.0,
+          0.0,
+          0.05
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          5.46,
+          0.45,
+          0.79
+        ],
+        [
+          2.1,
+          0.45,
+          0.79
+        ],
+        [
+          2.1,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.79
+        ],
+        [
+          0.0,
+          0.0,
+          0.05
+        ]
+      ],
+      "flown": [],
+      "evidence": [],
+      "result": null,
+      "error": "Laser scan is stale or unknown: Aisle A, Transfer corridor & pad."
+    },
+    "camera": null,
+    "camera_type": "raw",
+    "history": [],
+    "safety_enabled": true,
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-112128-AD65549C",
+      "phase": "REJECTED",
+      "permit": false,
+      "sensor": "STALE",
+      "sensor_mode": "laser",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [],
+      "message": "Laser scan is stale or unknown: Aisle A, Transfer corridor & pad.",
+      "alarm": null,
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "FAULT",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "FAULT",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "STALE",
+          "occupied": null,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T11:21:28.399+00:00",
+          "monotonic_ns": 21947311719493,
+          "inspection_id": "INS-CONTROL-20261125-112128-AD65549C",
+          "event": "start_blocked",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Laser scan is stale or unknown: Aisle A, Transfer corridor & pad."
+        },
+        {
+          "time": "2026-11-25T11:20:12.332+00:00",
+          "monotonic_ns": 21871244953520,
+          "inspection_id": "INS-CONTROL-20261125-112012-EE808578",
+          "event": "start_blocked",
+          "zones": [
+            "A"
+          ],
+          "message": "Zone occupied: Aisle A."
+        }
+      ],
+      "scans": {
+        "A": {
+          "age_ms": 851,
+          "points": [],
+          "hits": []
+        },
+        "B": {
+          "age_ms": 1204,
+          "points": [],
+          "hits": []
+        },
+        "T": {
+          "age_ms": 1151,
+          "points": [],
+          "hits": []
+        }
+      }
+    },
+    "last_reservation": [],
+    "overview": true
+  }
+}

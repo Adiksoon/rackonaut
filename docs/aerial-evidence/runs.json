@@ -1,0 +1,1282 @@
+{
+  "laser-b-worker": {
+    "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+    "stage": "COMPLETE",
+    "elapsed_wall_seconds": 309.0,
+    "final_odometry": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.0
+    ],
+    "wall_to_result_from_dispatch": 313.348,
+    "planned_slots": [
+      "B-01-01"
+    ],
+    "confirmed": {
+      "B-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "observation_id": "OBS-013628F214DE43DB83CAC2573E85BD01",
+        "slot_id": "B-01-01",
+        "pallet_id": "P021",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T13:35:30.031Z"
+      }
+    },
+    "landed": true,
+    "required_zones": [
+      "D",
+      "B"
+    ],
+    "descent_clearance_samples": {
+      "A": [],
+      "B": [
+        [
+          5.098,
+          -5.55,
+          6.703,
+          0.0
+        ],
+        [
+          5.099,
+          -5.55,
+          6.702,
+          0.0
+        ]
+      ]
+    },
+    "peak_horizontal_offset_from_shaft_m": 0.0,
+    "cruise_observed_z_m": [
+      6.678,
+      6.704
+    ],
+    "closest_over_worker_sample": {
+      "wall": 94.735,
+      "stage": "OVERHEAD_TRANSIT",
+      "phase": "OVERHEAD_TRANSIT",
+      "gate": "",
+      "target": [
+        2.1,
+        -5.55,
+        6.7,
+        0.0
+      ],
+      "pos": [
+        2.103,
+        -1.985,
+        6.697,
+        0.0
+      ],
+      "percent": 78.855,
+      "contact": false,
+      "charging": false,
+      "sim": 80.52,
+      "dock": "AVAILABLE",
+      "required": [
+        "D",
+        "B"
+      ],
+      "safety": "RESERVED",
+      "alarm": null,
+      "permit": null,
+      "worker": [
+        2.1,
+        -2.0,
+        0.0
+      ],
+      "gates": {
+        "B": true,
+        "A": false
+      },
+      "ground": true,
+      "elapsed": 91.2,
+      "detail": "Following the reserved aerial corridor"
+    },
+    "energy_sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.582,
+        "start_sim_time": 27.88,
+        "completed_before": [],
+        "result": "COMPLETE",
+        "end_percent": 37.589,
+        "end_sim_time": 203.4,
+        "completed_after": [
+          "B-01-01"
+        ]
+      }
+    ],
+    "completed": [
+      "B-01-01"
+    ],
+    "remaining": [],
+    "final_safety_phase": "RELEASED",
+    "safety_events": [
+      {
+        "time": "2026-11-25T13:32:51.519+00:00",
+        "monotonic_ns": 29830431394573,
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T13:32:54.534+00:00",
+        "monotonic_ns": 29833446498826,
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T13:32:54.734+00:00",
+        "monotonic_ns": 29833646648356,
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T13:32:54.934+00:00",
+        "monotonic_ns": 29833846534365,
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T13:38:03.934+00:00",
+        "monotonic_ns": 30142846463299,
+        "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+        "event": "released",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "adaptive_attempts": [
+      {
+        "slot_id": "B-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "damage",
+        "observation_id": "OBS-BA4A6A502B3442C8B1AABF76BA554054",
+        "quality_id": "Q-6F7A44F798144E5F86333E2AEE09B1CB",
+        "reading": [
+          "occupied",
+          "readable",
+          "P021"
+        ],
+        "outcome": "Damage detected \u2014 capturing additional evidence"
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "reason": "damage",
+        "issue": null,
+        "observation_id": "OBS-013628F214DE43DB83CAC2573E85BD01",
+        "quality_id": "Q-9E07BD70E342430693CB03A18524934C",
+        "reading": [
+          "occupied",
+          "readable",
+          "P021"
+        ],
+        "outcome": "Additional damage evidence saved"
+      }
+    ],
+    "adaptive_moves": [
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.459999992623853,
+          -5.550000006610161,
+          0.7903019602447197
+        ],
+        "target": [
+          5.46,
+          -5.41,
+          0.79
+        ],
+        "actual": [
+          5.459860969032159,
+          -5.419493831288581,
+          0.7895756584771048
+        ]
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          5.460000156604754,
+          -5.410072598491644,
+          0.7900107622329877
+        ],
+        "target": [
+          5.46,
+          -5.55,
+          0.79
+        ],
+        "actual": [
+          5.460141645352425,
+          -5.542280131911396,
+          0.7896675095069136
+        ]
+      }
+    ],
+    "camera_observations": 2,
+    "charge_event": {
+      "cycle": 1,
+      "sim_time": 212.6,
+      "inspection_id": "INS-CONTROL-20261125-133251-7BD943A5",
+      "reached_percent": 88.22
+    }
+  },
+  "laser-b-blocked": {
+    "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+    "stage": "ABORTED",
+    "elapsed_wall_seconds": 56.4,
+    "final_odometry": [
+      2.101,
+      8.592,
+      6.699,
+      0.0
+    ],
+    "wall_to_result_from_dispatch": 60.946,
+    "planned_slots": [
+      "B-01-01"
+    ],
+    "confirmed": {},
+    "landed": false,
+    "required_zones": [
+      "D",
+      "B"
+    ],
+    "descent_clearance_samples": {
+      "A": [],
+      "B": []
+    },
+    "peak_horizontal_offset_from_shaft_m": 0.0,
+    "cruise_observed_z_m": [
+      6.678,
+      6.704
+    ],
+    "closest_over_worker_sample": null,
+    "energy_sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.958,
+        "start_sim_time": 2.84,
+        "completed_before": [],
+        "result": "ABORTED",
+        "end_percent": 86.838,
+        "end_sim_time": 34.28,
+        "completed_after": []
+      }
+    ],
+    "completed": [],
+    "remaining": [
+      "B-01-01"
+    ],
+    "final_safety_phase": "RECOVERY",
+    "safety_events": [
+      {
+        "time": "2026-11-25T13:36:14.023+00:00",
+        "monotonic_ns": 30032935214649,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T13:36:17.029+00:00",
+        "monotonic_ns": 30035941984026,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T13:36:17.230+00:00",
+        "monotonic_ns": 30036142092708,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T13:36:17.529+00:00",
+        "monotonic_ns": 30036442006255,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "B"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T13:37:13.829+00:00",
+        "monotonic_ns": 30092742039095,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "intrusion",
+        "zones": [
+          "B"
+        ],
+        "message": "Zone occupied: Aisle B.",
+        "laser_detection_ns": 30092693793566
+      },
+      {
+        "time": "2026-11-25T13:37:13.880+00:00",
+        "monotonic_ns": 30092792216805,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "abort_dispatched",
+        "zones": [
+          "B"
+        ],
+        "message": "Called the existing mission Abort service.",
+        "triggering_event_ns": 30092742039095
+      },
+      {
+        "time": "2026-11-25T13:37:14.079+00:00",
+        "monotonic_ns": 30092991900932,
+        "inspection_id": "INS-CONTROL-20261125-133614-A94AE175",
+        "event": "abort_confirmed",
+        "zones": [
+          "B"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 30092742039095
+      }
+    ],
+    "adaptive_attempts": [],
+    "adaptive_moves": [],
+    "camera_observations": 0,
+    "laser_detection_to_abort_confirmation_ms": 298.107366,
+    "after_removing_worker": {
+      "stage": "ABORTED",
+      "safety": "RECOVERY",
+      "occupied_b": false,
+      "odometry": [
+        2.101,
+        8.583,
+        6.698,
+        0.0
+      ]
+    }
+  },
+  "virtual-charge": {
+    "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+    "stage": "COMPLETE",
+    "elapsed_wall_seconds": 357.0,
+    "final_odometry": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.0
+    ],
+    "wall_to_result_from_dispatch": 361.606,
+    "planned_slots": [
+      "A-01-01",
+      "B-01-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "observation_id": "OBS-E1340930FBD7442F867559D7464014F8",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T13:32:18.768Z"
+      },
+      "B-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "observation_id": "OBS-48298AC43F7C4F348423E65F080FE57C",
+        "slot_id": "B-01-01",
+        "pallet_id": "P021",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T13:35:22.200Z"
+      }
+    },
+    "landed": true,
+    "required_zones": [
+      "D",
+      "B",
+      "A"
+    ],
+    "descent_clearance_samples": {
+      "A": [
+        [
+          5.1,
+          0.45,
+          6.701,
+          -0.0
+        ]
+      ],
+      "B": [
+        [
+          5.101,
+          -5.55,
+          6.702,
+          0.0
+        ],
+        [
+          5.101,
+          -5.55,
+          6.701,
+          0.0
+        ],
+        [
+          5.1,
+          -5.55,
+          6.701,
+          -0.0
+        ]
+      ]
+    },
+    "peak_horizontal_offset_from_shaft_m": 0.0,
+    "cruise_observed_z_m": [
+      6.677,
+      6.705
+    ],
+    "closest_over_worker_sample": null,
+    "energy_sorties": [
+      {
+        "departure": 1,
+        "start_percent": 73.935,
+        "start_sim_time": 4.52,
+        "completed_before": [],
+        "result": "DOCKED_FOR_CHARGE",
+        "end_percent": 18.266,
+        "end_sim_time": 164.04,
+        "completed_after": [
+          "A-01-01"
+        ],
+        "charged_percent": 88.097,
+        "charge_end_sim_time": 176.28
+      },
+      {
+        "departure": 2,
+        "start_percent": 89.297,
+        "start_sim_time": 176.48,
+        "completed_before": [
+          "A-01-01"
+        ],
+        "result": "COMPLETE",
+        "end_percent": 27.218,
+        "end_sim_time": 356.96,
+        "completed_after": [
+          "A-01-01",
+          "B-01-01"
+        ]
+      }
+    ],
+    "completed": [
+      "A-01-01",
+      "B-01-01"
+    ],
+    "remaining": [],
+    "final_safety_phase": "RELEASED",
+    "safety_events": [
+      {
+        "time": "2026-11-25T13:30:51.970+00:00",
+        "monotonic_ns": 29710882384814,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T13:30:55.000+00:00",
+        "monotonic_ns": 29713912939851,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T13:30:55.200+00:00",
+        "monotonic_ns": 29714113048326,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T13:30:55.700+00:00",
+        "monotonic_ns": 29714612931061,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T13:33:49.600+00:00",
+        "monotonic_ns": 29888512980855,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 2
+      },
+      {
+        "time": "2026-11-25T13:36:52.700+00:00",
+        "monotonic_ns": 30071612925705,
+        "inspection_id": "INS-CONTROL-20261125-133051-D9807D9B",
+        "event": "released",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "adaptive_attempts": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "unreadable",
+        "observation_id": "OBS-CAD247E9D7694127B7C47867C1918052",
+        "quality_id": null,
+        "reading": [
+          "occupied",
+          "unreadable",
+          null
+        ],
+        "outcome": "Label unreadable \u2014 adjusting viewpoint"
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "reason": "unreadable",
+        "issue": null,
+        "observation_id": "OBS-E1340930FBD7442F867559D7464014F8",
+        "quality_id": "Q-1EAD325E619F4FF0878F5C3CEA61451A",
+        "reading": [
+          "occupied",
+          "readable",
+          "P001"
+        ],
+        "outcome": "Label recovered successfully"
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "damage",
+        "observation_id": "OBS-29EB866D97E142DC94DDF04C8638F612",
+        "quality_id": "Q-69A05DBF2DB2447B90A164A43EFDA3F4",
+        "reading": [
+          "occupied",
+          "readable",
+          "P021"
+        ],
+        "outcome": "Damage detected \u2014 capturing additional evidence"
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "reason": "damage",
+        "issue": null,
+        "observation_id": "OBS-48298AC43F7C4F348423E65F080FE57C",
+        "quality_id": "Q-4392573FB8BC4D68A0A7F34FCF7744D4",
+        "reading": [
+          "occupied",
+          "readable",
+          "P021"
+        ],
+        "outcome": "Additional damage evidence saved"
+      }
+    ],
+    "adaptive_moves": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.460000008931762,
+          0.4500000080023681,
+          0.789997857222626
+        ],
+        "target": [
+          6.01,
+          0.63,
+          0.82
+        ],
+        "actual": [
+          6.010025807325171,
+          0.6316297876578052,
+          0.8215254694834785
+        ]
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          6.0100198278985815,
+          0.6300143407175195,
+          0.8199921640364827
+        ],
+        "target": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "actual": [
+          5.457446049393579,
+          0.4504275590772699,
+          0.7910880488205576
+        ]
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.459999994786861,
+          -5.5500000041644135,
+          0.7901481128577488
+        ],
+        "target": [
+          5.46,
+          -5.41,
+          0.79
+        ],
+        "actual": [
+          5.459853852338374,
+          -5.412988735731285,
+          0.789845954684591
+        ]
+      },
+      {
+        "slot_id": "B-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          5.460000788089221,
+          -5.41002019546646,
+          0.790003180454777
+        ],
+        "target": [
+          5.46,
+          -5.55,
+          0.79
+        ],
+        "actual": [
+          5.460146289186295,
+          -5.547285225915281,
+          0.7898372452781747
+        ]
+      }
+    ],
+    "camera_observations": 4
+  },
+  "virtual-a-b": {
+    "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+    "stage": "COMPLETE",
+    "elapsed_wall_seconds": 247.9,
+    "final_odometry": [
+      -4.7,
+      10.3,
+      0.05,
+      -0.0
+    ],
+    "wall_to_result_from_dispatch": 252.365,
+    "planned_slots": [
+      "A-01-01",
+      "B-02-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "observation_id": "OBS-F76EC938455141B69BC8FB8B1B430B5C",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T13:39:09.412Z"
+      },
+      "B-02-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "observation_id": "OBS-4298086A0EF543EAB78DED8B982F2DD2",
+        "slot_id": "B-02-01",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-25T13:40:23.283Z"
+      }
+    },
+    "landed": true,
+    "required_zones": [
+      "D",
+      "B",
+      "A"
+    ],
+    "descent_clearance_samples": {
+      "A": [
+        [
+          5.102,
+          0.45,
+          6.702,
+          0.0
+        ],
+        [
+          5.101,
+          0.45,
+          6.701,
+          0.0
+        ],
+        [
+          5.1,
+          0.45,
+          6.701,
+          -0.0
+        ]
+      ],
+      "B": [
+        [
+          5.1,
+          -5.55,
+          6.701,
+          -0.0
+        ]
+      ]
+    },
+    "peak_horizontal_offset_from_shaft_m": 0.0,
+    "cruise_observed_z_m": [
+      6.677,
+      6.705
+    ],
+    "closest_over_worker_sample": null,
+    "energy_sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.786,
+        "start_sim_time": 14.44,
+        "completed_before": [],
+        "result": "COMPLETE",
+        "end_percent": 14.059,
+        "end_sim_time": 259.52,
+        "completed_after": [
+          "A-01-01",
+          "B-02-01"
+        ]
+      }
+    ],
+    "completed": [
+      "A-01-01",
+      "B-02-01"
+    ],
+    "remaining": [],
+    "final_safety_phase": "RELEASED",
+    "safety_events": [
+      {
+        "time": "2026-11-25T13:37:42.429+00:00",
+        "monotonic_ns": 30121341964844,
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T13:37:45.462+00:00",
+        "monotonic_ns": 30124374415183,
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T13:37:45.662+00:00",
+        "monotonic_ns": 30124574632010,
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T13:37:45.912+00:00",
+        "monotonic_ns": 30124824347835,
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T13:41:54.012+00:00",
+        "monotonic_ns": 30372924571348,
+        "inspection_id": "INS-CONTROL-20261125-133742-93AFA15B",
+        "event": "released",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Inspection completed and touchdown confirmed."
+      }
+    ],
+    "adaptive_attempts": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "unreadable",
+        "observation_id": "OBS-B6CAA0391A8B4EFCAF10D267AB99EAB7",
+        "quality_id": null,
+        "reading": [
+          "occupied",
+          "unreadable",
+          null
+        ],
+        "outcome": "Label unreadable \u2014 adjusting viewpoint"
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "reason": "unreadable",
+        "issue": null,
+        "observation_id": "OBS-F76EC938455141B69BC8FB8B1B430B5C",
+        "quality_id": "Q-1B5114E5E20646EF98E66401FA68861F",
+        "reading": [
+          "occupied",
+          "readable",
+          "P001"
+        ],
+        "outcome": "Label recovered successfully"
+      },
+      {
+        "slot_id": "B-02-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": null,
+        "observation_id": "OBS-4298086A0EF543EAB78DED8B982F2DD2",
+        "quality_id": null,
+        "reading": [
+          "empty",
+          "not_applicable",
+          null
+        ],
+        "outcome": "Reading confirmed"
+      }
+    ],
+    "adaptive_moves": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.460000002806665,
+          0.45000000829938347,
+          0.7899981993808505
+        ],
+        "target": [
+          6.01,
+          0.63,
+          0.82
+        ],
+        "actual": [
+          6.012826019631508,
+          0.6320575843305596,
+          0.8219013220271985
+        ]
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          6.009553405991858,
+          0.6298827378904702,
+          0.8201651985693931
+        ],
+        "target": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "actual": [
+          5.457225296325226,
+          0.45035645816250763,
+          0.7911355813021078
+        ]
+      }
+    ],
+    "camera_observations": 3,
+    "direct_gazebo_pose_comparison": {
+      "gazebo_native": [
+        8.26000003896735,
+        -5.549999956710039,
+        0.791569683858171
+      ],
+      "control_odom_before": [
+        8.26,
+        -5.55,
+        0.792,
+        1.566
+      ],
+      "control_odom_after": [
+        8.26,
+        -5.55,
+        0.792,
+        1.568
+      ],
+      "distance_before_m": 0.00043031614577093057,
+      "distance_after_m": 0.00043031614577093057,
+      "stage": "INSPECTION"
+    }
+  },
+  "laser-a-intrusion": {
+    "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+    "stage": "ABORTED",
+    "elapsed_wall_seconds": 194.7,
+    "final_odometry": [
+      2.103,
+      -4.49,
+      6.698,
+      0.0
+    ],
+    "wall_to_result_from_dispatch": 199.629,
+    "planned_slots": [
+      "A-01-01",
+      "B-01-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "observation_id": "OBS-A7F9765404B942FDBA3B2D5B51B3298D",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T13:30:12.876Z"
+      }
+    },
+    "landed": false,
+    "required_zones": [
+      "D",
+      "B",
+      "A"
+    ],
+    "descent_clearance_samples": {
+      "A": [
+        [
+          5.098,
+          0.45,
+          6.703,
+          0.0
+        ],
+        [
+          5.099,
+          0.45,
+          6.703,
+          0.0
+        ]
+      ],
+      "B": []
+    },
+    "peak_horizontal_offset_from_shaft_m": 0.0,
+    "cruise_observed_z_m": [
+      6.678,
+      6.705
+    ],
+    "closest_over_worker_sample": {
+      "wall": 190.872,
+      "stage": "OVERHEAD_TRANSIT",
+      "phase": "OVERHEAD_TRANSIT",
+      "gate": "",
+      "target": [
+        2.1,
+        -5.55,
+        6.7,
+        0.0
+      ],
+      "pos": [
+        2.104,
+        -2.003,
+        6.697,
+        0.0
+      ],
+      "percent": 59.2,
+      "contact": false,
+      "charging": false,
+      "sim": 136.68,
+      "dock": "AVAILABLE",
+      "required": [
+        "D",
+        "B",
+        "A"
+      ],
+      "safety": "RESERVED",
+      "alarm": null,
+      "permit": null,
+      "worker": [
+        2.1,
+        -2.0,
+        0.0
+      ],
+      "gates": {
+        "B": true,
+        "A": true
+      },
+      "ground": true,
+      "elapsed": 186.8,
+      "detail": "Following the reserved aerial corridor"
+    },
+    "energy_sorties": [
+      {
+        "departure": 1,
+        "start_percent": 99.608,
+        "start_sim_time": 26.2,
+        "completed_before": [],
+        "result": "ABORTED",
+        "end_percent": 57.599,
+        "end_sim_time": 141.08,
+        "completed_after": [
+          "A-01-01"
+        ]
+      }
+    ],
+    "completed": [
+      "A-01-01"
+    ],
+    "remaining": [
+      "B-01-01"
+    ],
+    "final_safety_phase": "RECOVERY",
+    "safety_events": [
+      {
+        "time": "2026-11-25T13:27:58.939+00:00",
+        "monotonic_ns": 29537851249948,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "preparing",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T13:28:01.979+00:00",
+        "monotonic_ns": 29540891387424,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "reserved",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T13:28:02.179+00:00",
+        "monotonic_ns": 29541091677199,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "start_permitted",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+        "departure": 1
+      },
+      {
+        "time": "2026-11-25T13:28:03.029+00:00",
+        "monotonic_ns": 29541941249115,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "flight_started",
+        "zones": [
+          "D",
+          "B",
+          "A"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T13:31:17.429+00:00",
+        "monotonic_ns": 29736341429892,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "intrusion",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A.",
+        "laser_detection_ns": 29736325360162
+      },
+      {
+        "time": "2026-11-25T13:31:17.479+00:00",
+        "monotonic_ns": 29736391748572,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "abort_dispatched",
+        "zones": [
+          "A"
+        ],
+        "message": "Called the existing mission Abort service.",
+        "triggering_event_ns": 29736341429892
+      },
+      {
+        "time": "2026-11-25T13:31:17.679+00:00",
+        "monotonic_ns": 29736591344925,
+        "inspection_id": "INS-CONTROL-20261125-132758-6E8A2B12",
+        "event": "abort_confirmed",
+        "zones": [
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 29736341429892
+      }
+    ],
+    "adaptive_attempts": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "unreadable",
+        "observation_id": "OBS-7FA74E56947F40F2A09ED920429AC1DF",
+        "quality_id": null,
+        "reading": [
+          "occupied",
+          "unreadable",
+          null
+        ],
+        "outcome": "Label unreadable \u2014 adjusting viewpoint"
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "reason": "unreadable",
+        "issue": null,
+        "observation_id": "OBS-A7F9765404B942FDBA3B2D5B51B3298D",
+        "quality_id": "Q-589D43B7BC4544D1874E0E9693A953BA",
+        "reading": [
+          "occupied",
+          "readable",
+          "P001"
+        ],
+        "outcome": "Label recovered successfully"
+      }
+    ],
+    "adaptive_moves": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.460000000314982,
+          0.45000000070965024,
+          0.7900025433138722
+        ],
+        "target": [
+          6.01,
+          0.63,
+          0.82
+        ],
+        "actual": [
+          6.005002708043991,
+          0.6303763454422902,
+          0.8208331303737689
+        ]
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          6.009967725781658,
+          0.6300068966914889,
+          0.82002532760736
+        ],
+        "target": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "actual": [
+          5.465448224828852,
+          0.45298331408742804,
+          0.7902508852160489
+        ]
+      }
+    ],
+    "camera_observations": 2,
+    "laser_detection_to_abort_confirmation_ms": 265.984763
+  }
+}

@@ -1,0 +1,284 @@
+{
+  "robot": true,
+  "at_pad": true,
+  "busy": true,
+  "position": [
+    0,
+    0,
+    0.05,
+    0
+  ],
+  "backend": {
+    "online": true,
+    "mode": "fixture",
+    "slots": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ]
+  },
+  "mission": {
+    "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+    "stage": "TAKEOFF",
+    "slots": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08"
+    ],
+    "quality": true,
+    "mode": "aisle",
+    "status": {
+      "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+      "stage": "TAKEOFF",
+      "target": "PAD",
+      "target_pose": [
+        0,
+        0,
+        0.79,
+        0
+      ],
+      "position": [
+        0,
+        0,
+        0.05,
+        0
+      ],
+      "elapsed_seconds": 0.1,
+      "total": 8,
+      "planned_slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08"
+      ],
+      "visited": [],
+      "confirmed": {},
+      "missed": [],
+      "landed": false,
+      "detail": "Climbing above the launch pad"
+    },
+    "planned": [
+      [
+        0,
+        0,
+        0.05
+      ],
+      [
+        0,
+        0,
+        0.79
+      ],
+      [
+        2.1,
+        0,
+        0.79
+      ],
+      [
+        2.1,
+        0.45,
+        0.79
+      ],
+      [
+        5.46,
+        0.45,
+        0.79
+      ],
+      [
+        5.46,
+        0.45,
+        2.89
+      ],
+      [
+        8.26,
+        0.45,
+        0.79
+      ],
+      [
+        8.26,
+        0.45,
+        2.89
+      ],
+      [
+        11.06,
+        0.45,
+        0.79
+      ],
+      [
+        11.06,
+        0.45,
+        2.89
+      ],
+      [
+        13.4,
+        -0.33,
+        0.87
+      ],
+      [
+        13.86,
+        0.45,
+        2.89
+      ],
+      [
+        2.1,
+        0.45,
+        0.79
+      ],
+      [
+        2.1,
+        0,
+        0.79
+      ],
+      [
+        0,
+        0,
+        0.79
+      ],
+      [
+        0,
+        0,
+        0.05
+      ]
+    ],
+    "flown": [
+      [
+        0,
+        0,
+        0.05
+      ]
+    ],
+    "evidence": [],
+    "result": null,
+    "error": ""
+  },
+  "camera": 415,
+  "camera_type": "annotated",
+  "history": [],
+  "safety_enabled": true,
+  "safety": {
+    "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+    "phase": "RESERVED",
+    "permit": false,
+    "sensor": "FRESH",
+    "signals_online": true,
+    "at_pad": true,
+    "required": [
+      "A",
+      "T"
+    ],
+    "message": "Reserved for drone inspection.",
+    "alarm": null,
+    "countdown": 0,
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "RESERVED",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "occupied": true,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "RESERVED",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "events": [
+      {
+        "time": "2026-11-25T10:34:10.636+00:00",
+        "monotonic_ns": 19109548205503,
+        "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T10:34:10.386+00:00",
+        "monotonic_ns": 19109298470959,
+        "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T10:34:10.186+00:00",
+        "monotonic_ns": 19109098368537,
+        "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T10:34:07.174+00:00",
+        "monotonic_ns": 19106086880418,
+        "inspection_id": "INS-CONTROL-20261125-103407-64E3133A",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      },
+      {
+        "time": "2026-11-25T10:33:57.162+00:00",
+        "monotonic_ns": 19096074891227,
+        "inspection_id": "INS-CONTROL-20261125-103357-C4222F36",
+        "event": "start_blocked",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A."
+      }
+    ]
+  },
+  "overview": true
+}

@@ -1,0 +1,17 @@
+{
+  "baseline": {
+    "samples": 45,
+    "sim_span_s": 4.408,
+    "wall_span_s": 4.456037,
+    "sim_per_wall_time": 0.9892,
+    "onboard_rgb_wall_hz": 9.968
+  },
+  "laser": {
+    "samples": 45,
+    "sim_span_s": 3.9,
+    "wall_span_s": 6.199668,
+    "sim_per_wall_time": 0.6291,
+    "onboard_rgb_wall_hz": 6.374,
+    "scanner_a_wall_hz": 2.519
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "operator_abort": {
+    "position": [
+      2.206,
+      0.449,
+      0.783,
+      0.0
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 69.527,
+      "dock": "AVAILABLE",
+      "contact": false,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 46.28,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      }
+    },
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-130724-ACF60C11",
+      "stage": "ABORTED",
+      "target": "A-01-01",
+      "target_pose": [
+        5.46,
+        0.45,
+        0.79,
+        0.0
+      ],
+      "position": [
+        2.206,
+        0.449,
+        0.783,
+        0.0
+      ],
+      "elapsed_seconds": 15.1,
+      "total": 1,
+      "planned_slots": [
+        "A-01-01"
+      ],
+      "visited": [],
+      "confirmed": {},
+      "missed": [],
+      "landed": false,
+      "detail": "Stopped by the operator",
+      "adaptive": {
+        "attempt": 1,
+        "reason": "initial",
+        "attempts": [],
+        "moves": [],
+        "retries": 0,
+        "resolved": [],
+        "manual_review": {},
+        "outcome": ""
+      },
+      "energy": {
+        "departures": 1,
+        "sorties": [
+          {
+            "departure": 1,
+            "start_percent": 93.945,
+            "start_sim_time": 4.0,
+            "completed_before": [],
+            "result": "ABORTED",
+            "end_percent": 87.161,
+            "end_sim_time": 14.28,
+            "completed_after": []
+          }
+        ],
+        "completed": [],
+        "remaining": [
+          "A-01-01"
+        ],
+        "interrupted": [],
+        "return_reason": "",
+        "return_percent": 6.87,
+        "required_percent": 18.53,
+        "reserve_percent": 8.0,
+        "return_path": []
+      }
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-25T13:07:42.780+00:00",
+        "monotonic_ns": 28321692278916,
+        "inspection_id": "INS-CONTROL-20261125-130724-ACF60C11",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "required": [
+        "A",
+        "T"
+      ]
+    }
+  },
+  "odometry_paused": {
+    "position": [
+      2.206,
+      0.449,
+      0.783,
+      0.0
+    ],
+    "energy": {
+      "simulated": true,
+      "fresh": false,
+      "percent": 69.505,
+      "dock": "FAULT",
+      "contact": false,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 46.32,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 6.0,
+        "reserve": 8.0,
+        "ready": 88.0
+      }
+    },
+    "mission": {
+      "inspection_id": "INS-CONTROL-20261125-130724-ACF60C11",
+      "stage": "ABORTED",
+      "target": "A-01-01",
+      "target_pose": [
+        5.46,
+        0.45,
+        0.79,
+        0.0
+      ],
+      "position": [
+        2.206,
+        0.449,
+        0.783,
+        0.0
+      ],
+      "elapsed_seconds": 15.1,
+      "total": 1,
+      "planned_slots": [
+        "A-01-01"
+      ],
+      "visited": [],
+      "confirmed": {},
+      "missed": [],
+      "landed": false,
+      "detail": "Stopped by the operator",
+      "adaptive": {
+        "attempt": 1,
+        "reason": "initial",
+        "attempts": [],
+        "moves": [],
+        "retries": 0,
+        "resolved": [],
+        "manual_review": {},
+        "outcome": ""
+      },
+      "energy": {
+        "departures": 1,
+        "sorties": [
+          {
+            "departure": 1,
+            "start_percent": 93.945,
+            "start_sim_time": 4.0,
+            "completed_before": [],
+            "result": "ABORTED",
+            "end_percent": 87.161,
+            "end_sim_time": 14.28,
+            "completed_after": []
+          }
+        ],
+        "completed": [],
+        "remaining": [
+          "A-01-01"
+        ],
+        "interrupted": [],
+        "return_reason": "",
+        "return_percent": 6.87,
+        "required_percent": 18.53,
+        "reserve_percent": 8.0,
+        "return_path": []
+      }
+    },
+    "safety": {
+      "phase": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-25T13:07:42.780+00:00",
+        "monotonic_ns": 28321692278916,
+        "inspection_id": "INS-CONTROL-20261125-130724-ACF60C11",
+        "event": "mission_aborted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "required": [
+        "A",
+        "T"
+      ]
+    }
+  }
+}

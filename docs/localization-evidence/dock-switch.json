@@ -1,0 +1,44 @@
+{
+  "preflight": {
+    "estimated_position": [
+      -4.697,
+      10.301,
+      0.042,
+      0.0
+    ],
+    "sim_time": 87.0,
+    "contact_source": "gazebo_dock_switch",
+    "switch_engaged": true,
+    "contact": true,
+    "dock": "AVAILABLE",
+    "charging": false
+  },
+  "airborne": {
+    "estimated_position": [
+      -0.309,
+      10.304,
+      6.697,
+      0.002
+    ],
+    "sim_time": 112.38,
+    "contact_source": "gazebo_dock_switch",
+    "switch_engaged": false,
+    "contact": false,
+    "dock": "AVAILABLE",
+    "charging": false
+  },
+  "returned": {
+    "estimated_position": [
+      -4.699,
+      10.3,
+      0.026,
+      0.001
+    ],
+    "sim_time": 275.36,
+    "contact_source": "gazebo_dock_switch",
+    "switch_engaged": true,
+    "contact": true,
+    "dock": "CHARGING",
+    "charging": true
+  }
+}

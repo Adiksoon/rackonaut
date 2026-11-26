@@ -1,0 +1,172 @@
+{
+  "mission": {
+    "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+    "stage": "COMPLETE",
+    "target": "PAD",
+    "target_pose": [
+      0.0,
+      0.0,
+      0.79,
+      0.0
+    ],
+    "position": [
+      -0.002,
+      -0.0,
+      0.793,
+      0.0
+    ],
+    "elapsed_seconds": 39.1,
+    "total": 1,
+    "planned_slots": [
+      "A-01-01"
+    ],
+    "visited": [
+      "A-01-01"
+    ],
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "observation_id": "OBS-664F8237A75F48AEBD2CD9CD46CEDE15",
+        "slot_id": "A-01-01",
+        "pallet_id": "P001",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-25T10:57:03.316Z"
+      }
+    },
+    "missed": [],
+    "landed": false,
+    "detail": "Holding above the launch pad"
+  },
+  "safety": {
+    "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+    "phase": "RECOVERY",
+    "permit": false,
+    "sensor": "FRESH",
+    "signals_online": true,
+    "at_pad": false,
+    "required": [
+      "A",
+      "T"
+    ],
+    "message": "Operator recovery required. Access remains restricted.",
+    "alarm": {
+      "time": "2026-11-25T10:57:19.146+00:00",
+      "monotonic_ns": 20498058986628,
+      "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+      "event": "touchdown_unknown",
+      "zones": [
+        "A",
+        "T"
+      ],
+      "message": "Mission ended without verified touchdown."
+    },
+    "countdown": 0,
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "FAULT",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": false
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "OPEN",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "FAULT",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": false
+      }
+    },
+    "events": [
+      {
+        "time": "2026-11-25T10:57:19.146+00:00",
+        "monotonic_ns": 20498058986628,
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "event": "touchdown_unknown",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission ended without verified touchdown."
+      },
+      {
+        "time": "2026-11-25T10:56:40.146+00:00",
+        "monotonic_ns": 20459059024933,
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "event": "flight_started",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Mission Manager started the flight."
+      },
+      {
+        "time": "2026-11-25T10:56:40.047+00:00",
+        "monotonic_ns": 20458959174096,
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "event": "start_permitted",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved red signals accepted by Gazebo. Start permitted."
+      },
+      {
+        "time": "2026-11-25T10:56:39.847+00:00",
+        "monotonic_ns": 20458759148673,
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "event": "reserved",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Reserved for drone inspection."
+      },
+      {
+        "time": "2026-11-25T10:56:36.839+00:00",
+        "monotonic_ns": 20455751574427,
+        "inspection_id": "INS-CONTROL-08-NO-TOUCHDOWN",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "position": [
+    -0.002,
+    -0.0,
+    0.792,
+    0.0
+  ],
+  "at_pad": false,
+  "dispatch_response": {
+    "error": "The drone must be stopped on the launch pad before dispatch."
+  }
+}

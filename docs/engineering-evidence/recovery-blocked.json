@@ -1,0 +1,170 @@
+{
+  "recovery_id": "REC-99FAABEB82D6",
+  "inspection_id": "INS-CONTROL-20261125-172621-A2DDB819",
+  "cause": "ROUTE_BLOCKED",
+  "trigger": {
+    "time": "2026-11-25T17:29:07.266+00:00",
+    "monotonic_ns": 44006178986359,
+    "inspection_id": "INS-CONTROL-20261125-172621-A2DDB819",
+    "event": "mission_aborted",
+    "zones": [
+      "D",
+      "A"
+    ],
+    "message": "Mission aborted. Verify and recover the drone."
+  },
+  "stopped": {
+    "at": "2026-11-25T17:29:07.241+00:00",
+    "mission_stage": "TRANSIT",
+    "detail": "Route blocked; no measured, reserved bypass or verified return path",
+    "energy": 64.593,
+    "position": [
+      5.540874319242731,
+      0.45088649557106925,
+      2.815501283468595,
+      1.5720605295465182
+    ]
+  },
+  "evaluated_at": "2026-11-25T17:29:07.340+00:00",
+  "flown": [
+    [
+      5.54,
+      0.451,
+      2.815,
+      1.572
+    ],
+    [
+      5.453,
+      0.449,
+      2.731,
+      1.426
+    ]
+  ],
+  "zones": [
+    "A",
+    "D"
+  ],
+  "authorized_at": "2026-11-25T17:29:16.900+00:00",
+  "accepted_conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": true,
+    "zone_sensors": true,
+    "fields_clear": true,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "planned": [
+    [
+      5.540242034920661,
+      0.4512151596476297,
+      2.815324007021134,
+      1.5720100519709992
+    ],
+    [
+      5.1,
+      0.45,
+      0.79,
+      0.0
+    ],
+    [
+      5.1,
+      0.45,
+      6.7,
+      0.0
+    ],
+    [
+      2.1,
+      0.45,
+      6.7,
+      0.0
+    ],
+    [
+      2.1,
+      10.3,
+      6.7,
+      0.0
+    ],
+    [
+      -4.7,
+      10.3,
+      6.7,
+      0.0
+    ],
+    [
+      -4.7,
+      10.3,
+      0.05,
+      0.0
+    ]
+  ],
+  "energy_authorized": 63.086,
+  "waiting_energy_used": 1.507,
+  "predicted_return_percent": 29.109154159662282,
+  "waiting_wall_s": 9.84,
+  "started_at": "2026-11-25T17:29:17.159+00:00",
+  "energy_start": 63.065,
+  "ended_at": "2026-11-25T17:29:24.941+00:00",
+  "result": "RECOVERY_FAILED",
+  "detail": "Route blocked; no measured, reserved bypass or verified return path",
+  "duration_wall_s": 7.6,
+  "end_energy": 61.891,
+  "energy_used": 1.174,
+  "dock_confirmed": false,
+  "last_conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": true,
+    "zone_sensors": true,
+    "fields_clear": true,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "retry_slots": [
+    "A-01-03"
+  ],
+  "phase": "RECOVERY_FAILED",
+  "proposal": "eeb2eee2a7aa",
+  "conditions": {
+    "stable_tracking": true,
+    "onboard_lidar": true,
+    "safety_heartbeat_and_zones": true,
+    "stationary": true,
+    "zone_sensors": true,
+    "fields_clear": true,
+    "red_signals": true,
+    "in_flight_envelope": true,
+    "connected_return": true,
+    "first_leg_observed": true,
+    "energy_telemetry": true,
+    "return_budget": true,
+    "flight_enable_bridge": true,
+    "command_ownership": true
+  },
+  "required_zones": [
+    "A",
+    "D"
+  ],
+  "leg": 0,
+  "energy": 61.891,
+  "return_cost": 29.03,
+  "reserve": 8.0,
+  "wait_per_sim_s": 0.26,
+  "energy_verified": true,
+  "permit_request": false,
+  "navigation": "RECOVERY_REQUIRED"
+}

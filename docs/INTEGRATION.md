@@ -1,15 +1,49 @@
 # Integrating Rackonaut
 
-Run these gates in order on one integration host. Start from a known commit and a fresh Rackonaut shell. Record the commit, Gazebo and ROS versions, command, observed result, and any retained log or sample payload. Confirm changes to shared interfaces with the owners before using them in another gate.
+Use the [main README](../README.md#start-here) for the integrated demonstrator. Build from a fresh checkout and run each demo separately with its own data directory. Record the commit, software versions, launcher, route, ROS domain, inspection ID and outcome.
 
-| Gate and prerequisites | Run | Success and first diagnostic |
-|---|---|---|
-| 1. Warehouse. Robotics smoke passes and the warehouse package supplies a world. | Run `scripts/robotics/world` for the reference first, then the warehouse branch's documented world command. Run the world by itself. | Clock advances and the rack geometry and collisions are in the expected position. Inspect the simulator log for missing resources and confirm the world name and generation. |
-| 2. Drone. A working reference world and a candidate drone are available. | Run `scripts/robotics/smoke --reference`, then spawn the candidate using its documented launcher in the reference world. Use one teleop publisher. Inspect ROS camera and calibration endpoints while the model moves. | The model responds to a bounded command, camera frames arrive, calibration and frames agree, and stop or hover is observable. Inspect simulator topics, bridge mapping and ROS endpoint QoS in that order. |
-| 3. Warehouse and drone. Both stand-alone gates pass. | Run the warehouse launcher. Spawn the same drone at the contract pose. Exercise a short manual pass between racks. | Spawn succeeds, gravity and collisions are credible, and control and images continue. Check spawn pose, model resource paths and the world's sensor/physics systems. |
-| 4. Computer vision. The camera contract passes and vision can read the synthetic fixture. | Point the vision node at the real simulated image stream. Use a labeled, known slot and retain the image and its observation. | Vision emits a valid observation attributable to the image. Compare separately against ground truth. Check encoding, calibration, topic QoS, simulation timestamps and slot association. |
-| 5. Backend. Fixture API checks pass and the actual backend can ingest the fixtures. | Start the backend on the integration host. Post the same fixture used in the HTTP smoke test, then send one real vision observation and query the same inspection. | The actual backend reports the expected comparison and handles observation replay consistently. Check input validation, selected inspection and expected inventory. |
-| 6. Dashboard. Dashboard views work against the mock and the backend exposes the contract. | Change the dashboard API base URL to the actual backend and load the same inspection. | Summary and discrepancy rows agree with the backend responses, including pending or uncertain states. Check network URL, response status, browser console and CORS. |
-| 7. End-to-end. All previous gates pass on the same baseline. | Use the branch-provided launch commands in order. Teleoperate to a known slot, then verify the evidence through camera, CV, API and dashboard. | One planned match and one planned discrepancy appear with traceable observations. Retain that run's commit and evidence. If a gate fails, check the last working boundary first. |
+| Gate | Check |
+| --- | --- |
+| Build and contracts | Run the prerequisite check, install the locked backend environment, build the ten ROS packages and run the [ROS and HTTP tests](../README.md#tests). |
+| Business Demo | Run the short adaptive warehouse with Mock SAP. Verify the three selected locations, camera observations, comparisons and report. |
+| Full Robotics Demo | Start the aerial profile with virtual Safety presence. Verify sensor localization, reservations, both low-level stops, dock contact and the result in Mock SAP. |
+| Engineering Showcase | Open a single live viewer or replay the saved Evidence bag in a separate ROS domain. Check that 2D Control Center is available on the same live stack. |
 
-Until component owners supply their launch commands, use the [role guides](../README.md#start-here) for reference runs. Keep only the intended publisher active for the camera or command topic being tested, and stop processes from the terminal that started them.
+## Route and operator constraints
+
+- Use **A-01-01 and A-01-03** for the aerial profile. In AUDIT 01, this route reached physical dock contact in Gazebo and released the Safety reservations. It ran with virtual ground-zone presence, active onboard LiDAR and simulated dock contact.
+- The aerial transition from the higher **A-01-02** to **A-01-03** repeatedly triggered `ROUTE_BLOCKED`. Measured LiDAR returns aligned with `steel_35`, a rendered crossbar in shaft A. The stop in the audit reproduced the previous estimated stop within about 5 mm. Recovery was authorized, stopped after 7.7 s, and retained D and A reservations. The tests cover this route, not other combinations of levels. [Archived Showcase failure](engineering-evidence/recovery-blocked.json)
+- The refreshed Control Center shows raw video. The start latch resets on each dispatch and is set on receipt of an annotated image after the job has status. The latch has no age check. Use the Engineering Showcase Vision view for annotated frames during flight. [Engineering Showcase](ENGINEERING_SHOWCASE.md)
+- The benchmark on WSL2 found substantial render cost with laser Safety and optional RViz. The full live demo uses virtual presence. The laser profile's fixed A, B and T fields are optional. Safety, flight dynamics and docking are simulated, and the backend's expected inventory and product catalog are synthetic. [Performance evidence](engineering-evidence/laser-performance.json) · [Safety sensor scope](../ros2_ws/src/rackonaut_safety/docs/SENSOR_SAFETY.md)
+
+## Stable reference demo from GOAL 04B
+
+The historical [`demo-baseline` tag](https://github.com/Adiksoon/rackonaut/tree/demo-baseline) pins `6d10e45a49d5034dd6577b187d27f7bf49f1b9c5`. It contains the warehouse, reference drone, perception, a five-stop autonomous route and the fixture API. The audited setup was Ubuntu 22.04.5 on WSL2, ROS 2 Humble, Fortress 6.16.0 with llvmpipe and system Python 3.10.12.
+
+For historical reproduction, use a checkout of that tag and its four-package workspace. The separate `demo-complete` tag documents a later 11-location run.
+
+```bash
+git clone --branch demo-baseline https://github.com/Adiksoon/rackonaut.git rackonaut-demo
+cd rackonaut-demo
+python3.10 scripts/api/setup.py
+scripts/robotics/build
+source scripts/robotics/activate.bash
+ros2 launch rackonaut_mission showcase.launch.py gazebo_gui:=false view:=false
+```
+
+On 25 November 2026 the tagged headless run `INS-04B-BASELINE` finished in 75.1 s, confirmed A-01-01 through A-01-05, and touched down. Its fixture API stored ten valid live camera events and reported five pending comparisons and three uninspected locations. Ctrl+C released the launcher processes and mock port. These are GOAL 04B observations from the tag. [GOAL 04A/04B verification](../ros2_ws/src/rackonaut_mission/docs/VERIFICATION.md) · [11-location demo](DEMO_COMPLETE.md) · [Original integration PR](https://github.com/Adiksoon/rackonaut/pull/1)
+
+## Acceptance gates for independent modules
+
+Before changing shared interfaces, review the [ROS contract](../contracts/ros.md), the [HTTP contract](../contracts/http.md) and the [team register](TEAM_TASKS.md). Keep one simulator clock, one publisher for the selected camera and one flight-command owner for the test domain.
+
+| Boundary | Evidence for acceptance |
+| --- | --- |
+| Warehouse and drone | Record model, license, SDF version, spawn, model resources, physics and collisions. Verify bounded body-frame motion and zero-command hover or stop before enabling autonomous control. |
+| Camera and ROS transport | Match image and camera-info calibration, dimensions, timestamps, optical frame and QoS. Verify visible ArUco framing at both shelf heights, canonical odometry and a single TF owner per edge. Retain a live camera observation accepted by the API. |
+| Aerial profile | Check rotor and collision envelopes in the shaft and tunnel, LiDAR and IMU timing, docking contact, reservations and a complete dock-to-dock run before evaluating Recovery. [Drone checklist](onboarding/MICHAL.md) · [Aerial geometry](AERIAL_INFRASTRUCTURE.md) |
+| Backend | Replay known observations under a new inspection ID. Exercise first POST (201), exact replay (200), conflicting event identity (409), out-of-order observations and isolation between inspections. Then ingest a real camera event. [GOAL 04A observation sample](../ros2_ws/src/rackonaut_mission/docs/evidence/api_observations.json) |
+| Dashboard | Compare the same inspection with the HTTP summary and discrepancies. Verify empty, pending, uncertain, completed and unavailable states. Record the URL, command, inspection ID and evidence. |
+| End to end | Archive a run with a traceable correct reading and discrepancy, then confirm the operator can inspect the evidence and open the report. |
+
+The tests and replay gates from GOAL 04B remain useful for accepting an independently supplied module. The separate backend proposal from that period predates the integrated Mock SAP delivered in GOAL 17. [Mock SAP comparisons and replay](SAP_BUSINESS_INTELLIGENCE.md)

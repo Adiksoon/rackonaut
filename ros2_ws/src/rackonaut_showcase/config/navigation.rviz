@@ -1,0 +1,209 @@
+Panels:
+- Class: rviz_common/Displays
+  Name: Displays
+- Class: rviz_common/Views
+  Name: Views
+Visualization Manager:
+  Class: ''
+  Name: root
+  Enabled: true
+  Global Options:
+    Background Color: 16; 27; 38
+    Fixed Frame: rackonaut_odom
+    Frame Rate: 12
+  Displays:
+  - Class: rviz_default_plugins/Grid
+    Name: Metre grid
+    Enabled: true
+    Value: true
+    Cell Size: 1
+    Color: 71; 91; 109
+    Alpha: 0.35
+    Plane Cell Count: 42
+    Plane: XY
+    Reference Frame: <Fixed Frame>
+  - Class: rviz_default_plugins/MarkerArray
+    Name: "Reference infrastructure \xB7 toggle"
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/engineering/reference
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Accumulated LiDAR measurements
+    Enabled: true
+    Value: true
+    Style: Points
+    Size (Pixels): 2
+    Alpha: 0.86
+    Decay Time: 0
+    Color Transformer: FlatColor
+    Color: 104; 191; 244
+    Topic:
+      Value: /rackonaut/localization/measured_map
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/PointCloud2
+    Name: Latest onboard LiDAR scan
+    Enabled: true
+    Value: true
+    Style: Points
+    Size (Pixels): 3
+    Alpha: 0.86
+    Decay Time: 0
+    Color Transformer: FlatColor
+    Color: 109; 255; 198
+    Topic:
+      Value: /rackonaut/drone/lidar/points
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: "Aircraft \xB7 estimated body frame"
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/engineering/aircraft
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/Path
+    Name: Published mission plan
+    Enabled: true
+    Value: true
+    Alpha: 1
+    Color: 88; 147; 255
+    Line Style: Billboards
+    Line Width: 0.055
+    Buffer Length: 1
+    Topic:
+      Value: /rackonaut/mission/plan
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/Path
+    Name: Measured flight path
+    Enabled: true
+    Value: true
+    Alpha: 1
+    Color: 121; 255; 221
+    Line Style: Billboards
+    Line Width: 0.105
+    Buffer Length: 1
+    Topic:
+      Value: /rackonaut/mission/path
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Inspection points and mission status
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/mission/markers
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: "Current target \xB7 avoidance \xB7 adaptive moves"
+    Enabled: true
+    Value: true
+    Topic:
+      Value: /rackonaut/engineering/navigation
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/MarkerArray
+    Name: Recovery preview and flown return
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/engineering/recovery
+      Reliability Policy: Reliable
+      Durability Policy: Transient Local
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/Odometry
+    Name: LiDAR poses at scan times
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/localization/estimate
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/Odometry
+    Name: Sensor odometry used by control
+    Enabled: false
+    Value: false
+    Topic:
+      Value: /rackonaut/drone/odom
+      Reliability Policy: Best Effort
+      Durability Policy: Volatile
+      History Policy: Keep Last
+      Depth: 1
+  - Class: rviz_default_plugins/TF
+    Name: Coordinate frames
+    Enabled: false
+    Value: false
+    Show Names: true
+    Show Arrows: true
+    Show Axes: true
+    Marker Scale: 0.45
+  Tools:
+  - Class: rviz_default_plugins/MoveCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Warehouse overview
+      Distance: 33
+      Focal Point:
+        X: 8.5
+        Y: 2.4
+        Z: 2.8
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    Saved:
+    - Class: rviz_default_plugins/Orbit
+      Name: Inspection aisle A
+      Distance: 10
+      Focal Point:
+        X: 6.0
+        Y: 0.5
+        Z: 1.8
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: <Fixed Frame>
+      Yaw: 4.72
+    - Class: rviz_default_plugins/Orbit
+      Name: Follow aircraft
+      Distance: 7
+      Focal Point:
+        X: 0.5
+        Y: 0.0
+        Z: 0.0
+      Near Clip Distance: 0.03
+      Pitch: 0.59
+      Target Frame: rackonaut_base_link
+      Yaw: 4.72
+Window Geometry:
+  Height: 900
+  Width: 1480
+  X: 75
+  Y: 85
+  Hide Left Dock: false
+  Hide Right Dock: true

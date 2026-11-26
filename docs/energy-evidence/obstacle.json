@@ -1,0 +1,567 @@
+{
+  "charging": {
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "battery": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 17.771,
+      "dock": "DOCKED",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 71.04,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 3,
+        "reserve": 8,
+        "ready": 88
+      }
+    },
+    "stage": "CHARGING",
+    "status": {
+      "departures": 1,
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 58.92,
+          "start_sim_time": 6.16,
+          "completed_before": [],
+          "result": "DOCKED_FOR_CHARGE",
+          "end_percent": 17.777,
+          "end_sim_time": 70.64,
+          "completed_after": [
+            "A-01-01",
+            "A-01-02"
+          ]
+        }
+      ],
+      "completed": [
+        "A-01-01",
+        "A-01-02"
+      ],
+      "remaining": [
+        "A-01-03",
+        "A-01-05"
+      ],
+      "interrupted": [],
+      "return_reason": "Low battery \u2014 returning to charging station",
+      "return_percent": 0,
+      "required_percent": 44.04,
+      "reserve_percent": 8,
+      "return_path": []
+    },
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+      "phase": "RESERVED",
+      "permit": false,
+      "permit_departure": null,
+      "sensor": "FRESH",
+      "sensor_mode": "virtual",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [
+        "A",
+        "T"
+      ],
+      "message": "Reserved for drone inspection.",
+      "alarm": null,
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "RESERVED",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "RESERVED",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T13:05:46.718+00:00",
+          "monotonic_ns": 28205630729344,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T13:05:46.518+00:00",
+          "monotonic_ns": 28205430721855,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+          "departure": 1
+        },
+        {
+          "time": "2026-11-25T13:05:46.318+00:00",
+          "monotonic_ns": 28205230633363,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T13:05:43.297+00:00",
+          "monotonic_ns": 28202209147851,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    }
+  },
+  "blocked": {
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "battery": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 23.277,
+      "dock": "AVAILABLE",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 73.8,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 3,
+        "reserve": 8,
+        "ready": 88
+      }
+    },
+    "stage": "ABORTED",
+    "status": {
+      "departures": 1,
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 58.92,
+          "start_sim_time": 6.16,
+          "completed_before": [],
+          "result": "DOCKED_FOR_CHARGE",
+          "end_percent": 17.777,
+          "end_sim_time": 70.64,
+          "completed_after": [
+            "A-01-01",
+            "A-01-02"
+          ]
+        }
+      ],
+      "completed": [
+        "A-01-01",
+        "A-01-02"
+      ],
+      "remaining": [
+        "A-01-03",
+        "A-01-05"
+      ],
+      "interrupted": [],
+      "return_reason": "Low battery \u2014 returning to charging station",
+      "return_percent": 0,
+      "required_percent": 40.9,
+      "reserve_percent": 8,
+      "return_path": []
+    },
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+      "phase": "RECOVERY",
+      "permit": false,
+      "permit_departure": null,
+      "sensor": "FRESH",
+      "sensor_mode": "virtual",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [
+        "A",
+        "T"
+      ],
+      "message": "Operator recovery required. Access remains restricted.",
+      "alarm": {
+        "time": "2026-11-25T13:06:54.068+00:00",
+        "monotonic_ns": 28272980770253,
+        "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+        "event": "intrusion",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Zone occupied: Aisle A, Transfer corridor & pad.",
+        "presence_sample_ns": 28272933650781
+      },
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "INTRUSION",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": true,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "INTRUSION",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T13:06:54.118+00:00",
+          "monotonic_ns": 28273030523867,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 28272980770253
+        },
+        {
+          "time": "2026-11-25T13:06:54.068+00:00",
+          "monotonic_ns": 28272980770253,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "intrusion",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Zone occupied: Aisle A, Transfer corridor & pad.",
+          "presence_sample_ns": 28272933650781
+        },
+        {
+          "time": "2026-11-25T13:05:46.718+00:00",
+          "monotonic_ns": 28205630729344,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T13:05:46.518+00:00",
+          "monotonic_ns": 28205430721855,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+          "departure": 1
+        },
+        {
+          "time": "2026-11-25T13:05:46.318+00:00",
+          "monotonic_ns": 28205230633363,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T13:05:43.297+00:00",
+          "monotonic_ns": 28202209147851,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    }
+  },
+  "cleared_but_stopped": {
+    "position": [
+      0,
+      0,
+      0.05,
+      0
+    ],
+    "battery": {
+      "simulated": true,
+      "fresh": true,
+      "percent": 23.212,
+      "dock": "AVAILABLE",
+      "contact": true,
+      "charging": false,
+      "cycles": 0,
+      "sim_time": 78.16,
+      "model": {
+        "hover": 0.55,
+        "movement": 0.32,
+        "climb": 0.8,
+        "ground": 0.015,
+        "charge": 3,
+        "reserve": 8,
+        "ready": 88
+      }
+    },
+    "stage": "ABORTED",
+    "status": {
+      "departures": 1,
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 58.92,
+          "start_sim_time": 6.16,
+          "completed_before": [],
+          "result": "DOCKED_FOR_CHARGE",
+          "end_percent": 17.777,
+          "end_sim_time": 70.64,
+          "completed_after": [
+            "A-01-01",
+            "A-01-02"
+          ]
+        }
+      ],
+      "completed": [
+        "A-01-01",
+        "A-01-02"
+      ],
+      "remaining": [
+        "A-01-03",
+        "A-01-05"
+      ],
+      "interrupted": [],
+      "return_reason": "Low battery \u2014 returning to charging station",
+      "return_percent": 0,
+      "required_percent": 40.9,
+      "reserve_percent": 8,
+      "return_path": []
+    },
+    "safety": {
+      "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+      "phase": "RECOVERY",
+      "permit": false,
+      "permit_departure": null,
+      "sensor": "FRESH",
+      "sensor_mode": "virtual",
+      "signals_online": true,
+      "at_pad": true,
+      "required": [
+        "A",
+        "T"
+      ],
+      "message": "Operator recovery required. Access remains restricted.",
+      "alarm": {
+        "time": "2026-11-25T13:06:54.068+00:00",
+        "monotonic_ns": 28272980770253,
+        "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+        "event": "intrusion",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Zone occupied: Aisle A, Transfer corridor & pad.",
+        "presence_sample_ns": 28272933650781
+      },
+      "countdown": 0,
+      "zones": {
+        "A": {
+          "label": "Aisle A",
+          "state": "INTRUSION",
+          "bounds": [
+            3.4,
+            -2.4,
+            24.8,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "B": {
+          "label": "Aisle B",
+          "state": "OPEN",
+          "bounds": [
+            3.4,
+            -8.4,
+            24.8,
+            -3.6
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        },
+        "T": {
+          "label": "Transfer corridor & pad",
+          "state": "INTRUSION",
+          "bounds": [
+            -1.4,
+            -8.4,
+            3.4,
+            2.4
+          ],
+          "sensor": "FRESH",
+          "occupied": false,
+          "signals_acknowledged": true
+        }
+      },
+      "events": [
+        {
+          "time": "2026-11-25T13:06:54.118+00:00",
+          "monotonic_ns": 28273030523867,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "abort_confirmed",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager confirmed Abort.",
+          "triggering_event_ns": 28272980770253
+        },
+        {
+          "time": "2026-11-25T13:06:54.068+00:00",
+          "monotonic_ns": 28272980770253,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "intrusion",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Zone occupied: Aisle A, Transfer corridor & pad.",
+          "presence_sample_ns": 28272933650781
+        },
+        {
+          "time": "2026-11-25T13:05:46.718+00:00",
+          "monotonic_ns": 28205630729344,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "flight_started",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Mission Manager started the flight."
+        },
+        {
+          "time": "2026-11-25T13:05:46.518+00:00",
+          "monotonic_ns": 28205430721855,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "start_permitted",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved red signals accepted by Gazebo. Start permitted.",
+          "departure": 1
+        },
+        {
+          "time": "2026-11-25T13:05:46.318+00:00",
+          "monotonic_ns": 28205230633363,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "reserved",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Reserved for drone inspection."
+        },
+        {
+          "time": "2026-11-25T13:05:43.297+00:00",
+          "monotonic_ns": 28202209147851,
+          "inspection_id": "INS-CONTROL-20261125-130543-73A17AEF",
+          "event": "preparing",
+          "zones": [
+            "A",
+            "T"
+          ],
+          "message": "Warning active. Verifying clear zones."
+        }
+      ]
+    }
+  }
+}

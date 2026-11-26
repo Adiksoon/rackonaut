@@ -10,15 +10,34 @@ share="$(ros2 pkg prefix --share rackonaut_reference)" || {
 world="$share/worlds/reference.sdf"
 rendering=(-s --headless-rendering)
 software=1
+spawn=(0 0 0.12 0)
+model="$share/models/reference_drone.sdf"
+avoidance=0
+localization=""
+validation=0
 while (( $# )); do
     case "$1" in
         --world) world="${2:?--world requires a path}"; shift ;;
         --gui) rendering=() ;;
+        --avoidance) avoidance=1; model="$share/models/avoidance_drone.sdf" ;;
+        --localization) localization="${2:?--localization requires shadow or sensor_based}"; shift ;;
+        --localization-validation) validation=1 ;;
+        --spawn) spawn=("${2:?missing X}" "${3:?missing Y}" "${4:?missing Z}" "${5:?missing yaw}"); shift 4 ;;
         --hardware-rendering) software=0 ;;
-        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH]\n' "$0" >&2; exit 2 ;;
+        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH] [--spawn X Y Z YAW] [--avoidance] [--localization shadow|sensor_based] [--localization-validation]\n' "$0" >&2; exit 2 ;;
     esac
     shift
 done
+bridge="$share/config/bridge.yaml"
+if [[ -n "$localization" ]]; then
+    case "$localization" in
+        shadow) ;;
+        sensor_based) bridge="$share/config/sensor-navigation.yaml" ;;
+        *) printf 'Unknown localization mode: %s\n' "$localization" >&2; exit 2 ;;
+    esac
+    avoidance=1
+    model="$share/models/localization_drone.sdf"
+fi
 world="$(realpath -e -- "$world")"
 export HOME="$RACKONAUT_WS/.gazebo-home"
 mkdir -p -- "$HOME"
@@ -54,8 +73,28 @@ if (( ! ready )); then
     printf 'Fortress did not expose /world/rackonaut/create.\n' >&2
     exit 1
 fi
-timeout 10s ros2 run ros_gz_sim create -world rackonaut -file "$share/models/reference_drone.sdf" \
-    -name rackonaut_reference_drone -x 0 -y 0 -z 0.12 -Y 0
-start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -p "config_file:=$share/config/bridge.yaml"
+timeout 10s ros2 run ros_gz_sim create -world rackonaut -file "$model" \
+    -name rackonaut_reference_drone -x "${spawn[0]}" -y "${spawn[1]}" -z "${spawn[2]}" -Y "${spawn[3]}"
+start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -p "config_file:=$bridge"
 start_owned ros2 run tf2_ros static_transform_publisher --x 0.23 --roll -1.57079632679 --yaw -1.57079632679 --frame-id rackonaut_base_link --child-frame-id rackonaut_camera_optical_frame --ros-args -p use_sim_time:=true
-wait -n
+if (( avoidance )); then
+    start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_lidar_bridge \
+        -p "config_file:=$share/config/avoidance-bridge.yaml"
+    start_owned ros2 run tf2_ros static_transform_publisher --z 0.09 --frame-id rackonaut_base_link \
+        --child-frame-id rackonaut_reference_drone/base_link/local_lidar --ros-args -p use_sim_time:=true
+fi
+if [[ -n "$localization" ]]; then
+    start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_localization_sensors_bridge \
+        -p "config_file:=$share/config/localization-sensors.yaml"
+    start_owned ros2 run tf2_ros static_transform_publisher --frame-id rackonaut_base_link \
+        --child-frame-id rackonaut_reference_drone/base_link/local_imu --ros-args -p use_sim_time:=true
+fi
+if (( validation )); then
+    start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_validation_bridge \
+        -p "config_file:=$share/config/validation-bridge.yaml"
+fi
+if [[ -n "$localization" ]]; then
+    wait "$server_pid"
+else
+    wait -n
+fi

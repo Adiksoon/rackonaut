@@ -1,0 +1,275 @@
+{
+  "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+  "planned_slots": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "visited": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "stage": "ABORTED",
+  "detail": "Stopped by the operator",
+  "adaptive": {
+    "attempt": 1,
+    "reason": "initial",
+    "attempts": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": "unreadable",
+        "observation_id": "OBS-041346799CBD4095993D8C41E2731D5E",
+        "quality_id": null,
+        "reading": [
+          "occupied",
+          "unreadable",
+          null
+        ],
+        "outcome": "Label unreadable — adjusting viewpoint"
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "reason": "unreadable",
+        "issue": null,
+        "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+        "quality_id": null,
+        "reading": [
+          "occupied",
+          "readable",
+          "P001"
+        ],
+        "outcome": "Label recovered successfully"
+      },
+      {
+        "slot_id": "A-01-03",
+        "attempt": 1,
+        "reason": "initial",
+        "issue": null,
+        "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+        "quality_id": null,
+        "reading": [
+          "empty",
+          "not_applicable",
+          null
+        ],
+        "outcome": "Reading confirmed"
+      }
+    ],
+    "moves": [
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "REPOSITION",
+        "from": [
+          5.468574806935861,
+          0.44612063931401014,
+          0.789950369782706
+        ],
+        "target": [
+          6.01,
+          0.63,
+          0.82
+        ],
+        "actual": [
+          6.012335791093558,
+          0.6316482087209649,
+          0.8220970072482386
+        ]
+      },
+      {
+        "slot_id": "A-01-01",
+        "attempt": 2,
+        "stage": "RECENTER",
+        "from": [
+          6.000111453621973,
+          0.630744439034265,
+          0.8199037856051586
+        ],
+        "target": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "actual": [
+          5.475168288954178,
+          0.4536239906192298,
+          0.7898893648688728
+        ]
+      }
+    ],
+    "retries": 1,
+    "resolved": [
+      "A-01-01"
+    ],
+    "manual_review": {},
+    "outcome": "Reading confirmed"
+  },
+  "avoidance": {
+    "last_additional_distance_m": 1.325,
+    "events": [
+      {
+        "detected": 44426.991318772,
+        "blocked_at": [
+          5.853,
+          0.453,
+          0.784
+        ],
+        "sim_detected": 89.144,
+        "receipt_to_brake_ms": 269,
+        "previous_speed": 0.245,
+        "stage": "TRANSIT",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          5.94,
+          0.45,
+          0.787
+        ],
+        "reaction_s": 0.8,
+        "stopping_distance": 0.087,
+        "start": 44428.091196226,
+        "replan_s": 0.3,
+        "origin": [
+          5.944,
+          0.45,
+          0.787
+        ],
+        "axis": [
+          0.9999999864077883,
+          -0.000164876994976139
+        ],
+        "offset": [
+          -0.00014344298562924093,
+          -0.8699999881747759,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            5.955,
+            -0.353,
+            0.789
+          ],
+          [
+            6.756,
+            -0.357,
+            0.789
+          ],
+          [
+            7.545,
+            -0.356,
+            0.789
+          ],
+          [
+            7.854,
+            0.384,
+            0.789
+          ]
+        ],
+        "additional_percent": 1.73,
+        "rejoining": true,
+        "rejoined_at": [
+          7.854,
+          0.384,
+          0.789
+        ],
+        "elapsed_s": 23.0,
+        "additional_m": 1.284
+      },
+      {
+        "detected": 44457.59111139,
+        "blocked_at": [
+          8.039,
+          0.45,
+          0.783
+        ],
+        "sim_detected": 107.236,
+        "receipt_to_brake_ms": 218,
+        "previous_speed": 0.261,
+        "stage": "AISLE_APPROACH",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          7.958,
+          0.456,
+          0.781
+        ],
+        "reaction_s": 0.7,
+        "stopping_distance": 0.082,
+        "start": 44458.591252186,
+        "replan_s": 0.3,
+        "origin": [
+          7.957,
+          0.46,
+          0.781
+        ],
+        "axis": [
+          -0.9999943159294945,
+          -0.003371662602077904
+        ],
+        "offset": [
+          0.0029333464638077768,
+          -0.8699950548586602,
+          0.0
+        ],
+        "steps": 2,
+        "reached": [
+          [
+            7.962,
+            -0.35,
+            0.783
+          ],
+          [
+            7.153,
+            -0.36,
+            0.782
+          ],
+          [
+            6.363,
+            -0.364,
+            0.782
+          ],
+          [
+            6.065,
+            0.388,
+            0.788
+          ]
+        ],
+        "additional_percent": 1.71,
+        "rejoining": true,
+        "rejoined_at": [
+          6.065,
+          0.388,
+          0.788
+        ],
+        "elapsed_s": 23.8,
+        "additional_m": 1.325
+      }
+    ]
+  },
+  "recovery": {
+    "recovery_id": "REC-00C23D5677D1",
+    "cause": "OPERATOR_ABORT",
+    "phase": "RECOVERY_COMPLETE",
+    "result": "RECOVERY_COMPLETE",
+    "duration_wall_s": 96.8,
+    "dock_confirmed": true,
+    "retry_slots": []
+  },
+  "energy": {
+    "dock": "CHARGING",
+    "contact": true,
+    "charging": true,
+    "percent": 36.76
+  },
+  "validation": {
+    "samples": 1189,
+    "rmse": 0.0085,
+    "max": 0.0338,
+    "orientation_rms_deg": 0.085
+  },
+  "safety": {
+    "phase": "RELEASED",
+    "required_zones": []
+  }
+}

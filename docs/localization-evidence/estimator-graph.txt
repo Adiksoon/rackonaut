@@ -1,0 +1,25 @@
+/rackonaut_localization
+  Subscribers:
+    /rackonaut/drone/imu: sensor_msgs/msg/Imu
+    /rackonaut/drone/lidar/points: sensor_msgs/msg/PointCloud2
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/drone/odom: nav_msgs/msg/Odometry
+    /rackonaut/localization/estimate: nav_msgs/msg/Odometry
+    /rackonaut/localization/measured_map: sensor_msgs/msg/PointCloud2
+    /rackonaut/localization/state: std_msgs/msg/String
+    /rosout: rcl_interfaces/msg/Log
+    /tf: tf2_msgs/msg/TFMessage
+  Service Servers:
+    /rackonaut/localization/export_map: std_srvs/srv/Trigger
+    /rackonaut_localization/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_localization/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_localization/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_localization/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_localization/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_localization/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:

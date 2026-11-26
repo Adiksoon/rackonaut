@@ -1,0 +1,233 @@
+{
+  "robot": true,
+  "at_pad": true,
+  "busy": true,
+  "position": [
+    0,
+    0,
+    0.05,
+    0
+  ],
+  "backend": {
+    "online": true,
+    "mode": "fixture",
+    "slots": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ]
+  },
+  "mission": {
+    "inspection_id": "INS-CONTROL-20261125-105021-9497A0AD",
+    "stage": "STARTING",
+    "slots": [
+      "A-01-01",
+      "A-01-02",
+      "A-01-03",
+      "A-01-04",
+      "A-01-05",
+      "A-01-06",
+      "A-01-07",
+      "A-01-08",
+      "B-01-01",
+      "B-01-02",
+      "B-02-01"
+    ],
+    "quality": true,
+    "mode": "full",
+    "status": {},
+    "planned": [
+      [
+        0,
+        0,
+        0.05
+      ],
+      [
+        0,
+        0,
+        0.79
+      ],
+      [
+        2.1,
+        0,
+        0.79
+      ],
+      [
+        2.1,
+        0.45,
+        0.79
+      ],
+      [
+        5.46,
+        0.45,
+        0.79
+      ],
+      [
+        5.46,
+        0.45,
+        2.89
+      ],
+      [
+        8.26,
+        0.45,
+        0.79
+      ],
+      [
+        8.26,
+        0.45,
+        2.89
+      ],
+      [
+        11.06,
+        0.45,
+        0.79
+      ],
+      [
+        11.06,
+        0.45,
+        2.89
+      ],
+      [
+        13.4,
+        -0.33,
+        0.87
+      ],
+      [
+        13.86,
+        0.45,
+        2.89
+      ],
+      [
+        2.1,
+        0.45,
+        0.79
+      ],
+      [
+        2.1,
+        -5.55,
+        0.79
+      ],
+      [
+        5.46,
+        -5.55,
+        0.79
+      ],
+      [
+        5.46,
+        -5.55,
+        2.89
+      ],
+      [
+        8.26,
+        -5.55,
+        0.79
+      ],
+      [
+        2.1,
+        -5.55,
+        0.79
+      ],
+      [
+        2.1,
+        0,
+        0.79
+      ],
+      [
+        0,
+        0,
+        0.79
+      ],
+      [
+        0,
+        0,
+        0.05
+      ]
+    ],
+    "flown": [],
+    "evidence": [],
+    "result": null,
+    "error": ""
+  },
+  "camera": 328,
+  "camera_type": "raw",
+  "history": [],
+  "safety_enabled": true,
+  "safety": {
+    "inspection_id": "INS-CONTROL-20261125-105021-9497A0AD",
+    "phase": "PREPARING",
+    "permit": false,
+    "sensor": "FRESH",
+    "signals_online": true,
+    "at_pad": true,
+    "required": [
+      "A",
+      "B",
+      "T"
+    ],
+    "message": "Warning active. Verifying clear zones.",
+    "alarm": null,
+    "countdown": 2.9,
+    "zones": {
+      "A": {
+        "label": "Aisle A",
+        "state": "PREPARING",
+        "bounds": [
+          3.4,
+          -2.4,
+          24.8,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "B": {
+        "label": "Aisle B",
+        "state": "PREPARING",
+        "bounds": [
+          3.4,
+          -8.4,
+          24.8,
+          -3.6
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      },
+      "T": {
+        "label": "Transfer corridor & pad",
+        "state": "PREPARING",
+        "bounds": [
+          -1.4,
+          -8.4,
+          3.4,
+          2.4
+        ],
+        "occupied": false,
+        "signals_acknowledged": true
+      }
+    },
+    "events": [
+      {
+        "time": "2026-11-25T10:50:21.523+00:00",
+        "monotonic_ns": 20080435619239,
+        "inspection_id": "INS-CONTROL-20261125-105021-9497A0AD",
+        "event": "preparing",
+        "zones": [
+          "A",
+          "B",
+          "T"
+        ],
+        "message": "Warning active. Verifying clear zones."
+      }
+    ]
+  },
+  "last_reservation": [],
+  "overview": true
+}

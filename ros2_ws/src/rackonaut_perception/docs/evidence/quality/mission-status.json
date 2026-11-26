@@ -1,0 +1,81 @@
+{
+  "inspection_id": "INS-05A-MISSION",
+  "stage": "COMPLETE",
+  "target": "PAD",
+  "target_pose": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "position": [
+    0.0,
+    0.0,
+    0.05,
+    -0.0
+  ],
+  "elapsed_seconds": 75.6,
+  "total": 5,
+  "visited": [
+    "A-01-01",
+    "A-01-02",
+    "A-01-03",
+    "A-01-04",
+    "A-01-05"
+  ],
+  "confirmed": {
+    "A-01-01": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-05A-MISSION",
+      "observation_id": "OBS-A5845A48C03140549A42717FF9E49E5D",
+      "slot_id": "A-01-01",
+      "pallet_id": "P001",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-25T09:13:24.650Z"
+    },
+    "A-01-02": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-05A-MISSION",
+      "observation_id": "OBS-2DEE9E0078694698911A9FBA2849B7E8",
+      "slot_id": "A-01-02",
+      "pallet_id": "P003",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-25T09:13:31.726Z"
+    },
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-05A-MISSION",
+      "observation_id": "OBS-FA4F44831CDC43FF88FB239E7046FF86",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-25T09:13:39.910Z"
+    },
+    "A-01-04": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-05A-MISSION",
+      "observation_id": "OBS-5CF6DE5C39F8425AB75DD456616296B0",
+      "slot_id": "A-01-04",
+      "pallet_id": "P999",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-25T09:13:46.882Z"
+    },
+    "A-01-05": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-05A-MISSION",
+      "observation_id": "OBS-F4562BA7207C42AC927FC253647DEFC0",
+      "slot_id": "A-01-05",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-25T09:13:55.069Z"
+    }
+  },
+  "missed": [],
+  "landed": true,
+  "detail": "Landed on the launch pad"
+}

@@ -1,0 +1,512 @@
+{
+  "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+  "http": {
+    "/health": {
+      "status": 200,
+      "body": {
+        "status": "ok",
+        "mode": "mock_sap"
+      }
+    },
+    "/docs": {
+      "status": 200,
+      "body": {
+        "content_type": "text/html; charset=utf-8",
+        "swagger_ui": true
+      }
+    },
+    "/openapi.json": {
+      "status": 200,
+      "body": {
+        "version": "1.0.0",
+        "paths": [
+          "/health",
+          "/api/inventory/expected",
+          "/api/observations",
+          "/api/discrepancies",
+          "/api/summary"
+        ]
+      }
+    },
+    "/api/observations?inspection_id=INS-CONTROL-20261125-173338-B664BB26": {
+      "status": 200,
+      "body": [
+        {
+          "schema_version": "1.0",
+          "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+          "observation_id": "OBS-041346799CBD4095993D8C41E2731D5E",
+          "slot_id": "A-01-01",
+          "pallet_id": null,
+          "occupancy": "occupied",
+          "label_status": "unreadable",
+          "timestamp": "2026-11-25T17:35:50.146Z"
+        },
+        {
+          "schema_version": "1.0",
+          "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+          "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+          "slot_id": "A-01-01",
+          "pallet_id": "P001",
+          "occupancy": "occupied",
+          "label_status": "readable",
+          "timestamp": "2026-11-25T17:35:58.002Z"
+        },
+        {
+          "schema_version": "1.0",
+          "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+          "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+          "slot_id": "A-01-03",
+          "pallet_id": null,
+          "occupancy": "empty",
+          "label_status": "not_applicable",
+          "timestamp": "2026-11-25T17:36:35.766Z"
+        }
+      ]
+    },
+    "/api/summary?inspection_id=INS-CONTROL-20261125-173338-B664BB26": {
+      "status": 200,
+      "body": {
+        "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+        "slots_total": 11,
+        "slots_observed": 2,
+        "observations_total": 3,
+        "discrepancy_count": 1,
+        "outcomes": {
+          "match": 1,
+          "wrong_pallet": 0,
+          "missing_pallet": 1,
+          "unexpected_pallet": 0,
+          "unreadable_label": 0,
+          "uninspected": 9,
+          "uncertain": 0,
+          "pending": 0
+        },
+        "slots": [
+          {
+            "slot_id": "A-01-01",
+            "expected_pallet_id": "P001",
+            "observed_pallet_id": "P001",
+            "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+            "outcome": "match"
+          },
+          {
+            "slot_id": "A-01-02",
+            "expected_pallet_id": "P002",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "A-01-03",
+            "expected_pallet_id": "P003",
+            "observed_pallet_id": null,
+            "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+            "outcome": "missing_pallet"
+          },
+          {
+            "slot_id": "A-01-04",
+            "expected_pallet_id": null,
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "A-01-05",
+            "expected_pallet_id": "P005",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "A-01-06",
+            "expected_pallet_id": "P006",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "A-01-07",
+            "expected_pallet_id": "P007",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "A-01-08",
+            "expected_pallet_id": "P008",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "B-01-01",
+            "expected_pallet_id": "P021",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "B-01-02",
+            "expected_pallet_id": "P022",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          },
+          {
+            "slot_id": "B-02-01",
+            "expected_pallet_id": null,
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected"
+          }
+        ]
+      }
+    },
+    "/api/business/summary?inspection_id=INS-CONTROL-20261125-173338-B664BB26": {
+      "status": 200,
+      "body": {
+        "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+        "source": "mock_sap",
+        "synthetic_product_master": true,
+        "metrics": {
+          "observed": 2,
+          "total": 11,
+          "matches": 1,
+          "decisive": 2,
+          "accuracy": 0.5,
+          "inventory_discrepancies": 1,
+          "inventory_attention": 1,
+          "damaged_packages": 0,
+          "discontinued_products": 1,
+          "manual_review_locations": 0
+        },
+        "issues": [
+          {
+            "issue_id": "ISS-F48371E78E7DEDB76864",
+            "revision": "14EC70B784D845CAF410",
+            "type": "DISCONTINUED_PRODUCT",
+            "priority": "HIGH",
+            "slot_id": "A-01-01",
+            "hu_id": "P001",
+            "description": "The observed handling unit contains a discontinued product in Mock SAP.",
+            "action": "Confirm the lifecycle record and follow the withdrawal or return procedure.",
+            "reason": "Read P001. Product EL-440 has lifecycle DISCONTINUED in Mock SAP.",
+            "evidence": [
+              {
+                "schema_version": "1.0",
+                "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+                "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+                "slot_id": "A-01-01",
+                "pallet_id": "P001",
+                "occupancy": "occupied",
+                "label_status": "readable",
+                "timestamp": "2026-11-25T17:35:58.002Z"
+              }
+            ],
+            "quality": [],
+            "related_issue_ids": [],
+            "status": "OPEN",
+            "verified_at": null
+          },
+          {
+            "issue_id": "ISS-AAF7770C00DA4971D613",
+            "revision": "1FB520FCBC443517AB65",
+            "type": "MISSING_PALLET",
+            "priority": "HIGH",
+            "slot_id": "A-01-03",
+            "hu_id": "P003",
+            "description": "The inspected location is empty and Mock SAP expects a handling unit.",
+            "action": "Review the last warehouse movements and check the assigned handling unit.",
+            "reason": "The inspected location is empty and Mock SAP expects a handling unit.",
+            "evidence": [
+              {
+                "schema_version": "1.0",
+                "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+                "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+                "slot_id": "A-01-03",
+                "pallet_id": null,
+                "occupancy": "empty",
+                "label_status": "not_applicable",
+                "timestamp": "2026-11-25T17:36:35.766Z"
+              }
+            ],
+            "quality": [],
+            "related_issue_ids": [],
+            "status": "OPEN",
+            "verified_at": null
+          }
+        ],
+        "slots": [
+          {
+            "slot_id": "A-01-01",
+            "expected_pallet_id": "P001",
+            "observed_pallet_id": "P001",
+            "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+            "outcome": "match",
+            "expected_product": {
+              "hu_id": "P001",
+              "sku": "EL-440",
+              "product_name": "Series 440 control relay",
+              "batch": "EL-2408",
+              "lifecycle_status": "DISCONTINUED",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-01"
+            },
+            "observed_product": {
+              "hu_id": "P001",
+              "sku": "EL-440",
+              "product_name": "Series 440 control relay",
+              "batch": "EL-2408",
+              "lifecycle_status": "DISCONTINUED",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-01"
+            },
+            "readings": [
+              {
+                "schema_version": "1.0",
+                "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+                "observation_id": "OBS-041346799CBD4095993D8C41E2731D5E",
+                "slot_id": "A-01-01",
+                "pallet_id": null,
+                "occupancy": "occupied",
+                "label_status": "unreadable",
+                "timestamp": "2026-11-25T17:35:50.146Z"
+              },
+              {
+                "schema_version": "1.0",
+                "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+                "observation_id": "OBS-31ADD7AE794A40E8AF029C3955BFCBDF",
+                "slot_id": "A-01-01",
+                "pallet_id": "P001",
+                "occupancy": "occupied",
+                "label_status": "readable",
+                "timestamp": "2026-11-25T17:35:58.002Z"
+              }
+            ],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-02",
+            "expected_pallet_id": "P002",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P002",
+              "sku": "MT-125",
+              "product_name": "Mounting bracket kit",
+              "batch": "MT-2611",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-02"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-03",
+            "expected_pallet_id": "P003",
+            "observed_pallet_id": null,
+            "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+            "outcome": "missing_pallet",
+            "expected_product": {
+              "hu_id": "P003",
+              "sku": "EL-812",
+              "product_name": "Industrial junction box",
+              "batch": "EL-2606",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-03"
+            },
+            "observed_product": null,
+            "readings": [
+              {
+                "schema_version": "1.0",
+                "inspection_id": "INS-CONTROL-20261125-173338-B664BB26",
+                "observation_id": "OBS-0713809459CA4661828B644C125E96B4",
+                "slot_id": "A-01-03",
+                "pallet_id": null,
+                "occupancy": "empty",
+                "label_status": "not_applicable",
+                "timestamp": "2026-11-25T17:36:35.766Z"
+              }
+            ],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-04",
+            "expected_pallet_id": null,
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": null,
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-05",
+            "expected_pallet_id": "P005",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P005",
+              "sku": "PK-140",
+              "product_name": "Protective packaging inserts",
+              "batch": "PK-2610",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-05"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-06",
+            "expected_pallet_id": "P006",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P006",
+              "sku": "MT-620",
+              "product_name": "Bearing assembly",
+              "batch": "MT-2605",
+              "lifecycle_status": "BLOCKED",
+              "quality_status": "ON_HOLD",
+              "stock_status": "RESTRICTED",
+              "expected_slot": "A-01-06"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-07",
+            "expected_pallet_id": "P007",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P007",
+              "sku": "EL-224",
+              "product_name": "Cable routing module",
+              "batch": "EL-2611",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-07"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "A-01-08",
+            "expected_pallet_id": "P008",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P008",
+              "sku": "HY-310",
+              "product_name": "Hydraulic fitting set",
+              "batch": "HY-2609",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "A-01-08"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "B-01-01",
+            "expected_pallet_id": "P021",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P021",
+              "sku": "EL-590",
+              "product_name": "Modular sensor housing",
+              "batch": "EL-2610",
+              "lifecycle_status": "ACTIVE",
+              "quality_status": "RELEASED",
+              "stock_status": "ON_HAND",
+              "expected_slot": "B-01-01"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "B-01-02",
+            "expected_pallet_id": "P022",
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": {
+              "hu_id": "P022",
+              "sku": "MT-271",
+              "product_name": "Precision mounting rail",
+              "batch": "MT-2609",
+              "lifecycle_status": "UNKNOWN",
+              "quality_status": "PENDING",
+              "stock_status": "ON_HAND",
+              "expected_slot": "B-01-02"
+            },
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          },
+          {
+            "slot_id": "B-02-01",
+            "expected_pallet_id": null,
+            "observed_pallet_id": null,
+            "observation_id": null,
+            "outcome": "uninspected",
+            "expected_product": null,
+            "observed_product": null,
+            "readings": [],
+            "quality_history": [],
+            "active_quality": null
+          }
+        ]
+      }
+    }
+  },
+  "sqlite": {
+    "observations": {
+      "total": 3,
+      "inspection": 3
+    },
+    "quality": {
+      "total": 0,
+      "inspection": 0
+    },
+    "verification": {
+      "total": 0,
+      "inspection": 0
+    }
+  }
+}

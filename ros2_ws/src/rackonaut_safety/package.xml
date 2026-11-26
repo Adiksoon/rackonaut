@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>rackonaut_safety</name>
+  <version>0.1.0</version>
+  <description>Simulated aisle access and presence interlock for Rackonaut.</description>
+  <maintainer email="rackonaut@example.invalid">Rackonaut team</maintainer>
+  <license>Proprietary</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+  <depend>ignition-transport11</depend>
+  <depend>ignition-msgs8</depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>rackonaut_warehouse</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>rackonaut_energy</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>tf2_msgs</exec_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>
