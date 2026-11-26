@@ -27,6 +27,7 @@ class LocalizationTests(TestCase):
         self.assertGreater(fit.weakest, .011)
         self.assertTrue(odometry.consider(second_scan, np.zeros(3), fit.xyz, fit.attitude))
         self.assertEqual(len(odometry.keyframes), 2)
+        self.assertEqual(odometry.keyframe_count, 2)
         self.assertIsNone(MeasuredRegistration().target)
 
     def test_registration_resolves_translation_and_rotation_in_three_planes(self):

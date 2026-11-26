@@ -378,6 +378,8 @@ class Localization(Node):
             "mapping_closed": self.mapping_closed,
             "mapping_stamp": self.mapping.stamp if self.mapping else None,
             "mapping_error": self.mapping.error if self.mapping else "",
+            "keyframe_count": self.slam.keyframe_count if self.slam is not None else None,
+            "keyframe_window": len(self.slam.keyframes) if self.slam is not None else None,
             "position": rounded(estimate.xyz) if estimate else None,
             "orientation": rounded(estimate.attitude.as_quat(), 6) if estimate else None,
             "scan_age_ms": round((now-self.match_at)*1000) if estimate else None,

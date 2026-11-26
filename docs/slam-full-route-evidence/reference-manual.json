@@ -1,0 +1,124 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-114028-6CDB8441",
+  "stage": "COMPLETE",
+  "samples": 1142,
+  "wall_s": 329.3,
+  "sim_s": 189.62,
+  "rtf": 0.5758,
+  "length_m": 70.701,
+  "max_distance_m": 16.301,
+  "height_m": [
+    0.054,
+    6.7046
+  ],
+  "energy_points": 64.032,
+  "contact": true,
+  "safety": "RELEASED",
+  "position_source": "reference",
+  "marker_camera_events": [
+    {
+      "wall": 1795693415.968623,
+      "event": "camera-observation",
+      "name": "A-01-01",
+      "xyz": [
+        5.45,
+        0.449,
+        0.794,
+        1.535
+      ],
+      "battery": 65.36,
+      "clock": 1218.22,
+      "contact": false,
+      "mapping_id": null,
+      "mission": "INS-CONTROL-20261126-114028-6CDB8441",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "safety": "RESERVED",
+      "service": "PRODUCTION",
+      "source": "reference",
+      "tracking": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "pose_status": {
+        "map_voxels": 59914,
+        "keyframe_count": null,
+        "keyframe_window": null,
+        "update_hz": 3.35,
+        "sim_hz": 6.03,
+        "processing_ms": 23.66,
+        "pipeline_ms": 24.1,
+        "overlap": 0.966,
+        "weakest": 0.05382,
+        "scan_age_ms": 75,
+        "rms": 0.0109
+      }
+    },
+    {
+      "wall": 1795693430.281522,
+      "event": "camera-observation",
+      "name": "A-01-03",
+      "xyz": [
+        8.257,
+        0.456,
+        0.793,
+        1.57
+      ],
+      "battery": 62.639,
+      "clock": 1226.6,
+      "contact": false,
+      "mapping_id": null,
+      "mission": "INS-CONTROL-20261126-114028-6CDB8441",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "safety": "RESERVED",
+      "service": "PRODUCTION",
+      "source": "reference",
+      "tracking": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "pose_status": {
+        "map_voxels": 60089,
+        "keyframe_count": null,
+        "keyframe_window": null,
+        "update_hz": 3.55,
+        "sim_hz": 6.02,
+        "processing_ms": 14.93,
+        "pipeline_ms": 25.25,
+        "overlap": 0.911,
+        "weakest": 0.05003,
+        "scan_age_ms": 10,
+        "rms": 0.0129
+      }
+    }
+  ]
+}

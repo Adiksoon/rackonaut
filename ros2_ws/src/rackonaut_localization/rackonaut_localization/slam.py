@@ -34,6 +34,7 @@ def measured_surfaces(points):
 class MeasuredRegistration:
     def __init__(self):
         self.keyframes = []
+        self.keyframe_count = 0
         self.target = None
 
     def consider(self, raw, offset, position, orientation):
@@ -48,6 +49,7 @@ class MeasuredRegistration:
         frame = Keyframe(position.copy(), orientation, orientation.apply(points + offset) + position,
                          orientation.apply(normals))
         self.keyframes.append(frame)
+        self.keyframe_count += 1
         if len(self.keyframes) > 14:
             self.keyframes.pop(1)
         # Retain the installation observations for revisits without making

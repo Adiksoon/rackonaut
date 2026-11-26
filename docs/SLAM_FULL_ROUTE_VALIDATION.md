@@ -31,6 +31,12 @@ Maksymalny błąd orientacji dostępnych estymat wyniósł 2,61°. Najdłuższa 
 
 Przed przerwą dopasowanie w osi tunelu zaczęło odchylać się od kolejnych obserwacji. Na próbce przy czasie symulowanym 615,196 s błąd przekroczył limit, a przy 618,352 s osiągnął 1,62 m, przede wszystkim w osi Y. Lokalne dopasowania nie dostarczały w tym obszarze wystarczająco stabilnych ograniczeń. Bazowa mapa używała krótkiego zasięgu dopasowania i ograniczonego okna ostatnich klatek. Próby porównawcze odtwarzają pakiety LiDAR i IMU z Gazebo przy zachowaniu czasów odbioru i porównują wynik osobno z zapisem walidacyjnym. [ROS Bag Humble](https://github.com/ros2/rosbag2/tree/humble/rosbag2_py) · [Metryka APE](https://github.com/MichaelGrupp/evo/wiki/Metrics)
 
+Drugi pełny zapis z kontrolerem referencyjnym objął drogę powrotną i dokowanie. W odtworzeniu jego rozszerzona podmapa z korektą prędkości dała 944 estymaty. Uzyskała 34 mm RMSE, 66 mm p95 i 95 mm maksymalnego błędu. Lepsza dostępność estymat pozwala ocenić cały lot, a błędy nadal przekraczają bramkę. Porównania KISS-ICP i small_gicp na pierwszym zapisie również przekroczyły limity. [KISS-ICP](https://github.com/PRBonn/kiss-icp) · [small_gicp](https://github.com/koide3/small_gicp)
+
+## Pełna trasa przez chroniony interfejs ręczny
+
+Lot `INS-CONTROL-20261126-114028-6CDB8441` użył standardowych żądań Manual Flight i zatwierdzonych współrzędnych docelowych. Stan pozycji pochodził z lokalizatora referencyjnego. Dron pokonał **70,70 m**, oddalił się na **16,30 m**, utrzymał rezerwację i zapisał obraz kamerowy przy obu stanowiskach. Zakończenie potwierdził fizyczny styk doku i stan `RELEASED`. Czas wyniósł **329,3 s** przy **RTF 0,576**, a zużycie energii **64,032 p.p.** To sprawdzenie ścieżki sterowania dla przyszłej próby po przejściu bramki shadow. [A-01-01 z kamery](slam-full-route-evidence/reference-a-01-01.jpg) · [A-01-03 z kamery](slam-full-route-evidence/reference-a-01-03.jpg) · [Telemetria](slam-full-route-evidence/reference-manual.json)
+
 ## Scenariusze
 
 | # | Próba | Obecny stan |
