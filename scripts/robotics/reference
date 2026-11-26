@@ -15,6 +15,7 @@ model="$share/models/reference_drone.sdf"
 avoidance=0
 localization=""
 validation=0
+full_route=0
 while (( $# )); do
     case "$1" in
         --world) world="${2:?--world requires a path}"; shift ;;
@@ -22,9 +23,10 @@ while (( $# )); do
         --avoidance) avoidance=1; model="$share/models/avoidance_drone.sdf" ;;
         --localization) localization="${2:?--localization requires shadow or sensor_based}"; shift ;;
         --localization-validation) validation=1 ;;
+        --full-route-slam) full_route=1 ;;
         --spawn) spawn=("${2:?missing X}" "${3:?missing Y}" "${4:?missing Z}" "${5:?missing yaw}"); shift 4 ;;
         --hardware-rendering) software=0 ;;
-        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH] [--spawn X Y Z YAW] [--avoidance] [--localization shadow|sensor_based] [--localization-validation]\n' "$0" >&2; exit 2 ;;
+        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH] [--spawn X Y Z YAW] [--avoidance] [--localization shadow|sensor_based] [--localization-validation] [--full-route-slam]\n' "$0" >&2; exit 2 ;;
     esac
     shift
 done
@@ -37,6 +39,10 @@ if [[ -n "$localization" ]]; then
     esac
     avoidance=1
     model="$share/models/localization_drone.sdf"
+    if (( full_route )); then model="$share/models/full_route_drone.sdf"; fi
+elif (( full_route )); then
+    printf '%s\n' '--full-route-slam requires localization.' >&2
+    exit 2
 fi
 world="$(realpath -e -- "$world")"
 export HOME="$RACKONAUT_WS/.gazebo-home"

@@ -1,12 +1,13 @@
 from math import pi
 from unittest import TestCase
+from unittest.mock import Mock
 
 import numpy as np
 from sensor_msgs.msg import PointCloud2, PointField
 
 from rackonaut_avoidance.manual import ZERO, protect
 from rackonaut_avoidance.planner import Navigator, sweep
-from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, HEIGHT, WIDTH, rotation, unpack
+from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, FULL_ROUTE_RANGE, HEIGHT, MAX_RANGE, Scanner, WIDTH, rotation, unpack
 
 
 class ClearanceTests(TestCase):
@@ -50,6 +51,25 @@ class ClearanceTests(TestCase):
         angle = pi / 4
         matrix = rotation(np.array([0., 0., np.sin(angle), np.cos(angle)]))
         np.testing.assert_allclose(matrix @ [1., 0., 0.], [0., 1., 0.], atol=1e-7)
+
+    def test_full_route_measurements_keep_the_original_motion_guard_horizon(self):
+        pixels = (BEAMS * 2.).astype("<f4")
+        pixels[5, 12] = BEAMS[5, 12] * 12.
+        points = PointCloud2(height=HEIGHT, width=WIDTH, point_step=12, row_step=12*WIDTH,
+                             fields=[PointField(name=name, offset=4*i, datatype=PointField.FLOAT32, count=1)
+                                     for i, name in enumerate("xyz")], data=pixels.tobytes())
+        points.header.frame_id = FRAME
+        points.header.stamp.sec = 1
+        ranges, returns, _ = unpack(points, sensor_range=FULL_ROUTE_RANGE)
+        self.assertAlmostEqual(ranges[5, 12], 12., places=4)
+        self.assertEqual(len(returns), WIDTH * HEIGHT)
+
+        scanner = Scanner(Mock(), sensor_range=FULL_ROUTE_RANGE)
+        scanner.poses.append((1., np.zeros(3), np.eye(3)))
+        scanner.pending = points, 2.
+        cloud = scanner.current(2.)
+        self.assertEqual(cloud.ranges[5, 12], MAX_RANGE)
+        self.assertEqual(len(cloud.hits), WIDTH * HEIGHT - 1)
 
     def test_manual_obstacles_stop_forward_side_and_vertical_commands(self):
         pose = (0., 0., .79, 0.)

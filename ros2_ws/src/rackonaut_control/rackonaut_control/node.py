@@ -29,7 +29,7 @@ from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from tf2_msgs.msg import TFMessage
 
-from rackonaut_avoidance.sensor import Scanner, stamp
+from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner, stamp
 from rackonaut_energy.model import Model
 from rackonaut_localization.node import MAPPING_COMMAND, SLAM_MAP
 from rackonaut_mission.report import TERMINAL, export, fetch_api
@@ -108,6 +108,7 @@ class Control(Node):
             self.recovery_operator = self.create_publisher(String, "/rackonaut/recovery/operator", 5)
         self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
         self.mapping_only = self.declare_parameter("mapping_only", False).value
+        self.full_route_slam = self.declare_parameter("full_route_slam", False).value
         if self.mapping_only:
             self.layout["mapping_only"] = True
         self.measured_map = MeasuredMap() if self.localization_mode == "sensor_based" else None
@@ -171,7 +172,8 @@ class Control(Node):
         if self.localization_mode != "ground_truth":
             self.create_subscription(String, "/rackonaut/localization/state", self.on_localization, latest)
         if self.measured_map is not None:
-            self.scan_decoder = Scanner(self, exact_pose=True)
+            self.scan_decoder = Scanner(self, exact_pose=True,
+                                        sensor_range=FULL_ROUTE_RANGE if self.full_route_slam else MAX_RANGE)
             self.create_subscription(PointCloud2, MAP_TOPIC, self.measured_map.accept, qos_profile_sensor_data)
             self.create_subscription(PointCloud2, SLAM_MAP, self.on_slam_map, qos_profile_sensor_data)
             self.create_subscription(Odometry, ESTIMATE_TOPIC, self.scan_decoder.odometry, qos_profile_sensor_data)
@@ -524,6 +526,7 @@ class Control(Node):
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                     **({"manual_flight": "true"} if manual else {}),
                     **({"mapping_id": mapping_id} if mapping_id else {}),
+                    **({"full_route_slam": "true"} if self.full_route_slam else {}),
                 }))
             except OSError:
                 stop_workers(processes)

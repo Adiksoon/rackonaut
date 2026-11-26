@@ -21,10 +21,10 @@ from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from tf2_ros import TransformBroadcaster
 
-from rackonaut_avoidance.sensor import OFFSET, TOPIC, stamp, unpack
+from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, OFFSET, TOPIC, stamp, unpack
 from .inertial import GRAVITY, State, propagate
 from .registration import StaticMap, voxel_sample
-from .slam import MeasuredRegistration
+from .slam import FullRouteRegistration, MeasuredRegistration
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -91,7 +91,10 @@ class Localization(Node):
             raise ValueError("Unknown localization mode")
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
         self.mapping_only = self.declare_parameter("mapping_only", False).value
-        self.slam = MeasuredRegistration() if self.mode == "slam_shadow" or self.mapping_only else None
+        full_route = self.declare_parameter("full_route_slam", False).value
+        self.registration_type = FullRouteRegistration if full_route else MeasuredRegistration
+        self.sensor_range = FULL_ROUTE_RANGE if full_route else MAX_RANGE
+        self.slam = self.registration_type() if self.mode == "slam_shadow" or self.mapping_only else None
         self.reference = None
         if self.slam is not None:
             dock = self.declare_parameter("dock_xyz", [-4.7, 10.3, .05]).value
@@ -161,7 +164,7 @@ class Localization(Node):
             if not self.anchor or self.status(now)[0] != "TRACKING":
                 return
             self.mapping = Mapping(identifier, self.samples[-1][0])
-            self.slam, self.cloud = MeasuredRegistration(), Measurements()
+            self.slam, self.cloud = self.registration_type(), Measurements()
             self.reset_match("Initializing submap from the first synchronized dock scan")
         elif self.mapping and self.mapping.id == identifier:
             if action == "finish" and self.mapping.phase == "RECORDING":
@@ -173,7 +176,7 @@ class Localization(Node):
                     self.mapping.phase, self.mapping.error = "COMPLETE", ""
             elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "COMPLETE"}:
                 self.mapping = None
-                self.slam = MeasuredRegistration() if self.mapping_only else None
+                self.slam = self.registration_type() if self.mapping_only else None
                 self.mapping_closed = identifier
                 self.cloud = self.production
                 self.reset_match("Reacquiring dock localization")
@@ -234,7 +237,7 @@ class Localization(Node):
         # Confidence is evaluated against the measured fit, not the inertial prediction.
         predicted = self.advance(time) if dt < .70 else State(time, self.anchor.xyz, np.zeros(3), self.anchor.attitude)
         try:
-            _, raw, _ = unpack(message)
+            _, raw, _ = unpack(message, sensor_range=self.sensor_range)
         except ValueError as error:
             self.reject(str(error))
             return

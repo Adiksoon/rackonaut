@@ -23,7 +23,7 @@ from std_msgs.msg import Bool, String
 from std_srvs.srv import Trigger
 from visualization_msgs.msg import MarkerArray
 from rackonaut_avoidance.planner import DETOUR_SCALE, Navigator, sweep
-from rackonaut_avoidance.sensor import MAX_RANGE, Scanner
+from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner
 from rackonaut_energy.aerial import Leg, interval
 from rackonaut_energy.model import Model, dock_path, estimate, first_requirement, sortie_path
 
@@ -65,6 +65,7 @@ class Mission(Node):
             "obstacle_avoidance": False,
             "sensor_localization": False,
             "mapping_id": "",
+            "full_route_slam": False,
             "recovery_dir": "",
             "manual_flight": False,
         }
@@ -91,7 +92,9 @@ class Mission(Node):
         self.navigation = Navigator() if settings["obstacle_avoidance"] else None
         if self.navigation and not self.aerial:
             raise ValueError("Local obstacle avoidance requires a reserved aerial route.")
-        self.scanner = Scanner(self, exact_pose=self.sensor_localization) if self.navigation else None
+        sensor_range = FULL_ROUTE_RANGE if settings["full_route_slam"] else MAX_RANGE
+        self.scanner = Scanner(self, exact_pose=self.sensor_localization,
+                               sensor_range=sensor_range) if self.navigation else None
         self.frame = settings["odom_frame"]
         self.command_topic = settings["cmd_vel_topic"]
         self.autostart = settings["autostart"]

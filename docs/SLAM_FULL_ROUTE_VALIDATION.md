@@ -37,6 +37,12 @@ Drugi pełny zapis z kontrolerem referencyjnym objął drogę powrotną i dokowa
 
 Lot `INS-CONTROL-20261126-114028-6CDB8441` użył standardowych żądań Manual Flight i zatwierdzonych współrzędnych docelowych. Stan pozycji pochodził z lokalizatora referencyjnego. Dron pokonał **70,70 m**, oddalił się na **16,30 m**, utrzymał rezerwację i zapisał obraz kamerowy przy obu stanowiskach. Zakończenie potwierdził fizyczny styk doku i stan `RELEASED`. Czas wyniósł **329,3 s** przy **RTF 0,576**, a zużycie energii **64,032 p.p.** To sprawdzenie ścieżki sterowania dla przyszłej próby po przejściu bramki shadow. [A-01-01 z kamery](slam-full-route-evidence/reference-a-01-01.jpg) · [A-01-03 z kamery](slam-full-route-evidence/reference-a-01-03.jpg) · [Telemetria](slam-full-route-evidence/reference-manual.json)
 
+## Profil pełnej trasy
+
+Porównanie rzeczywistych zapisów wykazało, że dłuższe pomiary ujawniają odległe płaszczyzny poprzeczne do tunelu. W sześciu kontrolnych klatkach z Gazebo było od 451 do 583 powrotów powyżej 8 m, a największy zmierzony zasięg wyniósł 15,996 m. Profil `full_route_slam:=true` używa 16 m zasięgu w tym samym formacie 192 × 37. Estymator zachowuje do 240 klatek kluczowych i dopasowuje skan do maksymalnie 60 lokalnych klatek z promienia 12 m. W dopasowaniu wagi uwzględniają gęstość próbkowania, kąt padania wiązki i udział płaszczyzn w różnych kierunkach. Używa tych samych bramek obserwowalności i jakości estymaty. Ochrona ruchu nadal korzysta z dotychczasowego horyzontu obserwacji 8 m.
+
+Odtworzenie pełnego zapisu 16 m przez tę implementację dało **944 estymaty** i wyniki **18,6 mm RMSE**, **25,6 mm p95**, **31,8 mm maksimum**, przy 173 zarejestrowanych klatkach kluczowych na końcu lotu. To próba z odtwarzania danych. Niezależna próba shadow na żywo stanowi bramkę dla sterowania.
+
 ## Scenariusze
 
 | # | Próba | Obecny stan |
