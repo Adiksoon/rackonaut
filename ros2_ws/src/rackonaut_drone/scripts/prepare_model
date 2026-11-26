@@ -1,0 +1,152 @@
+#!/usr/bin/python3
+"""Prepare a local SDF from the pinned Open Robotics Fuel asset."""
+import argparse
+from hashlib import sha256
+import os
+from pathlib import Path
+from tempfile import NamedTemporaryFile
+from urllib.parse import urlsplit
+import xml.etree.ElementTree as xml
+
+from ament_index_python.packages import get_package_share_path
+
+FUEL = Path(".ignition/fuel/fuel.gazebosim.org/openrobotics/models/x3%20uav/4")
+CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+FILES = {
+    "model.sdf": "95dd4d656d75371f57ad7036e22123cd59fe86c7e357b3b07fb6dd70295a5c80",
+    "meshes/x3.dae": "5d1d280e10e15a0e9c09dbc0da5f6b8fd94477e81fe085733921c99ea4486c95",
+    "meshes/x3.png": "82e2e08831618e3299c35b7a80a23a39742c0aa71c737116063be6b0f0143faf",
+    "meshes/propeller_cw.dae": "09994038cb7fe9e8f719e9944bddd084979ddb84cb8dfc7e1dbfef2e88355e0a",
+    "meshes/propeller_ccw.dae": "3d8d39737cf6df9dfaa1cf7b05be4bac396001f53dcdb1c6af1a72cc925bf52c",
+}
+
+
+def prepare(source, camera_profile, localization_shadow):
+    for name, digest in FILES.items():
+        if sha256((source / name).read_bytes()).hexdigest() != digest:
+            raise ValueError(f"{name} does not match X3 UAV Fuel revision 4.")
+    tree = xml.parse(source / "model.sdf")
+    tree.getroot().set("version", "1.8")
+    model = tree.find("model")
+    model.set("name", "rackonaut_x3")
+    model.find("pose").text = "0 0 0 0 0 0"
+    for pose in model.iter("pose"):
+        pose.attrib.pop("frame", None)
+    for uri in model.findall(".//mesh/uri"):
+        mesh = Path("meshes") / Path(urlsplit(uri.text).path).name
+        if mesh.as_posix() not in FILES:
+            raise ValueError(f"Unexpected X3 mesh: {uri.text}")
+        uri.text = str(source / mesh)
+    for material in model.findall(".//material"):
+        # The Fuel asset uses Gazebo Classic scripts for the propeller colors.
+        script = material.find("script")
+        if script is not None:
+            material.remove(script)
+            xml.SubElement(material, "diffuse").text = "0.18 0.2 0.22 1"
+
+    camera = xml.fromstring("""<sensor name="rgb" type="camera">
+      <pose>0.27 0 0.04 0 0 0</pose>
+      <always_on>true</always_on>
+      <update_rate>10</update_rate>
+      <topic>/rackonaut_x3/rgb</topic>
+      <camera>
+        <camera_info_topic>/rackonaut_x3/camera_info</camera_info_topic>
+        <optical_frame_id>rackonaut_camera_optical_frame</optical_frame_id>
+        <horizontal_fov>1.05</horizontal_fov>
+        <image><width>320</width><height>240</height><format>R8G8B8</format></image>
+        <clip><near>0.10</near><far>25</far></clip>
+      </camera>
+    </sensor>""")
+    if camera_profile == "challenging":
+        camera.find("camera").append(xml.fromstring(
+            "<noise><type>gaussian</type><mean>0</mean><stddev>0.015</stddev></noise>"
+        ))
+    body = model.find("link[@name='X3/base_link']")
+    body.append(camera)
+    if localization_shadow:
+        config = get_package_share_path("rackonaut_reference") / "config"
+        for fragment in ("avoidance-lidar.sdf.fragment", "localization-imu.sdf.fragment"):
+            for element in xml.fromstring(f"<fragment>{(config / fragment).read_text()}</fragment>"):
+                topic = element.find("topic")
+                if topic is not None:
+                    topic.text = topic.text.replace("/rackonaut_reference/", "/rackonaut_x3/")
+                body.append(element)
+        # The cloud uses bit 2. Keep our own visuals visible to RGB, but outside that mask.
+        for visual in model.findall(".//visual"):
+            flags = visual.find("visibility_flags")
+            if flags is None:
+                flags = xml.SubElement(visual, "visibility_flags")
+                flags.text = "4294967295"
+            flags.text = str(int(flags.text) & ~2)
+
+    controller = xml.fromstring("""<plugin filename="ignition-gazebo-multicopter-control-system"
+      name="ignition::gazebo::systems::MulticopterVelocityControl">
+      <robotNamespace>rackonaut_x3</robotNamespace>
+      <commandSubTopic>cmd_vel</commandSubTopic>
+      <comLinkName>X3/base_link</comLinkName>
+      <velocityGain>2.7 2.7 2.7</velocityGain>
+      <attitudeGain>2 3 0.15</attitudeGain>
+      <angularRateGain>0.4 0.52 0.18</angularRateGain>
+      <maximumLinearAcceleration>2 2 2</maximumLinearAcceleration>
+      <maximumLinearVelocity>0.6 0.6 0.6</maximumLinearVelocity>
+      <maximumAngularVelocity>0.5 0.5 0.5</maximumAngularVelocity>
+      <rotorConfiguration/>
+    </plugin>""")
+    rotors = controller.find("rotorConfiguration")
+    for number, direction in enumerate(("ccw", "ccw", "cw", "cw")):
+        model.append(xml.fromstring(f"""<plugin filename="ignition-gazebo-multicopter-motor-model-system"
+          name="ignition::gazebo::systems::MulticopterMotorModel">
+          <robotNamespace>rackonaut_x3</robotNamespace>
+          <jointName>X3/rotor_{number}_joint</jointName><linkName>X3/rotor_{number}</linkName>
+          <turningDirection>{direction}</turningDirection><motorNumber>{number}</motorNumber>
+          <commandSubTopic>motor_speed</commandSubTopic>
+          <timeConstantUp>0.0125</timeConstantUp><timeConstantDown>0.025</timeConstantDown>
+          <maxRotVelocity>800</maxRotVelocity><motorConstant>8.54858e-06</motorConstant>
+          <momentConstant>0.016</momentConstant><rotorDragCoefficient>8.06428e-05</rotorDragCoefficient>
+          <rollingMomentCoefficient>1e-06</rollingMomentCoefficient>
+          <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim><motorType>velocity</motorType>
+        </plugin>"""))
+        rotors.append(xml.fromstring(f"""<rotor><jointName>X3/rotor_{number}_joint</jointName>
+          <forceConstant>8.54858e-06</forceConstant><momentConstant>0.016</momentConstant>
+          <direction>{1 if direction == 'ccw' else -1}</direction></rotor>"""))
+    model.append(controller)
+    model.append(xml.fromstring("""<plugin filename="ignition-gazebo-odometry-publisher-system"
+      name="ignition::gazebo::systems::OdometryPublisher">
+      <dimensions>3</dimensions>
+      <odom_frame>rackonaut_odom</odom_frame><robot_base_frame>rackonaut_base_link</robot_base_frame>
+      <odom_topic>/rackonaut_x3/odom</odom_topic><tf_topic>/rackonaut_x3/tf</tf_topic>
+      <odom_publish_frequency>25</odom_publish_frequency>
+    </plugin>"""))
+    xml.indent(tree)
+    return tree
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source", type=Path, default=Path.home() / FUEL)
+    parser.add_argument("--camera-profile", choices=["standard", "challenging"], default="standard")
+    parser.add_argument("--localization-shadow", action="store_true", help="attach the IMU and 3D LiDAR")
+    parser.add_argument("--output", type=Path)
+    args = parser.parse_args()
+    suffix = "-challenging" if args.camera_profile == "challenging" else ""
+    if args.localization_shadow:
+        suffix += "-shadow"
+    filename = f"x3{suffix}.sdf"
+    output = args.output or CACHE / "rackonaut_drone" / filename
+    try:
+        tree = prepare(args.source.resolve(strict=True), args.camera_profile, args.localization_shadow)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with NamedTemporaryFile(dir=output.parent, delete=False) as temporary:
+            draft = Path(temporary.name)
+        try:
+            tree.write(draft, encoding="utf-8", xml_declaration=True)
+            draft.replace(output)
+        finally:
+            draft.unlink(missing_ok=True)
+    except (OSError, ValueError, xml.ParseError) as error:
+        parser.exit(1, f"Could not prepare X3 v4: {error}\n")
+    print(output.resolve())
+
+
+if __name__ == "__main__":
+    main()
