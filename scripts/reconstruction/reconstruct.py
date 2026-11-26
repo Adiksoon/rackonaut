@@ -81,7 +81,7 @@ def projected_hits(origin, ray, points, rows):
                "position_m": hit.tolist(), "distance_m": float(distance), "support_nearby": len(face_returns)}
 
 
-def locations(folder, manifest, camera, rows, points):
+def locations(folder, manifest, camera, rows, points, estimate=None):
     detector = Inspector(*load_markers(MARKERS)) if camera else None
     output = []
     for record in manifest.get("locations", []):
@@ -117,13 +117,15 @@ def locations(folder, manifest, camera, rows, points):
         item["marker_pixel"] = xy.tolist()
         if len(hits) == 1:
             item.update(hits[0], status="projected", camera_origin_m=origin.tolist())
+        elif not hits and estimate and (hit := estimate(origin, ray)):
+            item.update(hit, status="estimated", camera_origin_m=origin.tolist())
         else:
             item["reason"] = ("The marker ray intersects more than one supported rack face."
                               if hits else "No observed rack face supports the marker ray.")
     return output
 
 
-def archive_details(folder, manifest):
+def archive_details(folder, manifest, keyframes=None):
     meta = {"mapping_id": manifest["mapping_id"], "frame": manifest["frame"]}
     camera_frame = None
     if (folder / "sensors.json").is_file():
@@ -131,7 +133,7 @@ def archive_details(folder, manifest):
         meta["lidar"] = sensors["lidar"]
         camera_frame = sensors["camera"]["frame"]
     if (folder / "localization.npz").is_file():
-        _,frames = load(folder / "localization.npz")
+        frames = keyframes if keyframes is not None else load(folder / "localization.npz")[1]
         meta["keyframes"] = len(frames)
         meta["keyframe_returns"] = sum(len(frame.points) for frame in frames)
     if (folder / "route.json").is_file():

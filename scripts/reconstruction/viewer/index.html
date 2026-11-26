@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rackonaut · Measured warehouse</title>
+  <title>Rackonaut · Warehouse Digital Twin</title>
   <link rel="stylesheet" href="./viewer.css">
   <script type="importmap">
     {"imports":{"three":"../../../ros2_ws/src/rackonaut_control/web/vendor/three.module.min.js"}}
@@ -25,11 +25,12 @@
   </header>
   <main>
     <header class="heading">
-      <div><h1>Measured warehouse</h1><p id="archive-description">Loading calibration archive…</p></div>
-      <div class="layers" role="group" aria-label="Comparison view">
-        <button type="button" data-mode="cloud" aria-pressed="false">LiDAR cloud</button>
-        <button type="button" data-mode="model" aria-pressed="true">Rack model</button>
-        <button type="button" data-mode="overlay" aria-pressed="false">Overlay</button>
+      <div><h1>Warehouse Digital Twin</h1><p id="archive-description">Loading calibration…</p></div>
+      <div class="layers" role="group" aria-label="Scene layers">
+        <button type="button" data-mode="enhanced" aria-pressed="true">Enhanced Digital Twin</button>
+        <button type="button" data-mode="measured" aria-pressed="false">Measured Model</button>
+        <button type="button" data-mode="cloud" aria-pressed="false">LiDAR Scan</button>
+        <label class="toggle"><input type="checkbox" id="overlay"> Overlay LiDAR</label>
       </div>
     </header>
     <p id="error" role="alert" hidden></p>
@@ -38,17 +39,22 @@
         <div id="viewport"></div>
         <div id="markers"></div>
         <div class="views" role="group" aria-label="Camera view">
-          <button type="button" id="isometric" aria-pressed="true">Isometric</button>
-          <button type="button" id="top" aria-pressed="false">Top</button>
-          <button type="button" id="fit">Fit view</button>
+          <div class="presets">
+            <button type="button" data-view="isometric" aria-pressed="true">Iso</button>
+            <button type="button" data-view="top" aria-pressed="false">Top</button>
+            <button type="button" data-view="side" aria-pressed="false">Side</button>
+          </div>
+          <button type="button" id="fit">Fit racks</button>
+          <button type="button" id="survey">Fit survey</button>
         </div>
         <div class="stage-notes"><span id="legend"></span><span id="view-help">Drag to orbit · Scroll to zoom</span></div>
       </section>
       <aside class="inspector">
-        <dl class="stats">
-          <div><dt>Rack rows</dt><dd id="row-count">—</dd></div>
-          <div><dt>LiDAR points</dt><dd id="point-count">—</dd></div>
-        </dl>
+        <section aria-labelledby="scene-title">
+          <h2 id="scene-title">Survey context</h2>
+          <p id="coverage"></p>
+          <label class="toggle"><input type="checkbox" id="show-route"><span id="route-label">Recorded route</span></label>
+        </section>
         <section aria-labelledby="locations-title">
           <h2 id="locations-title">Taught locations</h2>
           <div id="location-list" class="location-list"></div>
@@ -58,10 +64,15 @@
           </div>
         </section>
         <details class="geometry">
-          <summary>Estimated rack dimensions</summary>
+          <summary>Geometry provenance</summary>
+          <dl class="stats">
+            <div><dt>LiDAR points</dt><dd id="point-count">—</dd></div>
+            <div><dt>Rack rows</dt><dd id="row-count">—</dd></div>
+          </dl>
+          <p id="geometry-source"></p>
+          <label class="toggle"><input type="checkbox" id="show-support"> Highlight measured rack fragments</label>
           <div id="rack-details"></div>
         </details>
-        <p class="hint">Rack surfaces follow measured support. Gaps remain open. Location markers are projected estimates when the camera and LiDAR agree.</p>
       </aside>
     </div>
   </main>
