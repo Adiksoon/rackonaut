@@ -29,15 +29,16 @@ from std_msgs.msg import String
 from std_srvs.srv import Trigger
 from tf2_msgs.msg import TFMessage
 
-from rackonaut_avoidance.sensor import Scanner
+from rackonaut_avoidance.sensor import Scanner, stamp
 from rackonaut_energy.model import Model
+from rackonaut_localization.node import MAPPING_COMMAND, SLAM_MAP
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_mission.manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, decode_axes, departure_energy
 from rackonaut_safety.geometry import route_zones
 
 from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
 from .planning import energy_forecast, plan
-from .service import BLOCKED, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
+from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .web import serve
 
 
@@ -46,6 +47,7 @@ class Job:
     run: str
     plan: dict
     processes: list
+    mapping_id: str | None = None
     manual_token: str | None = None
     manual_sequence: int = -1
     manual_at: float = -1e6
@@ -105,7 +107,11 @@ class Control(Node):
             self.layout["recovery"] = True
             self.recovery_operator = self.create_publisher(String, "/rackonaut/recovery/operator", 5)
         self.localization_mode = self.declare_parameter("localization_mode", "ground_truth").value
+        self.mapping_only = self.declare_parameter("mapping_only", False).value
+        if self.mapping_only:
+            self.layout["mapping_only"] = True
         self.measured_map = MeasuredMap() if self.localization_mode == "sensor_based" else None
+        self.slam_map = MeasuredMap() if self.measured_map is not None else None
         self.scan_sample = None
         self.scan_requested_until = self.next_scan = self.scan_tf_at = 0.
         self.localization_diagnostics = self.declare_parameter("localization_diagnostics", False).value
@@ -139,6 +145,8 @@ class Control(Node):
         if self.calibration_supported:
             self.calibration_request = self.create_publisher(String, "/rackonaut/calibration/request", 5)
             self.manual_request = self.create_publisher(String, MANUAL_TOPIC, 1)
+            self.mapping_request = self.create_publisher(String, MAPPING_COMMAND, 1)
+            self.next_mapping_command = 0.
             self.layout["manual_flight"] = True
         self.odom_at = 0.
         self.position, self.speed = None, 0.
@@ -165,6 +173,7 @@ class Control(Node):
         if self.measured_map is not None:
             self.scan_decoder = Scanner(self, exact_pose=True)
             self.create_subscription(PointCloud2, MAP_TOPIC, self.measured_map.accept, qos_profile_sensor_data)
+            self.create_subscription(PointCloud2, SLAM_MAP, self.on_slam_map, qos_profile_sensor_data)
             self.create_subscription(Odometry, ESTIMATE_TOPIC, self.scan_decoder.odometry, qos_profile_sensor_data)
             self.create_subscription(TFMessage, "/tf", self.on_scan_tf, qos_profile_sensor_data)
         if self.localization_diagnostics:
@@ -192,10 +201,26 @@ class Control(Node):
     def on_localization(self, message):
         state = json.loads(message.data)
         with self.lock:
-            if self.measured_map is not None and self.localization:
-                if state.get("accepted", 0) < self.localization.get("accepted", 0):
+            if self.measured_map is not None:
+                previous = self.localization or {}
+                identifier = state.get("mapping_id")
+                if identifier != previous.get("mapping_id"):
+                    self.scan_sample = None
+                    if identifier:
+                        self.slam_map.new_session(identifier)
+                elif not identifier and state.get("accepted", 0) < previous.get("accepted", 0):
                     self.measured_map.new_session()
             self.localization, self.localization_at = state, monotonic()
+
+    def on_slam_map(self, message):
+        with self.lock:
+            localization = self.localization or {}
+            if (localization.get("mapping_id") == self.slam_map.session
+                    and stamp(message) >= localization["mapping_stamp"]):
+                self.slam_map.accept(message)
+
+    def map_stream(self):
+        return self.slam_map if (self.localization or {}).get("mapping_id") else self.measured_map
 
     def on_scan_tf(self, message):
         if any(transform.header.frame_id == FRAME and transform.child_frame_id == "rackonaut_base_link"
@@ -205,7 +230,7 @@ class Control(Node):
     def latest_scan(self):
         self.scan_requested_until = monotonic() + 1.8
         sample = self.scan_sample
-        return sample if sample and sample.session == self.measured_map.session and sample.age_ms <= 850 else None
+        return sample if sample and sample.session == self.map_stream().session and sample.age_ms <= 850 else None
 
     def sample_live_scan(self, now):
         if now > self.scan_requested_until or now < self.next_scan:
@@ -217,7 +242,7 @@ class Control(Node):
         seconds, fraction = divmod(round(cloud.time * 1e9), 10**9)
         stamp = seconds, fraction
         sample = self.scan_sample
-        session = self.measured_map.session
+        session = self.map_stream().session
         if sample and (sample.session, sample.stamp) == (session, stamp):
             return
         self.scan_sample = Sample(stamp, session, cloud.received, datetime.now(timezone.utc).isoformat(),
@@ -400,7 +425,7 @@ class Control(Node):
             route["energy"] = energy_forecast(self.layout, route, telemetry) if telemetry and telemetry["fresh"] else None
         return route
 
-    def start_manual(self, request):
+    def start_manual(self, request, mapping=False):
         if not self.calibration_supported:
             raise RuntimeError("Manual flight requires the protected Full Robotics profile.")
         zones = request.get("aisles", ["A"])
@@ -410,18 +435,34 @@ class Control(Node):
             raise ValueError("Select functional aisles for the reservation.")
         slots = [next(slot for slot, location in self.layout["slots"].items() if location["aisle"] == zone)
                  for zone in sorted(set(zones))]
-        return self.begin({"mode": "custom", "slots": slots}, manual=True)
+        with self.lock:
+            identifier = None
+            if mapping:
+                state = self.mapping_status()
+                if (self.calibration.state != READY or not state or state.get("mapping_phase") != "READY"
+                        or self.calibration.mapping_run or self.calibration.cancel_pending):
+                    raise RuntimeError("Wait for a new mapping session and synchronized dock scans.")
+                identifier = state["mapping_id"]
+            result = self.begin({"mode": "custom", "slots": slots}, manual=True, mapping_id=identifier)
+            if identifier:
+                self.calibration.mapping_run = result["inspection_id"]
+                self.calibration.set_state(MAPPING, "Protected mapping flight requested.")
+                self.send_mapping(identifier, "arm", monotonic())
+            return result
 
-    def begin(self, selection, manual=False):
+    def begin(self, selection, manual=False, mapping_id=None):
         planned = self.preview(selection)
         with self.lock:
-            if self.calibration.state != PRODUCTION:
+            if self.mapping_only and not mapping_id:
+                raise RuntimeError("Open Warehouse Calibration to dispatch on this survey profile.")
+            if self.calibration.state != (READY if mapping_id else PRODUCTION):
                 raise RuntimeError("Warehouse calibration is active. New inspections are locked.")
             if self.busy():
                 raise RuntimeError("Wait for the running inspection and its report.")
             if self.localization_mode == "sensor_based" and (
                     not self.localization or monotonic() - self.localization_at > .40
-                    or self.localization.get("state") != "TRACKING"):
+                    or self.localization.get("state") != "TRACKING"
+                    or self.localization.get("mapping_id") != mapping_id):
                 raise RuntimeError("Wait for reliable sensor-based localization.")
             if not self.at_pad():
                 raise RuntimeError("The drone must be stopped on the launch pad before dispatch.")
@@ -482,6 +523,7 @@ class Control(Node):
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
                     **({"manual_flight": "true"} if manual else {}),
+                    **({"mapping_id": mapping_id} if mapping_id else {}),
                 }))
             except OSError:
                 stop_workers(processes)
@@ -490,7 +532,7 @@ class Control(Node):
             points = planned.get("safety_points", planned["points"])
             if manual:
                 planned = {**planned, "mode": "manual", "slots": [], "points": []}
-            self.job = Job(run, planned, processes, manual_token=token)
+            self.job = Job(run, planned, processes, mapping_id=mapping_id, manual_token=token)
             self.perception_frame_seen = False
             if self.safety_enabled:
                 self.safety_request.publish(String(data=json.dumps({"inspection_id": run, "points": points})))
@@ -567,11 +609,25 @@ class Control(Node):
         with self.lock:
             return {"available": self.calibration_supported,
                     "system": self.service_telemetry(monotonic()), "calibration": self.calibration.snapshot(),
-                    "warehouse": {"profile": "Protected aerial" if self.aerial_enabled else "Showcase reference",
-                                  "map_source": "Preconfigured reference warehouse geometry",
-                                  "map": ("localization_map.json" if self.localization_mode == "sensor_based"
+                    "mapping": self.mapping_status(),
+                    "warehouse": {"profile": "Protected survey" if self.mapping_only else
+                                  "Protected aerial" if self.aerial_enabled else "Showcase reference",
+                                  "map_source": "Onboard dock localization" if self.mapping_only else
+                                  "Preconfigured reference warehouse geometry",
+                                  "map": ("Awaiting a mapping session" if self.mapping_only else
+                                          "localization_map.json" if self.localization_mode == "sensor_based"
                                           else "Control Center reference layout"),
                                   "locations": len(self.layout["slots"]), "status": "ACTIVE"}}
+
+    def mapping_status(self):
+        localization = self.localization or {}
+        draft = self.calibration.draft
+        return localization if draft and localization.get("mapping_id") == draft["calibration_id"] else None
+
+    def send_mapping(self, identifier, action, now):
+        if now >= self.next_mapping_command:
+            self.mapping_request.publish(String(data=json.dumps({"mapping_id": identifier, "action": action})))
+            self.next_mapping_command = now + .32
 
     def start_calibration(self, request):
         warehouse = request.get("warehouse_name")
@@ -599,6 +655,8 @@ class Control(Node):
         with self.lock:
             if self.calibration.state == PRODUCTION:
                 raise RuntimeError("No active calibration.")
+            if self.calibration.state == MAPPING:
+                raise RuntimeError("Return the mapping flight to the dock before closing calibration.")
             self.calibration.cancel_pending = True
             self.tick_calibration(monotonic())
             return self.calibration.snapshot()
@@ -622,11 +680,36 @@ class Control(Node):
         elif calibration.dock_since is None:
             calibration.dock_since = now
         stable = calibration.dock_since is not None and now - calibration.dock_since >= .65
+        session = self.mapping_status()
+        identifier = calibration.draft["calibration_id"] if calibration.draft else None
         if stable and calibration.cancel_pending:
-            try:
-                calibration.clear()
-            except OSError as error:
-                calibration.set_state(BLOCKED, f"The calibration draft could not be cleared: {error.strerror}.")
+            if identifier and (self.localization or {}).get("mapping_closed") != identifier:
+                if not calibration.mapping_run or (session or {}).get("mapping_phase") == "COMPLETE":
+                    self.send_mapping(identifier, "close", now)
+                    return
+            elif telemetry["localization"] == "TRACKING" and not (self.localization or {}).get("mapping_id"):
+                try:
+                    calibration.clear()
+                except OSError as error:
+                    calibration.set_state(BLOCKED, f"The calibration draft could not be cleared: {error.strerror}.")
+                return
+        if identifier and calibration.mapping_run:
+            phase = (session or {}).get("mapping_phase")
+            if phase == "READY":
+                self.send_mapping(identifier, "arm", now)
+            elif phase == "RECORDING" and stable:
+                self.send_mapping(identifier, "finish", now)
+            if telemetry["safety"] == "RECOVERY" and not stable:
+                calibration.set_state(RECOVERY, "Mapping paused. Resolve the incident in Recovery before closing the session.")
+            elif phase == "COMPLETE" and calibration.state != MAPPED:
+                draft = {**calibration.draft, "map_reference": f"/api/service/mapping/{identifier}/map.ply"}
+                try:
+                    calibration.store(draft)
+                except OSError as error:
+                    calibration.set_state(BLOCKED, f"Mapping result saved. Draft storage unavailable: {error.strerror}.")
+                    return
+                calibration.draft = draft
+                calibration.set_state(MAPPED, "Mapping result and trajectory saved after verified docking.")
             return
         if calibration.state not in TRANSITIONING:
             return
@@ -647,10 +730,11 @@ class Control(Node):
             else:
                 calibration.set_state("STOPPING_INSPECTION", "Stopping inspection and retaining its observations.")
         elif stable and telemetry["localization"] == "TRACKING" and telemetry["lidar"] and telemetry["imu"] and telemetry["camera"]:
-            if calibration.state == "PREPARING_CALIBRATION":
-                calibration.set_state(READY, "Physical dock confirmed. The new warehouse draft is ready.")
-            else:
-                calibration.set_state("PREPARING_CALIBRATION", "Preparing a new warehouse draft at the physical dock.")
+            if (session or {}).get("mapping_phase") == "READY":
+                calibration.set_state(READY, "Physical dock and measured localization confirmed. The mapping result is empty.")
+            elif not calibration.cancel_pending and not session:
+                calibration.set_state("PREPARING_CALIBRATION", "Starting a measured submap at the physical dock.")
+                self.send_mapping(identifier, "begin", now)
         elif now - calibration.started > 25. and (not job or now - (job.finished_at or 0.) > 25.):
             calibration.set_state(BLOCKED, "Physical dock, current sensors or Safety readiness could not be confirmed.")
         else:
@@ -758,7 +842,7 @@ class Control(Node):
               and job.status.get("calibration_id") != self.calibration.draft["calibration_id"]):
             self.calibration_request.publish(String(data=json.dumps({"inspection_id": job.run,
                                                                      "calibration_id": self.calibration.draft["calibration_id"]})))
-        elif (not job.abort_requested and self.calibration.state == PRODUCTION
+        elif (not job.abort_requested and self.calibration.state == (MAPPING if job.mapping_id else PRODUCTION)
               and ready_to_start and self.start_client.service_is_ready()):
             job.command = self.start_client.call_async(Trigger.Request())
         job.next_command = now + .6
@@ -794,6 +878,7 @@ class Control(Node):
             current = None
             if job:
                 current = {"inspection_id": job.run, "stage": self.stage(job), "slots": job.plan["slots"],
+                           "mapping_id": job.mapping_id,
                            "quality": job.plan["quality"], "adaptive": job.plan["adaptive"],
                            "mode": job.plan["mode"], "status": job.status,
                            "planned": [] if job.manual_token else job.planned or job.plan["points"], "flown": job.flown,
@@ -801,6 +886,7 @@ class Control(Node):
                            "result": job.archive, "error": job.error or job.export_error}
             result = {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
                     "service_mode": self.calibration.state,
+                    "mapping_only": self.mapping_only,
                     "position": self.position, "orientation": self.orientation,
                     "energy": self.energy_state(),
                     "backend": self.backend_state, "mission": current,

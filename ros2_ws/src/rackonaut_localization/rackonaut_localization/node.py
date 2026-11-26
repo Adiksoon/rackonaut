@@ -1,7 +1,9 @@
 """LiDAR/IMU localization. The navigation port is enabled only in sensor mode."""
 
 import json
+import re
 from collections import deque
+from dataclasses import dataclass, field
 from pathlib import Path
 from time import monotonic, perf_counter
 
@@ -22,6 +24,7 @@ from tf2_ros import TransformBroadcaster
 from rackonaut_avoidance.sensor import OFFSET, TOPIC, stamp, unpack
 from .inertial import GRAVITY, State, propagate
 from .registration import StaticMap, voxel_sample
+from .slam import MeasuredRegistration
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -29,10 +32,30 @@ ESTIMATE = "/rackonaut/localization/estimate"
 STATUS = "/rackonaut/localization/state"
 IMU = "/rackonaut/drone/imu"
 MAP = "/rackonaut/localization/measured_map"
+SLAM_MAP = "/rackonaut/localization/slam_map"
+MAPPING_COMMAND = "/rackonaut/localization/mapping_command"
+MAPPING_ID = re.compile(r"CAL-[0-9A-F]{32}")
 MAX_SCAN_AGE = .64
 MAX_IMU_AGE = .36
 MAP_LIMIT = 80000
 MAP_SIZE = .16
+
+
+@dataclass
+class Measurements:
+    voxels: dict = field(default_factory=dict)
+    preview: list = field(default_factory=list)
+    unmatched: list = field(default_factory=list)
+    path: deque = field(default_factory=lambda: deque(maxlen=1600))
+    stamp: float = 0.
+
+
+@dataclass
+class Mapping:
+    id: str
+    stamp: float
+    phase: str = "EMPTY"
+    error: str = ""
 
 
 def ros_time(seconds):
@@ -64,13 +87,19 @@ class Localization(Node):
     def __init__(self):
         super().__init__("rackonaut_localization")
         self.mode = self.declare_parameter("mode", "shadow").value
-        if self.mode not in {"shadow", "sensor_based"}:
+        if self.mode not in {"shadow", "sensor_based", "slam_shadow"}:
             raise ValueError("Unknown localization mode")
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
-        config = get_package_share_path("rackonaut_warehouse") / "config"
-        layout = json.loads((config / "localization_map.json").read_text())
-        self.map = StaticMap(layout["boxes"], layout["triangles"])
-        dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
+        self.mapping_only = self.declare_parameter("mapping_only", False).value
+        self.slam = MeasuredRegistration() if self.mode == "slam_shadow" or self.mapping_only else None
+        self.reference = None
+        if self.slam is not None:
+            dock = self.declare_parameter("dock_xyz", [-4.7, 10.3, .05]).value
+        else:
+            config = get_package_share_path("rackonaut_warehouse") / "config"
+            layout = json.loads((config / "localization_map.json").read_text())
+            self.reference = StaticMap(layout["boxes"], layout["triangles"])
+            dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
         self.dock = np.array(dock)
         self.anchor, self.fit, self.latest_estimate = None, None, None
         self.samples = deque(maxlen=100)
@@ -86,10 +115,10 @@ class Localization(Node):
         self.failures = 0
         self.accepted = 0
         self.updates = deque(maxlen=30)
-        self.map_voxels = {}
-        self.map_preview, self.unmatched = [], []
-        self.path = deque(maxlen=1600)
-        self.preview_count = 0
+        self.production = self.cloud = Measurements()
+        self.mapping = None
+        self.mapping_closed = None
+        self.energy, self.energy_at = {}, -1e6
         latest = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
         self.estimate_pub = self.create_publisher(Odometry, ESTIMATE, qos_profile_sensor_data)
         self.diag_pub = self.create_publisher(String, STATUS, latest)
@@ -100,7 +129,61 @@ class Localization(Node):
         if self.mode == "sensor_based":
             self.active_pub = self.create_publisher(Odometry, "/rackonaut/drone/odom", qos_profile_sensor_data)
             self.tf = TransformBroadcaster(self)
+            self.slam_map_pub = self.create_publisher(PointCloud2, SLAM_MAP, qos_profile_sensor_data)
+            self.create_subscription(String, MAPPING_COMMAND, self.on_mapping, 1)
+            self.create_subscription(String, "/rackonaut/energy/state", self.on_energy, latest)
         self.create_timer(.025, self.tick)
+
+    def on_energy(self, message):
+        self.energy, self.energy_at = json.loads(message.data), monotonic()
+
+    def on_mapping(self, message):
+        now = monotonic()
+        try:
+            command = json.loads(message.data)
+        except ValueError:
+            return
+        if not isinstance(command, dict) or not isinstance(command.get("mapping_id"), str):
+            return
+        identifier, action = command["mapping_id"], command.get("action")
+        if not MAPPING_ID.fullmatch(identifier):
+            return
+        if action == "arm" and self.mapping and self.mapping.id == identifier and self.mapping.phase == "READY":
+            self.mapping.phase = "RECORDING"
+            return
+        if (now - self.energy_at > .7 or not self.energy.get("contact") or not self.energy.get("switch_engaged")
+                or self.energy.get("contact_source") != "gazebo_dock_switch"
+                or self.count_publishers("/rackonaut/drone/cmd_vel")):
+            return
+        if action == "close" and self.mapping is None:
+            self.mapping_closed = identifier
+        elif action == "begin" and self.mapping is None:
+            if not self.anchor or self.status(now)[0] != "TRACKING":
+                return
+            self.mapping = Mapping(identifier, self.samples[-1][0])
+            self.slam, self.cloud = MeasuredRegistration(), Measurements()
+            self.reset_match("Initializing submap from the first synchronized dock scan")
+        elif self.mapping and self.mapping.id == identifier:
+            if action == "finish" and self.mapping.phase == "RECORDING":
+                try:
+                    self.save_session()
+                except OSError as error:
+                    self.mapping.error = f"Mapping result could not be saved: {error.strerror}"
+                else:
+                    self.mapping.phase, self.mapping.error = "COMPLETE", ""
+            elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "COMPLETE"}:
+                self.mapping = None
+                self.slam = MeasuredRegistration() if self.mapping_only else None
+                self.mapping_closed = identifier
+                self.cloud = self.production
+                self.reset_match("Reacquiring dock localization")
+
+    def reset_match(self, reason):
+        self.anchor = self.fit = self.latest_estimate = self.pending = None
+        self.match_at = -1e6
+        self.quality, self.reason = "STARTING", reason
+        self.accepted = self.failures = 0
+        self.updates.clear()
 
     def on_imu(self, message):
         if message.header.frame_id != IMU_FRAME:
@@ -155,11 +238,18 @@ class Localization(Node):
         except ValueError as error:
             self.reject(str(error))
             return
-        chosen = self.map.features(raw)
-        fit = self.map.match(chosen + OFFSET, predicted.xyz, predicted.attitude)
+        if self.slam is None:
+            chosen = self.reference.features(raw)
+            fit = self.reference.match(chosen + OFFSET, predicted.xyz, predicted.attitude)
+        elif self.slam.target is None:
+            if not self.slam.consider(raw, OFFSET, self.dock, Rotation.identity()):
+                self.reject("Insufficient measured surfaces to initialize the local submap")
+            return
+        else:
+            fit = self.slam.match(raw, OFFSET, predicted.xyz, predicted.attitude)
         self.fit = fit
         if fit is None or fit.overlap < .34 or fit.rms > .059:
-            self.reject("Insufficient static correspondences")
+            self.reject("Insufficient measured correspondences" if self.slam else "Insufficient static correspondences")
             return
         correction = fit.xyz - predicted.xyz
         velocity = predicted.velocity + .28 * correction / max(.13, min(dt, .25))
@@ -182,10 +272,16 @@ class Localization(Node):
         gyro = self.samples[-1][1] - self.gyro_bias
         self.estimate_pub.publish(odometry(self.anchor, gyro, fit.sigma))
         self.latest_estimate = self.anchor
-        if not self.path or np.linalg.norm(position-self.path[-1]) >= .13:
-            self.path.append(position.copy())
         if self.quality == "TRACKING":
-            self.accumulate(raw)
+            if self.slam is not None:
+                self.slam.consider(raw, OFFSET, position, fit.attitude)
+            if self.mapping and self.mapping.phase == "EMPTY" and self.accepted >= 3:
+                self.mapping.phase = "READY"
+            if (self.mapping is None and not self.mapping_only) or (self.mapping and self.mapping.phase == "RECORDING"):
+                if not self.cloud.path or np.linalg.norm(position-self.cloud.path[-1]) >= .13:
+                    self.cloud.path.append(position.copy())
+                self.accumulate(raw)
+                self.cloud.stamp = time
         self.compute_ms = (perf_counter() - start) * 1000
         self.pipeline_ms = (monotonic()-received) * 1000
         self.clock_lag_ms = max(0., (self.samples[-1][0]-time)*1000)
@@ -196,13 +292,14 @@ class Localization(Node):
         keys = np.floor(world / MAP_SIZE).astype(np.int32)
         for key, point in zip(keys, world):
             cell = tuple(key)
-            previous = self.map_voxels.get(cell)
+            previous = self.cloud.voxels.get(cell)
             if previous is not None:
-                self.map_voxels[cell] = .85 * previous + .15 * point
-            elif len(self.map_voxels) < MAP_LIMIT:
-                self.map_voxels[cell] = point
-        distances, _ = self.map.tree.query(world)
-        self.unmatched = [rounded(p) for p in voxel_sample(world[distances > .23], .22, 120)]
+                self.cloud.voxels[cell] = .85 * previous + .15 * point
+            elif len(self.cloud.voxels) < MAP_LIMIT:
+                self.cloud.voxels[cell] = point
+        if self.slam is None:
+            distances, _ = self.reference.tree.query(world)
+            self.cloud.unmatched = [rounded(p) for p in voxel_sample(world[distances > .23], .22, 120)]
 
     def status(self, now):
         imu_age, scan_age = now - self.imu_at, now - self.match_at
@@ -254,17 +351,17 @@ class Localization(Node):
         self.last_pub = time
 
     def publish_map(self):
-        self.preview_count = len(self.map_voxels)
-        if not self.map_voxels or self.anchor is None:
+        if not self.cloud.voxels:
             return
-        points = np.asarray(tuple(self.map_voxels.values()), dtype="<f4")
+        points = np.asarray(tuple(self.cloud.voxels.values()), dtype="<f4")
         preview = points[np.linspace(0, len(points)-1, min(2200, len(points)), dtype=int)]
-        self.map_preview = [rounded(p) for p in preview]
+        self.cloud.preview = [rounded(p) for p in preview]
         cloud = PointCloud2(height=1, width=len(points), point_step=12, row_step=len(points)*12,
                             fields=[PointField(name=c, offset=i*4, datatype=PointField.FLOAT32, count=1)
                                     for i, c in enumerate("xyz")], is_dense=True, data=points.tobytes())
-        cloud.header.frame_id, cloud.header.stamp = FRAME, ros_time(self.anchor.time)
-        self.map_pub.publish(cloud)
+        cloud.header.frame_id, cloud.header.stamp = FRAME, ros_time(self.cloud.stamp)
+        publisher = self.slam_map_pub if self.mapping else self.map_pub
+        publisher.publish(cloud)
 
     def publish_status(self, now, state, reason):
         estimate, fit = self.latest_estimate, self.fit
@@ -275,6 +372,12 @@ class Localization(Node):
             sim_hz = (len(self.updates)-1)/max(.001, last[0]-first[0])
         value = {
             "mode": self.mode, "state": state, "reason": reason, "accepted": self.accepted,
+            "source": "slam" if self.slam is not None else "reference",
+            "mapping_id": self.mapping.id if self.mapping else None,
+            "mapping_phase": self.mapping.phase if self.mapping else None,
+            "mapping_closed": self.mapping_closed,
+            "mapping_stamp": self.mapping.stamp if self.mapping else None,
+            "mapping_error": self.mapping.error if self.mapping else "",
             "position": rounded(estimate.xyz) if estimate else None,
             "orientation": rounded(estimate.attitude.as_quat(), 6) if estimate else None,
             "scan_age_ms": round((now-self.match_at)*1000) if estimate else None,
@@ -283,23 +386,39 @@ class Localization(Node):
             "rms": round(fit.rms, 4) if fit else None, "overlap": round(fit.overlap, 3) if fit else None,
             "sigma": rounded(fit.sigma, 4) if fit else None, "weakest": round(fit.weakest, 5) if fit else None,
             "processing_ms": round(self.compute_ms, 2), "pipeline_ms": round(self.pipeline_ms, 2),
-            "scan_lag_sim_ms": round(self.clock_lag_ms), "map_voxels": self.preview_count,
-            "map_points": self.map_preview, "unmatched": self.unmatched, "trajectory": [rounded(p) for p in self.path],
+            "scan_lag_sim_ms": round(self.clock_lag_ms), "map_voxels": len(self.cloud.voxels),
+            "map_points": self.cloud.preview, "unmatched": self.cloud.unmatched, "trajectory": [rounded(p) for p in self.cloud.path],
         }
         self.diag_pub.publish(String(data=json.dumps(value, separators=(",", ":"))))
 
     def export_map(self, _request, response):
-        if not self.map_voxels:
+        if not self.cloud.voxels or self.mapping:
             response.message = "No measured map is available"
             return response
         self.directory.mkdir(parents=True, exist_ok=True)
         path = self.directory / "localization-measured.ply"
-        points = np.asarray(tuple(self.map_voxels.values()), dtype="<f4")
-        header = (f"ply\nformat binary_little_endian 1.0\nelement vertex {len(points)}\n"
-                  "property float x\nproperty float y\nproperty float z\nend_header\n")
-        path.write_bytes(header.encode() + points.tobytes())
+        self.write_ply(path)
         response.success, response.message = True, str(path)
         return response
+
+    def write_ply(self, path):
+        points = np.asarray(tuple(self.cloud.voxels.values()), dtype="<f4").reshape(-1, 3)
+        header = (f"ply\nformat binary_little_endian 1.0\nelement vertex {len(points)}\n"
+                  "property float x\nproperty float y\nproperty float z\nend_header\n")
+        pending = path.with_suffix(".ply.tmp")
+        pending.write_bytes(header.encode() + points.tobytes())
+        pending.replace(path)
+
+    def save_session(self):
+        directory = self.directory / "mapping" / self.mapping.id
+        directory.mkdir(parents=True, exist_ok=True)
+        self.write_ply(directory / "map.ply")
+        result = {"mapping_id": self.mapping.id, "frame": FRAME, "dock": rounded(self.dock),
+                  "started_sim": self.mapping.stamp, "last_measurement_sim": self.cloud.stamp,
+                  "points": len(self.cloud.voxels), "trajectory": [rounded(point, 5) for point in self.cloud.path]}
+        pending = directory / "result.tmp"
+        pending.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+        pending.replace(directory / "result.json")
 
 
 def main():

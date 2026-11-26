@@ -163,6 +163,7 @@ function setView(next, focus = false) {
   }
   put("page-title", headings[next][0]);
   put("page-description", headings[next][1]);
+  if (next === "manual" && state?.localization?.mapping_id) loadTwin("scan");
   draw();
   if (focus) el("page-title").focus();
 }
@@ -677,6 +678,8 @@ function draw() {
   const job = state?.mission;
   const status = job?.status || {};
   const stage = job?.stage;
+  const mapping = view === "manual" && !!state?.localization?.mapping_id;
+  el("map-2d").hidden = el("map-3d").hidden = mapping;
   el("business-results").hidden = view !== "results" || state?.backend?.mode !== "mock_sap";
   const robot = el("robot-state"), backend = el("api-state");
   robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
@@ -693,6 +696,7 @@ function draw() {
   const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
   if (!state) reason = "Connecting to the Control Center.";
+  else if (layout.mapping_only) reason = "Open Service Center to start a mapping session.";
   else if (state.service_mode && state.service_mode !== "PRODUCTION") reason = "Warehouse calibration is active. New inspections are locked.";
   else if (state.busy || dispatching || wantedRun) reason = "An inspection is in progress or its report is being prepared.";
   else if (!preview) reason = "Select at least one functional location.";
@@ -816,6 +820,10 @@ async function init() {
   el("map-2d").addEventListener("click", () => chooseMap("2d"));
   el("map-3d").addEventListener("click", () => loadTwin("model"));
   el("map-scan").addEventListener("click", () => loadTwin("scan"));
+  el("calibration-fly").addEventListener("click", () => {
+    setView("manual", true);
+    loadTwin("scan");
+  });
   el("scan-expand").disabled = !document.fullscreenEnabled;
   el("scan-expand").addEventListener("click", async () => {
     if (scanFullscreen()) { await leaveScanFullscreen(); return; }

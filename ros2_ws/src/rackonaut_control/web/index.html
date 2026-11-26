@@ -136,11 +136,13 @@
             </div>
           </div>
           <dl class="service-metrics calibration-tools">
-            <div><dt>3D Mapping</dt><dd>Unavailable</dd><small>New warehouse mapping will begin during the guided survey flight.</small></div>
-            <div><dt>Manual Flight</dt><dd>Unavailable</dd></div>
-            <div><dt>Registered Storage Locations</dt><dd id="calibration-locations"></dd></div>
-            <div><dt>Recorded Flight Path</dt><dd id="calibration-waypoints"></dd></div>
+            <div><dt>SLAM</dt><dd id="calibration-slam">—</dd></div>
+            <div><dt>Registered points</dt><dd id="calibration-points">0</dd></div>
+            <div><dt>Trajectory samples</dt><dd id="calibration-trajectory">0</dd></div>
           </dl>
+          <button type="button" id="calibration-fly" class="primary">Open mapping flight</button>
+          <a id="calibration-ply" hidden>Download point cloud</a>
+          <a id="calibration-result" hidden>Download result and trajectory</a>
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
@@ -246,6 +248,7 @@
       <section id="twin-panel" aria-label="Interactive warehouse view" data-map-mode="model" hidden>
         <div class="scan-controls">
           <dl class="scan-summary">
+            <div id="scan-session-field" hidden><dt>Mapping session</dt><dd id="scan-session">—</dd></div>
             <div><dt>Mapping status</dt><dd id="scan-status" role="status">Waiting for measured points</dd></div>
             <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
             <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>

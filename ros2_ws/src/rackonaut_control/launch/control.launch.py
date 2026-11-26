@@ -39,8 +39,11 @@ def setup(context):
     localizer = localization != "ground_truth"
     diagnostics = enabled("localization_diagnostics")
     recovery = enabled("recovery")
+    mapping_only = enabled("mapping_only")
     if recovery and localization != "sensor_based":
         raise ValueError("recovery:=true requires localization:=sensor_based.")
+    if mapping_only and not recovery:
+        raise ValueError("mapping_only:=true requires the Full Robotics profile with Recovery.")
     if diagnostics and not localizer:
         raise ValueError("Localization diagnostics require the localizer.")
     avoidance = enabled("avoidance") or localizer
@@ -100,7 +103,8 @@ def setup(context):
     if localizer:
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
-                              parameters=[{"mode": localization, "data_dir": data}]))
+                              parameters=[{"mode": localization, "data_dir": data, "mapping_only": mapping_only,
+                                           **({"dock_xyz": profile["nodes"]["dock"]} if mapping_only else {})}]))
     if recovery:
         localization_nodes.append(Node(
             package="ros_gz_bridge", executable="parameter_bridge", name="rackonaut_flight_enable_bridge", output="screen",
@@ -122,6 +126,7 @@ def setup(context):
         "localization_mode": localization,
         "localization_diagnostics": diagnostics,
         "autonomous_recovery": recovery,
+        "mapping_only": mapping_only,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -178,7 +183,7 @@ def generate_launch_description():
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
                 "energy": "false", "aerial": "false", "avoidance": "false",
                 "localization": "ground_truth", "localization_diagnostics": "false",
-                "recovery": "false", "battery_initial": "auto", "charge_rate": "6.0"}
+                "recovery": "false", "mapping_only": "false", "battery_initial": "auto", "charge_rate": "6.0"}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

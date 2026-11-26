@@ -9,6 +9,7 @@ export function createService() {
     STOPPING_INSPECTION: "Stopping inspection", RETURNING_TO_DOCK: "Returning to dock",
     WAITING_FOR_DOCK: "Waiting for dock", PREPARING_CALIBRATION: "Preparing calibration",
     CALIBRATION_READY: "Calibration ready", CALIBRATION_BLOCKED: "Calibration blocked", RECOVERY_REQUIRED: "Recovery required",
+    MAPPING_ACTIVE: "Mapping flight", MAPPING_COMPLETE: "Mapping complete",
   };
   let visible = false, busy = false, loading = false, generation = 0, current = null;
   let nextRefresh = 0;
@@ -35,9 +36,9 @@ export function createService() {
       el("service-camera").removeAttribute("src");
       return;
     }
-    const { system, warehouse, calibration, available } = current;
+    const { system, warehouse, calibration, available, mapping } = current;
     const production = calibration.mode === "PRODUCTION";
-    const ready = calibration.mode === "CALIBRATION_READY";
+    const ready = !!mapping;
     const draft = calibration.draft;
     text("service-drone", label(system.drone));
     text("service-connection", system.connection ? "Connected" : "Offline");
@@ -63,8 +64,9 @@ export function createService() {
     el("service-start").disabled = busy || !available || system.safety === "RECOVERY";
     el("service-lock").disabled = busy;
     el("service-cancel").hidden = production;
-    el("service-cancel").disabled = busy || calibration.cancel_pending;
-    text("service-cancel", calibration.cancel_pending ? "Cancellation pending" : "Cancel Calibration");
+    el("service-cancel").disabled = busy || calibration.cancel_pending || calibration.mode === "MAPPING_ACTIVE";
+    text("service-cancel", calibration.cancel_pending ? "Waiting for production localization" :
+      calibration.mode === "MAPPING_COMPLETE" ? "Close calibration" : "Cancel Calibration");
     el("calibration-workspace").hidden = !ready;
     if (!ready) return;
     text("calibration-position", system.position?.slice(0, 3).map(value => value.toFixed(2)).join(" / "));
@@ -74,10 +76,18 @@ export function createService() {
     text("calibration-id", draft.calibration_id);
     text("calibration-started", new Date(draft.started_at).toLocaleString());
     text("calibration-name", draft.warehouse_name || "Unnamed warehouse");
-    text("calibration-map-source", "Future sensor measurement");
-    text("calibration-map", draft.map_reference || "No approved map");
-    text("calibration-locations", `${draft.locations.length} · Registration unavailable`);
-    text("calibration-waypoints", `${draft.waypoints.length} waypoints · Recording unavailable`);
+    text("calibration-map-source", "Onboard LiDAR and IMU");
+    text("calibration-map", label(mapping.mapping_phase));
+    text("calibration-slam", [label(mapping.state), mapping.rms == null ? null : `${mapping.rms.toFixed(3)} m scan fit RMS`].filter(Boolean).join(" · "));
+    text("calibration-points", mapping.map_voxels);
+    text("calibration-trajectory", mapping.trajectory.length);
+    el("calibration-fly").disabled = mapping.mapping_phase === "EMPTY";
+    el("calibration-ply").hidden = el("calibration-result").hidden = !draft.map_reference;
+    if (draft.map_reference) {
+      el("calibration-ply").href = draft.map_reference;
+      el("calibration-result").href = draft.map_reference.replace(/map\.ply$/, "result.json");
+    }
+    if (mapping.mapping_error) feedback(mapping.mapping_error);
     const camera = el("service-camera");
     camera.hidden = !system.camera;
     el("service-camera-empty").hidden = system.camera;

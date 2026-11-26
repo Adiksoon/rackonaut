@@ -1,0 +1,2 @@
+Installed reference map absent before launch.
+Protected SLAM flight and physical docking completed with the installed reference map absent.

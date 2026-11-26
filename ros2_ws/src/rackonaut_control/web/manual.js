@@ -50,8 +50,11 @@ export function createManual(api, terminal, onError) {
     const owned = !!session && active;
     const flying = owned && manual?.stage === "MANUAL_FLIGHT" && !returning && status?.state !== "RETURNING";
     el("manual-aisles").disabled = starting || !!state?.busy;
+    const mappingReady = state?.service_mode === "CALIBRATION_READY" && state.localization?.mapping_phase === "READY";
     el("manual-start").disabled = !state || starting || !!state.busy || !state.at_pad
-      || state.safety?.phase === "RECOVERY" || state.service_mode !== "PRODUCTION";
+      || state.safety?.phase === "RECOVERY"
+      || (!mappingReady && (state.service_mode !== "PRODUCTION" || state.mapping_only));
+    put("manual-start", mappingReady ? "Start mapping flight" : "Start and take off");
     el("manual-return").disabled = !flying;
     el("manual-motion").disabled = !flying;
     const current = status?.state || (owned ? "Preparing" : "Ready at dock");
@@ -71,7 +74,8 @@ export function createManual(api, terminal, onError) {
     starting = true;
     render();
     try {
-      session = await api("/api/manual/start", { aisles: el("manual-aisles").value.split(",") });
+      const endpoint = state?.service_mode === "CALIBRATION_READY" ? "/api/service/mapping/start" : "/api/manual/start";
+      session = await api(endpoint, { aisles: el("manual-aisles").value.split(",") });
       sequence = 0;
       active = true;
       returning = false;

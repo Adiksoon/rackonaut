@@ -64,6 +64,7 @@ class Mission(Node):
             "adaptive_quality": False,
             "obstacle_avoidance": False,
             "sensor_localization": False,
+            "mapping_id": "",
             "recovery_dir": "",
             "manual_flight": False,
         }
@@ -85,6 +86,7 @@ class Mission(Node):
         self.route = load_route(settings["route_file"])
         self.aerial = self.route.aerial
         self.sensor_localization = settings["sensor_localization"]
+        self.mapping_id = settings["mapping_id"]
         self.localization, self.localization_at = {}, -1e6
         self.navigation = Navigator() if settings["obstacle_avoidance"] else None
         if self.navigation and not self.aerial:
@@ -207,7 +209,9 @@ class Mission(Node):
             self.localization, self.localization_at = state, monotonic()
 
     def localization_ready(self, now):
-        return now - self.localization_at <= .40 and self.localization.get("state") == "TRACKING"
+        return (now - self.localization_at <= .40 and self.localization.get("state") == "TRACKING"
+                and (self.localization.get("mapping_id") or "") == self.mapping_id
+                and (not self.mapping_id or self.localization.get("mapping_phase") == "RECORDING"))
 
     def on_safety(self, message):
         state = json.loads(message.data)

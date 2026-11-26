@@ -105,19 +105,26 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
   let detail = "balanced", mapTag = null, liveTag = null;
   let displayed = 0, registered = 0, mapTime = -Infinity, updatedAt = null, tfTime = -Infinity;
   let liveTime = -Infinity, liveRequested = false, localization = null, odomPath = null, sourceAvailable = false;
+  let mapping = null;
   let mapValues = null, heightRange = FULL_HEIGHT, pointScale = 1, hazardSignature = "";
 
   function updateDetails() {
     const now = performance.now();
     const maximumAge = Math.max(2850, MAP_INTERVAL[detail] + 1400);
     const fresh = sourceAvailable && now - mapTime <= maximumAge && localization?.state === "TRACKING";
-    show("status", registered ? (fresh ? "Live accumulation" : "Historical snapshot · updates paused") : "Waiting for measured points");
+    const phase = localization?.mapping_phase;
+    show("status", phase === "COMPLETE" ? "Saved session" : registered ?
+      (fresh ? "Live accumulation" : "Historical snapshot · updates paused") :
+      phase === "READY" ? "Empty · ready to record" : "Waiting for measured points");
+    el("session-field").hidden = !mapping;
+    show("session", mapping || "—");
     el("status").dataset.stale = String(registered > 0 && !fresh);
     show("registered", wholeNumber.format(registered));
     show("displayed", wholeNumber.format(displayed));
     show("updated", updatedAt ? `${updatedAt.toLocaleTimeString()} · ${Math.max(0, (now - mapTime) / 1000).toFixed(1)} s ago` : "—");
-    show("localization", localization?.state ? localization.state.toLowerCase().replace(/^./, c => c.toUpperCase()) : "Unavailable");
     const fit = localization?.rms;
+    const tracking = localization?.state ? localization.state.toLowerCase().replace(/^./, c => c.toUpperCase()) : "Unavailable";
+    show("localization", mapping ? `SLAM · ${tracking}${fit == null ? "" : ` · ${fit.toFixed(3)} m`}` : tracking);
     show("quality", fit != null ? `${fit.toFixed(3)} m RMS · ${Math.round(localization.overlap * 100)}% scan fit` : "—");
     const verifiedFrame = now - tfTime <= maximumAge && localization?.state === "TRACKING";
     show("frame", `rackonaut_odom · ${verifiedFrame ? "TF verified" : "TF unavailable"}`);
@@ -150,7 +157,8 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
 
   async function refreshMap(signal) {
     const { response, values } = await getCloud(`/api/measured-map?detail=${detail}`, mapTag, signal);
-    if (signal.aborted) return;
+    const nextSession = response.headers.get("X-Map-Session");
+    if (signal.aborted || (mapping && nextSession !== mapping)) return;
     const count = response.headers.get("X-Point-Count");
     sourceAvailable = !!count;
     if (!count) return;
@@ -161,7 +169,6 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
     updatedAt = new Date(response.headers.get("X-Received-At"));
     registered = Number(count);
     if (!values) return;
-    const nextSession = response.headers.get("X-Map-Session");
     const first = activeSession !== nextSession;
     activeSession = nextSession;
     mapValues = values;
@@ -267,8 +274,19 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
     update(state, activeFlight) {
       if (!visible) return;
       localization = state?.localization;
+      const next = localization?.mapping_id || null;
+      if (next !== mapping) {
+        mapping = next;
+        displayed = registered = 0;
+        mapValues = mapTag = liveTag = activeSession = updatedAt = null;
+        mapTime = liveTime = tfTime = -Infinity;
+        sourceAvailable = false;
+        map.replace([]);
+        live.replace([]);
+        resume();
+      }
       const job = state?.mission;
-      const points = job?.flown?.length ? job.flown : localization?.trajectory || [];
+      const points = !mapping && job?.flown?.length ? job.flown : localization?.trajectory || [];
       const signature = JSON.stringify(points);
       if (signature !== odomPath) {
         odomPath = signature;

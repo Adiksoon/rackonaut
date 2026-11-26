@@ -18,6 +18,8 @@ REQUESTED = "CALIBRATION_REQUESTED"
 BLOCKED = "CALIBRATION_BLOCKED"
 RECOVERY = "RECOVERY_REQUIRED"
 READY = "CALIBRATION_READY"
+MAPPING = "MAPPING_ACTIVE"
+MAPPED = "MAPPING_COMPLETE"
 TRANSITIONING = {REQUESTED, "STOPPING_INSPECTION", "RETURNING_TO_DOCK", "WAITING_FOR_DOCK",
                  "PREPARING_CALIBRATION"}
 
@@ -71,6 +73,7 @@ class Calibration:
         self.reason = ""
         self.cancel_pending = False
         self.owner = None
+        self.mapping_run = None
         self.started = 0.
         self.dock_since = None
         self.state = PRODUCTION
@@ -91,13 +94,14 @@ class Calibration:
     def start(self, warehouse, owner, now):
         draft = {"calibration_id": f"CAL-{uuid4().hex.upper()}",
                  "started_at": datetime.now(timezone.utc).isoformat(), "status": REQUESTED,
-                 "warehouse_name": warehouse, "map_source": "FUTURE_SENSOR_MEASUREMENT",
+                 "warehouse_name": warehouse, "map_source": "ONBOARD_LIDAR_IMU",
                  "locations": [], "waypoints": [], "map_reference": None}
         self.store(draft)
         self.draft = draft
         self.state = REQUESTED
         self.reason = "Calibration requested. New inspections are locked."
         self.owner = owner
+        self.mapping_run = None
         self.started = now
         self.dock_since = None
 
@@ -115,6 +119,7 @@ class Calibration:
     def clear(self):
         self.path.unlink(missing_ok=True)
         self.draft = self.owner = self.dock_since = None
+        self.mapping_run = None
         self.cancel_pending = False
         self.set_state(PRODUCTION, "Returned to production. Start a new inspection when ready.")
 

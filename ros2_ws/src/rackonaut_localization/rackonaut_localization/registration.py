@@ -73,14 +73,10 @@ class Fit:
     inliers: int
 
 
-class StaticMap:
-    def __init__(self, boxes, triangles=()):
-        self.points, self.normals = box_surfaces(boxes)
-        if triangles:
-            faces, normals = triangle_surfaces(triangles)
-            self.points = np.vstack((self.points, faces))
-            self.normals = np.vstack((self.normals, normals))
-        self.tree = cKDTree(self.points)
+class SurfaceRegistration:
+    def __init__(self, points, normals):
+        self.points, self.normals = points, normals
+        self.tree = cKDTree(points)
 
     def features(self, sensor_points):
         distance = np.linalg.norm(sensor_points, axis=1)
@@ -127,3 +123,12 @@ class StaticMap:
         covariance = np.linalg.inv(information + np.eye(6)*.0015)
         sigma = np.sqrt(np.diag(covariance))[:3] * max(.003, rms / np.sqrt(38.))
         return Fit(position, attitude, count / len(points), rms, sigma, weakest, int(count))
+
+
+class StaticMap(SurfaceRegistration):
+    def __init__(self, boxes, triangles=()):
+        points, normals = box_surfaces(boxes)
+        if triangles:
+            faces, face_normals = triangle_surfaces(triangles)
+            points, normals = np.vstack((points, faces)), np.vstack((normals, face_normals))
+        super().__init__(points, normals)

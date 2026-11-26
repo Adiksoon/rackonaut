@@ -9,6 +9,8 @@ from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
+from rackonaut_localization.node import SLAM_MAP
+
 from .measured_map import DETAIL, FRAME, MAP_TOPIC, VOXEL_METRES
 from .service import COOKIE
 
@@ -24,6 +26,7 @@ RECOVERY = re.compile(r"/recoveries/(REC-[A-F0-9]{12}\.json)$")
 BUSINESS_PHOTO = re.compile(fr"/api/business/quality/{RUN}/Q-[A-F0-9]{{32}}/(?:original|annotated)\.png$")
 BUSINESS_VERIFY = re.compile(r"/api/business/issues/ISS-[A-F0-9]{20}/verify$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")
+MAPPING_RESULT = re.compile(r"/api/service/mapping/(CAL-[A-F0-9]{32})/(map\.ply|result\.json)$")
 
 
 def serve(control, port):
@@ -89,11 +92,13 @@ def serve(control, port):
                 self.json(200, control.start_calibration(selection))
             elif path == "/api/service/calibration/cancel":
                 self.json(200, control.cancel_calibration(selection))
+            elif path == "/api/service/mapping/start":
+                self.json(200, control.start_manual(selection, mapping=True))
             else:
                 self.json(404, {"error": "Not found"})
 
         def measured_cloud(self, live):
-            stream = control.measured_map
+            stream = control.map_stream()
             if stream is None:
                 self.json(404, {"error": "3D Scan requires sensor-based localization."})
                 return
@@ -105,7 +110,8 @@ def serve(control, port):
             sample = control.latest_scan() if live else stream.sample
             headers = {"X-Frame": FRAME}
             if not live:
-                headers.update({"X-Map-Source": MAP_TOPIC, "X-Voxel-Metres": str(VOXEL_METRES),
+                headers.update({"X-Map-Source": SLAM_MAP if stream is control.slam_map else MAP_TOPIC,
+                                "X-Map-Session": stream.session, "X-Voxel-Metres": str(VOXEL_METRES),
                                 "X-TF-Age-Ms": str(round((monotonic() - control.scan_tf_at) * 1000))
                                 if control.scan_tf_at else ""})
             if sample is None:
@@ -154,6 +160,16 @@ def serve(control, port):
                         self.json(403, {"error": "Open the local Control Center URL to access Service."})
                     elif self.require_service():
                         self.json(200, control.service_snapshot())
+                elif match := MAPPING_RESULT.fullmatch(path):
+                    if not self.local_request():
+                        self.json(403, {"error": "Open the local Control Center URL to access Service."})
+                    elif self.require_service():
+                        directory = control.data / "mapping" / match[1]
+                        if not (directory / "result.json").is_file():
+                            raise FileNotFoundError
+                        content_type = "application/json" if match[2].endswith(".json") else "application/octet-stream"
+                        self.reply(200, (directory / match[2]).read_bytes(), content_type,
+                                   {"Content-Disposition": f'attachment; filename="{match[1]}-{match[2]}"'})
                 elif path == "/api/business/summary":
                     inspection = parse_qs(urlsplit(self.path).query).get("inspection_id", [""])[0]
                     if re.fullmatch(RUN, inspection):

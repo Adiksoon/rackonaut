@@ -72,9 +72,9 @@ class MeasuredMap:
         self.sample = None
         self.levels = {}
 
-    def new_session(self):
+    def new_session(self, session=None):
         with self.lock:
-            self.session = uuid4().hex
+            self.session = session or uuid4().hex
             self.sample = None
             self.levels.clear()
 
