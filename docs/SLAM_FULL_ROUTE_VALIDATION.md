@@ -105,6 +105,27 @@ Bramka **PASS** została zapisana przed aktywacją sterowania SLAM. [Telemetria 
 
 ![Trasa i błędy zaliczonego lotu shadow](slam-full-route-evidence/final-shadow.png)
 
+## Pełny lot sterowany przez SLAM
+
+Po zaliczeniu shadow uruchomiono profil `full_route_slam:=true mapping_only:=true` w osobnej domenie ROS i osobnym świecie Gazebo. Przed uruchomieniem plik `localization_map.json` przeniesiono poza katalog instalacyjny, a jego brak sprawdzono po dokowaniu. Lot `INS-CONTROL-20261126-123220-AD362C41` rozpoczął się od pomiarów z pustej sesji `CAL-B897DB3F388A4357BF2F9F7C967F7B05` przy fizycznym doku.
+
+Dron wystartował, przeszedł szyb i tunel, zarejestrował obraz przy A-01-01 oraz A-01-03 i wrócił przez uprzednio obserwowaną przestrzeń. Długość trajektorii wyniosła **70,92 m**, maksymalne oddalenie **16,31 m**, a zakres wysokości **0,054–6,721 m**. Lot zakończył się po **347,6 s** rzeczywistych i **193,38 s** symulowanych, z **RTF 0,5563**, zużyciem **65,395 p.p.** i fizycznie aktywnym stykiem doku. Safety zwolniło rezerwację. Wszystkie **1 164** odcinki między kolejnymi niezależnymi próbkami środka drona mieściły się w zatwierdzonej przestrzeni D i A.
+
+| Strefa | Próbki | RMSE | p95 | Maksimum |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 225 | 3,85 mm | 4,83 mm | 7,50 mm |
+| Tunel | 620 | 12,50 mm | 16,99 mm | 18,46 mm |
+| Alejka i zejście | 320 | 11,85 mm | 17,41 mm | 24,60 mm |
+| Cała trasa | 1 165 | 11,16 mm | 16,80 mm | 24,60 mm |
+
+Dryf przy doku wyniósł **0,19 mm**, a błąd orientacji osiągnął **0,179° RMSE**, **0,261° p95** i **0,331° maksimum**. Estymacja działała ciągle z częstotliwością **3,35 Hz** w czasie rzeczywistym. Przyjęto **181 klatek kluczowych** i zapisano **55 249 punktów PLY**. Dopasowanie trwało **119,2 ms p95**. Lokalizator używał mediany **17,78% jednego rdzenia**, p95 **28,89%** i najwyżej **193,32 MiB RSS**. Gazebo używało mediany **198,89% jednego rdzenia** i maksymalnie **859,30 MiB RSS**.
+
+Graf ROS z lotu pokazał jeden nadajnik komend ruchu, `rackonaut_mission`, jeden nadajnik odometrii sterowania, `rackonaut_localization`, i jednego subskrybenta ground truth, `rackonaut_localization_validation`. Weryfikacja używa pozycji Gazebo wyłącznie do oceny. [Graf ROS](slam-full-route-evidence/active-first-ros-graph.txt) · [Metryki](slam-full-route-evidence/active-first-verification.json) · [Trajektorie](slam-full-route-evidence/active-first-trace.jsonl)
+
+[Pełny lot MP4](slam-full-route-evidence/full-slam-flight.mp4) · [Mapa PLY](slam-full-route-evidence/active-first-map.ply) · [Obraz A-01-01](slam-full-route-evidence/active-first-a-01-01.jpg) · [Obraz A-01-03](slam-full-route-evidence/active-first-a-01-03.jpg) · [Fizyczne dokowanie](slam-full-route-evidence/active-first-docked.png)
+
+![Podgląd kamery i zebranej mapy podczas aktywnego lotu SLAM](slam-full-route-evidence/active-first-at-rack.png)
+
 ## Regresja autonomicznej inspekcji na domyślnym profilu
 
 Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)
@@ -114,11 +135,11 @@ Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z
 | # | Próba | Obecny stan |
 | --- | --- | --- |
 | 1 | Pełna trasa shadow | **PASS po korekcie.** Pełny lot 70,87 m, ciągła estymata, wszystkie progi strefowe, dwie obserwacje i fizyczny dok. |
-| 2 | Pełna trasa sterowana SLAM | Do wykonania po zaliczonej bramce shadow. |
+| 2 | Pełna trasa sterowana SLAM | **PASS.** 70,92 m, dwie obserwacje, fizyczny dok i zaliczona bramka strefowa. |
 | 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Do wykonania po zaliczonej bramce shadow. |
-| 4 | Powtarzalna geometria regałów | **PASS w końcowym shadow.** 321 estymat w alejce i RMSE 9,26 mm. |
-| 5 | Powrót przez obserwowaną przestrzeń | Kontroler referencyjny wrócił i zadokował. Wymagany jest powrót z aktywnym SLAM. |
+| 4 | Powtarzalna geometria regałów | **PASS w locie sterowanym SLAM.** 320 estymat w alejce i RMSE 11,85 mm. |
+| 5 | Powrót przez obserwowaną przestrzeń | **PASS.** Powrót przez tunel i szyb z aktywnym SLAM oraz fizyczne dokowanie. |
 | 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
-| 7 | Mapa referencyjna fizycznie niedostępna | Do wykonania na pełnej trasie. |
+| 7 | Mapa referencyjna fizycznie niedostępna | **PASS.** Plik instalacyjny był poza katalogiem odczytu od startu profilu do końca pełnego lotu. |
 | 8 | Zabezpieczenia w oddaleniu od doku | Do wykonania podczas pełnej trasy sterowanej SLAM. |
 | 9 | Regresja produkcyjnej trasy autonomicznej | **PASS na domyślnym profilu po zmianach.** Dwie obserwacje, stan `COMPLETE`, potwierdzony dok i `RELEASED`. |
