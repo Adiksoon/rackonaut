@@ -654,7 +654,7 @@ export function createTwin(layout, callbacks) {
     if (scanMode) {
       drawTaughtLocations(data.taught, data.taughtSelection);
       updateDrone(state);
-      scan.update(state, data.activeFlight);
+      scan.update(state, data.activeFlight, data.review);
       return;
     }
     const planning = view === "plan";

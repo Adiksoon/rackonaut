@@ -144,6 +144,7 @@
           <a id="calibration-ply" hidden>Download point cloud</a>
           <a id="calibration-result" hidden>Download result and trajectory</a>
           <a id="calibration-locations" hidden>Download registered locations</a>
+          <button type="button" class="primary" id="service-review-route" hidden>Review Route</button>
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
@@ -269,6 +270,55 @@
       <section id="recovery-history" hidden aria-label="Recovery archive">
         <h3>Recovery history</h3><div id="recovery-history-rows"></div>
       </section>
+    </aside>
+    <aside class="card controls route-review" id="route-panel" aria-labelledby="route-panel-title" hidden>
+      <div class="card-head"><div><h2 id="route-panel-title">Learned Flight Route</h2><p id="route-session"></p></div></div>
+      <p id="route-feedback" role="status"></p>
+      <section id="route-result" hidden aria-label="Learned route details">
+        <dl class="route-metrics">
+          <div><dt>Recorded samples</dt><dd id="route-samples">—</dd></div>
+          <div><dt>Learned waypoints</dt><dd id="route-waypoints">—</dd></div>
+          <div><dt>Recorded distance</dt><dd id="route-raw-distance">—</dd></div>
+          <div><dt>Learned distance</dt><dd id="route-length">—</dd></div>
+          <div><dt>Max deviation</dt><dd id="route-deviation">—</dd></div>
+          <div><dt>Validation</dt><dd id="route-validation">—</dd></div>
+        </dl>
+        <fieldset class="route-options">
+          <legend>3D Scan layers</legend>
+          <label><input type="checkbox" id="route-show-raw" checked> Recorded trajectory</label>
+          <label><input type="checkbox" id="route-show-learned" checked> Learned route</label>
+          <label><input type="checkbox" id="route-show-locations" checked> Storage locations</label>
+        </fieldset>
+        <fieldset class="route-options">
+          <legend>Inspection stops</legend>
+          <div id="route-stops"></div>
+          <button type="button" class="secondary" id="route-plan" disabled>Plan selected stops</button>
+        </fieldset>
+        <p id="route-plan-result" role="status" hidden></p>
+        <section id="route-photo-panel" aria-label="Storage location reference" hidden>
+          <h3 id="route-photo-title"></h3><img id="route-photo" alt="Storage location reference">
+        </section>
+        <section class="route-options" aria-label="Energy forecast">
+          <h3>Energy forecast</h3>
+          <dl class="route-metrics">
+            <div><dt>Travel and inspection</dt><dd id="route-time">—</dd></div>
+            <div><dt>Ascent</dt><dd id="route-climb">—</dd></div>
+            <div><dt>Estimated mission</dt><dd id="route-energy">—</dd></div>
+            <div><dt>Return estimate</dt><dd id="route-return">—</dd></div>
+            <div><dt>Required reserve</dt><dd id="route-reserve">—</dd></div>
+            <div><dt>Calibration used</dt><dd id="route-actual">—</dd></div>
+          </dl>
+        </section>
+        <details class="route-options"><summary>Waypoint types and direction</summary><ul id="route-nodes"></ul></details>
+        <ul id="route-issues" hidden></ul>
+      </section>
+      <div class="manual-actions">
+        <button type="button" class="secondary" id="route-review-again">Review Route</button>
+        <button type="button" class="secondary" id="route-validate" disabled>Validate Route</button>
+      </div>
+      <label id="route-confirm-area" hidden><input type="checkbox" id="route-confirm"> Approve this route for the calibration archive</label>
+      <button type="button" class="primary" id="route-approve" disabled>Approve Route</button>
+      <button type="button" class="secondary" id="route-back">Back to Service</button>
     </aside>
     <section class="card warehouse" id="warehouse-panel" aria-labelledby="map-title">
       <div class="card-head map-heading"><div><h2 id="map-title">Warehouse floor</h2><p id="map-caption">Select an aisle or location to plan an inspection.</p></div>

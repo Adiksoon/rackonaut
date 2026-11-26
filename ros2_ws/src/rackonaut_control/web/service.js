@@ -84,6 +84,8 @@ export function createService() {
     el("calibration-fly").disabled = mapping.mapping_phase === "EMPTY";
     el("calibration-ply").hidden = el("calibration-result").hidden = !draft.map_reference;
     el("calibration-locations").hidden = !draft.map_reference || !draft.locations_reference;
+    el("service-review-route").hidden = calibration.mode !== "MAPPING_COMPLETE" || !draft.map_reference;
+    el("service-review-route").dataset.session = draft.calibration_id;
     if (draft.map_reference) {
       el("calibration-ply").href = draft.map_reference;
       el("calibration-result").href = draft.map_reference.replace(/map\.ply$/, "result.json");

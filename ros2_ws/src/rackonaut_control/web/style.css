@@ -457,3 +457,24 @@ thead th { color: var(--muted); font-weight: 550; }
   color: inherit; border: 1px solid var(--line); border-radius: 5px; font: inherit; }
 .teaching-form textarea { resize: vertical; }
 .teaching-confirm { font-size: .85rem; }
+
+.workspace[data-view="route"].with-map { grid-template-columns: minmax(300px, 1fr) minmax(0, 2.05fr); }
+.route-review { display: grid; gap: 14px; }
+.route-review h3 { margin: 0 0 6px; color: var(--text); font-size: .98rem; }
+.route-review #route-session { font-size: .74rem; overflow-wrap: anywhere; }
+.route-review #route-feedback { color: var(--accent); font-weight: 600; }
+.route-review #route-result { display: grid; gap: 12px; }
+.route-metrics { margin: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.route-metrics dt { color: var(--muted); font-size: .74rem; }
+.route-metrics dd { margin: 2px 0; font-weight: 650; }
+.route-options { min-width: 0; border: 1px solid var(--line); border-radius: 7px; padding: 9px; }
+.route-options label { display: block; margin: 4px 0; }
+.route-options input { accent-color: var(--accent); }
+.route-options #route-nodes { max-height: 175px; overflow: auto; margin: 8px 0; padding-left: 18px; font-size: .81em; }
+#route-photo { width: 100%; max-height: 205px; object-fit: contain; border-radius: 7px; background: #0d2034; }
+@media (max-width: 940px) {
+  .workspace[data-view="route"].with-map { grid-template-columns: 1fr; }
+}
+main:has(.workspace[data-view="route"]:not([hidden])) { max-width: 1740px; }
+#route-show-raw { accent-color: #4b94ba; }
+#route-show-learned { accent-color: #b86b20; }

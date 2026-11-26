@@ -38,6 +38,8 @@ from rackonaut_safety.geometry import route_zones
 
 from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
 from .planning import energy_forecast, plan
+from .route_recording import RouteRecorder
+from .route_review import RouteReview
 from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching
 from .web import serve
@@ -142,6 +144,8 @@ class Control(Node):
         self.service_access = ServiceAccess()
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
+        self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
+        self.route_recording = None
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
                                       and self.recovery_enabled and self.energy_enabled
                                       and self.localization_mode == "sensor_based")
@@ -291,6 +295,44 @@ class Control(Node):
             self.speed = hypot(v.x, v.y, v.z)
             self.odom_at = monotonic()
             self.teaching.add_pose(message, self.odom_at)
+            if self.teaching.poses and self.teaching.poses[-1].received == self.odom_at:
+                self.record_pose(self.teaching.poses[-1], self.odom_at)
+
+    def record_pose(self, pose, now, force=False):
+        recorder = self.route_recording
+        job = self.job
+        if not recorder or not job or job.run != recorder.run or self.teaching.session != recorder.identity:
+            return
+        status = job.status
+        local = self.localization or {}
+        safety = self.safety_status() or {}
+        required = safety.get("required", [])
+        zones = safety.get("zones", {})
+        energy = self.energy_state() or {}
+        collision = status.get("avoidance") or {}
+        scan_age = collision.get("scan_age_ms")
+        sample = {
+            "stage": self.stage(job), "flight_phase": status.get("flight_phase") or self.stage(job),
+            "dock_contact": bool(energy.get("fresh") and energy.get("contact") and energy.get("switch_engaged")
+                                 and energy.get("contact_source") == "gazebo_dock_switch"),
+            "localization": {"state": local.get("state") if now-self.localization_at <= .40 else "STALE",
+                             "source": local.get("source"), "rms_m": local.get("rms"), "overlap": local.get("overlap"),
+                             "weakest": local.get("weakest"), "scan_age_ms": local.get("scan_age_ms"),
+                             "imu_age_ms": local.get("imu_age_ms")},
+            "collision": {"state": collision.get("state"), "reason": collision.get("reason"),
+                          "scan_stamp": collision.get("scan_stamp"),
+                          "scan_age_ms": None if scan_age is None else scan_age + max(0., (now-job.status_at)*1000),
+                          "verified_distance_m": collision.get("verified_distance", 0.),
+                          "obstacle_distance_m": collision.get("obstacle_distance"),
+                          "direction": collision.get("direction")},
+            "safety": {"phase": safety.get("phase"), "zones": required,
+                       "verified": bool(required and safety.get("inspection_id") == job.run
+                                        and safety.get("signals_online") and not safety.get("alarm")
+                                        and all(zones.get(zone, {}).get("sensor") == "FRESH"
+                                                and zones[zone].get("occupied") is False
+                                                and zones[zone].get("signals_acknowledged") for zone in required))},
+        }
+        recorder.add(pose, sample, force)
 
     def on_status(self, message):
         status = json.loads(message.data)
@@ -455,6 +497,13 @@ class Control(Node):
                 identifier = state["mapping_id"]
             result = self.begin({"mode": "custom", "slots": slots}, manual=True, mapping_id=identifier)
             if identifier:
+                energy = self.energy_state() or {}
+                self.route_recording = RouteRecorder(self.teaching.root, identifier, result["inspection_id"],
+                                                      energy.get("model", {}),
+                                                      {key: energy.get(key) for key in
+                                                       ("contact", "switch_engaged", "contact_source")})
+                if self.teaching.poses:
+                    self.record_pose(self.teaching.poses[-1], monotonic(), force=True)
                 self.calibration.mapping_run = result["inspection_id"]
                 self.calibration.set_state(MAPPING, "Protected mapping flight requested.")
                 self.send_mapping(identifier, "arm", monotonic())
@@ -705,7 +754,7 @@ class Control(Node):
                     reason = str(error)
         return {"mode": mode, "manifest": self.teaching.manifest(draft["calibration_id"]) if draft else None,
                 "capture_ready": draft is not None and reason is None, "reason": reason,
-                "editable": mode == MAPPING}
+                "editable": mode in {MAPPING, MAPPED}}
 
     def teach_location(self, action, request, owner):
         with self.teaching.operations:
@@ -713,8 +762,11 @@ class Control(Node):
                 now = monotonic()
                 mapping = self.mapping_status() or {}
                 identity = mapping.get("mapping_id")
-                if (not identity or request.get("calibration_id") != identity or self.calibration.state != MAPPING
-                        or mapping.get("mapping_phase") != "RECORDING"):
+                recording = self.calibration.state == MAPPING and mapping.get("mapping_phase") == "RECORDING"
+                docked_edit = (self.calibration.state == MAPPED and mapping.get("mapping_phase") == "COMPLETE"
+                               and not self.calibration.cancel_pending and action in {"rename", "delete"}
+                               and self.at_pad() and self.service_telemetry(now)["contact"])
+                if not identity or request.get("calibration_id") != identity or not (recording or docked_edit):
                     raise RuntimeError("Choose the current mapping flight.")
                 if action in {"capture", "save"}:
                     if reason := self.teaching_gate(now):
@@ -746,6 +798,18 @@ class Control(Node):
                 return self.teaching.edit(action, identity, request)
             finally:
                 self.teaching.writing = False
+
+    def review_route(self, action, request, owner):
+        with self.teaching.operations:
+            with self.lock:
+                draft = self.calibration.draft
+                session = draft.get("calibration_id") if draft else None
+                if (not session or request.get("calibration_id") != session or self.calibration.state != MAPPED
+                        or self.calibration.cancel_pending or not self.service_telemetry(monotonic())["contact"]):
+                    raise RuntimeError("Route review requires a completed mapping session and physical docking.")
+            if not self.service_access.authorized(owner):
+                raise RuntimeError("Unlock Service to continue.")
+            return self.route_review.action(action, session, request)
 
     def cancel_calibration(self, _request):
         with self.lock:
@@ -794,7 +858,15 @@ class Control(Node):
             if phase == "READY":
                 self.send_mapping(identifier, "arm", now)
             elif phase == "RECORDING" and stable and not self.teaching.writing:
-                self.send_mapping(identifier, "finish", now)
+                recorder = self.route_recording
+                if recorder and recorder.run == calibration.mapping_run and not recorder.done.is_set():
+                    if self.teaching.poses:
+                        self.record_pose(self.teaching.poses[-1], now, force=True)
+                    battery = job.status.get("energy", {}) if job else {}
+                    recorder.finish(stage, telemetry["contact"], {"sorties": battery.get("sorties", []),
+                                                                   "dock_contact_source": "gazebo_dock_switch"})
+                else:
+                    self.send_mapping(identifier, "finish", now)
             if telemetry["safety"] == "RECOVERY" and not stable:
                 calibration.set_state(RECOVERY, "Mapping paused. Resolve the incident in Recovery before closing the session.")
             elif phase == "COMPLETE" and calibration.state != MAPPED:
@@ -1011,6 +1083,9 @@ class Control(Node):
     def close(self):
         if self.job:
             stop_workers(self.job.processes)
+        if self.route_recording and not self.route_recording.done.is_set():
+            self.route_recording.finish("INTERRUPTED", False, {})
+            self.route_recording.worker.join(timeout=1.)
         self.pool.shutdown(wait=True, cancel_futures=True)
 
 

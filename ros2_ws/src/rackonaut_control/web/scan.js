@@ -100,6 +100,54 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
   walked.frustumCulled = false;
   walked.renderOrder = 4;
   scene.add(map.object, live.object, hazards.object, walked);
+  const rawTrack = new T.Line(new T.BufferGeometry(), new T.LineBasicMaterial({
+    color: 0x93e6ff, depthTest: false, depthWrite: false, transparent: true, opacity: .74 }));
+  const learned = new T.Line(new T.BufferGeometry(), new T.LineDashedMaterial({
+    color: 0xffb050, dashSize: .20, gapSize: .12, depthTest: false, depthWrite: false }));
+  const waypoints = new T.Points(new T.BufferGeometry(), new T.PointsMaterial({
+    color: 0xffd294, size: 6, sizeAttenuation: false, map: dot, alphaTest: .32,
+    depthTest: false, depthWrite: false }));
+  const directions = new T.Group();
+  const dock = new T.Mesh(new T.SphereGeometry(.21, 12, 8),new T.MeshBasicMaterial({ color: 0x64f0b7, depthTest: false }));
+  for (const [item,order] of [[rawTrack,6],[learned,7],[waypoints,8],[dock,9]]) {
+    item.renderOrder=order;
+    item.visible=false;
+  }
+  scene.add(rawTrack, learned, waypoints, directions, dock);
+  let currentRaw = null, currentNodes = null;
+
+  function routeLayers(review) {
+    rawTrack.visible=!!review?.showRaw;
+    learned.visible=waypoints.visible=directions.visible=dock.visible=!!review?.showLearned;
+    if (!review) return;
+    const toWorld = ([x,y,z]) => new T.Vector3(x,z,-y);
+    if (currentRaw!==review.raw) {
+      currentRaw=review.raw;
+      rawTrack.geometry.dispose();
+      rawTrack.geometry=new T.BufferGeometry().setFromPoints(review.raw.map(toWorld));
+    }
+    if (currentNodes===review.nodes) return;
+    currentNodes=review.nodes;
+    const points=review.nodes.map(n=>toWorld(n.position_m));
+    for (const line of [learned,waypoints]) {
+      line.geometry.dispose();
+      line.geometry=new T.BufferGeometry().setFromPoints(points);
+    }
+    learned.computeLineDistances();
+    for (const arrow of directions.children.slice()) {
+      arrow.line.material.dispose();
+      arrow.cone.material.dispose();
+      directions.remove(arrow);
+    }
+    for (let i=1; i<points.length; i+=Math.max(1,Math.ceil(points.length/17))) {
+      const delta=points[i].clone().sub(points[i-1]);
+      if (delta.length()<.18) continue;
+      const arrow = new T.ArrowHelper(delta.normalize(),points[i-1],.45,0xffb050,.16,.12);
+      for (const part of arrow.children) { part.material.depthTest=false; part.renderOrder=9; }
+      directions.add(arrow);
+    }
+    if (points[0]) dock.position.copy(points[0]);
+  }
 
   let visible = false, timer = 0, request = null, activeSession = null;
   let detail = "balanced", mapTag = null, liveTag = null;
@@ -271,7 +319,7 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
       visible = value;
       resume();
     },
-    update(state, activeFlight) {
+    update(state, activeFlight, review) {
       if (!visible) return;
       localization = state?.localization;
       const next = localization?.mapping_id || null;
@@ -292,8 +340,9 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
         odomPath = signature;
         walked.geometry.dispose();
         walked.geometry = new T.BufferGeometry().setFromPoints(points.map(([x, y, z]) => new T.Vector3(x, z, -y)));
-        walked.visible = points.length > 1;
       }
+      walked.visible = points.length > 1 && !review;
+      routeLayers(review);
       const avoidance = job?.status?.avoidance;
       const measured = activeFlight && avoidance?.scan_age_ms != null && avoidance.scan_age_ms <= 650
         && localization?.state === "TRACKING";

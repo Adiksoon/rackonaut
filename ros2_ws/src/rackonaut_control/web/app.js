@@ -2,6 +2,7 @@ import { createIntelligence } from "/business.js";
 import { createService } from "/service.js";
 import { createManual } from "/manual.js";
 import { createTeaching } from "/teaching.js";
+import { createRouteReview } from "/route.js";
 
 "use strict";
 
@@ -22,10 +23,12 @@ const headings = {
   results: ["Inspection results", "Review what the drone found."],
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
   service: ["Service Center", "Check system readiness and prepare a warehouse calibration."],
+  route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
 };
 const service = createService();
 const manual = createManual(api, terminal, notice);
 const teaching = createTeaching(() => drawTwin(state?.mission), focusTaughtLocation);
+const routeReview = createRouteReview(api, () => drawTwin(state?.mission));
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
@@ -87,7 +90,13 @@ async function loadTwin(mode = "model") {
     twin = createTwin(layout, {
       onAisle: toggleAisle,
       onSlot: toggleSlot,
-      onTaughtLocation: id => teaching.select(id),
+      onTaughtLocation: async id => {
+        if (view === "route") {
+          if (scanFullscreen()) await leaveScanFullscreen();
+          const record = routeReview.select(id);
+          if (record) twin?.focusTaughtLocation(record.position_m);
+        } else teaching.select(id);
+      },
       onReinspect: (id) => {
         choices.mode = "custom";
         choices.slots = new Set([id]);
@@ -111,8 +120,10 @@ function drawTwin(job) {
   if (!twin || !show3D || el("warehouse-panel").hidden) return;
   const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
+  const review = view === "route" ? routeReview.display() : null;
   twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected),
-    taught: view === "manual" ? teaching.locations() : [], taughtSelection: teaching.selection() });
+    review, taught: review ? review.locations : view === "manual" ? teaching.locations() : [],
+    taughtSelection: review ? review.selectedLocation : teaching.selection() });
 }
 
 async function focusTaughtLocation(record) {
@@ -132,7 +143,7 @@ async function api(url, data) {
 }
 
 function drawWorkspace() {
-  const showMap = view === "plan" || view === "live" || view === "manual" || (view === "results" && resultsMap);
+  const showMap = view === "plan" || view === "live" || view === "manual" || view === "route" || (view === "results" && resultsMap);
   const warehouse = el("warehouse-panel");
   if (warehouse.hidden === showMap) {
     warehouse.hidden = !showMap;
@@ -160,6 +171,7 @@ function setView(next, focus = false) {
   el("workspace").dataset.view = next;
   el("workspace").hidden = next === "diagnostics" || next === "service";
   el("system-details").hidden = next !== "diagnostics";
+  el("route-panel").hidden = next !== "route";
   service.show(next === "service");
   manual.show(next === "manual");
   drawWorkspace();
@@ -167,14 +179,14 @@ function setView(next, focus = false) {
     el(panel).hidden = name !== next && !(name === "live" && next === "manual");
   }
   for (const button of document.querySelectorAll(".tab")) {
-    const active = button.dataset.view === next;
+    const active = button.dataset.view === next || (next === "route" && button.dataset.view === "service");
     button.classList.toggle("active", active);
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   }
   put("page-title", headings[next][0]);
   put("page-description", headings[next][1]);
-  if (next === "manual" && state?.localization?.mapping_id) loadTwin("scan");
+  if (next === "route" || (next === "manual" && state?.localization?.mapping_id)) loadTwin("scan");
   draw();
   if (focus) el("page-title").focus();
 }
@@ -689,7 +701,7 @@ function draw() {
   const job = state?.mission;
   const status = job?.status || {};
   const stage = job?.stage;
-  const mapping = view === "manual" && !!state?.localization?.mapping_id;
+  const mapping = view === "route" || (view === "manual" && !!state?.localization?.mapping_id);
   el("map-2d").hidden = el("map-3d").hidden = mapping;
   el("business-results").hidden = view !== "results" || state?.backend?.mode !== "mock_sap";
   const robot = el("robot-state"), backend = el("api-state");
@@ -836,6 +848,11 @@ async function init() {
     setView("manual", true);
     loadTwin("scan");
   });
+  el("service-review-route").addEventListener("click", () => {
+    setView("route", true);
+    routeReview.open(el("service-review-route").dataset.session);
+  });
+  el("route-back").addEventListener("click", () => setView("service", true));
   el("scan-expand").disabled = !document.fullscreenEnabled;
   el("scan-expand").addEventListener("click", async () => {
     if (scanFullscreen()) { await leaveScanFullscreen(); return; }
