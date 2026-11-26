@@ -19,7 +19,7 @@ FILES = {
 }
 
 
-def prepare(source):
+def prepare(source, camera_profile):
     for name, digest in FILES.items():
         if sha256((source / name).read_bytes()).hexdigest() != digest:
             raise ValueError(f"{name} does not match X3 UAV Fuel revision 4.")
@@ -55,6 +55,10 @@ def prepare(source):
         <clip><near>0.10</near><far>25</far></clip>
       </camera>
     </sensor>""")
+    if camera_profile == "challenging":
+        camera.find("camera").append(xml.fromstring(
+            "<noise><type>gaussian</type><mean>0</mean><stddev>0.015</stddev></noise>"
+        ))
     model.find("link[@name='X3/base_link']").append(camera)
 
     controller = xml.fromstring("""<plugin filename="ignition-gazebo-multicopter-control-system"
@@ -102,21 +106,24 @@ def prepare(source):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path.home() / FUEL)
-    parser.add_argument("--output", type=Path, default=CACHE / "rackonaut_drone/x3.sdf")
+    parser.add_argument("--camera-profile", choices=["standard", "challenging"], default="standard")
+    parser.add_argument("--output", type=Path)
     args = parser.parse_args()
+    filename = "x3-challenging.sdf" if args.camera_profile == "challenging" else "x3.sdf"
+    output = args.output or CACHE / "rackonaut_drone" / filename
     try:
-        tree = prepare(args.source.resolve(strict=True))
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        with NamedTemporaryFile(dir=args.output.parent, delete=False) as temporary:
+        tree = prepare(args.source.resolve(strict=True), args.camera_profile)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with NamedTemporaryFile(dir=output.parent, delete=False) as temporary:
             draft = Path(temporary.name)
         try:
             tree.write(draft, encoding="utf-8", xml_declaration=True)
-            draft.replace(args.output)
+            draft.replace(output)
         finally:
             draft.unlink(missing_ok=True)
     except (OSError, ValueError, xml.ParseError) as error:
         parser.exit(1, f"Could not prepare X3 v4: {error}\n")
-    print(args.output.resolve())
+    print(output.resolve())
 
 
 if __name__ == "__main__":
