@@ -109,6 +109,12 @@ Service authentication is required for configuration management. Route sealing a
 
 The existing Mock SAP API receives current camera observations and the existing report exporter reads those observations by inspection ID. Calibration references remain in the warehouse archive.
 
+The Control Center client may include `expected_inspection_id` in `POST /api/service/calibration/start`. The value is the active inspection ID shown during confirmation or JSON `null` when the operator started from an idle view. A changed active inspection returns HTTP 409 and requires review of the current state. The existing operation still enforces the flight mode, dock and Safety conditions on the server.
+
+The Control Center's read-only `/api/state` adds measured pose freshness, speed, physical docking evidence, and timestamped-ID inspection history with the archived mission scope. For older history entries with incomplete metadata, the client displays unavailable fields. The learned plan's `display_points` is the selected route for display. Flight dispatch and reservation still use their existing inputs.
+
+The local business summary and evidence photo GET routes can read the corresponding saved report when Mock SAP is unavailable. A fallback summary includes `archived: true`. Evidence review writes still require Mock SAP.
+
 ## Control Center warehouse visualization
 
 Read-only JSON for Warehouse Digital Twin in the existing loopback Control Center.

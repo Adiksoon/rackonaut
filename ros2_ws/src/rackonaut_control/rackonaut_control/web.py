@@ -18,16 +18,16 @@ from .service import COOKIE
 from .teaching import CAPTURE_ID, SESSION_ID, session_path
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
-          "/twin.css": ("twin.css", "text/css"),
+          "/twin.css": ("twin.css", "text/css"), "/operator.css": ("operator.css", "text/css"),
           "/rackonaut-logo.png": ("rackonaut-logo.png", "image/png"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "service.js", "manual.js", "teaching.js", "route.js", "twin.js", "rack-templates.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
+              "app.js", "operator.js", "business.js", "service.js", "manual.js", "teaching.js", "route.js", "twin.js", "rack-templates.js", "twin-scene.js", "scan.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
 REPORT = re.compile(fr"/reports/({RUN})$")
 RECOVERY = re.compile(r"/recoveries/(REC-[A-F0-9]{12}\.json)$")
-BUSINESS_PHOTO = re.compile(fr"/api/business/quality/{RUN}/Q-[A-F0-9]{{32}}/(?:original|annotated)\.png$")
+BUSINESS_PHOTO = re.compile(fr"/api/business/quality/({RUN})/(Q-[A-F0-9]{{32}})/(original|annotated)\.png$")
 BUSINESS_VERIFY = re.compile(r"/api/business/issues/ISS-[A-F0-9]{20}/verify$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")
 MAPPING_RESULT = re.compile(fr"/api/service/mapping/({SESSION_ID})/([a-z.-]+)$")
@@ -187,6 +187,8 @@ def serve(control, port):
 
         def business(self, path, payload=None):
             if control.backend_state["mode"] != "mock_sap":
+                if payload is None and self.archive_business(path):
+                    return
                 self.json(404, {"error": "Warehouse Intelligence requires the Mock SAP profile."})
                 return
             data = json.dumps(payload).encode() if payload is not None else None
@@ -200,7 +202,28 @@ def serve(control, port):
                 self.json(error.code, {"error": detail.get("message", "Business request rejected.")
                                        if isinstance(detail, dict) else "Business request rejected."})
             except (OSError, ValueError):
-                self.json(502, {"error": "Mock SAP is temporarily unavailable."})
+                if payload is not None or not self.archive_business(path):
+                    self.json(502, {"error": "Mock SAP is temporarily unavailable."})
+
+        def archive_business(self, path):
+            try:
+                if match := BUSINESS_PHOTO.fullmatch(path):
+                    run, quality, variant = match.groups()
+                    name = "camera.png" if variant == "original" else "annotated.png"
+                    image = control.data / "reports" / run / "quality" / quality / name
+                    self.reply(200, image.read_bytes(), "image/png")
+                    return True
+                run = parse_qs(urlsplit(path).query).get("inspection_id", [""])[0]
+                if not re.fullmatch(RUN, run):
+                    return False
+                report = control.data / "reports" / run / "run.json"
+                business = json.loads(report.read_bytes()).get("business")
+                if business and business.get("inspection_id") == run:
+                    self.json(200, {**business, "archived": True})
+                    return True
+            except (OSError, ValueError, TypeError):
+                pass
+            return False
 
         def do_GET(self):
             path = urlsplit(self.path).path

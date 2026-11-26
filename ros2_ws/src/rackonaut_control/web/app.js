@@ -3,6 +3,8 @@ import { createService } from "/service.js";
 import { createManual } from "/manual.js";
 import { createTeaching } from "/teaching.js";
 import { createRouteReview } from "/route.js";
+import { activeMission, activeSafetyAlarm, batteryPercent, missionPhase, operatorState,
+  percentagePoints, returnEnergy, terminal } from "/operator.js";
 
 "use strict";
 
@@ -10,7 +12,6 @@ const el = (name) => document.getElementById(name);
 const label = (value) => String(value || "").toLowerCase().replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const terminal = new Set(["COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", "INTERRUPTED_FOR_CALIBRATION", "ERROR"]);
 const choices = { mode: "aisle", aisles: new Set(["A"]), slots: new Set(), quality: true, adaptive: false };
 const inspectionStages = ["INSPECT", "REINSPECT", "QUALITY_CLOSEUP", "REPOSITION", "RECENTER"];
 const retryReasons = { initial: "Reference view", unreadable: "Unreadable label",
@@ -19,10 +20,10 @@ const retryReasons = { initial: "Reference view", unreadable: "Unreadable label"
 const headings = {
   plan: ["Plan inspection", ""],
   live: ["Live flight", ""],
-  manual: ["Manual flight", "Guide the drone in the reserved space with collision protection active."],
+  manual: ["Manual Control", ""],
   results: ["Inspection results", ""],
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
-  service: ["Service", "Calibration, warehouse configuration and manual flight."],
+  service: ["Service", ""],
   route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
   configuration: ["Warehouse preview", ""],
 };
@@ -56,6 +57,7 @@ const routeReview = createRouteReview(api, (event) => {
 });
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
+let serviceTab = "management", lastPose = null;
 let resultsMap = false;
 let locatedReport = null;
 let stopping = false;
@@ -68,6 +70,7 @@ let twin = null, twinLoading = false, show3D = false, focusedLocation = null;
 let mapMode = "2d", mapIntent = "2d";
 let warehouseConfiguration = null, warehouseRequest = null, warehouseError = "", warehouseLocked = false;
 let learnedStops = new Set();
+const learnedGroups = new Map();
 let replanLocations = null;
 let emergencyTarget = null, connectionLost = false;
 let previewSource = null, businessRun = null, businessOutcomes = {}, fittedFocus = null;
@@ -91,8 +94,7 @@ function chooseMap(mode) {
     && !visualRequest(state?.mission).archiveScan;
   show3D = mode !== "2d" && !unavailable;
   el("workspace").dataset.mapMode = mode;
-  el("scan-window-actions").hidden = mode !== "scan" || unavailable;
-  if (mode !== "scan" && scanFullscreen()) leaveScanFullscreen();
+  el("scan-window-actions").hidden = mode === "2d" || unavailable;
   el("warehouse-map").toggleAttribute("hidden", mode !== "2d");
   el("map-legend").hidden = mode !== "2d";
   el("twin-panel").hidden = !show3D;
@@ -165,7 +167,8 @@ function visualRequest(job) {
   const run = view === "results" ? businessRun || locatedReport || (job?.mode !== "manual" ? job?.inspection_id : null)
     : view === "live" && job?.mode === "learned" ? job.inspection_id : null;
   const archivedLearned = view === "results" && state?.history.some(row => row.run === run && row.warehouse_configuration_id);
-  if (run && (layout?.learned_warehouse || archivedLearned)) {
+  const currentLearned = job?.inspection_id === run && job?.mode === "learned";
+  if (run && (currentLearned || archivedLearned)) {
     return {required: true, url: `/api/visualization/run/${run}`, archiveScan: true, showFlight: view === "live"};
   }
   if (!layout?.learned_warehouse || view === "results") return {};
@@ -226,6 +229,7 @@ function selectFittedLocation(id) {
 
 function showVisualizationDetails(visual, entry) {
   const packet = entry.packet;
+  if (view === "plan" && layout.learned_warehouse) drawLearnedGroups(packet);
   const locations = packet?.enhanced.locations || [];
   const pending = el("visual-status");
   pending.hidden = !visual.required || !!packet || (mapMode === "scan" && !visual.archiveScan);
@@ -253,7 +257,8 @@ function showVisualizationDetails(visual, entry) {
 
 function flightTarget(job) {
   const status = job?.status;
-  if (job?.mode !== "learned" || terminal.has(job.stage) || inspectionStages.includes(status?.stage)) return status?.target;
+  if (job?.mode !== "learned" || terminal.has(job.stage) || inspectionStages.includes(status?.stage)
+      || (status?.stage === "LEARNED_INSPECTION" && job.slots.includes(status.target))) return status?.target;
   return job.slots.find(id => !status?.visited?.includes(id) && !status?.confirmed?.[id]
     && !status?.missed?.includes(id)) || "PAD";
 }
@@ -273,7 +278,7 @@ function drawTwin(job) {
   const selected = layout.learned_warehouse ? [] : Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
   const review = view === "route" ? routeReview.display() : null;
-  twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected),
+  twin.update({ state, lastPose, view, preview, job, activeFlight: activeMission(job), selection: new Set(selected),
     visualization, review, taught: review ? review.locations : view === "manual" ? teaching.locations() : [],
     taughtSelection: review ? review.selectedLocation : teaching.selection() });
 }
@@ -297,7 +302,9 @@ async function api(url, data) {
 }
 
 function drawWorkspace() {
-  const showMap = ["plan", "live", "manual", "route", "configuration"].includes(view) || (view === "results" && resultsMap);
+  const showMap = ["plan", "live", "route", "configuration"].includes(view) ||
+    (view === "manual" && el("camera-expand").getAttribute("aria-pressed") !== "true") ||
+    (view === "results" && resultsMap);
   const warehouse = el("warehouse-panel");
   if (warehouse.hidden === showMap) {
     warehouse.hidden = !showMap;
@@ -306,9 +313,19 @@ function drawWorkspace() {
   if ((!showMap || view === "service" || view === "diagnostics") && scanFullscreen()) leaveScanFullscreen();
   el("workspace").classList.toggle("with-map", showMap);
   el("workspace").dataset.surveyed = String(visualRequest(state?.mission).required);
+  el("operator-map-legend").hidden = !showMap || mapMode !== "model" ||
+    (view === "plan" ? !preview?.points.length : view !== "live" || !activeMission(state?.mission));
+  el("operator-flown-key").hidden = view !== "live";
   el("results-map").setAttribute("aria-expanded", String(resultsMap));
-  put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
+  el("business-map").setAttribute("aria-expanded", String(resultsMap));
+  put("results-map", resultsMap ? "Back to findings" : "Warehouse map");
+  el("results-close-map").hidden = view !== "results" || !resultsMap;
   drawMapCaption();
+}
+
+function openServiceTab(tab) {
+  serviceTab = tab;
+  setView(tab === "manual" ? "manual" : "service", true);
 }
 
 function drawMapCaption() {
@@ -336,7 +353,7 @@ async function leaveScanFullscreen() {
 
 function setView(next, focus = false) {
   if (next === "results" && view !== next) {
-    resultsMap = !!layout.learned_warehouse || !!state?.history.some(row => row.warehouse_configuration_id);
+    resultsMap = false;
     locatedReport = null;
     businessRun = null;
     businessOutcomes = {};
@@ -344,12 +361,19 @@ function setView(next, focus = false) {
   showFittedDetails = false;
   fittedFocus = null;
   view = next;
+  if (next === "manual") serviceTab = state?.service_mode !== "PRODUCTION" && state?.localization?.mapping_id
+    ? "calibration" : "manual";
   el("workspace").dataset.view = next;
   el("workspace").hidden = next === "diagnostics" || next === "service";
   el("system-details").hidden = next !== "diagnostics";
   el("route-panel").hidden = next !== "route";
   el("configuration-preview").hidden = next !== "configuration";
-  service.show(next === "service");
+  el("service-nav").hidden = !["service", "manual", "route", "configuration"].includes(next);
+  for (const button of el("service-nav").querySelectorAll("button")) {
+    if (button.dataset.serviceView === serviceTab) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  }
+  service.show(next === "service", serviceTab);
   manual.show(next === "manual");
   drawWorkspace();
   for (const [name, panel] of [["plan", "plan-panel"], ["live", "live-panel"], ["results", "results-panel"]]) {
@@ -361,7 +385,8 @@ function setView(next, focus = false) {
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   }
-  put("page-title", headings[next][0]);
+  const serviceTitles = {management:"Drone Management", calibration:"Warehouse Calibration", configuration:"Warehouse Configuration"};
+  put("page-title", next === "service" ? serviceTitles[serviceTab] : headings[next][0]);
   put("page-description", headings[next][1]);
   el("page-description").hidden = !headings[next][1];
   if (next === "plan" && layout.learned_warehouse) {
@@ -373,6 +398,7 @@ function setView(next, focus = false) {
   else if (["configuration", "live", "manual"].includes(next) || (next === "plan" && layout.learned_warehouse)
     || next === "results" && resultsMap) loadTwin("model");
   draw();
+  if (next === "results") intelligence.update(state, canReinspect);
   if (focus) el("page-title").focus();
 }
 
@@ -484,7 +510,52 @@ function toggleLearned(id) {
   changePlan();
 }
 
+function drawLearnedGroups(packet = visualCache.get("/api/visualization/active")?.packet) {
+  learnedGroups.clear();
+  const add = (name, id) => {
+    if (!learnedGroups.has(name)) learnedGroups.set(name, new Set());
+    learnedGroups.get(name).add(id);
+  };
+  const placed = new Map((packet?.enhanced.locations || []).filter(item => item.status === "projected" && item.rack_id)
+    .map(item => [item.id, item.rack_id]));
+  for (const row of warehouseConfiguration?.locations || []) {
+    const aisle = layout.slots[row.storage_location_id]?.aisle;
+    if (aisle) add("Aisle " + aisle, row.record_id);
+    const rack = placed.get(row.storage_location_id);
+    if (rack) add("Rack row " + rack, row.record_id);
+  }
+  html("learned-groups", [...learnedGroups.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([name, ids]) => {
+    const count = [...ids].filter(id => learnedStops.has(id)).length;
+    return `<button type="button" class="chip" data-group="${safe(name)}"
+      aria-pressed="${count === ids.size ? "true" : count ? "mixed" : "false"}">${safe(name)} <small>${ids.size}</small></button>`;
+  }).join(""));
+}
+
+function canReinspect(id) {
+  if (!id) return false;
+  if (!layout.learned_warehouse) return !!layout.slots[id];
+  if (!state?.warehouse?.active_id) return false;
+  if (warehouseConfiguration?.manifest.configuration_id !== state.warehouse.active_id) return true;
+  return warehouseConfiguration.locations.some(row => row.storage_location_id === id);
+}
+
+async function reinspectLocation(id) {
+  if (layout.learned_warehouse) {
+    const active = state?.warehouse?.active_id;
+    if (!active) throw new Error("Activate a saved warehouse before planning a reinspection.");
+    if (warehouseConfiguration?.manifest.configuration_id !== active) {
+      const config = await service.planConfiguration(active);
+      if (!config) throw new Error("Unlock Service before planning a reinspection in the learned warehouse.");
+      if (active !== state?.warehouse?.active_id) throw new Error("The active warehouse changed. Select the location again.");
+      warehouseConfiguration = config;
+    }
+    if (!canReinspect(id)) throw new Error("This location has not been taught in the active warehouse.");
+  }
+  planLocations([id]);
+}
+
 function planLocations(ids) {
+  notice();
   if (layout.learned_warehouse) {
     if (warehouseConfiguration) {
       learnedStops = new Set(warehouseConfiguration.locations.filter(row => ids.includes(row.storage_location_id)).map(row => row.record_id));
@@ -496,6 +567,8 @@ function planLocations(ids) {
   }
   setView("plan", true);
   changePlan();
+  if (layout.learned_warehouse && warehouseConfiguration && ids.length && learnedStops.size !== new Set(ids).size)
+    notice("Only locations taught in the active warehouse can be selected for reinspection.");
 }
 
 async function syncLearnedPlan() {
@@ -535,6 +608,7 @@ function changePlan() {
     el("learned-all").indeterminate = learnedStops.size > 0 && learnedStops.size < locations.length;
     html("learned-locations", '<legend class="sr-only">Registered locations</legend>' + locations.map(row =>
       `<label class="learned-choice"><input type="checkbox" value="${safe(row.record_id)}" ${learnedStops.has(row.record_id) ? "checked" : ""}>${safe(row.storage_location_id)}</label>`).join(""));
+    drawLearnedGroups();
   } else {
   for (const radio of document.querySelectorAll("input[name='mode']")) radio.checked = radio.value === choices.mode;
   el("quality").checked = choices.quality;
@@ -556,7 +630,7 @@ function changePlan() {
   draw();
   if (!previewPending) return;
   api("/api/plan", chosen).then((plan) => {
-    if (version === revision) { preview = plan; previewPending = false; draw(); }
+    if (version === revision) { preview = {...plan, points: plan.display_points || plan.points}; previewPending = false; draw(); }
   }).catch((error) => {
     if (version === revision) { previewError = error.message; previewPending = false; draw(); }
   });
@@ -666,7 +740,8 @@ function drawResults(job) {
   el("next-inspection").disabled = !!state?.busy || recoveryPending || servicePending;
   el("history-panel").hidden = !state?.history?.length;
   html("history", state?.history?.length ? state.history.map((item) => `<div class="history-item"><a target="_blank"
-    rel="noopener" href="${safe(item.url)}">${safe(item.run)}</a><span>${item.confirmed}/${item.total}</span></div>`).join("")
+    rel="noopener" href="${safe(item.url)}">${safe(item.warehouse_name || "Inspection")} · ${safe(item.planned_slots?.join(" → ") || item.run)}</a>
+    <span>${item.confirmed}/${item.total}</span></div>`).join("")
     : '<p class="footnote">Completed reports will appear here.</p>');
   const recoveries = state?.recovery_history || [];
   el("recovery-history").hidden = !recoveries.length;
@@ -743,15 +818,18 @@ function drawEnergy(job) {
   el("battery-meter").value = battery ?? 0;
   el("battery-meter").classList.toggle("low", battery != null && battery < 30);
   put("dock-state", `Dock · ${label(dock)}`);
-  el("dock-state").classList.toggle("good", dock === "READY" || dock === "CHARGING");
+  el("dock-state").dataset.tone = !telemetry?.fresh ? "neutral"
+    : ["READY", "CHARGING", "AVAILABLE"].includes(dock) ? "ready" : dock === "FAULT" ? "danger" : "active";
   el("energy-panel").dataset.dock = dock.toLowerCase();
   put("energy-cycles", telemetry?.cycles ?? "—");
   put("energy-need", percent(mission?.required_percent ?? forecast?.estimated_percent ?? forecast?.percent));
   put("energy-budget", !forecast ? "" : Number.isFinite(forecast.seconds) ? `${forecast.seconds} s sim · estimated inspection`
     : `${forecast.flight_seconds} sim s flight · ${forecast.inspection_seconds} sim s scan · up to ${forecast.adaptive_percent.toFixed(1)}% adaptive allowance`);
-  const returning = mission?.return_percent ?? forecast?.return_percent;
-  const reserve = mission?.reserve_percent ?? forecast?.reserve_percent;
-  put("energy-reserve", returning != null ? `${percent(returning)} + ${percent(reserve)}` : "—");
+  const balance = returnEnergy(telemetry, activeMission(job) ? mission : null);
+  put("energy-return", batteryPercent(balance.atDock));
+  put("energy-reserve", batteryPercent(balance.reserve));
+  put("energy-margin", percentagePoints(balance.margin));
+  el("energy-margin").dataset.tone = balance.margin == null ? "neutral" : balance.margin >= 0 ? "ready" : "warning";
   put("energy-remaining", remaining?.length ?? "—");
   put("energy-remaining-ids", remaining ? remaining.slice(0, 5).join(" · ") + (remaining.length > 5 ? " …" : "") : "");
   const messages = {
@@ -777,15 +855,18 @@ function drawEnergy(job) {
 
 function drawAvoidance(job) {
   if (!layout.avoidance) return;
-  const a = job?.status?.avoidance;
-  const safetyAlarm = state?.safety?.alarm;
+  const safetyAlarm = activeSafetyAlarm(state?.safety);
+  const a = activeMission(job) || safetyAlarm ? job?.status?.avoidance : null;
   const mode = safetyAlarm && job?.stage === "ABORTED" && a?.state === "ABORTED"
     ? "SAFETY_ABORT" : a?.state || "WAITING";
   el("avoidance-panel").dataset.state = mode.toLowerCase();
   put("avoidance-state", label(mode));
+  el("avoidance-state").dataset.tone = mode === "CLEAR" ? "ready" : mode === "WAITING" ? "neutral"
+    : ["SAFETY_ABORT", "ABORTED", "FAULT", "BLOCKED"].includes(mode) ? "danger" : "warning";
   put("avoidance-reason", mode === "SAFETY_ABORT" ? safetyAlarm.message
     : a?.reason || "Awaiting the first scan from an active inspection.");
-  put("avoidance-range", a?.obstacle_distance == null ? "—" : `${a.obstacle_distance.toFixed(2)} m`);
+  put("avoidance-range", a?.obstacle_distance == null ? mode === "CLEAR" ? "None detected" : "Unavailable"
+    : `${a.obstacle_distance.toFixed(2)} m`);
   put("avoidance-returns", a?.obstacle_returns ? `${a.obstacles} obstacle cluster(s) · ${a.obstacle_returns} returns` : "");
   put("avoidance-age", a?.scan_age_ms == null ? "—" : `${a.scan_age_ms} ms`);
   put("avoidance-coverage", a ? `${a.verified_distance.toFixed(2)} m checked along the active leg` : "");
@@ -803,6 +884,8 @@ function drawLocalization() {
   const quality = loc?.state || "DEGRADED";
   el("localization-panel").dataset.state = quality.toLowerCase();
   put("localization-status", quality);
+  el("localization-status").dataset.tone = !loc ? "neutral" : quality === "TRACKING" ? "ready"
+    : quality === "LOST" ? "danger" : "warning";
   put("localization-source", layout.localization.mode === "shadow" ? "Gazebo · shadow comparison" : "LiDAR + IMU");
   put("localization-reason", loc?.reason || "Waiting for a synchronized scan.");
   put("localization-pose", loc?.position ? `${loc.position.map(x => x.toFixed(3)).join(" / ")} m` : "—");
@@ -877,7 +960,7 @@ function drawSafety() {
   if (!enabled) return;
   const status = state?.safety;
   const laser = !!layout.laser_fields;
-  const alarm = status?.alarm;
+  const alarm = activeSafetyAlarm(status);
   const zones = status?.zones || {};
   const awaiting = status?.phase === "PREPARING";
   const selected = (preview?.required_zones || []).map(id => zones[id]).filter(Boolean);
@@ -932,13 +1015,15 @@ function drawSafety() {
                    C: "Aisle C", D: "Technical dock & shaft" };
   html("safety-zones", (layout.aerial ? ["D", "A", "B", "T", "C"] : ["A", "B", "T", "C"]).map(id => {
     const zone = zones[id];
-    const state = zone?.state || (id === "C" ? "UNMONITORED" : "FAULT");
+    const state = zone?.state || (id === "C" ? "UNMONITORED" : "UNAVAILABLE");
     const detected = zone?.occupied === true ? (laser && id !== "D" ? "Obstacle detected" : "Worker present")
       : zone?.occupied === false ? "Clear field" : "Unknown presence";
     const age = status?.scans?.[id]?.age_ms;
     const scanner = id === "D" && zone ? ` · Virtual presence · ${label(zone.sensor)}`
       : laser && zone ? ` · ${label(zone.sensor)}${age == null ? "" : ` ${age} ms`}` : "";
-    return `<div class="safety-zone access-${state.toLowerCase()}">
+    const tone = zone?.occupied === true || state === "FAULT" || state === "INTRUSION" ? "danger"
+      : state === "RESERVED" || state === "PREPARING" ? "active" : state === "OPEN" && zone?.sensor === "FRESH" ? "ready" : "neutral";
+    return `<div class="safety-zone access-${state.toLowerCase()}" data-tone="${tone}">
       <strong>${byName[id]}</strong><span class="access-label"><i></i>${label(state)}</span>
       <small>${id === "C" ? "Decorative aisle" : detected + scanner + (zone?.signals_acknowledged ? " · lights confirmed" : " · awaiting lights")}</small></div>`;
   }).join(""));
@@ -956,12 +1041,14 @@ function drawSafety() {
 
 function flightAlert(job, active, returnBalance, reserve) {
   if (connectionLost) return "Connection lost. Live readings are unavailable. Reconnecting…";
-  if (state?.safety?.alarm) return state.safety.alarm.message;
+  const incident = activeSafetyAlarm(state?.safety);
+  if (incident) return incident.message;
   const status = job?.status || {};
-  if (job?.stage === "ABORTED" && state.recovery?.phase !== "RECOVERY_COMPLETE") return status.detail || "Flight stopped.";
+  if (job?.stage === "ABORTED" && state?.recovery?.phase !== "RECOVERY_COMPLETE" &&
+      !state?.physical_dock && !status.landed) return status.detail || "Flight stopped.";
   if (!active) return "";
   const manual = status.manual;
-  if (["LINK_LOST", "ENERGY_LIMIT", "LOCALIZATION_LOST", "BLOCKED", "FAULT"].includes(manual?.state)) return manual.detail;
+  if (["LINK_LOST", "ENERGY_LIMIT", "LOCALIZATION_LOST", "BLOCKED", "LIMITED", "FAULT"].includes(manual?.state)) return manual.detail;
   if (layout.safety_fields && !state.safety) return "Safety connection lost. Flight clearance is unverified.";
   if (layout.localization?.mode === "sensor_based" && state.localization?.state !== "TRACKING") {
     return "Drone position is uncertain. Check the flight status.";
@@ -985,18 +1072,18 @@ function draw() {
   el("workspace").dataset.surveyed = String(surveyed);
   el("map-2d").hidden = mapping || surveyed;
   el("map-3d").hidden = mapping;
-  const businessResults = state?.backend?.mode === "mock_sap";
-  el("business-results").hidden = view !== "results" || !businessResults;
-  el("results-business-overview").hidden = !businessResults;
+  const businessResults = state?.backend?.mode === "mock_sap" || !!state?.history.some(row => row.business);
+  el("business-results").hidden = view !== "results" || !businessResults || resultsMap;
+  el("results-panel").hidden = view !== "results" || businessResults;
+  if (view !== "results") el("review").hidden = true;
   const robot = el("robot-state"), backend = el("api-state");
-  robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
-  robot.classList.toggle("good", !!state?.robot);
-  backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : state.backend.mode === "mock_sap" ? "Mock SAP online" : "Warehouse API online") : "Inventory API offline";
-  backend.classList.toggle("good", !!state?.backend.online);
-  const flightPhase = job?.status?.flight_phase || stage;
-  el("run-state").hidden = view !== "live" || !stage;
-  put("run-state", label(flightPhase));
-  el("run-state").classList.toggle("active", !!stage && !terminal.has(stage));
+  const target = flightTarget(job);
+  const operator = operatorState(state, target, connectionLost);
+  put("robot-state", operator.label);
+  robot.dataset.tone = operator.tone;
+  put("api-state", state?.backend?.online ? (state.backend.mode === "mock_sap" ? "Mock SAP online" : "Warehouse API online") : "Inventory API offline");
+  backend.dataset.tone = state?.backend?.online ? "ready" : "neutral";
+  el("run-state").hidden = true;
   const forecast = preview?.energy;
   const learned = !!layout.learned_warehouse;
   const learnedReady = state?.localization?.warehouse_ready && warehouseConfiguration &&
@@ -1004,20 +1091,27 @@ function draw() {
   el("reference-scope").hidden = learned;
   el("learned-scope").hidden = !learned;
   el("learned-service").hidden = !learned || (!!learnedReady && !warehouseLocked);
-  const visualName = visualCache.get("/api/visualization/active")?.packet?.name;
-  put("active-warehouse-name", learned ? warehouseConfiguration?.manifest.name || visualName || "Learned warehouse" : "Reference warehouse");
+  const activeModel = visualCache.get("/api/visualization/active")?.packet;
+  const manifest = warehouseConfiguration?.manifest;
+  const name = manifest?.name || activeModel?.name || "Learned warehouse";
+  const revision = manifest?.revision ?? activeModel?.binding.revision;
+  put("active-warehouse-name", learned ? name + (revision == null ? "" : " · Revision " + revision) : "Reference warehouse");
   put("planned-total", preview?.slots.length ?? (learned ? learnedStops.size : "—"));
   put("plan-distance", Number.isFinite(preview?.distance) ? `${preview.distance.toFixed(1)} m planned` : "");
   const duration = forecast?.seconds ?? (forecast ? forecast.flight_seconds + forecast.inspection_seconds : null);
   put("plan-duration", Number.isFinite(duration) ? `~${Math.max(1, Math.ceil(duration/60))} min sim` : layout.dock ? "—" : "Not estimated");
   put("plan-battery", Number.isFinite(forecast?.minimum_percent) ? `${Math.ceil(forecast.minimum_percent)}% min.` : layout.dock ? "—" : "Not tracked");
+  put("plan-battery-now", state?.energy?.fresh ? batteryPercent(state.energy.percent) : "Unavailable");
   const missing = preview?.slots.filter((slot) => !state?.backend?.slots?.includes(slot)) || [];
   const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
   if (!state) reason = "Connecting to the Control Center.";
   else if (layout.mapping_only && !learned) reason = "Open Service to start a mapping session.";
+  else if (state.safety?.phase === "RECOVERY") reason = "Recovery required. Open Emergency & Recovery before takeoff.";
   else if (state.service_mode && state.service_mode !== "PRODUCTION") reason = "Warehouse calibration is active. New inspections are locked.";
-  else if (state.busy || dispatching || wantedRun) reason = "An inspection is in progress or its report is being prepared.";
+  else if (state.busy || dispatching || wantedRun) reason = job?.mode === "manual"
+    ? "Return the active manual flight to the dock before dispatch."
+    : "An inspection is in progress or its report is being prepared.";
   else if (learned && state.localization?.warehouse_error) reason = state.localization.warehouse_error;
   else if (learned && !state.localization?.warehouse_id) reason = "Activate a saved warehouse in Service before planning.";
   else if (learned && warehouseLocked) reason = "Unlock Service to load the registered locations for this warehouse.";
@@ -1032,39 +1126,49 @@ function draw() {
   else if (!state.at_pad) reason = layout.recovery ? "Use the Recovery Center to return the drone to the dock." :
     "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
-  else if (state.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
   else if (layout.safety_fields && (!state.safety.signals_online || selectedZones.some(zone => zone?.sensor !== "FRESH")))
     reason = "Waiting for verified safety sensors and signals.";
   else if (selectedZones.some(zone => zone?.occupied)) reason = "A required zone is occupied. Clear it or choose another scope.";
-  else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
+  else if (layout.dock && !state.energy?.contact) reason = "Wait for physical dock confirmation before takeoff.";
+  else if (layout.dock && (!state.energy?.fresh || !preview.energy)) reason = "Waiting for a current battery reading and departure estimate.";
   else if (layout.dock && (state.energy.percent < forecast.minimum_percent || (learned && !state.energy.budget_verified)))
     reason = "Waiting for enough verified battery capacity for the inspection and safe return.";
   else if (!state.backend.online) reason = "Waiting for the inventory API.";
   else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
   el("start").disabled = !!reason;
   put("start", dispatching || wantedRun ? "Starting inspection…" : "Start inspection");
-  put("dispatch-help", reason || (forecast?.single_cycle === false ? "Ready to take off. This inspection may require a charging stop." : "Drone ready to take off."));
+  put("dispatch-help", reason || (forecast?.single_cycle === false
+    ? "Ready for simulated takeoff. The inspection may require a charging stop."
+    : "Ready for simulated takeoff."));
+  el("dispatch-help").dataset.tone = reason ? "warning" : "ready";
   el("camera").hidden = !state?.camera;
   el("no-camera").hidden = !!state?.camera;
-  const confirmed = Object.keys(status.confirmed || {}).length;
+  const visited = new Set(status.visited || []);
+  const recorded = new Set(Object.keys(status.confirmed || {}));
   const total = job?.slots?.length || 0;
   el("flight-progress").hidden = !job || job.mode === "manual" || view === "manual";
-  const target = flightTarget(job);
-  put("active-target", target === "PAD" ? "Dock" : target === "CORRIDOR" ? "Transfer corridor" : target || "—");
-  put("progress-count", `${confirmed} / ${total}`);
+  put("active-target", target === "PAD" ? "Dock" : target === "CORRIDOR" ? "Transfer corridor" : target || "Unavailable");
+  put("progress-count", `${recorded.size} of ${total}`);
   el("progress-bar").max = total || 1;
-  el("progress-bar").value = confirmed;
+  el("progress-bar").value = recorded.size;
+  html("flight-stops", (job?.slots || []).map(id => {
+    const progress = recorded.has(id) ? "Observation recorded" : status.missed?.includes(id) ? "Missed"
+      : id === target && visited.has(id) ? "Reached · awaiting observation"
+      : id === target ? "Current target" : visited.has(id) ? "Reached · no observation" : "Awaiting visit";
+    return `<li data-tone="${recorded.has(id) ? "ready" : progress === "Missed" ? "warning" : id === target ? "active" : "neutral"}">
+      <strong>${safe(id)}</strong><span>${progress}</span></li>`;
+  }).join(""));
   put("position-value", state?.robot && state.position ? state.position.slice(0, 3).map((p) => p.toFixed(2)).join(" / ") : "—");
-  put("live-detail", job?.error || status.detail || "Start an inspection to monitor progress.");
+  put("live-detail", job?.error || "");
+  el("live-detail").hidden = !job?.error;
   el("flight-battery").hidden = !layout.dock;
-  put("flight-battery-level", state?.energy?.fresh ? `${Math.round(state.energy.percent)}%` : "Unavailable");
-  const returnNeeded = status.energy?.return_percent;
-  const reserve = status.energy?.reserve_percent;
-  const returnBalance = state?.energy?.budget_verified && Number.isFinite(returnNeeded) && Number.isFinite(reserve)
-    ? state.energy.percent - returnNeeded : null;
-  el("flight-finish").hidden = !job || terminal.has(stage) || returnBalance == null || !state.energy.fresh;
-  put("flight-finish", returnBalance == null ? "" : `Estimated battery at dock if returning now: ${Math.max(0, Math.floor(returnBalance))}%`);
-  const canStop = !!job && !terminal.has(stage);
+  const canStop = activeMission(job);
+  const budget = returnEnergy(state?.energy, canStop ? status.energy : null);
+  put("flight-battery-level", batteryPercent(budget.now));
+  put("flight-finish", batteryPercent(budget.atDock));
+  put("flight-reserve", batteryPercent(budget.reserve));
+  put("flight-margin", percentagePoints(budget.margin));
+  el("flight-margin").dataset.tone = budget.margin == null ? "neutral" : budget.margin >= 0 ? "ready" : "warning";
   el("abort").hidden = !canStop;
   el("abort").disabled = !canStop || stopping;
   put("abort", stopping ? "Stopping flight…" : job?.mode === "manual" ? "Stop flight" : "Stop inspection");
@@ -1073,27 +1177,46 @@ function draw() {
     recovery: recoveryInMotion ? state.recovery : null} : null;
   el("global-stop").hidden = !emergencyTarget;
   el("global-stop").disabled = stopping;
+  el("calibration-emergency-stop").hidden = !emergencyTarget;
+  el("calibration-emergency-stop").disabled = stopping;
   el("scan-stop").hidden = !scanFullscreen() || el("global-stop").hidden;
   el("scan-stop").disabled = stopping;
   el("manual-stop").hidden = !canStop;
   el("manual-stop").disabled = stopping;
   el("live-plan").hidden = !!job || view === "manual";
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
-  drawMapCaption();
+  drawWorkspace();
   if (mapMode === "2d" && !el("warehouse-panel").hidden) {
     drawMap(job);
     drawScans();
   }
   drawSafety();
-  const concern = flightAlert(job, canStop, returnBalance, reserve);
+  const concern = flightAlert(job, canStop, budget.atDock, budget.reserve);
+  put("live-phase", canStop && view === "live" && job.mode !== "manual" ? missionPhase(job, target) : operator.label);
+  el("live-phase").dataset.tone = operator.tone;
+  put("live-operator-action", concern || (view === "manual" && canStop ? "Hold a control to move. Release it to stop."
+    : canStop ? "Autonomous flight · monitoring only." : state?.robot && view !== "manual" ? "Start an inspection from Plan inspection."
+    : state?.robot ? "" : "Waiting for the simulated drone."));
+  el("live-operator-action").dataset.tone = concern ? "warning" : "neutral";
+  el("camera-expand").hidden = view !== "manual" || mapping;
   for (const id of ["critical-alert", "fullscreen-alert"]) {
-    el(id).hidden = !concern || (id === "fullscreen-alert") !== scanFullscreen();
+    el(id).hidden = !concern || (id === "fullscreen-alert") !== scanFullscreen() || (view === "manual" && id === "critical-alert");
     put(id, concern);
   }
-  drawResults(job);
-  el("results-panel").classList.toggle("mock-results-support", businessResults);
+  el("critical-action").hidden = state?.safety?.phase !== "RECOVERY" || view === "diagnostics" || !layout.recovery;
+  if (view === "results" || view === "diagnostics") drawResults(job);
+  if (businessResults) el("review").hidden = true;
   drawAdaptive(job);
   if (view === "diagnostics") {
+    put("diagnostic-phase", operator.label);
+    el("diagnostic-phase").dataset.tone = operator.tone;
+    const liveSummary = canStop ? [target && "Target " + (target === "PAD" ? "dock" : target),
+      status.avoidance?.state === "CLEAR" ? "Path clear" : "",
+      budget.margin != null ? percentagePoints(budget.margin) + " relative to reserve if returning now" : ""].filter(Boolean).join(" · ") : "";
+    put("diagnostic-action", concern || liveSummary ||
+      (state?.robot ? "Monitoring flight and warehouse systems." : "Start the simulator to receive live telemetry."));
+    put("diagnostic-pose", state?.position_fresh ? "Live position" : state?.position || lastPose ? "Last known position" : "Position unavailable");
+    el("diagnostic-pose").dataset.tone = state?.position_fresh ? "ready" : "neutral";
     drawEnergy(job);
     drawAvoidance(job);
     drawLocalization();
@@ -1107,6 +1230,8 @@ function draw() {
 async function poll() {
   try {
     state = await api("/api/state");
+    if (state.position_fresh && state.position && (!layout.localization || state.localization?.state === "TRACKING"))
+      lastPose = {position:state.position, orientation:state.orientation};
     connectionLost = false;
     connectionStatus();
     syncLearnedPlan();
@@ -1127,11 +1252,10 @@ async function poll() {
     }
     draw();
     service.refresh();
-    if (view === "results") intelligence.update(state);
+    if (view === "results") intelligence.update(state, canReinspect);
   } catch (error) {
     connectionLost = true;
     state = null;
-    intelligence.update(null);
     draw();
   }
   setTimeout(poll, 350);
@@ -1150,12 +1274,15 @@ async function init() {
     focusedLocation = slot;
     locatedReport = inspectionId;
     resultsMap = true;
+    fittedFocus = slot;
+    showFittedDetails = true;
     drawWorkspace();
     await loadTwin();
-    if (visualRequest(state?.mission).required) selectFittedLocation(slot);
+    if (visualRequest(state?.mission).required) twin?.focusFittedLocation(slot);
     else twin?.focusSlot(slot);
-    el("map-title").scrollIntoView({block: "start", behavior: "smooth"});
-  }, safe, label, (run, outcomes) => {
+    draw();
+    el("results-close-map").focus();
+  }, reinspectLocation, safe, label, (run, outcomes) => {
     if (businessRun !== run) {
       fittedFocus = null;
       showFittedDetails = false;
@@ -1164,9 +1291,6 @@ async function init() {
     businessOutcomes = outcomes;
     if (view === "results") drawTwin(state?.mission);
   });
-  el("workspace").after(el("business-results"));
-  el("results-business-overview").append(
-    el("intelligence").querySelector(".results-toolbar"), el("intelligence-metrics"), el("intelligence-status"));
   el("localization-panel").hidden = !layout.localization;
   if (layout.avoidance) {
     el("avoidance-panel").hidden = false;
@@ -1229,14 +1353,31 @@ async function init() {
       el("map-title").scrollIntoView({block: "start"});
     }
   });
-  for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
+  for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => {
+    if (tab.dataset.view === "service") openServiceTab("management");
+    else setView(tab.dataset.view);
+  });
+  for (const tab of el("service-nav").querySelectorAll("button")) {
+    tab.addEventListener("click", () => openServiceTab(tab.dataset.serviceView));
+    if (tab.dataset.serviceView === "manual") tab.hidden = !layout.manual_flight || layout.mapping_only && !layout.learned_warehouse;
+  }
   el("diagnostics-tab").hidden = false;
-  el("manual-entry").hidden = !layout.manual_flight || layout.mapping_only && !layout.learned_warehouse;
-  el("manual-tab").addEventListener("click", () => setView("manual", true));
-  el("learned-service").addEventListener("click", () => setView("service", true));
+  el("learned-service").addEventListener("click", () => openServiceTab("configuration"));
   el("learned-all").addEventListener("change", (event) => {
     learnedStops = new Set(event.target.checked ? warehouseConfiguration.locations.map(row => row.record_id) : []);
     changePlan();
+  });
+  el("learned-groups").addEventListener("click", (event) => {
+    const name = event.target.closest("button[data-group]")?.dataset.group;
+    const group = learnedGroups.get(name);
+    if (!group) return;
+    const selected = [...group].every(id => learnedStops.has(id));
+    for (const id of group) {
+      if (selected) learnedStops.delete(id);
+      else learnedStops.add(id);
+    }
+    changePlan();
+    el("learned-groups").querySelector(`[data-group="${CSS.escape(name)}"]`)?.focus();
   });
   el("learned-locations").addEventListener("change", (event) => {
     const id = event.target.value;
@@ -1256,12 +1397,28 @@ async function init() {
     event.preventDefault();
     setView("diagnostics", true);
   });
+  el("critical-action").addEventListener("click", () => {
+    setView("diagnostics", true);
+    el("emergency-panel").scrollIntoView({block:"start"});
+  });
   el("live-plan").addEventListener("click", () => setView("plan", true));
-  el("results-map").addEventListener("click", () => {
-    locatedReport = null;
+  async function toggleResultsMap() {
     resultsMap = !resultsMap;
+    locatedReport = resultsMap ? intelligence.currentRun() : null;
     drawWorkspace();
-    if (resultsMap) el("map-title").scrollIntoView({block: "nearest"});
+    if (resultsMap) await loadTwin("model");
+    draw();
+    (resultsMap ? el("results-close-map") : el("business-map")).focus();
+  }
+  for (const id of ["results-map", "business-map", "results-close-map"])
+    el(id).addEventListener("click", toggleResultsMap);
+  el("camera-expand").addEventListener("click", () => {
+    const button = el("camera-expand");
+    const focus = button.getAttribute("aria-pressed") !== "true";
+    button.setAttribute("aria-pressed", String(focus));
+    put("camera-expand", focus ? "Show map" : "Focus camera");
+    drawWorkspace();
+    draw();
   });
   el("damage-link").addEventListener("click", () => { el("review").open = true; });
   el("mode-options").addEventListener("change", (event) => { choices.mode = event.target.value; changePlan(); });
@@ -1297,6 +1454,10 @@ async function init() {
   }
   el("abort").addEventListener("click", stopInspection);
   el("manual-stop").addEventListener("click", () => el("global-stop").click());
+  el("calibration-emergency-stop").addEventListener("click", () => {
+    el("calibration-confirm").close("cancel");
+    el("global-stop").click();
+  });
   el("global-stop").addEventListener("click", () => {
     if (emergencyTarget?.recovery) {
       const {inspection_id, recovery_id, proposal} = emergencyTarget.recovery;

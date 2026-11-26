@@ -46,7 +46,8 @@ class WarehouseArchive:
             try:
                 item = read(folder / "manifest.json")
                 output.append({"configuration_id": folder.name, "mapping_id": item["mapping_id"],
-                               "name": item["name"], "revision": item["revision"]})
+                               "name": item["name"], "revision": item["revision"],
+                               "model_saved": (folder / "visualization.json").is_file()})
             except (OSError, ValueError, KeyError, TypeError):
                 output.append({"configuration_id": folder.name, "name": "Unreadable warehouse manifest"})
         return output
@@ -134,6 +135,7 @@ class WarehouseArchive:
                                      and telemetry["percent"] >= required))
         return {"mode": "learned", "quality": False, "adaptive": False, "slots": stops,
                 "required_zones": list(zones), "points": [node["position_m"] for node in graph["nodes"]],
+                "display_points": [list(pose[:3]) for pose in poses],
                 "energy": budget,
                 "route": {"pad": pad, "aerial": profile, "energy_zones": list(zones),
                           "energy_crossing_x": profile["nodes"]["entry_A"][0],

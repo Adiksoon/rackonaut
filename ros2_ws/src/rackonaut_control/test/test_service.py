@@ -1,5 +1,10 @@
+from threading import RLock
+from types import SimpleNamespace
 from unittest.mock import patch
 
+import pytest
+
+from rackonaut_control.node import Control
 from rackonaut_control.service import BLOCKED, PRODUCTION, READY, Calibration, ServiceAccess
 
 
@@ -43,3 +48,18 @@ def test_draft_is_empty_and_restart_never_requests_motion(tmp_path):
     restarted.clear()
     assert restarted.state == PRODUCTION
     assert not path.exists()
+
+
+def test_calibration_confirmation_is_bound_to_current_inspection(tmp_path):
+    calibration = Calibration(tmp_path / "draft.json")
+    current = SimpleNamespace(run="INS-NEW", manual_token=None)
+    control = SimpleNamespace(lock=RLock(), calibration=calibration, calibration_supported=True, job=current,
+                              stage=lambda _: "INSPECT", safety_status=lambda: {"phase": "RESERVED"},
+                              teaching=SimpleNamespace(create=lambda _: None))
+    for stale in ("INS-OLD", None):
+        with pytest.raises(RuntimeError, match="active inspection changed"):
+            Control.start_calibration(control, {"expected_inspection_id": stale})
+        assert calibration.state == PRODUCTION and not calibration.path.exists()
+    started = Control.start_calibration(control, {"expected_inspection_id": current.run})
+    assert started["mode"] == "CALIBRATION_REQUESTED"
+    assert calibration.owner == current.run

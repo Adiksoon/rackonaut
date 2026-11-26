@@ -1,3 +1,5 @@
+import { activeMission, missionPhase } from "/operator.js";
+
 const directions = {
   w: [0, 1], s: [0, -1], a: [1, 1], d: [1, -1],
   r: [2, 1], f: [2, -1], q: [3, 1], e: [3, -1],
@@ -49,27 +51,40 @@ export function createManual(api, terminal, onError) {
     const status = manual?.status.manual;
     const owned = !!session && active;
     const flying = owned && manual?.stage === "MANUAL_FLIGHT" && !returning && status?.state !== "RETURNING";
+    el("manual-aisle-choice").hidden = el("manual-start").hidden = activeMission(manual);
     el("manual-aisles").disabled = starting || !!state?.busy;
     const mappingReady = state?.service_mode === "CALIBRATION_READY" && state.localization?.mapping_phase === "READY";
     const learnedReady = state?.warehouse?.ready === true;
-    el("manual-start").disabled = !state || starting || !!state.busy || !state.at_pad
+    el("manual-start").disabled = !state?.robot || starting || !!state.busy || !state.at_pad || state.physical_dock === false
       || state.safety?.phase === "RECOVERY"
       || (!mappingReady && (state.service_mode !== "PRODUCTION" || state.mapping_only && !learnedReady));
     put("manual-start", mappingReady ? "Start mapping flight" : "Start and take off");
     el("manual-return").disabled = !flying;
     el("manual-motion").disabled = !flying;
-    const current = status?.state || (owned ? "Preparing" : "Ready at dock");
-    put("manual-status", current.toLowerCase().replaceAll("_", " "));
+    const current = status?.state || (owned ? "Preparing" : state?.at_pad && state.physical_dock !== false ? "At dock" : "Standby");
+    put("manual-status", manual?.stage === "MANUAL_FLIGHT" ? "Airborne" : current.replaceAll("_", " "));
     el("manual-status").dataset.state = current;
-    put("manual-detail", status?.detail || (owned ? "Waiting for the Safety reservation and takeoff." :
-      state?.safety?.phase === "RECOVERY" ? "Resolve the Safety incident in the Recovery Center." :
-      "Use the camera and LiDAR to guide the drone inside the reserved aisle."));
-    if (active && !owned && !status) put("manual-detail", "The active manual flight belongs to another browser session.");
+    const point = manual?.stage === "MANUAL_FLIGHT" ? missionPhase(manual) : "";
+    put("manual-detail", active && !owned ? "Another browser session owns this manual flight."
+      : status?.detail || (owned && !point ? "Waiting for the Safety reservation and takeoff." : ""));
+    const reason = !state?.robot ? "Wait for the simulated drone connection."
+      : state.safety?.phase === "RECOVERY" ? "Complete Recovery before takeoff."
+      : state.busy && !owned ? "Finish the active flight before starting manual control."
+      : !state.at_pad && !owned ? "Return to the dock before starting a manual flight."
+      : !owned && state.physical_dock === false ? "Wait for confirmed physical dock contact."
+      : el("manual-start").disabled && !owned ? "Wait for this operating mode to permit takeoff."
+      : owned && !flying && !returning ? "Movement and manual return unlock after protected takeoff."
+      : "";
+    put("manual-action-help", reason);
     const display = values => values ? values.map(value => value.toFixed(2)).join(" / ") : "—";
     put("manual-requested", display(status?.requested));
     put("manual-permitted", display(status?.permitted));
-    put("manual-clearance", status?.clearance != null ? `${status.clearance.toFixed(2)} m` : "—");
-    put("manual-height", state?.robot && Number.isFinite(state.position?.[2]) ? `${state.position[2].toFixed(2)} m` : "—");
+    put("manual-clearance", Number.isFinite(status?.clearance) ? `${status.clearance.toFixed(2)} m` : "Unavailable");
+    el("manual-clearance-help").hidden = Number.isFinite(status?.clearance);
+    put("manual-height", state?.position_fresh && Number.isFinite(state.position?.[2]) ? `${state.position[2].toFixed(2)} m` : "Unavailable");
+    put("manual-speed-live", Number.isFinite(state?.speed) ? `${state.speed.toFixed(2)} m/s` : "Unavailable");
+    const zones = manual && ["PREPARING", "RESERVED", "RECOVERY"].includes(state?.safety?.phase) ? state.safety.required : null;
+    put("manual-reservation", zones?.length ? zones.map(zone => zone === "D" ? "Dock" : zone === "T" ? "Transfer" : "Aisle " + zone).join(" · ") : "None");
   }
 
   el("manual-start").addEventListener("click", async () => {

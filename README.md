@@ -52,9 +52,9 @@ Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TR
 
 Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
 
-Use **Service → Open manual controls** to fly inside reserved space with the live camera, measured 3D scan and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
+Use **Service → Manual Control** to fly inside reserved space with the live camera, shared 3D view and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
 
-Use **Service → Start Calibration → Open mapping flight** to build and export a LiDAR map. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
+Use **Service → Warehouse Calibration → Start calibration → Open mapping controls** to prepare a LiDAR survey. Start the mapping flight from the controls once the dock and sensors are ready. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
 
 After verified docking, choose **Review Route** in Service to compare the recorded trajectory with its directed waypoint graph, validate the recorded flight envelope, and approve the proposal for the calibration archive. [Learn a flight route](docs/ROUTE_TEACHING.md)
 

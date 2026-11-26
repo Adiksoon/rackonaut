@@ -7,6 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='9' fill='%23285a92'/%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='3' d='M11 13h18v14H11zM20 9v22M8 20h24'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/twin.css">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/operator.css">
   <script type="importmap">{"imports":{"three":"/vendor/three.module.min.js"}}</script>
   <script type="module" src="/app.js"></script>
 </head>
@@ -33,7 +34,14 @@
       <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
     </div>
   </nav>
+  <nav id="service-nav" class="service-nav" aria-label="Service sections" hidden>
+    <button type="button" class="chip" data-service-view="management">Drone Management</button>
+    <button type="button" class="chip" data-service-view="manual">Manual Control</button>
+    <button type="button" class="chip" data-service-view="calibration">Warehouse Calibration</button>
+    <button type="button" class="chip" data-service-view="configuration">Warehouse Configuration</button>
+  </nav>
   <p id="critical-alert" class="critical-alert" role="alert" hidden></p>
+  <button type="button" class="secondary" id="critical-action" hidden>Open Emergency &amp; Recovery</button>
   <div class="page-heading">
     <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description" hidden></p></div>
     <div id="run-state" class="run-state" hidden></div>
@@ -66,10 +74,6 @@
     <p class="footnote" id="recovery-action-message" role="status"></p>
   </section>
   <section id="service-panel" aria-label="Service Center" hidden>
-    <div class="service-tools" id="manual-entry" hidden>
-      <div><h2>Manual Control</h2><p>Fly in reserved space with collision protection and a supervised return.</p></div>
-      <button type="button" class="secondary" id="manual-tab" data-view="manual">Open manual controls</button>
-    </div>
     <form id="service-access" class="card service-access">
       <svg class="service-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>
       <h2>Service access</h2>
@@ -87,12 +91,14 @@
       <div id="service-overview" class="service-overview service-grid">
         <section class="card service-card" aria-labelledby="service-system-title">
           <h2 id="service-system-title">Drone Management</h2>
+          <p id="service-phase" class="operator-heading"></p>
+          <p id="service-mission-summary" class="operator-hint"></p>
           <dl id="service-system" class="service-metrics">
-            <div><dt>Drone</dt><dd id="service-drone">—</dd></div><div><dt>Connection</dt><dd id="service-connection">—</dd></div>
+            <div><dt>Connection</dt><dd id="service-connection">—</dd></div>
             <div><dt>Localization</dt><dd id="service-localization">—</dd></div><div><dt>LiDAR match</dt><dd id="service-lidar">—</dd></div>
             <div><dt>IMU</dt><dd id="service-imu">—</dd></div><div><dt>Camera</dt><dd id="service-camera-status">—</dd></div>
             <div><dt>Battery</dt><dd id="service-battery">—</dd></div><div><dt>Dock</dt><dd id="service-dock">—</dd></div>
-            <div><dt>Safety</dt><dd id="service-safety">—</dd></div><div><dt>Current mission</dt><dd id="service-mission">—</dd></div>
+            <div><dt>Safety reservation</dt><dd id="service-safety">—</dd></div>
           </dl>
           <button type="button" class="secondary" id="service-return" hidden>Return to dock options</button>
         </section>
@@ -107,7 +113,7 @@
           </dl>
         </section>
       </div>
-      <section class="card service-card service-transition" aria-labelledby="service-calibration-title">
+      <section id="service-calibration" class="card service-card service-transition" aria-labelledby="service-calibration-title">
         <div class="service-transition-head">
           <div><h2 id="service-calibration-title">Warehouse Calibration</h2><p id="service-calibration-detail" class="footnote" role="status"></p></div>
           <span id="service-mode" class="run-state"></span>
@@ -117,8 +123,15 @@
           <li>Approve route</li><li>Generate model</li><li>Save configuration</li>
         </ol>
         <div id="service-introduction">
-          <button type="button" id="service-start" class="primary" aria-describedby="service-start-hint">Start Calibration</button>
-          <p id="service-start-hint" class="footnote">Starting calibration interrupts the active inspection, returns the drone to its charging dock and prepares a new warehouse configuration.</p>
+          <p id="service-start-hint" class="operator-hint"></p>
+          <button type="button" class="primary" id="service-start" aria-describedby="service-start-hint">Start calibration</button>
+        </div>
+        <ul id="calibration-readiness" class="condition-list" aria-label="Calibration readiness"></ul>
+        <div id="calibration-next" class="action-row">
+          <button type="button" id="calibration-fly" class="primary" aria-describedby="calibration-action-help" hidden>Open mapping controls</button>
+          <button type="button" id="service-review-route" class="primary" aria-describedby="calibration-action-help" hidden>Review route</button>
+          <button type="button" id="service-preview-calibration" class="secondary" hidden>Preview Digital Twin</button>
+          <p id="calibration-action-help" class="operator-hint"></p>
         </div>
         <section id="calibration-workspace" aria-label="Calibration Workspace" hidden>
           <details class="calibration-measurements"><summary>Camera and calibration measurements</summary><div class="service-grid calibration-grid">
@@ -149,57 +162,85 @@
             <div><dt>Registered points</dt><dd id="calibration-points">0</dd></div>
             <div><dt>Trajectory samples</dt><dd id="calibration-trajectory">0</dd></div>
           </dl></details>
-          <button type="button" id="calibration-fly" class="primary">Open mapping flight</button>
           <a id="calibration-ply" hidden>Download point cloud</a>
           <a id="calibration-result" hidden>Download result and trajectory</a>
           <a id="calibration-locations" hidden>Download registered locations</a>
-          <button type="button" class="primary" id="service-review-route" hidden>Review Route</button>
-          <button type="button" class="secondary" id="service-preview-calibration" hidden>Preview generated model</button>
+          <details id="calibration-captures" hidden><summary>Registered locations and photos</summary>
+            <ul id="calibration-location-list"></ul>
+          </details>
         </section>
         <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
       </section>
       <section class="card service-card" id="warehouse-configurations" aria-labelledby="warehouse-config-title" hidden>
         <h2 id="warehouse-config-title">Warehouse Configuration</h2>
-        <p id="warehouse-active" class="footnote" role="status"></p>
+        <dl class="service-facts">
+          <div><dt>Active warehouse</dt><dd id="warehouse-active" role="status"></dd></div>
+          <div><dt>In use by an active mission</dt><dd id="warehouse-mission"></dd></div>
+        </dl>
         <label class="warehouse-select">Saved configuration <select id="warehouse-select"></select></label>
+        <dl class="service-facts config-facts">
+          <div><dt>Selected revision</dt><dd id="warehouse-selected"></dd></div>
+          <div><dt>Calibration date</dt><dd id="warehouse-date"></dd></div>
+          <div><dt>Learned locations</dt><dd id="warehouse-count"></dd></div>
+          <div><dt>Route approval</dt><dd id="warehouse-route-status"></dd></div>
+          <div><dt>Integrity</dt><dd id="warehouse-integrity"></dd></div>
+          <div><dt>Digital Twin</dt><dd id="warehouse-model-status"></dd></div>
+        </dl>
         <div class="route-actions">
           <button type="button" class="secondary" id="warehouse-verify">Check integrity</button>
           <button type="button" class="secondary" id="warehouse-preview" disabled>Preview Digital Twin</button>
-          <button type="button" class="secondary" id="warehouse-map-open" disabled>Review route</button>
+          <button type="button" class="secondary" id="warehouse-map-open" aria-describedby="warehouse-action-help" disabled>Review route</button>
         </div>
         <p id="warehouse-feedback" class="footnote" role="status"></p>
         <label id="warehouse-confirm-row" hidden><input id="warehouse-confirm" type="checkbox"> Activate this revision at the dock</label>
-        <button type="button" class="primary" id="warehouse-activate" disabled>Activate warehouse</button>
-        <button type="button" class="secondary" id="warehouse-plan" hidden>Plan inspection</button>
+        <button type="button" class="primary" id="warehouse-activate" aria-describedby="warehouse-action-help" disabled>Activate warehouse</button>
+        <button type="button" class="secondary" id="warehouse-plan" hidden>Plan with active warehouse</button>
+        <p id="warehouse-action-help" class="operator-hint"></p>
       </section>
     </div>
   </section>
+  <dialog id="calibration-confirm" aria-labelledby="calibration-confirm-title">
+    <form method="dialog">
+      <h2 id="calibration-confirm-title">Interrupt inspection and start calibration?</h2>
+      <p id="calibration-confirm-mission"></p>
+      <ul>
+        <li>Recorded observations are retained under this inspection.</li>
+        <li>The drone will return and wait for verified physical docking.</li>
+        <li>New inspections stay locked until calibration is closed.</li>
+      </ul>
+      <div class="action-row">
+        <button class="danger dialog-stop" id="calibration-emergency-stop" type="button" hidden>Emergency stop</button>
+        <button class="secondary" type="submit" value="cancel" autofocus>Keep inspecting</button>
+        <button class="danger" type="submit" value="interrupt">Interrupt and return to dock</button>
+      </div>
+    </form>
+  </dialog>
   <section id="business-results" class="business-results" hidden>
   <section class="intelligence-panel" id="intelligence" aria-label="Inventory comparison" hidden>
     <div class="results-toolbar">
       <label>Inspection <select id="intelligence-run"></select></label>
-      <a id="intelligence-report" class="secondary" target="_blank" rel="noopener" hidden>Export inspection report</a>
+      <div class="action-row">
+        <button type="button" class="secondary" id="business-map" aria-controls="warehouse-panel" aria-expanded="false">Warehouse map</button>
+        <a id="intelligence-report" class="secondary" target="_blank" rel="noopener" hidden>Export report</a>
+      </div>
     </div>
     <div class="intelligence-metrics" id="intelligence-metrics"></div>
-    <p id="intelligence-status" class="footnote" role="status"></p>
+    <p id="intelligence-status" class="operator-hint" role="status"></p>
     <div id="intelligence-content" hidden>
-      <div class="result-locations"><h2>Locations</h2><div id="intelligence-locations" class="location-statuses"></div></div>
       <div class="result-workbench"><section class="card issue-list" aria-labelledby="issues-title">
-      <h2 id="issues-title">Needs attention</h2>
-      <details class="issue-filters"><summary>Filter findings</summary><div class="intelligence-filters">
-        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
-        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
+      <h2 id="issues-title">Findings by location</h2>
+      <div class="intelligence-filters">
         <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
-        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
-      </div></details>
-      <div class="intelligence-table">
-        <table aria-label="Warehouse issues">
-          <tbody id="intelligence-issues"></tbody></table>
+        <label>Evidence review <select id="intelligence-review"><option value="">All statuses</option><option value="OPEN">Pending review</option><option value="VERIFIED">Reviewed</option></select></label>
       </div>
+      <div id="intelligence-issues" class="issue-queue"></div>
+      <details class="result-locations"><summary>Browse all locations</summary><div id="intelligence-locations" class="location-statuses"></div></details>
       </section><section id="intelligence-detail" class="card" aria-label="Finding and evidence" hidden></section></div>
+      <details id="intelligence-id" class="result-details" hidden><summary>Inspection ID</summary></details>
     </div>
   </section>
   </section>
+  <button type="button" class="secondary" id="results-close-map" hidden>Back to findings</button>
   <div class="workspace" id="workspace" data-view="plan">
     <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">
       <div class="card-head"><div><h2 id="scope-title">Where to inspect</h2><p id="active-warehouse-name">Warehouse</p></div></div>
@@ -220,7 +261,8 @@
       </div>
       <div id="learned-scope" hidden>
         <div id="learned-options" class="learned-options" hidden>
-          <label class="learned-all"><input type="checkbox" id="learned-all"> All registered locations</label>
+          <label class="learned-all"><input type="checkbox" id="learned-all"> All taught locations</label>
+          <div id="learned-groups" class="learned-groups" aria-label="Select aisles and rack rows"></div>
           <fieldset class="slot-options" id="learned-locations"><legend class="sr-only">Registered locations</legend></fieldset>
         </div>
         <button type="button" class="secondary" id="learned-service" hidden>Open Service</button>
@@ -228,24 +270,33 @@
       <dl class="plan-totals">
         <div><dt>Selected</dt><dd id="planned-total">—</dd></div>
         <div><dt>Estimated time</dt><dd id="plan-duration">—</dd></div>
-        <div><dt>Battery required</dt><dd id="plan-battery">—</dd></div>
+        <div><dt>Current battery</dt><dd id="plan-battery-now">Unavailable</dd></div>
+        <div><dt>Minimum to start</dt><dd id="plan-battery">—</dd></div>
       </dl>
       <p id="plan-distance" class="footnote" hidden></p>
       <button type="button" id="start" class="primary" aria-describedby="dispatch-help" disabled>Start inspection</button>
-      <p id="dispatch-help" class="footnote" role="status">Connecting to the drone and inventory API.</p>
+      <p id="dispatch-help" class="operator-hint" role="status">Connecting to the drone and inventory API.</p>
     </aside>
     <aside class="card controls live" id="live-panel" aria-labelledby="camera-title" hidden>
-      <div class="card-head"><div><h2 id="camera-title">Drone camera</h2></div></div>
+      <div id="monitor-card">
+      <div class="card-head"><div><h2 id="camera-title">Drone camera</h2></div>
+        <button type="button" class="chip" id="camera-expand" aria-pressed="false" hidden>Focus camera</button></div>
       <div class="flight-monitor">
         <div class="video"><img id="camera" alt="Live image from the simulated drone camera" hidden><span id="no-camera">Waiting for camera stream</span></div>
         <div class="flight-status">
+          <div class="flight-phase"><strong id="live-phase"></strong><p id="live-operator-action" class="operator-hint" role="status"></p></div>
           <div id="flight-progress" class="flight-progress" hidden>
             <div><span>Current target</span><strong id="active-target">—</strong></div>
-            <div><span>Confirmed</span><strong id="progress-count">—</strong></div>
-            <progress id="progress-bar" max="1" value="0" aria-label="Confirmed locations"></progress>
+            <div><span>Observations recorded</span><strong id="progress-count">—</strong></div>
+            <progress id="progress-bar" max="1" value="0" aria-label="Observations recorded"></progress>
+            <ul id="flight-stops" class="flight-stops" aria-label="Inspection locations"></ul>
           </div>
-          <div id="flight-battery" class="flight-battery" hidden><span>Battery</span><strong id="flight-battery-level">—</strong></div>
-          <p id="flight-finish" class="footnote" hidden></p>
+          <dl id="flight-battery" class="flight-battery flight-budget" aria-label="Return energy if returning now" hidden>
+            <div><dt>Battery now</dt><dd id="flight-battery-level">—</dd></div>
+            <div><dt>At dock if returning now</dt><dd id="flight-finish">—</dd></div>
+            <div><dt>Required reserve</dt><dd id="flight-reserve">—</dd></div>
+            <div><dt>Above reserve</dt><dd id="flight-margin">—</dd></div>
+          </dl>
           <p id="live-detail" class="footnote">Start an inspection to monitor progress.</p>
           <div id="adaptive-progress" class="adaptive-progress" hidden>
             <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
@@ -254,15 +305,23 @@
           <button type="button" id="live-plan" class="secondary" hidden>Plan an inspection</button>
         </div>
       </div>
+      </div>
       <section id="manual-controls" class="manual-controls" aria-labelledby="manual-title" hidden>
         <div class="card-head"><div><h2 id="manual-title">Protected manual flight</h2><p id="manual-detail" role="status"></p></div><span id="manual-status" class="run-state"></span></div>
         <div class="manual-actions">
-          <label>Reserve aisles <select id="manual-aisles"><option value="A">A</option><option value="B">B</option><option value="A,B">A and B</option></select></label>
-          <button type="button" class="primary" id="manual-start">Start and take off</button>
-          <button type="button" class="secondary" id="manual-return">Return to dock</button>
+          <label id="manual-aisle-choice">Reserve aisles <select id="manual-aisles"><option value="A">A</option><option value="B">B</option><option value="A,B">A and B</option></select></label>
+          <button type="button" class="primary" id="manual-start" aria-describedby="manual-action-help">Start and take off</button>
+          <button type="button" class="secondary" id="manual-return" aria-describedby="manual-action-help">Return to dock</button>
           <button type="button" class="danger" id="manual-stop" hidden>Emergency stop</button>
         </div>
-        <p class="manual-height">Altitude <strong id="manual-height">—</strong></p>
+        <p id="manual-action-help" class="operator-hint"></p>
+        <dl class="manual-facts" aria-label="Manual flight status">
+          <div><dt>Altitude</dt><dd id="manual-height">—</dd></div>
+          <div><dt>Speed</dt><dd id="manual-speed-live">—</dd></div>
+          <div><dt>Reserved space</dt><dd id="manual-reservation">—</dd></div>
+          <div><dt>Verified clearance</dt><dd id="manual-clearance">—</dd></div>
+        </dl>
+        <p class="operator-hint" id="manual-clearance-help">The controller checks each movement command. Clearance is reported for verified movement.</p>
         <fieldset id="manual-motion" disabled>
           <legend>Hold to move</legend>
           <div class="manual-direction">
@@ -285,7 +344,6 @@
         <details><summary>Motion and clearance</summary><dl class="manual-telemetry">
           <div><dt>Requested X / Y / Z / yaw</dt><dd id="manual-requested">—</dd></div>
           <div><dt>Permitted X / Y / Z / yaw</dt><dd id="manual-permitted">—</dd></div>
-          <div><dt>Verified clearance</dt><dd id="manual-clearance">—</dd></div>
         </dl></details>
       </section>
       <section id="teaching-panel" class="teaching-panel" aria-labelledby="teaching-title" hidden>
@@ -328,7 +386,6 @@
     </aside>
     <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
       <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id" hidden></p></div></div>
-      <div id="results-business-overview" hidden></div>
       <div id="completion-text" class="completion">Run an inspection to see its report.</div>
       <dl id="result-counts" class="result-counts" hidden>
         <div><dt>Confirmed</dt><dd id="result-confirmed">—</dd></div>
@@ -395,7 +452,8 @@
       </div>
       <label id="route-confirm-area" hidden><input type="checkbox" id="route-confirm"> Approve this route for the calibration archive</label>
       <button type="button" class="primary" id="route-approve" disabled>Approve Route</button>
-      <button type="button" class="secondary" id="route-seal" hidden>Save warehouse configuration</button>
+      <button type="button" class="secondary" id="route-seal" aria-describedby="route-next-hint" hidden>Save warehouse configuration</button>
+      <p id="route-next-hint" class="operator-hint"></p>
       <button type="button" class="secondary" id="route-back">Back to Service</button>
     </aside>
     <aside class="card controls" id="configuration-preview" aria-labelledby="configuration-preview-name" hidden>
@@ -443,9 +501,9 @@
           <button type="button" class="scan-camera" id="scan-side" aria-pressed="false">Side</button>
           <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
           <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
-          <button type="button" id="twin-survey" hidden>Fit survey</button>
+          <button type="button" id="twin-survey" hidden>Fit warehouse</button>
           <button type="button" class="scan-camera" id="scan-fit">Fit to cloud</button>
-          <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
+          <button type="button" id="twin-economy" aria-pressed="false" title="Reduce rendering resolution">Low detail</button>
           <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
           <button type="button" id="twin-corridor" aria-pressed="true" hidden>Flight corridor</button>
           <button type="button" id="twin-onboard" aria-pressed="true" hidden>Onboard scan</button>
@@ -454,6 +512,10 @@
           <div class="twin-markers" id="twin-markers"></div>
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
+        </div>
+        <div id="operator-map-legend" class="operator-map-legend" hidden>
+          <span><i class="planned-key"></i>Selected flight plan</span>
+          <span id="operator-flown-key"><i class="flown-key"></i>Flown path</span>
         </div>
         <div class="scan-details">
           <div class="scan-legend">
@@ -551,6 +613,10 @@
     <div id="findings" class="findings"></div>
   </details>
   <section id="system-details" class="system-details" aria-label="System diagnostics" hidden>
+  <div class="diagnostic-summary">
+    <div><h2 id="diagnostic-phase"></h2><p id="diagnostic-action"></p></div>
+    <p id="diagnostic-pose" class="signal"></p>
+  </div>
   <section class="card telemetry-panel">
     <h2>Drone telemetry</h2>
     <dl class="telemetry-values"><div><dt>Position (X / Y / Z in metres)</dt><dd id="position-value">—</dd></div>
@@ -561,8 +627,10 @@
       <div class="energy-actions"><span id="dock-state" class="signal">Dock unavailable</span><button type="button" id="focus-dock" class="chip">Focus dock</button></div></div>
     <div class="energy-grid">
       <div class="energy-battery"><span>Simulated battery</span><strong id="battery-value">—</strong><meter id="battery-meter" min="0" max="100" value="0" aria-label="Simulated battery percentage"></meter></div>
-      <div><span>Estimated energy to finish</span><strong id="energy-need">—</strong><small id="energy-budget"></small></div>
-      <div><span>Return budget + reserve</span><strong id="energy-reserve">—</strong></div>
+      <div><span>Estimated energy use to finish</span><strong id="energy-need">—</strong><small id="energy-budget"></small></div>
+      <div><span>At dock if returning now</span><strong id="energy-return">—</strong></div>
+      <div><span>Required reserve</span><strong id="energy-reserve">—</strong></div>
+      <div><span>Above reserve</span><strong id="energy-margin">—</strong></div>
       <div><span>Charging cycles</span><strong id="energy-cycles">—</strong></div>
       <div><span>Remaining locations</span><strong id="energy-remaining">—</strong><small id="energy-remaining-ids"></small></div>
     </div>

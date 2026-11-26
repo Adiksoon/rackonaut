@@ -3,6 +3,7 @@ import { OrbitControls } from "./vendor/OrbitControls.js";
 import { accessColors, at, makeAircraft, makeWarehouse, slotColors, tint } from "./twin-scene.js";
 import { createMeasuredScene } from "./scan.js";
 import { measuredCloud, warehouseTemplate } from "./rack-templates.js";
+import { activeSafetyAlarm } from "./operator.js";
 
 const byId = (id) => document.getElementById(id);
 const stages = new Set(["INSPECT", "REPOSITION", "REINSPECT", "QUALITY_CLOSEUP", "RECENTER"]);
@@ -186,7 +187,7 @@ export function createTwin(layout, callbacks) {
   const corridor = warehouse.aerial ? path(scene, 0x8a5cb8, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
-  const planLine = path(scene, 0x4b78a8, true);
+  const planLine = path(scene, 0x4381cb, true);
   const recoveryPlan = layout.recovery ? path(scene, 0xa85b14, true) : null;
   const recoveryFlown = layout.recovery ? path(scene, 0xa23287) : null;
   const stopped = layout.recovery ? samples(scene, 1, 0xbd3e57, .48, .95) : null;
@@ -195,7 +196,7 @@ export function createTwin(layout, callbacks) {
     recoveryFlown.renderOrder = 8;
     for (const id of ["twin-recovery-key", "twin-recovery-flown", "twin-recovery-stop"]) byId(id).hidden = false;
   }
-  const flownLine = path(scene, 0x214b80);
+  const flownLine = path(scene, 0x06786f);
   const extraLine = path(scene, 0xa85b14, false, true);
   const pendingLine = path(scene, 0xa85b14, true, true);
   const beams = path(scene, 0x4e94bf, false, true);
@@ -227,7 +228,7 @@ export function createTwin(layout, callbacks) {
   let preset = "iso";
   let following = false;
   let scanMode = false, viewMode = "model", archiveScan = false, fitted = false;
-  let fittedPacket = null, fittedScene = null, fittedCloud = null;
+  let fittedPacket = null, fittedScene = null, fittedCloud = null, pendingFittedFocus = null;
   const fittedBounds = new T.Box3(), rackBounds = new T.Box3(), fittedLabels = new Map();
   let autoFrameScan = true, framedSpan = 0;
   let modelPreset = "iso", scanPreset = "iso";
@@ -237,7 +238,7 @@ export function createTwin(layout, callbacks) {
     ? createMeasuredScene(byId("twin-panel"), queue, frameMeasuredCloud)
     : null;
   const projected = new T.Vector3();
-  const followAnchor = new T.Vector3(), followDelta = new T.Vector3();
+  const followDelta = new T.Vector3();
   const startPosition = new T.Vector3(), endPosition = new T.Vector3();
   const startRotation = new T.Quaternion(), endRotation = new T.Quaternion();
 
@@ -312,6 +313,7 @@ export function createTwin(layout, callbacks) {
     fittedBounds.makeEmpty();
     rackBounds.makeEmpty();
     for (const item of fittedLabels.values()) {
+      if (item.face) dispose(item.face);
       item.element.remove();
       labels.splice(labels.indexOf(item), 1);
     }
@@ -330,6 +332,17 @@ export function createTwin(layout, callbacks) {
       const item = labels.at(-1);
       item.element.dataset.location = location.id;
       item.element.dataset.placement = location.status;
+      const rack = packet.enhanced.rows.find(row => row.id === location.rack_id);
+      if (rack && location.status === "projected") {
+        const face = new T.Mesh(new T.PlaneGeometry(.74, .45),
+          new T.MeshBasicMaterial({color: 0x276fcb, transparent:true, opacity:.46, depthWrite:false,
+            side:T.DoubleSide, polygonOffset:true, polygonOffsetFactor:-3, polygonOffsetUnits:-3}));
+        face.position.copy(at(location.position_m));
+        face.rotation.y = rack.yaw_rad;
+        face.visible = false;
+        item.face = face;
+        fittedLayer.add(face);
+      }
       fittedLabels.set(location.id, item);
     }
     return true;
@@ -421,10 +434,12 @@ export function createTwin(layout, callbacks) {
       moving = ratio < 1;
     }
     if (following && !transition && sourceSnapshot) {
-      followDelta.subVectors(drone.position, followAnchor);
-      camera.position.add(followDelta);
-      controls.target.add(followDelta);
-      followAnchor.copy(drone.position);
+      followDelta.copy(drone.position);
+      const target = fittedLabels.get(renderData?.visualization?.target)?.anchor;
+      if (!scanMode && target && target.distanceTo(drone.position) < 8) followDelta.lerp(target, .27);
+      followDelta.sub(controls.target);
+      camera.position.addScaledVector(followDelta, .28);
+      controls.target.addScaledVector(followDelta, .28);
     }
     const orbiting = controls.update();
     if (scanMode) scan.scalePoints(camera.position.distanceTo(controls.target));
@@ -461,7 +476,7 @@ export function createTwin(layout, callbacks) {
         || kind === "slot-marker" && (preset === "top" || width < 1000);
       const shift = dense
         ? denseOffsets.find((delta) => y + delta > 19 && y + delta < height - 18
-            && used.every(([cx, cy]) => Math.abs(cx - x) > 58 || Math.abs(cy - (y + delta)) >= 17)) || 0
+            && used.every(([cx, cy]) => Math.abs(cx - x) > 95 || Math.abs(cy - (y + delta)) >= 19)) || 0
         : 0;
       if (dense) used.push([x, y + shift]);
       element.style.transform = `translate(${x}px,${y + shift}px) translate(-50%,-50%)`;
@@ -570,7 +585,6 @@ export function createTwin(layout, callbacks) {
     following = enabled;
     byId("twin-follow").setAttribute("aria-pressed", String(enabled));
     if (enabled) {
-      followAnchor.copy(drone.position);
       const target = drone.position.clone();
       const offset = scanMode ? scanDirection(preset).normalize().multiplyScalar(10) : new T.Vector3(-6.4, 6.0, 9.5);
       cameraTo(target.clone().add(offset), target);
@@ -637,13 +651,15 @@ export function createTwin(layout, callbacks) {
     }
   }
 
-  function updateDrone(state) {
-    const fresh = Boolean(state?.robot && state.position);
+  function updateDrone(state, lastPose) {
+    const fresh = Boolean(state?.robot && state.position_fresh && state.position
+      && (!layout.localization || state.localization?.state === "TRACKING"));
     byId("twin-follow").disabled = !fresh;
-    const position = state?.position;
+    const sample = fresh ? state : lastPose;
+    const position = sample?.position;
     if (position) {
       const [, , z, yaw] = position;
-      const rot = state.orientation || [0, 0, Math.sin(yaw / 2), Math.cos(yaw / 2)];
+      const rot = sample.orientation || [0, 0, Math.sin(yaw / 2), Math.cos(yaw / 2)];
       endPosition.copy(at(position));
       endRotation.set(rot[0], rot[2], -rot[1], rot[3]).normalize();
       if (!drone.visible || !fresh || sourceSnapshot === null) {
@@ -654,13 +670,16 @@ export function createTwin(layout, callbacks) {
         startPosition.copy(drone.position);
         startRotation.copy(drone.quaternion);
         startedAt = performance.now();
-        moving = true;
+        moving = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!moving) {
+          drone.position.copy(endPosition);
+          drone.quaternion.copy(endRotation);
+        }
       }
       sourceSnapshot = fresh ? JSON.stringify([position, rot]) : null;
       drone.visible = true;
-      flightLabel.textContent = fresh ? `UAV · ${z.toFixed(2)} m` : "UAV · Last pose";
-      if (fresh && state.energy?.fresh) flightLabel.textContent += ` · ${Math.round(state.energy.percent)}%`;
-      fill("twin-odom", fresh ? `Live odometry · Z ${z.toFixed(2)} m` : "Odometry stale · Last pose");
+      flightLabel.textContent = fresh ? `UAV · ${z.toFixed(2)} m` : "UAV · Last known position";
+      fill("twin-odom", fresh ? `Live position · ${z.toFixed(2)} m altitude` : "Position data stale");
     } else {
       if (moving) {
         drone.position.copy(endPosition);
@@ -668,8 +687,8 @@ export function createTwin(layout, callbacks) {
         moving = false;
       }
       sourceSnapshot = null;
-      fill("twin-odom", drone.visible ? "Connection lost · Last pose" : "Waiting for odometry");
-      flightLabel.textContent = "UAV · Last pose";
+      fill("twin-odom", drone.visible ? "Connection lost · Last known position" : "Position unavailable");
+      flightLabel.textContent = "UAV · Last known position";
     }
     body.color.setHex(fresh ? scanMode ? 0x58a4ee : 0x3974ba : 0x9d7844);
     edge.color.setHex(fresh ? scanMode ? 0x76c5ff : 0x214b80 : 0xa46522);
@@ -696,7 +715,8 @@ export function createTwin(layout, callbacks) {
     }
     if (!layout.safety_fields) { fill("twin-source", "Safety disabled"); return; }
     if (safety?.sensor_mode === "virtual" || !layout.laser_fields) {
-      fill("twin-source", `Virtual presence · ${safety?.alarm ? statusText(safety.alarm.event) : safety?.phase || "Unavailable"}`);
+      const alarm = activeSafetyAlarm(safety);
+      fill("twin-source", `Virtual presence · ${alarm ? statusText(alarm.event) : safety?.phase || "Unavailable"}`);
       return;
     }
     const scans = Object.entries(safety?.scans || {}).filter(([id]) => safety.zones[id]?.sensor === "FRESH");
@@ -718,7 +738,8 @@ export function createTwin(layout, callbacks) {
     setPath(beams, rays);
     const age = scans.length ? ` · Max age ${Math.max(...scans.map(([, scan]) => scan.age_ms))} ms` : "";
     const scanHealth = scans.length === Object.keys(warehouse.lasers).length ? "live scan" : scans.length ? "partial feed" : "scan unavailable";
-    fill("twin-source", safety?.alarm ? `LiDAR · ${statusText(safety.alarm.event)} · ${scanHealth} · ${hits.length} returns`
+    const alarm = activeSafetyAlarm(safety);
+    fill("twin-source", alarm ? `LiDAR · ${statusText(alarm.event)} · ${scanHealth} · ${hits.length} returns`
       : `LiDAR · ${scanHealth} · ${hits.length} returns${age}`);
   }
   function statusText(value) { return value.replaceAll("_", " "); }
@@ -738,11 +759,17 @@ export function createTwin(layout, callbacks) {
       const status = view === "results" ? result?.state || "uninspected"
         : showFlight && visual.target === id ? "target"
         : showFlight && job?.status?.visited?.includes(id) ? "visited" : selected ? "selected" : "available";
-      item.element.dataset.status = status;
+      item.element.dataset.status = view === "results" && !item.face ? "uninspected" : status;
       item.element.setAttribute("aria-pressed", String(view === "plan" ? selected : visual.focus === id));
       item.element.disabled = view === "plan" && !visual.interactive;
       item.element.title = [id, result?.label, placement].filter(Boolean).join(" · ");
       item.element.setAttribute("aria-label", item.element.title);
+      if (item.face) {
+        item.face.visible = !archiveScan && (status === "target" || selected && view === "plan"
+          || view === "results" && visual.focus === id);
+        item.face.material.color.setHex(status === "discrepancy" ? 0xb42835 : status === "manual" ? 0xbd6800
+          : status === "match" ? 0x16764a : 0x276fcb);
+      }
     }
     const recovery = showFlight ? state?.recovery : null;
     setPath(planLine, view === "plan" && visual.packet ? preview?.points || [] : showFlight ? job?.planned || [] : []);
@@ -755,14 +782,25 @@ export function createTwin(layout, callbacks) {
       const stop = recovery?.stopped?.position;
       stopped(stop ? [[stop[0], stop[2], -stop[1]]] : []);
     }
-    if (showFlight) updateDrone(state);
+    if (showFlight) updateDrone(state, data.lastPose);
     else {
       drone.visible = false;
       moving = false;
       sourceSnapshot = null;
     }
     scanHeading.visible = showFlight && !!sourceSnapshot;
+    if (view === "results" && pendingFittedFocus && fittedLabels.has(pendingFittedFocus))
+      frameFittedLocation(pendingFittedFocus);
     queue();
+  }
+  function frameFittedLocation(id) {
+    const item = fittedLabels.get(id);
+    if (!item) { pendingFittedFocus = id; return; }
+    pendingFittedFocus = null;
+    setFollow(false);
+    const target = item.anchor.clone();
+    const offset = scanDirection(preset).normalize().multiplyScalar(6.4);
+    cameraTo(target.clone().add(offset), target);
   }
   function update(data) {
     const contextChanged = renderData?.view !== data?.view;
@@ -808,7 +846,7 @@ export function createTwin(layout, callbacks) {
       : fitted ? "Enhanced Digital Twin" : "3D warehouse scene");
     if (scanMode) {
       drawTaughtLocations(data.taught, data.taughtSelection);
-      updateDrone(state);
+      updateDrone(state, data.lastPose);
       scan.update(state, data.activeFlight, data.review);
       return;
     }
@@ -816,7 +854,7 @@ export function createTwin(layout, callbacks) {
     const planning = view === "plan";
     const current = planning ? null : job;
     const scope = planning ? (selection.size ? selection : null) : job ? new Set(job.slots) : null;
-    const selectedAisles = new Set(Array.from(scope || []).map((id) => layout.slots[id].aisle));
+    const selectedAisles = new Set(Array.from(scope || []).map((id) => layout.slots[id]?.aisle).filter(Boolean));
     for (const [id, area] of Object.entries(warehouse.aisles)) {
       const selected = selectedAisles.has(id);
       area.group.visible = selected;
@@ -892,7 +930,8 @@ export function createTwin(layout, callbacks) {
       setPath(estimatedPath, localization?.trajectory || [], .021);
       if (referencePath) setPath(referencePath, state?.localization_validation?.trajectory || [], .035);
     }
-    updateDrone(state);
+    if (["live", "manual"].includes(view)) updateDrone(state, data.lastPose);
+    else { drone.visible = false; moving = false; sourceSnapshot = null; }
     if (recovery?.cause && recovery.phase !== "RECOVERY_COMPLETE")
       flightLabel.textContent += ` · ${recovery.cause.replaceAll("_", " ")}`;
     if (warehouse.aerial) {
@@ -934,6 +973,7 @@ export function createTwin(layout, callbacks) {
       cameraTo(target.clone().add(new T.Vector3(-4.2, 3.3, 3.9)), target);
     },
     focusSlot(id) { focus = id; if (renderData) update(renderData); },
+    focusFittedLocation: frameFittedLocation,
     setVisible(enabled) {
       const first = !visible && enabled && lastDraw === 0;
       visible = enabled;

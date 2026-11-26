@@ -278,15 +278,23 @@ class Control(Node):
     def load_history(self):
         result = []
         for file in sorted((self.data / "reports").glob("*/run.json"), reverse=True)[:12]:
-            value = json.loads(file.read_text())["mission"]
-            result.append(self.history_item(value))
+            try:
+                snapshot = json.loads(file.read_text())
+                result.append(self.history_item(snapshot["mission"], bool(snapshot.get("business"))))
+            except (OSError, ValueError, KeyError, TypeError) as error:
+                self.get_logger().warning(f"Could not read saved inspection {file.parent.name}: {error}")
         return result
 
-    @staticmethod
-    def history_item(status):
+    def history_item(self, status, business):
         run = status["inspection_id"]
+        learned = status.get("learned") or {}
+        identifier = learned.get("configuration_id")
+        archive = next((item for item in self.warehouse_archive.list()
+                        if item["configuration_id"] == identifier), {}) if identifier else {}
         return {"run": run, "stage": status["stage"], "landed": status["landed"],
-                "warehouse_configuration_id": (status.get("learned") or {}).get("configuration_id"),
+                "warehouse_configuration_id": identifier, "warehouse_revision": learned.get("revision"),
+                "warehouse_name": archive.get("name", "Saved warehouse" if identifier else "Reference warehouse"),
+                "planned_slots": status.get("planned_slots", []), "business": business,
                 "confirmed": len(status["confirmed"]), "total": status["total"], "url": f"/reports/{run}"}
 
     def remember_recovery(self, record):
@@ -669,6 +677,11 @@ class Control(Node):
             self.job.abort_requested = True
             return {"accepted": True}
 
+    @staticmethod
+    def physical_dock(energy):
+        return bool(energy and energy.get("fresh") is True and energy.get("contact") is True
+                    and energy.get("switch_engaged") is True and energy.get("contact_source") == "gazebo_dock_switch")
+
     def service_telemetry(self, now):
         connection = self.position is not None and now - self.odom_at <= .40
         localization_age = now - self.localization_at
@@ -680,8 +693,7 @@ class Control(Node):
         energy = self.energy_state() or {}
         safety = self.safety_status() or {}
         camera = bool(self.jpeg and now - self.camera_at < 2.)
-        contact = (energy.get("fresh") is True and energy.get("contact") is True
-                   and energy.get("switch_engaged") is True and energy.get("contact_source") == "gazebo_dock_switch")
+        contact = self.physical_dock(energy)
         job = self.job
         stage = self.stage(job) if job else None
         return {"connection": connection, "localization": (localization or {}).get("state", "UNAVAILABLE"),
@@ -690,19 +702,39 @@ class Control(Node):
                 "safety": safety.get("phase", "UNAVAILABLE"), "safety_sensors": safety.get("sensor"),
                 "drone": ("DOCKED" if contact else "IN_FLIGHT" if connection and not self.at_pad()
                           else "AT_PAD" if connection else "UNAVAILABLE"),
-                "mission": {"inspection_id": job.run, "stage": stage} if job else None,
+                "at_pad": self.at_pad(), "busy": self.busy(),
+                "safety_ready": bool(safety.get("signals_online") and
+                                     (safety.get("zones", {}).get("D") or {}).get("occupied") is False
+                                     and safety.get("phase") not in {"PREPARING", "RESERVED", "RECOVERY"}),
+                "mission": {"inspection_id": job.run, "stage": stage, "mode": job.plan["mode"],
+                            "slots": job.plan["slots"],
+                            "configuration_id": (job.plan["route"].get("learned") or {}).get("configuration_id"),
+                            "status": {"flight_phase": job.status.get("flight_phase"),
+                                       "manual": job.status.get("manual"), "detail": job.status.get("detail")}}
+                if job else None,
                 "position": self.position if connection else None, "speed": self.speed if connection else None}
 
     def service_snapshot(self):
         with self.lock:
             learned = self.warehouse_status()
+            calibration = self.calibration.snapshot()
+            if draft := calibration["draft"]:
+                session = draft["calibration_id"]
+                try:
+                    captures = self.teaching.manifest(session)["locations"]
+                    calibration["locations"] = [
+                        {"id": row["storage_location_id"], "photo": row["reference_image"]}
+                        for row in captures
+                    ]
+                except (ValueError, RuntimeError, KeyError, OSError):
+                    calibration["locations"] = []
             source = ("Saved LiDAR keyframes" if learned.get("ready") else "Onboard dock localization"
                       if self.mapping_only else "Preconfigured reference warehouse geometry")
             current_map = (learned.get("active_id") or "Choose a saved configuration") if self.learned_mode else (
                 "Awaiting a mapping session" if self.mapping_only else
                 "localization_map.json" if self.localization_mode == "sensor_based" else "Control Center reference layout")
             return {"available": self.calibration_supported,
-                    "system": self.service_telemetry(monotonic()), "calibration": self.calibration.snapshot(),
+                    "system": self.service_telemetry(monotonic()), "calibration": calibration,
                     "mapping": self.mapping_status(),
                     "learned_warehouse": learned,
                     "warehouse": {"profile": "Learned warehouse" if self.learned_mode else
@@ -776,6 +808,9 @@ class Control(Node):
                 raise RuntimeError("A calibration is already active.")
             job = self.job
             active = job and self.stage(job) not in TERMINAL | {"ERROR"}
+            if ("expected_inspection_id" in request
+                    and request["expected_inspection_id"] != (job.run if active else None)):
+                raise RuntimeError("The active inspection changed. Review the current flight before starting calibration.")
             if active and job.manual_token:
                 raise RuntimeError("Return the manual flight to the dock before starting calibration.")
             safety = self.safety_status()
@@ -1040,7 +1075,7 @@ class Control(Node):
         if job.archive_future and job.archive_future.done():
             try:
                 job.archive = job.archive_future.result()
-                self.history.insert(0, self.history_item(job.status))
+                self.history.insert(0, self.history_item(job.status, self.backend_state["mode"] == "mock_sap"))
             except (OSError, KeyError, ValueError) as error:
                 if job.attempts == 3:
                     job.export_error = str(error)
@@ -1121,20 +1156,27 @@ class Control(Node):
         with self.lock:
             job = self.job
             safety = self.safety_status()
+            energy = self.energy_state()
+            odometry_age = monotonic() - self.odom_at
             current = None
             if job:
                 current = {"inspection_id": job.run, "stage": self.stage(job), "slots": job.plan["slots"],
                            "mapping_id": job.mapping_id,
                            "quality": job.plan["quality"], "adaptive": job.plan["adaptive"],
                            "mode": job.plan["mode"], "status": job.status,
-                           "planned": [] if job.manual_token else job.planned or job.plan["points"], "flown": job.flown,
+                           "warehouse_configuration_id": (job.plan["route"].get("learned") or {}).get("configuration_id"),
+                           "planned": [] if job.manual_token else job.planned or
+                           job.plan.get("display_points", job.plan["points"]), "flown": job.flown,
                            "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
                            "result": job.archive, "error": job.error or job.export_error}
-            result = {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
+            result = {"robot": odometry_age < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
+                    "physical_dock": self.physical_dock(energy) if self.energy_enabled and
+                    self.localization_mode == "sensor_based" else None,
+                    "position_fresh": odometry_age <= .40, "speed": self.speed if odometry_age <= .40 else None,
                     "service_mode": self.calibration.state,
                     "mapping_only": self.mapping_only,
                     "position": self.position, "orientation": self.orientation,
-                    "energy": self.energy_state(),
+                    "energy": energy,
                     "backend": self.backend_state, "mission": current,
                     "camera": self.frame_number if self.jpeg and monotonic() - self.camera_at < 2 else None,
                     "camera_type": "raw", "history": self.history[:12],

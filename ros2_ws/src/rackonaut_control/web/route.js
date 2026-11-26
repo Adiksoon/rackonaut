@@ -39,14 +39,18 @@ export function createRouteReview(api, changed) {
   function render() {
     const route = review();
     const approved = revision?.status==="approved";
-    set("session", archive ? "Saved route" : approved ? "Ready to save" : "Review before approving");
+    set("session", archive ? "Saved route" : sealed ? "Configuration saved" : approved ? "Route approved" : "Review before approving");
     el("result").hidden = !route;
     set("feedback",error || (busy ? "Working…" : sealed || title(revision?.status)));
     el("review-again").hidden = el("validate").hidden = el("approve").hidden = archive;
     el("validate").hidden ||= trusted();
     el("approve").hidden ||= !trusted() || approved;
-    el("seal").hidden = archive || !canSeal || !approved;
-    el("seal").disabled = busy || !!sealed;
+    el("seal").hidden = archive || !canSeal;
+    el("seal").disabled = busy || !approved || !!sealed;
+    set("next-hint", archive ? "" : sealed ? "Return to Warehouse Calibration and close it to enable activation."
+      : !route ? "Wait for a route proposal from the completed mapping flight."
+      : !approved ? "Validate and approve the measured route before saving the configuration."
+      : canSeal ? "Save the approved route, recorded locations and measured map as a warehouse revision." : "");
     el("stop-options").hidden = archive;
     set("energy-title",archive ? "Calibration route forecast" : "Energy forecast");
     el("review-again").disabled = busy || !session;
