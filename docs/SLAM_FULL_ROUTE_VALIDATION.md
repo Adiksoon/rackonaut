@@ -58,6 +58,23 @@ Estymata shadow utrzymała **3,41 Hz** w czasie rzeczywistym. Najdłuższy odst�
 
 W alejce dominuje utrzymujące się przesunięcie w osi X, średnio −28,3 mm. **Bramka całościowa pozostaje niezaliczona**, ponieważ RMSE w tej strefie przekroczył lokalny próg 30 mm. Sterowanie pozostało na lokalizatorze referencyjnym. [Wykres](slam-full-route-evidence/extended-shadow.png) · [Pomiary](slam-full-route-evidence/extended-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/extended-shadow-trace.jsonl)
 
+### Niezależne powtórzenie shadow 16 m na trasie autonomicznej
+
+Lot `INS-CONTROL-20261126-121130-BDAD1CCB` na tej samej trasie geometrycznej ukończył autonomiczną inspekcję A-01-01 i A-01-03 pod kontrolą lokalizatora referencyjnego. Pokonał **70,77 m**, osiągnął **16,30 m** oddalenia i zakres wysokości **0,054–6,705 m**. Czas rzeczywisty wyniósł **279,9 s**, symulowany **156,60 s**, **RTF 0,5595**, zużycie energii **55,609 p.p.** Potwierdzono fizyczny kontakt z dokiem i zwolnienie rezerwacji.
+
+| Strefa | Próbki | RMSE | p95 | Maksimum |
+| --- | ---: | ---: | ---: | ---: |
+| Szyb | 166 | 5,33 mm | 7,64 mm | 8,97 mm |
+| Tunel | 510 | 19,57 mm | 27,12 mm | 31,08 mm |
+| Alejka i zejście | 268 | **30,66 mm** | 37,54 mm | 46,00 mm |
+| Cała trasa | 944 | 21,88 mm | 34,16 mm | 46,00 mm |
+
+Częstotliwość wyniosła **3,37 Hz**, największy odstęp **0,168 s** czasu symulacji, a dryf przy dokowaniu **1,89 mm**. RMSE orientacji wyniósł 0,080°, p95 0,128° i maksimum 0,203°. Przyjęto **173 klatki kluczowe** i zaobserwowano do **54 854 wokseli**. Plik PLY wyeksportowany podczas końcowego zniżania zawiera **54 767** punktów. Czas dopasowania p95 to **131,2 ms**. Gazebo zajmowało medianę **198,88% jednego rdzenia** i do **867,5 MiB RSS**. Pomiar procesu SLAM jest dostępny z poprzedniego lotu, ponieważ nazwa procesu z relatywną ścieżką w tym locie nie została rozpoznana przez próbnik zasobów.
+
+RMSE w alejce ponownie przekroczył 30 mm. Bramka **FAIL** zakończyła skrypt przed uruchomieniem profilu sterowania SLAM. [Pomiary](slam-full-route-evidence/autonomous-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/autonomous-shadow-trace.jsonl) · [Chmura PLY](slam-full-route-evidence/autonomous-shadow-map.ply)
+
+![Trajektoria i błąd kolejnej pełnej próby shadow](slam-full-route-evidence/autonomous-shadow.png)
+
 ## Regresja autonomicznej inspekcji na domyślnym profilu
 
 Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)
@@ -66,10 +83,10 @@ Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z
 
 | # | Próba | Obecny stan |
 | --- | --- | --- |
-| 1 | Pełna trasa shadow | **FAIL.** Bazowy SLAM utracił estymaty w tunelu. Profil 16 m dał ciągłą estymatę na całej trasie, lecz przekroczył próg RMSE w alejce. |
+| 1 | Pełna trasa shadow | **FAIL.** Bazowy SLAM utracił estymaty w tunelu. Profil 16 m dał ciągłą estymatę na całej trasie. W dwóch niezależnych lotach przekroczył próg RMSE w alejce. |
 | 2 | Pełna trasa sterowana SLAM | Oczekuje na przejście bramki shadow. |
 | 3 | Niezależne powtórzenie pełnej trasy sterowanej SLAM | Oczekuje na przejście bramki shadow. |
-| 4 | Powtarzalna geometria regałów | W shadow 16 m uzyskano 316 estymat w alejce. Lokalny RMSE wyniósł 33,5 mm przy progu 30 mm. |
+| 4 | Powtarzalna geometria regałów | **FAIL jakości.** 316 oraz 268 estymat w dwóch lotach. RMSE wynosił odpowiednio 33,55 i 30,66 mm przy progu 30 mm. |
 | 5 | Powrót przez obserwowaną przestrzeń | Kontroler referencyjny wrócił i zadokował. Wymagany jest powrót z aktywnym SLAM. |
 | 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
 | 7 | Mapa referencyjna fizycznie niedostępna | Do wykonania na pełnej trasie. |
