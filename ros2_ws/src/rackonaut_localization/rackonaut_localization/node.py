@@ -103,13 +103,13 @@ class Localization(Node):
         self.slam = self.registration_type() if self.mode == "slam_shadow" or self.mapping_only else None
         self.reference = None
         if self.slam is not None:
-            dock = self.declare_parameter("dock_xyz", [-4.7, 10.3, .05]).value
+            dock = [-4.7, 10.3, .05]
         else:
             config = get_package_share_path("rackonaut_warehouse") / "config"
             layout = json.loads((config / "localization_map.json").read_text())
             self.reference = StaticMap(layout["boxes"], layout["triangles"])
             dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
-        self.dock = np.array(dock)
+        self.dock = np.array(self.declare_parameter("dock_xyz", dock).value)
         self.installation_dock = self.dock.copy()
         self.warehouse_id = None
         self.warehouse_revision = None

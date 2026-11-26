@@ -117,12 +117,16 @@ def setup(context):
         raise ValueError("Provide backend_url when mock:=false.")
     localization_nodes = []
     if localizer:
+        dock_xyz = profile["nodes"]["dock"].copy()
+        if x3:
+            # The X3 body extends 55 mm below its origin. The dock surface is at 4 mm.
+            dock_xyz[2] = .059
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
                               parameters=[{"mode": localization, "data_dir": data, "mapping_only": mapping_only,
                                            "full_route_slam": full_route_slam, "learned_warehouse": learned_warehouse,
                                            "drone_model": drone_model,
-                                           **({"dock_xyz": profile["nodes"]["dock"]} if mapping_only else {})}]))
+                                           **({"dock_xyz": dock_xyz} if mapping_only or x3 else {})}]))
     if recovery and not x3:
         localization_nodes.append(Node(
             package="ros_gz_bridge", executable="parameter_bridge", name="rackonaut_flight_enable_bridge", output="screen",
