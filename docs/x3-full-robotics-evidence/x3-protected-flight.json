@@ -1,0 +1,433 @@
+{
+  "initial_dock": {
+    "position": [
+      -4.7,
+      10.3,
+      0.044,
+      -0.0
+    ],
+    "speed": null,
+    "at_pad": true,
+    "mission": null,
+    "detail": null,
+    "manual": null,
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.02,
+      "scan_age_ms": 246,
+      "imu_age_ms": 43,
+      "map_voxels": 1115
+    },
+    "energy": {
+      "percent": 99.989,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": true,
+      "contact": true,
+      "sim_time": 1.4
+    },
+    "safety": {
+      "phase": "AVAILABLE",
+      "required": [],
+      "permit": false,
+      "alarm": null
+    }
+  },
+  "image": {
+    "latest": [
+      4.8,
+      "rackonaut_camera_optical_frame",
+      320,
+      240,
+      "rgb8"
+    ],
+    "frequency_sim_hz": 10.362694300518136
+  },
+  "camera_info": {
+    "latest": [
+      4.8,
+      "rackonaut_camera_optical_frame",
+      320,
+      240,
+      276.2335205078125
+    ],
+    "frequency_sim_hz": 10.362694300518136
+  },
+  "imu": {
+    "latest": [
+      4.88,
+      "rackonaut_reference_drone/base_link/local_imu"
+    ],
+    "frequency_sim_hz": 50.0
+  },
+  "cloud": {
+    "latest": [
+      4.648,
+      "rackonaut_reference_drone/base_link/local_lidar",
+      192,
+      37,
+      659,
+      15.922260284423828
+    ],
+    "frequency_sim_hz": 6.026785714285715
+  },
+  "paired_camera_samples": 49,
+  "tf_static": {
+    "rackonaut_camera_optical_frame": [
+      "rackonaut_base_link",
+      [
+        0.27,
+        0.0,
+        0.04
+      ],
+      [
+        -0.5,
+        0.4999999999975517,
+        -0.5,
+        0.5000000000024483
+      ]
+    ],
+    "rackonaut_reference_drone/base_link/local_lidar": [
+      "rackonaut_base_link",
+      [
+        0.0,
+        0.0,
+        0.09
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "rackonaut_reference_drone/base_link/local_imu": [
+      "rackonaut_base_link",
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ]
+  },
+  "dock_collision_pairs": [
+    [
+      "rackonaut_dock::body::dock_contact_surface_collision",
+      "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"
+    ]
+  ],
+  "idle_graph": {
+    "/clock": [
+      "ros_gz_bridge"
+    ],
+    "/rackonaut/drone/odom": [
+      "rackonaut_localization"
+    ],
+    "/tf": [
+      "rackonaut_localization"
+    ],
+    "/rackonaut/drone/cmd_vel": []
+  },
+  "inspection_id": "INS-CONTROL-20261126-154020-3570C3C5",
+  "takeoff": {
+    "position": [
+      -4.698,
+      10.299,
+      0.756,
+      0.001
+    ],
+    "speed": null,
+    "at_pad": false,
+    "mission": "MANUAL_FLIGHT",
+    "detail": "Protected manual flight ready",
+    "manual": {
+      "state": "TAKING_OFF",
+      "detail": "Protected vertical departure",
+      "requested": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": null
+    },
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.02,
+      "scan_age_ms": 191,
+      "imu_age_ms": 86,
+      "map_voxels": 3949
+    },
+    "energy": {
+      "percent": 98.674,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": false,
+      "contact": false,
+      "sim_time": 11.28
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "D",
+        "A"
+      ],
+      "permit": false,
+      "alarm": null
+    }
+  },
+  "motion_graph": {
+    "/clock": [
+      "ros_gz_bridge"
+    ],
+    "/rackonaut/drone/odom": [
+      "rackonaut_localization"
+    ],
+    "/tf": [
+      "rackonaut_localization"
+    ],
+    "/rackonaut/drone/cmd_vel": [
+      "rackonaut_mission"
+    ]
+  },
+  "hover": {
+    "samples": 43,
+    "max_position_change_m": 0.0012762590158860952
+  },
+  "yaw_rad": 0.440353973382259,
+  "operator_loss": {
+    "position": [
+      -4.698,
+      10.299,
+      1.179,
+      0.444
+    ],
+    "speed": null,
+    "at_pad": false,
+    "mission": "MANUAL_FLIGHT",
+    "detail": "Protected manual flight ready",
+    "manual": {
+      "state": "LINK_LOST",
+      "detail": "Operator heartbeat expired; holding position",
+      "requested": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": null
+    },
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.02,
+      "scan_age_ms": 336,
+      "imu_age_ms": 104,
+      "map_voxels": 5322
+    },
+    "energy": {
+      "percent": 96.066,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": false,
+      "contact": false,
+      "sim_time": 20.4
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "D",
+        "A"
+      ],
+      "permit": false,
+      "alarm": null
+    }
+  },
+  "braking": {
+    "axis": "up",
+    "speed_before_mps": 0.26604360607530014,
+    "speed_at_zero_mps": 0.27294041949416803,
+    "zero_after_operator_loss_wall_s": 0.5652911569995922,
+    "zero_to_settle_sim_s": 1.0,
+    "zero_to_settle_distance_m": 0.1312835262174263
+  },
+  "physical_obstacle_block": {
+    "position": [
+      -4.7,
+      10.3,
+      2.391,
+      0.446
+    ],
+    "speed": null,
+    "at_pad": false,
+    "mission": "MANUAL_FLIGHT",
+    "detail": "Protected manual flight ready",
+    "manual": {
+      "state": "BRAKING",
+      "detail": "Obstacle in swept volume",
+      "requested": [
+        0.0,
+        0.0,
+        0.28,
+        0.0
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": 0.41
+    },
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.03,
+      "scan_age_ms": 285,
+      "imu_age_ms": 71,
+      "map_voxels": 6768
+    },
+    "energy": {
+      "percent": 93.5,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": false,
+      "contact": false,
+      "sim_time": 27.86
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "D",
+        "A"
+      ],
+      "permit": false,
+      "alarm": null
+    }
+  },
+  "obstacle_settled": {
+    "position": [
+      -4.701,
+      10.3,
+      2.559,
+      0.444
+    ],
+    "speed": null,
+    "at_pad": false,
+    "mission": "MANUAL_FLIGHT",
+    "detail": "Protected manual flight ready",
+    "manual": {
+      "state": "BRAKING",
+      "detail": "Obstacle in swept volume",
+      "requested": [
+        0.0,
+        0.0,
+        0.28,
+        0.0
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": 0.243
+    },
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.02,
+      "scan_age_ms": 79,
+      "imu_age_ms": 1,
+      "map_voxels": 6914
+    },
+    "energy": {
+      "percent": 93.152,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": false,
+      "contact": false,
+      "sim_time": 28.88
+    },
+    "safety": {
+      "phase": "RESERVED",
+      "required": [
+        "D",
+        "A"
+      ],
+      "permit": false,
+      "alarm": null
+    }
+  },
+  "docked": {
+    "position": [
+      -4.7,
+      10.3,
+      0.047,
+      0.001
+    ],
+    "speed": null,
+    "at_pad": true,
+    "mission": "COMPLETE",
+    "detail": "Manual flight ended at the verified physical dock",
+    "manual": {
+      "state": "DOCKED",
+      "detail": "Manual flight ended at the verified physical dock",
+      "requested": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": null
+    },
+    "localization": {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "sim_hz": 6.02,
+      "scan_age_ms": 260,
+      "imu_age_ms": 22,
+      "map_voxels": 8290
+    },
+    "energy": {
+      "percent": 91.632,
+      "budget_verified": true,
+      "contact_source": "gazebo_dock_switch",
+      "switch_engaged": true,
+      "contact": true,
+      "sim_time": 36.94
+    },
+    "safety": {
+      "phase": "RELEASED",
+      "required": [],
+      "permit": false,
+      "alarm": null
+    }
+  }
+}

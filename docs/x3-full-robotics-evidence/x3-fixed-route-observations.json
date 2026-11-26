@@ -1,0 +1,22 @@
+[
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-CONTROL-20261126-155151-E90175FD",
+    "observation_id": "OBS-486EA33C5A044D7CB0DB02BC215F783F",
+    "slot_id": "A-01-01",
+    "pallet_id": null,
+    "occupancy": "occupied",
+    "label_status": "unreadable",
+    "timestamp": "2026-11-26T15:54:29.282Z"
+  },
+  {
+    "schema_version": "1.0",
+    "inspection_id": "INS-CONTROL-20261126-155151-E90175FD",
+    "observation_id": "OBS-A96E1DEE8DDB4C1C8FAF2E979FC46687",
+    "slot_id": "A-01-03",
+    "pallet_id": null,
+    "occupancy": "empty",
+    "label_status": "not_applicable",
+    "timestamp": "2026-11-26T15:54:45.182Z"
+  }
+]

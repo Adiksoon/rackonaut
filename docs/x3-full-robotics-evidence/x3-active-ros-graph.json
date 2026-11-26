@@ -1,0 +1,122 @@
+{
+  "/clock": {
+    "publishers": [
+      "ros_gz_bridge"
+    ],
+    "subscribers": [
+      "rackonaut_energy",
+      "rackonaut_mission",
+      "static_transform_publisher_2X20XhhBtL4647AF",
+      "static_transform_publisher_hziV2FhC4Y6RW3yr",
+      "static_transform_publisher_wWycN9OxcXtRp2gE"
+    ]
+  },
+  "/rackonaut/drone/cmd_vel": {
+    "publishers": [
+      "rackonaut_mission"
+    ],
+    "subscribers": [
+      "rackonaut_drone_velocity_guard"
+    ]
+  },
+  "/rackonaut_drone/controller/cmd_vel": {
+    "publishers": [
+      "rackonaut_drone_velocity_guard"
+    ],
+    "subscribers": [
+      "ros_gz_bridge"
+    ]
+  },
+  "/rackonaut/drone/flight_enabled": {
+    "publishers": [
+      "rackonaut_mission"
+    ],
+    "subscribers": [
+      "ros_gz_bridge"
+    ]
+  },
+  "/rackonaut/drone/odom": {
+    "publishers": [
+      "rackonaut_localization"
+    ],
+    "subscribers": [
+      "rackonaut_control",
+      "rackonaut_drone_velocity_guard",
+      "rackonaut_energy",
+      "rackonaut_mission",
+      "rackonaut_safety"
+    ]
+  },
+  "/tf": {
+    "publishers": [
+      "rackonaut_localization"
+    ],
+    "subscribers": [
+      "rackonaut_control"
+    ]
+  },
+  "/tf_static": {
+    "publishers": [
+      "static_transform_publisher_2X20XhhBtL4647AF",
+      "static_transform_publisher_hziV2FhC4Y6RW3yr",
+      "static_transform_publisher_wWycN9OxcXtRp2gE"
+    ],
+    "subscribers": []
+  },
+  "/rackonaut/camera/image_raw": {
+    "publishers": [
+      "ros_gz_bridge"
+    ],
+    "subscribers": [
+      "rackonaut_control"
+    ]
+  },
+  "/rackonaut/camera/camera_info": {
+    "publishers": [
+      "ros_gz_bridge"
+    ],
+    "subscribers": []
+  },
+  "/rackonaut/drone/lidar/points": {
+    "publishers": [
+      "rackonaut_x3_sensor_frames"
+    ],
+    "subscribers": [
+      "rackonaut_control",
+      "rackonaut_localization",
+      "rackonaut_mission"
+    ]
+  },
+  "/rackonaut/drone/imu": {
+    "publishers": [
+      "rackonaut_x3_sensor_frames"
+    ],
+    "subscribers": [
+      "rackonaut_localization"
+    ]
+  },
+  "/rackonaut/validation/ground_truth": {
+    "publishers": [
+      "rackonaut_validation_bridge"
+    ],
+    "subscribers": [
+      "rackonaut_localization_validation"
+    ]
+  },
+  "/rackonaut/localization/slam_map": {
+    "publishers": [
+      "rackonaut_localization"
+    ],
+    "subscribers": [
+      "rackonaut_control"
+    ]
+  },
+  "/rackonaut/dock/contacts": {
+    "publishers": [
+      "ros_gz_bridge"
+    ],
+    "subscribers": [
+      "rackonaut_energy"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-155917-447209A7",
+  "result": "ABORTED",
+  "reason": "Onboard lidar stopped advancing",
+  "last_approach": {
+    "xyz": [
+      5.107,
+      0.451,
+      6.784,
+      -0.001
+    ],
+    "stage": "RETURN_TO_DOCK",
+    "clock": 156.6,
+    "battery": 48.173,
+    "tracking": "TRACKING",
+    "service": "PRODUCTION"
+  },
+  "sample_coverage": "outbound flight, both inspection viewpoints and partial return",
+  "camera_locations": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "regional_statistics": {
+    "shaft": {
+      "samples": 140,
+      "rmse_mm": 3.008,
+      "max_mm": 4.453
+    },
+    "tunnel": {
+      "samples": 428,
+      "rmse_mm": 12.905,
+      "max_mm": 21.07
+    },
+    "aisle": {
+      "samples": 346,
+      "rmse_mm": 20.082,
+      "max_mm": 32.336
+    }
+  }
+}
