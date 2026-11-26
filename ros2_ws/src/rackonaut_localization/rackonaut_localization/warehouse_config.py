@@ -34,6 +34,11 @@ def read(path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def check_drone_model(record, drone_model):
+    if not isinstance(record, dict) or record.get("drone_model", "reference") != drone_model:
+        raise ValueError("The warehouse calibration uses a different drone model.")
+
+
 def verified_package(root, identifier):
     if not isinstance(identifier, str) or not CONFIG_ID.fullmatch(identifier):
         raise ValueError("Invalid learned warehouse identifier.")

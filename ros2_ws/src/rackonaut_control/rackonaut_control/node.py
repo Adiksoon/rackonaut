@@ -149,7 +149,8 @@ class Control(Node):
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
-        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor)
+        drone_model = self.declare_parameter("drone_model", "reference").value
+        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor, drone_model)
         self.route_recording = None
         self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
                                       and self.recovery_enabled and self.energy_enabled

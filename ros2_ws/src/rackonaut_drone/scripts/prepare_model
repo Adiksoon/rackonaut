@@ -21,12 +21,12 @@ FILES = {
 }
 
 
-def prepare(source, camera_profile, localization_shadow):
+def prepare(source, camera_profile, localization_shadow, integrated=None):
     for name, digest in FILES.items():
         if sha256((source / name).read_bytes()).hexdigest() != digest:
             raise ValueError(f"{name} does not match X3 UAV Fuel revision 4.")
     tree = xml.parse(source / "model.sdf")
-    tree.getroot().set("version", "1.8")
+    tree.getroot().set("version", "1.9" if integrated else "1.8")
     model = tree.find("model")
     model.set("name", "rackonaut_x3")
     model.find("pose").text = "0 0 0 0 0 0"
@@ -63,13 +63,15 @@ def prepare(source, camera_profile, localization_shadow):
         ))
     body = model.find("link[@name='X3/base_link']")
     body.append(camera)
-    if localization_shadow:
+    if localization_shadow or integrated:
         config = get_package_share_path("rackonaut_reference") / "config"
         for fragment in ("avoidance-lidar.sdf.fragment", "localization-imu.sdf.fragment"):
             for element in xml.fromstring(f"<fragment>{(config / fragment).read_text()}</fragment>"):
                 topic = element.find("topic")
                 if topic is not None:
                     topic.text = topic.text.replace("/rackonaut_reference/", "/rackonaut_x3/")
+                if integrated == "full-route" and element.get("type") == "gpu_lidar":
+                    element.find("lidar/range/max").text = "16.0"
                 body.append(element)
         # The cloud uses bit 2. Keep our own visuals visible to RGB, but outside that mask.
         for visual in model.findall(".//visual"):
@@ -92,6 +94,8 @@ def prepare(source, camera_profile, localization_shadow):
       <maximumAngularVelocity>0.5 0.5 0.5</maximumAngularVelocity>
       <rotorConfiguration/>
     </plugin>""")
+    if integrated:
+        xml.SubElement(controller, "enableSubTopic").text = "enable"
     rotors = controller.find("rotorConfiguration")
     for number, direction in enumerate(("ccw", "ccw", "cw", "cw")):
         model.append(xml.fromstring(f"""<plugin filename="ignition-gazebo-multicopter-motor-model-system"
@@ -125,16 +129,21 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, default=Path.home() / FUEL)
     parser.add_argument("--camera-profile", choices=["standard", "challenging"], default="standard")
-    parser.add_argument("--localization-shadow", action="store_true", help="attach the IMU and 3D LiDAR")
+    profile = parser.add_mutually_exclusive_group()
+    profile.add_argument("--localization-shadow", action="store_true", help="attach the IMU and 8 m LiDAR")
+    profile.add_argument("--integrated", choices=["standard", "full-route"],
+                         help="attach IMU, flight enable and an 8 m or 16 m LiDAR")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     suffix = "-challenging" if args.camera_profile == "challenging" else ""
     if args.localization_shadow:
         suffix += "-shadow"
+    if args.integrated:
+        suffix += f"-integrated-{args.integrated}"
     filename = f"x3{suffix}.sdf"
     output = args.output or CACHE / "rackonaut_drone" / filename
     try:
-        tree = prepare(args.source.resolve(strict=True), args.camera_profile, args.localization_shadow)
+        tree = prepare(args.source.resolve(strict=True), args.camera_profile, args.localization_shadow, args.integrated)
         output.parent.mkdir(parents=True, exist_ok=True)
         with NamedTemporaryFile(dir=output.parent, delete=False) as temporary:
             draft = Path(temporary.name)

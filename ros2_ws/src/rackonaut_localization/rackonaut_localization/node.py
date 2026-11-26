@@ -26,7 +26,7 @@ from .inertial import GRAVITY, State, propagate
 from .learned_map import MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
 from .registration import StaticMap, voxel_sample
 from .slam import FrozenRegistration, FullRouteRegistration, MeasuredRegistration
-from .warehouse_config import active_identifier, verified_package
+from .warehouse_config import active_identifier, check_drone_model, read, verified_package
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -92,6 +92,7 @@ class Localization(Node):
         if self.mode not in {"shadow", "sensor_based", "slam_shadow"}:
             raise ValueError("Unknown localization mode")
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
+        self.drone_model = self.declare_parameter("drone_model", "reference").value
         self.mapping_only = self.declare_parameter("mapping_only", False).value
         full_route = self.declare_parameter("full_route_slam", False).value
         self.learned_mode = self.declare_parameter("learned_warehouse", False).value
@@ -169,6 +170,7 @@ class Localization(Node):
                 self.set_warehouse(None, None, self.registration_type(), self.installation_dock, Measurements())
                 return
             folder, manifest = verified_package(self.directory, identifier)
+            check_drone_model(read(folder / "sensors.json"), self.drone_model)
             dock, frames = load_learned_map(folder / MAP_FILE)
             if np.linalg.norm(dock-self.installation_dock) > .02:
                 raise ValueError("Learned warehouse dock does not match the physical installation.")
@@ -488,6 +490,8 @@ class Localization(Node):
         result = {"mapping_id": self.mapping.id, "frame": FRAME, "dock": rounded(self.dock),
                   "started_sim": self.mapping.stamp, "last_measurement_sim": self.cloud.stamp,
                   "points": len(self.cloud.voxels), "trajectory": [rounded(point, 5) for point in self.cloud.path]}
+        if self.drone_model != "reference":
+            result["drone_model"] = self.drone_model
         if type(self.slam) is FullRouteRegistration:
             save_learned_map(directory / MAP_FILE, self.slam.keyframes, self.dock)
             result["localization_archive"] = MAP_FILE
