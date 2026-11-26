@@ -47,7 +47,11 @@ function chooseMap(mode) {
   mapMode = mapIntent = mode;
   const unavailable = mode === "scan" && layout.localization?.mode !== "sensor_based";
   show3D = mode !== "2d" && !unavailable;
-  el("warehouse-map").hidden = el("map-legend").hidden = mode !== "2d";
+  el("workspace").dataset.mapMode = mode;
+  el("scan-window-actions").hidden = mode !== "scan" || unavailable;
+  if (mode !== "scan" && scanFullscreen()) leaveScanFullscreen();
+  el("warehouse-map").toggleAttribute("hidden", mode !== "2d");
+  el("map-legend").hidden = mode !== "2d";
   el("twin-panel").hidden = !show3D;
   el("twin-error").hidden = !unavailable;
   if (unavailable) put("twin-error", "3D Scan is unavailable in this profile. Run Full Robotics with sensor-based localization.");
@@ -120,12 +124,20 @@ function drawWorkspace() {
     warehouse.hidden = !showMap;
     twin?.setVisible(showMap && show3D);
   }
+  if ((!showMap || view === "service" || view === "diagnostics") && scanFullscreen()) leaveScanFullscreen();
   el("workspace").classList.toggle("with-map", showMap);
   el("results-map").setAttribute("aria-expanded", String(resultsMap));
   put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
   put("map-caption", mapMode === "scan" ? "Registered endpoints from the onboard LiDAR."
     : view === "plan" ? "Select aisles or locations on the map."
     : view === "results" ? "Planned and flown route." : "Drone position and flight path.");
+}
+
+function scanFullscreen() { return document.fullscreenElement === el("warehouse-panel"); }
+
+async function leaveScanFullscreen() {
+  try { await document.exitFullscreen(); }
+  catch (error) { notice(`Could not exit full screen. ${error.message}`); }
 }
 
 function setView(next, focus = false) {
@@ -715,6 +727,8 @@ function draw() {
   const recoveryInMotion = state?.recovery?.permit_request === true;
   el("global-stop").hidden = !(canStop || recoveryInMotion);
   el("global-stop").disabled = stopping;
+  el("scan-stop").hidden = !scanFullscreen() || el("global-stop").hidden;
+  el("scan-stop").disabled = stopping;
   el("live-plan").hidden = !!job;
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
@@ -744,7 +758,7 @@ async function poll() {
       }
       if (terminal.has(job.stage) && lastStage !== job.stage) {
         if (stopping) { stopping = false; notice(); }
-        if (view === "live") setView("results", true);
+        if (view === "live" && !scanFullscreen()) setView("results", true);
       }
       lastStage = job.stage;
     }
@@ -797,6 +811,19 @@ async function init() {
   el("map-2d").addEventListener("click", () => chooseMap("2d"));
   el("map-3d").addEventListener("click", () => loadTwin("model"));
   el("map-scan").addEventListener("click", () => loadTwin("scan"));
+  el("scan-expand").disabled = !document.fullscreenEnabled;
+  el("scan-expand").addEventListener("click", async () => {
+    if (scanFullscreen()) { await leaveScanFullscreen(); return; }
+    try { await el("warehouse-panel").requestFullscreen(); }
+    catch (error) { notice(`Could not expand the map. ${error.message}`); }
+  });
+  el("scan-stop").addEventListener("click", () => el("global-stop").click());
+  document.addEventListener("fullscreenchange", () => {
+    const expanded = scanFullscreen();
+    el("scan-expand").setAttribute("aria-pressed", String(expanded));
+    put("scan-expand", expanded ? "Exit full screen" : "Expand map");
+    draw();
+  });
   el("map-3d").disabled = !layout.scene;
   el("focus-dock").addEventListener("click", async () => {
     setView("plan", true);

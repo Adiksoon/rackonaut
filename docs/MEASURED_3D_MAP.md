@@ -1,5 +1,7 @@
 # Mapa pomiarowa 3D Scan
 
+[Układ, obsługa kamery i filtry wysokości w GOAL 19A](SCAN_REFINEMENT.md)
+
 Uruchom [Full Robotics](../README.md#b-full-robotics-demo), otwórz [Control Center](http://127.0.0.1:8765) i wybierz **3D Scan** w panelu magazynu. **2D Map** służy do planowania w rzucie z góry. **3D Model** otwiera istniejący Digital Twin z geometrią referencyjną. **3D Scan** pokazuje zarejestrowane odbicia LiDAR-u, estymowaną pozę drona, jego trajektorię i aktualne punkty w objętości ruchu wskazane przez Obstacle Avoidance. Włącz **Live LiDAR**, aby zobaczyć zsynchronizowane odbicia z bieżącej klatki. **Height** koloruje punkty według Z i pokazuje legendę w metrach. **Uniform** używa jednego koloru.
 
 ## Źródło i przepływ danych

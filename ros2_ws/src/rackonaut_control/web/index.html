@@ -212,46 +212,65 @@
           <button type="button" id="map-3d" aria-pressed="false">3D Model</button>
           <button type="button" id="map-scan" aria-pressed="false">3D Scan</button>
         </div>
+        <div class="scan-window-actions" hidden id="scan-window-actions">
+          <button type="button" class="danger scan-stop" id="scan-stop" hidden>Emergency stop</button>
+          <button type="button" class="secondary" id="scan-expand" aria-pressed="false">Expand map</button>
+        </div>
       </div>
       <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
       <section id="twin-panel" aria-label="Interactive warehouse view" data-map-mode="model" hidden>
         <div class="scan-controls">
-          <strong id="scan-status" role="status">Waiting for measured points</strong>
-          <label>Detail <select id="scan-detail"><option value="low">Low</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select></label>
-          <label>Colour <select id="scan-colour"><option value="height">Height</option><option value="uniform">Uniform</option></select></label>
-          <label class="scan-toggle"><input id="scan-live" type="checkbox"> Live LiDAR</label>
+          <dl class="scan-summary">
+            <div><dt>Mapping status</dt><dd id="scan-status" role="status">Waiting for measured points</dd></div>
+            <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
+            <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>
+            <div><dt>Localization status</dt><dd id="scan-localization">—</dd></div>
+            <div><dt>Last update</dt><dd id="scan-updated">—</dd></div>
+          </dl>
+          <div class="scan-settings">
+            <label>Detail <select id="scan-detail"><option value="low">Low</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select></label>
+            <label>Colour <select id="scan-colour"><option value="height">Height</option><option value="uniform">Uniform</option></select></label>
+            <label>Height filter <select id="scan-height"><option value="full">Full cloud</option><option value="interior">Warehouse interior</option><option value="custom">Custom height</option></select></label>
+            <div class="scan-height-inputs" id="scan-height-inputs" hidden>
+              <label>Min Z (m) <input type="number" id="scan-min-z" step="0.1" value="0.3" required></label>
+              <label>Max Z (m) <input type="number" id="scan-max-z" step="0.1" value="5.9" required></label>
+            </div>
+            <label>Point size <input type="range" id="scan-size" min="60" max="180" step="10" value="100"><output for="scan-size" id="scan-size-value">100%</output></label>
+            <label class="scan-toggle"><input id="scan-live" type="checkbox"> Live LiDAR</label>
+          </div>
+          <p id="scan-empty" class="scan-empty" hidden>No measured points in this height range</p>
+        </div>
+        <div class="twin-toolbar" id="twin-toolbar" role="group" aria-label="3D camera controls">
+          <button type="button" id="twin-iso" aria-pressed="true">Isometric</button>
+          <button type="button" id="twin-top" aria-pressed="false">Top</button>
+          <button type="button" class="scan-camera" id="scan-side" aria-pressed="false">Side</button>
+          <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
+          <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
+          <button type="button" class="scan-camera" id="scan-fit">Fit to cloud</button>
+          <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
+          <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
+          <button type="button" id="twin-corridor" aria-pressed="true" hidden>Flight corridor</button>
+          <button type="button" id="twin-onboard" aria-pressed="true" hidden>Onboard scan</button>
         </div>
         <div class="twin-viewport" id="twin-viewport">
           <div class="twin-markers" id="twin-markers"></div>
-          <div class="twin-toolbar" role="group" aria-label="3D camera controls">
-            <button type="button" id="twin-iso" aria-pressed="true">Isometric</button>
-            <button type="button" id="twin-top" aria-pressed="false">Top</button>
-            <button type="button" id="twin-follow" aria-pressed="false" aria-label="Follow drone" disabled>Follow</button>
-            <button type="button" id="twin-reset" aria-label="Reset camera">Reset</button>
-            <button type="button" id="twin-economy" aria-pressed="false">Eco</button>
-            <button type="button" id="twin-aerial" aria-pressed="true" hidden>Aerial infrastructure</button>
-            <button type="button" id="twin-corridor" aria-pressed="true" hidden>Flight corridor</button>
-            <button type="button" id="twin-onboard" aria-pressed="true" hidden>Onboard scan</button>
-          </div>
           <div class="twin-feed"><span id="twin-odom" role="status">Waiting for odometry</span><span id="twin-source"></span></div>
           <div class="twin-help">Drag to orbit · Right-drag to pan · Wheel to zoom</div>
-          <div class="scan-reference" id="scan-surface">
-            <span class="scan-axis"><b>X</b> <b>Y</b> <b>Z ↑</b> · Grid 2 m</span>
-            <div id="scan-height-key"><span>Height Z</span><i></i><span>0</span><span>2</span><span>4</span><span>6</span><span>8+ m</span></div>
-          </div>
         </div>
         <div class="scan-details">
-          <dl>
-            <div><dt>Map source</dt><dd>Onboard LiDAR · measured cloud</dd></div>
-            <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
-            <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>
-            <div><dt>Voxel resolution</dt><dd>0.16 m</dd></div>
-            <div><dt>Last update</dt><dd id="scan-updated">—</dd></div>
-            <div><dt>Localization</dt><dd id="scan-localization">—</dd></div>
-            <div><dt>Estimation quality</dt><dd id="scan-quality">—</dd></div>
-            <div><dt>Coordinate frame</dt><dd id="scan-frame">rackonaut_odom</dd></div>
-          </dl>
-          <div class="scan-legend"><span><i></i> Estimated trajectory</span><span><i></i> Local obstacle returns</span><span><i></i> Live LiDAR</span></div>
+          <div class="scan-legend">
+            <span class="scan-axis"><b>X</b> <b>Y</b> <b>Z ↑</b> · Grid 2 m</span>
+            <div id="scan-height-key"><span>Height Z</span><i></i><span>0</span><span>2.5</span><span>5</span><span>7.5</span><span>10+ m</span></div>
+            <span class="scan-route-key"><i></i> Trajectory</span><span class="scan-hazard-key"><i></i> Obstacle returns</span><span class="scan-live-key"><i></i> Live LiDAR</span>
+          </div>
+          <details class="scan-technical"><summary>Map Details</summary>
+            <dl>
+              <div><dt>Map source</dt><dd>Onboard LiDAR · measured cloud</dd></div>
+              <div><dt>Voxel resolution</dt><dd>0.16 m</dd></div>
+              <div><dt>Estimation quality</dt><dd id="scan-quality">—</dd></div>
+              <div><dt>Coordinate frame</dt><dd id="scan-frame">rackonaut_odom</dd></div>
+            </dl>
+          </details>
         </div>
         <div class="localization-layers" id="localization-layers" role="group" aria-label="Spatial mapping layers" hidden>
           <button type="button" id="twin-warehouse-model" aria-pressed="true">Warehouse model</button>

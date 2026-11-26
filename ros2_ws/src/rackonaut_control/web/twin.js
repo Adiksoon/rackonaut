@@ -172,6 +172,14 @@ export function createTwin(layout, callbacks) {
   scene.add(warehouseModel);
   const warehouse = makeWarehouse(layout, warehouseModel);
   const { drone, body, edge } = makeAircraft(scene, layout.avoidance);
+  const scanHeading = new T.ArrowHelper(new T.Vector3(1, 0, 0), new T.Vector3(0, .26, 0), .96, 0x9bdbff, .24, .16);
+  scanHeading.visible = false;
+  for (const tip of scanHeading.children) {
+    tip.material.depthTest = false;
+    tip.material.depthWrite = false;
+    tip.renderOrder = 6;
+  }
+  drone.add(scanHeading);
   const corridor = warehouse.aerial ? path(scene, 0x8a5cb8, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
@@ -217,7 +225,9 @@ export function createTwin(layout, callbacks) {
   let following = false;
   let scanMode = false;
   let autoFrameScan = true, framedSpan = 0;
+  let modelPreset = "iso", scanPreset = "iso";
   const framedCenter = new T.Vector3();
+  const scanOffset = new T.Vector3();
   const scan = layout.localization?.mode === "sensor_based"
     ? createMeasuredScene(byId("twin-panel"), queue, frameMeasuredCloud)
     : null;
@@ -312,7 +322,7 @@ export function createTwin(layout, callbacks) {
     if (time - lastDraw < (eco ? 64 : 40)) { queue(); return; }
     lastDraw = time;
     if (transition) {
-      const ratio = Math.min(1, (time - transition.time) / 440);
+      const ratio = Math.min(1, (time - transition.time) / (scanMode ? 620 : 440));
       const eased = 1 - (1 - ratio) ** 3;
       camera.position.lerpVectors(transition.from, transition.to, eased);
       controls.target.lerpVectors(transition.start, transition.end, eased);
@@ -331,9 +341,10 @@ export function createTwin(layout, callbacks) {
       followAnchor.copy(drone.position);
     }
     const orbiting = controls.update();
+    if (scanMode) scan.scalePoints(camera.position.distanceTo(controls.target));
     renderer.render(scanMode ? scan.scene : scene, camera);
     flightAnchor.copy(drone.position);
-    flightAnchor.y += 1.10;
+    flightAnchor.y += scanMode ? .87 : 1.10;
     const used = [];
     const denseOffsets = [0, -17, 17, -34, 34, -51, 51, -68, 68];
     for (const { element, anchor, kind } of labels) {
@@ -359,35 +370,65 @@ export function createTwin(layout, callbacks) {
     width = viewport.clientWidth;
     height = viewport.clientHeight;
     const dpr = window.devicePixelRatio || 1;
-    renderer.setPixelRatio(eco ? Math.min(dpr, .85) : Math.min(dpr, 1.2));
+    renderer.setPixelRatio(Math.min(dpr, eco ? .85 : scanMode ? 1 : 1.2));
     renderer.setSize(width, height, false);
+    const previousAspect = camera.aspect;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    if (scanMode && autoFrameScan && !following && Math.abs(previousAspect - camera.aspect) > .06) {
+      fitScan(scanDirection(preset), false);
+    }
     queue();
   }
   function cameraTo(position, aim, animate = true) {
+    animate &&= !matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (animate) transition = { from: camera.position.clone(), start: controls.target.clone(),
       to: position, end: aim, time: performance.now() };
     else {
+      transition = null;
       camera.position.copy(position);
       controls.target.copy(aim);
       controls.update();
     }
     queue();
   }
+
+  function scanDirection(view) {
+    if (view === "top") return new T.Vector3(0, 1, .004);
+    if (view === "side") return new T.Vector3(.99, .055, .17);
+    return new T.Vector3(-.62, .53, .74);
+  }
+
+  function fitScan(direction, animate) {
+    const empty = scan.bounds.isEmpty();
+    const target = empty ? drone.position.clone() : scan.bounds.getCenter(new T.Vector3());
+    framedCenter.copy(target);
+    framedSpan = empty ? 8 : scan.bounds.getSize(new T.Vector3()).length();
+    direction.normalize();
+    const right = new T.Vector3(0, 1, 0).cross(direction).normalize();
+    const up = direction.clone().cross(right);
+    const tanV = Math.tan(T.MathUtils.degToRad(camera.fov) / 2);
+    const tanH = tanV * camera.aspect;
+    let distance = empty ? 13 : 6;
+    if (!empty) {
+      const { min, max } = scan.bounds;
+      for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) {
+        scanOffset.set(x, y, z).sub(target);
+        const projected = Math.max(Math.abs(scanOffset.dot(right)) / tanH, Math.abs(scanOffset.dot(up)) / tanV);
+        distance = Math.max(distance, scanOffset.dot(direction) + projected * 1.13);
+      }
+    }
+    cameraTo(target.clone().addScaledVector(direction, distance), target, animate);
+  }
+
   function choosePreset(next, animate = true) {
     setFollow(false);
     preset = next;
     byId("twin-iso").setAttribute("aria-pressed", String(next === "iso"));
     byId("twin-top").setAttribute("aria-pressed", String(next === "top"));
+    byId("scan-side").setAttribute("aria-pressed", String(next === "side"));
     if (scanMode) {
-      const target = scan.bounds.isEmpty() ? drone.position.clone() : scan.bounds.getCenter(new T.Vector3());
-      const span = scan.bounds.isEmpty() ? 8 : scan.bounds.getSize(new T.Vector3()).length();
-      framedCenter.copy(target);
-      framedSpan = span;
-      const distance = Math.max(8, span * 1.18) * Math.max(1, 1.16 / camera.aspect);
-      const offset = (next === "iso" ? new T.Vector3(-.57, .69, .75) : new T.Vector3(0, 1.35, .004)).multiplyScalar(distance);
-      cameraTo(target.clone().add(offset), target, animate);
+      fitScan(scanDirection(next), animate);
       return;
     }
     const f = layout.floor;
@@ -401,7 +442,7 @@ export function createTwin(layout, callbacks) {
     if (following || !autoFrameScan || scan.bounds.isEmpty()) return;
     const span = scan.bounds.getSize(new T.Vector3()).length();
     const center = scan.bounds.getCenter(new T.Vector3());
-    if (first || span > framedSpan * 1.15 || center.distanceTo(framedCenter) > 2.) choosePreset(preset, !first);
+    if (first || span > framedSpan * 1.20 || center.distanceTo(framedCenter) > 2.8) fitScan(scanDirection(preset), !first);
   }
   function focusRack() {
     if (!focus) return;
@@ -416,7 +457,8 @@ export function createTwin(layout, callbacks) {
     if (enabled) {
       followAnchor.copy(drone.position);
       const target = drone.position.clone();
-      cameraTo(target.clone().add(new T.Vector3(-6.4, 6.0, 9.5)), target);
+      const offset = scanMode ? scanDirection(preset).normalize().multiplyScalar(10) : new T.Vector3(-6.4, 6.0, 9.5);
+      cameraTo(target.clone().add(offset), target);
     }
   }
   function selectSlot(id) {
@@ -447,8 +489,13 @@ export function createTwin(layout, callbacks) {
   document.addEventListener("visibilitychange", queue);
   byId("twin-iso").addEventListener("click", () => { autoFrameScan = true; choosePreset("iso"); });
   byId("twin-top").addEventListener("click", () => { autoFrameScan = true; choosePreset("top"); });
+  byId("scan-side").addEventListener("click", () => { autoFrameScan = true; choosePreset("side"); });
+  byId("scan-fit").addEventListener("click", () => {
+    setFollow(false);
+    fitScan(camera.position.clone().sub(controls.target), true);
+  });
   byId("twin-follow").addEventListener("click", () => setFollow(!following));
-  byId("twin-reset").addEventListener("click", () => { autoFrameScan = true; choosePreset(preset); });
+  byId("twin-reset").addEventListener("click", () => { autoFrameScan = true; choosePreset(scanMode ? "iso" : preset); });
   byId("twin-focus").addEventListener("click", focusRack);
   byId("twin-reinspect").addEventListener("click", () => { if (focus) callbacks.onReinspect(focus); });
   byId("twin-economy").addEventListener("click", () => {
@@ -505,8 +552,9 @@ export function createTwin(layout, callbacks) {
       fill("twin-odom", drone.visible ? "Connection lost · Last pose" : "Waiting for odometry");
       flightLabel.textContent = "UAV · Last pose";
     }
-    body.color.setHex(fresh ? 0x3974ba : 0x9d7844);
-    edge.color.setHex(fresh ? 0x214b80 : 0xa46522);
+    body.color.setHex(fresh ? scanMode ? 0x58a4ee : 0x3974ba : 0x9d7844);
+    edge.color.setHex(fresh ? scanMode ? 0x76c5ff : 0x214b80 : 0xa46522);
+    scanHeading.visible = scanMode && fresh;
     flightLabel.classList.toggle("stale", !fresh);
     byId("twin-odom").classList.toggle("stale", !fresh);
   }
@@ -668,13 +716,16 @@ export function createTwin(layout, callbacks) {
     setMode(mode) {
       const measured = mode === "scan" && !!scan;
       if (measured === scanMode) return;
+      if (scanMode) scanPreset = preset;
+      else modelPreset = preset;
       scanMode = measured;
       autoFrameScan = true;
+      controls.maxPolarAngle = Math.PI / 2 - (scanMode ? .045 : .12);
       (scanMode ? scan.scene : scene).add(drone);
       renderer.domElement.setAttribute("aria-label", scanMode ? "Measured LiDAR point cloud" : "3D warehouse scene");
       byId("twin-panel").dataset.mapMode = mode;
       scan.setVisible(visible && scanMode);
-      choosePreset(preset, false);
+      choosePreset(scanMode ? scanPreset : modelPreset, false);
       update(renderData);
     },
     focusDock() {
