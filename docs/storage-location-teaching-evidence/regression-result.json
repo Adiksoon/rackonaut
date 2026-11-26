@@ -1,0 +1,22 @@
+{
+  "restart_mode": "CALIBRATION_BLOCKED",
+  "no_dispatch_after_restart": true,
+  "new_session_empty": true,
+  "old_session_locations": 2,
+  "mock_sap_observations_before": 0,
+  "mock_sap_observations_after": 1,
+  "inspection_id": "INS-CONTROL-20261126-132127-9ABDEF99",
+  "stage": "COMPLETE",
+  "location": [
+    {
+      "slot_id": "A-01-01",
+      "expected_pallet_id": "P001",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-01882E6366A146BFBDC8FE93CFB99838",
+      "outcome": "unreadable_label"
+    }
+  ],
+  "physical_dock": "gazebo_dock_switch",
+  "safety": "RELEASED",
+  "elapsed_seconds": 256.2
+}
