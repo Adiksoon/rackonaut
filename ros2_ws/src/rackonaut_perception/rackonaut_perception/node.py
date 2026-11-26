@@ -218,6 +218,8 @@ class Perception(Node):
 
 
 def main():
+    # Camera frames are processed serially. Keep OpenCV from competing with ROS and Gazebo for cores.
+    cv2.setNumThreads(1)
     rclpy.init()
     node = None
     try:

@@ -22,6 +22,7 @@
     <span class="environment">Simulation</span>
     <span id="robot-state" class="signal">Connecting to drone</span>
     <span id="api-state" class="signal">Connecting to API</span>
+    <button type="button" id="abort" class="danger" disabled hidden>Stop inspection</button>
   </div>
 </header>
 <main>
@@ -33,7 +34,6 @@
   </nav>
   <div class="page-heading">
     <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description">Choose where the drone should inspect.</p></div>
-    <div id="run-state" class="run-state" hidden></div>
   </div>
   <p id="connection-status" class="notice" role="status" hidden></p>
   <div id="notice" class="notice" role="status" hidden></div>
@@ -87,29 +87,27 @@
       <div class="flight-monitor">
         <div class="video"><img id="camera" alt="Live image from the simulated drone camera" hidden><span id="no-camera">Waiting for camera stream</span></div>
         <div class="flight-status">
+          <p id="live-detail" class="flight-message" role="status">Start an inspection to monitor progress.</p>
           <div id="flight-progress" class="flight-progress" hidden>
-            <div><span>Current target</span><strong id="active-target">—</strong></div>
-            <div><span>Confirmed</span><strong id="progress-count">—</strong></div>
+            <div><span>Locations confirmed</span><strong id="progress-count">—</strong></div>
             <progress id="progress-bar" max="1" value="0" aria-label="Confirmed locations"></progress>
           </div>
-          <p id="live-detail" class="footnote">Start an inspection to monitor progress.</p>
           <div id="adaptive-progress" class="adaptive-progress" hidden>
             <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
           </div>
-          <button type="button" id="abort" class="danger" disabled hidden>Stop inspection</button>
           <button type="button" id="live-plan" class="secondary" hidden>Plan an inspection</button>
         </div>
       </div>
     </aside>
     <aside class="card controls" id="results-panel" aria-labelledby="completion-title" hidden>
       <div class="card-head"><div><h2 id="completion-title">Inspection summary</h2><p id="completion-id" hidden></p></div></div>
-      <div id="completion-text" class="completion">Run an inspection to see its report.</div>
       <dl id="result-counts" class="result-counts" hidden>
-        <div><dt>Confirmed</dt><dd id="result-confirmed">—</dd></div>
-        <div><dt>Need review</dt><dd id="result-review-count">—</dd></div>
+        <div><dt>Locations confirmed</dt><dd id="result-confirmed">—</dd></div>
+        <div><dt>Locations needing attention</dt><dd id="result-review-count">—</dd></div>
         <div><dt>Package damage</dt><dd id="result-damage-count">—</dd></div>
       </dl>
-      <p id="result-attention" class="footnote result-attention" hidden></p>
+      <p id="result-attention" class="result-attention" hidden></p>
+      <div id="completion-text" class="completion">Run an inspection to see its report.</div>
       <div class="result-actions">
         <a id="report-link" class="primary" target="_blank" rel="noopener" hidden>Open report <span aria-hidden="true">↗</span></a>
         <a id="damage-link" class="secondary" href="#findings" hidden></a>

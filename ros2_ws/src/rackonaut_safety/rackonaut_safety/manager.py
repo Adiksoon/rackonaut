@@ -12,6 +12,7 @@ from time import monotonic, monotonic_ns
 import rclpy
 from ament_index_python.packages import get_package_share_path
 from nav_msgs.msg import Odometry
+from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from sensor_msgs.msg import LaserScan
@@ -96,7 +97,9 @@ class Manager(Node):
         self.state = self.create_publisher(String, SAFETY + "/state", latest)
         self.signals = self.create_publisher(String, SAFETY + "/signals", reliable)
         self.abort = self.create_client(Trigger, "/rackonaut/mission/abort")
-        self.create_timer(.05, self.tick)
+        self.last_tick = monotonic()
+        self.last_publish = self.last_tick
+        self.create_timer(.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def event(self, kind, description, zones=(), **details):
         entry = {"time": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
@@ -353,6 +356,8 @@ class Manager(Node):
 
     def tick(self):
         now = monotonic()
+        tick_gap = now - self.last_tick
+        self.last_tick = now
         present = self.occupied(now)
         health = {key: self.sensor_health(key, now) for key in self.fields}
         for key in self.fields:
@@ -423,6 +428,14 @@ class Manager(Node):
                 },
             }
         self.state.publish(String(data=json.dumps(snapshot, separators=(",", ":"))))
+        published = monotonic()
+        publish_gap = published - self.last_publish
+        self.last_publish = published
+        if self.airborne and publish_gap > .30:
+            self.get_logger().warning(
+                f"Safety state delayed for {self.run}: {publish_gap:.3f}s between publications "
+                f"(tick interval {tick_gap:.3f}s, tick work {published - now:.3f}s)"
+            )
 
 
 def main():

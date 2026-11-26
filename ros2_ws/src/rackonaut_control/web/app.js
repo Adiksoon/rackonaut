@@ -312,6 +312,32 @@ function drawMap(job) {
   }
 }
 
+function flightMessage(job) {
+  if (!job) return "Start an inspection to monitor progress.";
+  if (job.error) return job.error;
+  if (stopping && !terminal.has(job.stage)) return "Waiting for the drone to stop…";
+  const { target, detail } = job.status || {};
+  const location = job.slots?.includes(target) ? target : "";
+  switch (job.stage) {
+    case "STARTING": return "Preparing inspection…";
+    case "WAITING": return "Waiting for permission to take off.";
+    case "WAITING_FOR_AISLE_CLEARANCE": return "Waiting for the aisle to clear.";
+    case "CORRIDOR": return "Flying through the transfer corridor.";
+    case "TRANSIT":
+    case "AISLE_APPROACH": return location ? `Flying to ${location}.` : "Flying to the next stop.";
+    case "ALIGN": return location ? `Aligning with ${location}.` : "Aligning with the shelf.";
+    case "INSPECT":
+    case "REINSPECT": return location ? `Reading the label at ${location}.` : "Reading the location label.";
+    case "REPOSITION":
+    case "RECENTER": return "Adjusting the camera angle.";
+    case "QUALITY_CLOSEUP": return "Checking the package up close.";
+    case "RETURN":
+    case "RETURN_TRANSIT": return "Returning to the launch pad.";
+    case "LAND": return "Landing.";
+    default: return detail || label(job.stage);
+  }
+}
+
 function drawResults(job) {
   const status = job?.status || {};
   const result = job?.result;
@@ -339,12 +365,13 @@ function drawResults(job) {
   el("damage-link").hidden = !damage.length;
   put("damage-link", `View ${damage.length} damage ${damage.length === 1 ? "photo" : "photos"} ↓`);
   const review = reviewSlots(job);
+  const attention = [...new Set([...review, ...damage.map(report => report.slot_id).filter(Boolean)])];
   el("result-counts").hidden = !finished;
   put("result-confirmed", `${confirmed} / ${job?.slots?.length || 0}`);
-  put("result-review-count", review.length);
+  put("result-review-count", attention.length);
   put("result-damage-count", job?.quality ? damage.length : "—");
-  el("result-attention").hidden = !finished || !review.length;
-  put("result-attention", review.length ? `Check ${review.slice(0, 4).join(", ")}${review.length > 4 ? ` and ${review.length - 4} more` : ""}.` : "");
+  el("result-attention").hidden = !finished || !attention.length;
+  put("result-attention", attention.length ? `Check ${attention.slice(0, 4).join(", ")}${attention.length > 4 ? ` and ${attention.length - 4} more` : ""}.` : "");
   el("results-map").hidden = !job;
   el("review-stops").hidden = !(finished && review.length);
   const recoveryPending = layout.recovery && state?.safety?.phase === "RECOVERY";
@@ -647,32 +674,29 @@ function draw() {
   robot.classList.toggle("good", !!state?.robot);
   backend.textContent = state?.backend.online ? (state.backend.mode === "fixture" ? "Mock API online" : state.backend.mode === "mock_sap" ? "Mock SAP online" : "Warehouse API online") : "Inventory API offline";
   backend.classList.toggle("good", !!state?.backend.online);
-  const flightPhase = job?.status?.flight_phase || stage;
-  el("run-state").hidden = view !== "live" || !stage;
-  put("run-state", label(flightPhase));
-  el("run-state").classList.toggle("active", !!stage && !terminal.has(stage));
   put("planned-total", preview?.slots.length ?? "—");
   put("plan-distance", preview ? `${preview.distance.toFixed(1)} m planned` : "—");
   const missing = preview?.slots.filter((slot) => !state?.backend?.slots?.includes(slot)) || [];
   const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
   if (!state) reason = "Connecting to the Control Center.";
-  else if (state.busy || dispatching || wantedRun) reason = "An inspection is in progress or its report is being prepared.";
+  else if (dispatching || wantedRun) reason = "Starting the inspection. Wait for Live flight.";
+  else if (state.busy) reason = terminal.has(stage) ? "Preparing the previous report. Wait for it to finish." : "An inspection is in progress. Follow it in Live flight.";
   else if (!preview) reason = "Select at least one functional location.";
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
     reason = "Waiting for reliable sensor localization.";
-  else if (!state?.robot) reason = "Waiting for drone odometry.";
+  else if (!state?.robot) reason = "Drone is offline. Check the simulator and ROS connection.";
   else if (!state.at_pad) reason = layout.recovery ? "Use the Recovery Center to return the drone to the dock." :
-    "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
+    "Drone is away from the launch pad. Wait for it to return. If the flight was stopped, restart the simulator.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
-  else if (state.safety?.phase === "RECOVERY") reason = "Operator recovery required before dispatch.";
+  else if (state.safety?.phase === "RECOVERY") reason = "Recovery is required. Open Diagnostics and follow the recovery steps.";
   else if (layout.safety_fields && (!state.safety.signals_online || selectedZones.some(zone => zone?.sensor !== "FRESH")))
     reason = "Waiting for verified safety sensors and signals.";
   else if (selectedZones.some(zone => zone?.occupied)) reason = "A required zone is occupied. Clear it or choose another scope.";
   else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
-  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Insufficient energy for the first stop and safe return.";
-  else if (!state.backend.online) reason = "Waiting for the inventory API.";
-  else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
+  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Battery is too low for the first stop and a safe return. Wait for charging to finish.";
+  else if (!state.backend.online) reason = "Inventory API is offline. Check that the backend is running.";
+  else if (missing.length) reason = `Inventory data is missing for ${missing[0]}. Choose a supported scope.`;
   el("start").disabled = !!reason;
   put("start", dispatching || wantedRun ? "Starting inspection…" : "Start inspection");
   put("dispatch-help", reason || "Ready to take off.");
@@ -681,12 +705,11 @@ function draw() {
   const confirmed = Object.keys(status.confirmed || {}).length;
   const total = job?.slots?.length || 0;
   el("flight-progress").hidden = !job;
-  put("active-target", status.target === "PAD" ? "Launch pad" : status.target === "CORRIDOR" ? "Transfer corridor" : status.target || "—");
-  put("progress-count", `${confirmed} / ${total}`);
+  put("progress-count", `${confirmed} of ${total}`);
   el("progress-bar").max = total || 1;
   el("progress-bar").value = confirmed;
   put("position-value", state?.robot && state.position ? state.position.slice(0, 3).map((p) => p.toFixed(2)).join(" / ") : "—");
-  put("live-detail", job?.error || status.detail || "Start an inspection to monitor progress.");
+  put("live-detail", flightMessage(job));
   const canStop = !!job && !terminal.has(stage);
   el("abort").hidden = !canStop;
   el("abort").disabled = !canStop || stopping;

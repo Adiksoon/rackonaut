@@ -35,9 +35,8 @@ main { max-width: 1280px; padding: 0 24px 42px; margin: 0 auto; }
 .page-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 20px; }
 h1 { font-size: clamp(1.65rem, 3.5vw, 2.3rem); letter-spacing: -.035em; line-height: 1.05; }
 .page-heading p { color: var(--muted); margin-top: 7px; font-size: .93rem; }
-.run-state, .map-tag { border: 1px solid var(--line); color: #425871; background: #edf2f8; padding: 6px 9px;
+.map-tag { border: 1px solid var(--line); color: #425871; background: #edf2f8; padding: 6px 9px;
   border-radius: 6px; font: 650 .7rem/1.25 ui-monospace, monospace; overflow-wrap: anywhere; }
-.run-state.active { color: var(--accent); border-color: #b8cce5; }
 .aerial-axis { fill: none; stroke: #c597fa; stroke-width: 4; stroke-dasharray: 5 5; opacity: .83; }
 .aerial-gate { fill: #b98bfa33; stroke: #cbabfa; stroke-width: 1.5; }
 .aerial-gate.clear { fill: #38d7a145; stroke: #38d7a1; }
@@ -331,7 +330,8 @@ thead th { color: var(--muted); font-weight: 550; }
 .inspection-options .quality { border: 0; }
 .slot-options { max-height: none; }
 #start, #abort { min-height: 44px; justify-content: center; }
-#abort { margin-top: 14px; }
+.topbar:has(#abort:not([hidden])) { position: sticky; top: 0; z-index: 10; }
+#abort { width: auto; margin: 0; padding: 6px 10px; }
 .danger:hover:not(:disabled) { background: #f8e4e0; }
 #dispatch-help { margin-top: 9px; min-height: 1.3em; }
 .flight-progress {
@@ -345,7 +345,8 @@ thead th { color: var(--muted); font-weight: 550; }
 .result-counts dd { font-size: 1.45rem; letter-spacing: -.025em; }
 .result-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .result-actions :is(.primary, .secondary) { width: auto; margin: 0; min-height: 38px; }
-.result-attention { color: var(--amber); }
+.flight-message { margin-bottom: 9px; font-size: .91rem; font-weight: 650; }
+.result-attention { margin: 0 0 12px; color: var(--amber); font-size: .86rem; font-weight: 650; }
 .card.result-details { padding: 0 16px; margin: 12px 0 0; }
 .card.result-details[open] { padding-bottom: 14px; }
 .result-details .intelligence-panel { margin: 3px 0 0; }
