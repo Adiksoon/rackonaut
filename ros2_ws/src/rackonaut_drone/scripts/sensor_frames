@@ -1,0 +1,41 @@
+#!/usr/bin/python3
+"""Adapt the X3's co-aligned sensors to the existing localization port."""
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import Imu, PointCloud2
+
+
+class SensorFrames(Node):
+    def __init__(self):
+        super().__init__("rackonaut_x3_sensor_frames")
+        self.imu = self.create_publisher(Imu, "/rackonaut/drone/imu", qos_profile_sensor_data)
+        self.lidar = self.create_publisher(PointCloud2, "/rackonaut/drone/lidar/points", qos_profile_sensor_data)
+        self.create_subscription(Imu, "/rackonaut_drone/sensors/imu", self.forward_imu, qos_profile_sensor_data)
+        self.create_subscription(PointCloud2, "/rackonaut_drone/sensors/lidar",
+                                 self.forward_lidar, qos_profile_sensor_data)
+
+    def forward_imu(self, message):
+        message.header.frame_id = "rackonaut_reference_drone/base_link/local_imu"
+        self.imu.publish(message)
+
+    def forward_lidar(self, message):
+        message.header.frame_id = "rackonaut_reference_drone/base_link/local_lidar"
+        self.lidar.publish(message)
+
+
+def main():
+    rclpy.init()
+    node = SensorFrames()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()

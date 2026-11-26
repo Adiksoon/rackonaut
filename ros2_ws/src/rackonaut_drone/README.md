@@ -61,6 +61,36 @@ W próbie z 26 listopada 2026 r. na WSL2 Ubuntu 22.04.5, ROS 2 Humble i Fortress
 
 Na 20 surowych klatkach w obu ustawieniach z tego samego pola startowego średnia jasność centralnego obszaru spadła ze 101,2 do 84,4 w skali 0–255. Pojedyncze przebiegi porównują łączny wpływ zmian światła i szumu. Automatyczne ponawianie odczytów było wyłączone. [Dane porównawcze](docs/evidence/x3-camera-realism.json)
 
+## Lokalizacja X3 w trybie shadow
+
+Próba korzysta ze świata `localization_showcase.sdf` i istniejącej mapy statycznej Rackonaut. X3 startuje na znanej pozycji doku. Estymator działa w trybie `shadow`, a odometria Gazebo pozostaje źródłem pozycji drona. Walidator interpoluje pozycję Gazebo do znacznika czasu pomiaru i zapisuje porównania w `localization-validation.jsonl` w katalogu `data_dir`.
+
+```bash
+source scripts/robotics/activate.bash
+ros2 run rackonaut_drone prepare_model --localization-shadow
+LP_NUM_THREADS=4 ros2 launch rackonaut_drone localization.launch.py
+```
+
+Poczekaj na kalibrację na postoju przed rozpoczęciem sterowania z klawiatury. Estymatę i jej stan można odczytać w drugim aktywowanym terminalu z tematów `/rackonaut/localization/estimate` i `/rackonaut/localization/state`. W razie równoległego uruchomienia innego profilu ustaw inną domenę ROS i partycję Gazebo przed aktywacją.
+
+Model ma IMU 50 Hz z tym samym szumem Gaussa i błędem stałym co profil referencyjny, oraz LiDAR 3D 192 × 37 przy nominalnych 6 Hz w czasie symulacji. IMU znajduje się w początku układu drona, a LiDAR 0,09 m wyżej. Adapter ROS nadaje pomiarom istniejące nazwy ramek kontraktu lokalizacji i zachowuje ich znaczniki czasu. Estymata trafia na osobny temat, więc domyślny profil inspekcji i źródło odometrii mają dotychczasową konfigurację.
+
+Manewry z próby można odtworzyć bez teleop w drugim terminalu po aktywacji tej samej domeny ROS. Test unosi X3 nad dokiem, mierzy zawis i obrót 90°, leci przez szyb i górny tunel od wejścia do A do wejścia do B, po czym pozostawia drona w zawisie w symulacji. Kończy się zapisaniem okien pomiarowych i stanów w `traffic.json`. Po próbie zatrzymaj launcher.
+
+```bash
+python3 ros2_ws/src/rackonaut_drone/test/probe_shadow.py ros2_ws/log/x3-shadow-probe
+```
+
+**Wynik próby.** Ubuntu 22.04.5 WSL2, ROS 2 Humble, Fortress 6.18.0, Python 3.10.12. Walidator dopasował czasowo **723** próbek estymaty do odometrii Gazebo. Odbiornik zmierzył 50,00 Hz dla IMU i 6,02 Hz dla LiDAR-u w czasie symulacji. W trzech badanych oknach estymator raportował `TRACKING`.
+
+| Etap | Próbki | RMSE 3D | p95 3D |
+| --- | ---: | ---: | ---: |
+| Zawis nad dokiem | 24 | 1,24 cm | 1,38 cm |
+| Obrót 90° | 42 | 1,34 cm | 1,53 cm |
+| Górny tunel A → B | 193 | 0,37 cm | 0,73 cm |
+
+Próba obejmowała jedną trasę ze znaną mapą i poprawną inicjalizacją w doku. Walidator porównywał pozycje na znacznikach czasu skanu. [Pomiary i pozostałe etapy](docs/evidence/x3-shadow-localization.json)
+
 ## Sterowanie i obraz
 
 Polecenia poniżej wykonuj w osobnych terminalach po aktywacji projektu z tym samym `RACKONAUT_ROS_DOMAIN_ID` i `RACKONAUT_GZ_PARTITION`. Jeśli działa już demonstrator, ustaw inną domenę i partycję **przed** aktywacją, np. `RACKONAUT_ROS_DOMAIN_ID=66` i `RACKONAUT_GZ_PARTITION=rackonaut-x3-local`. Uruchom tylko jednego wydawcę poleceń na temacie sterowania. Zakończ teleop przed uruchomieniem testu automatycznego.
