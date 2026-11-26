@@ -1,4 +1,4 @@
-export function createService({ openWarehouse, dispatchWarehouse, previewWarehouse } = {}) {
+export function createService({ openWarehouse, openPlan, sessionChanged } = {}) {
   const el = (id) => document.getElementById(id);
   const text = (id, value) => { el(id).textContent = value ?? "—"; };
   const label = (value) => value ? value.toLowerCase().replaceAll("_", " ").replace(/^./, c => c.toUpperCase()) : "—";
@@ -13,33 +13,14 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
   };
   let visible = false, busy = false, loading = false, generation = 0, current = null;
   let nextRefresh = 0;
-  let catalog = [], details = null, warehouseBusy = false, budgetKey = "";
-
-  function warehouseSelection(identifier) {
-    return {mode:"learned", configuration_id:identifier, revision:details.manifest.revision,
-      record_ids:[...el("warehouse-stops").querySelectorAll("input:checked")].map(input => input.value)};
-  }
-
-  async function showBudget(selection) {
-    const key = selection?.record_ids.length ? JSON.stringify(selection) : "";
-    if (key === budgetKey) return;
-    budgetKey = key;
-    text("warehouse-budget", key ? "Calculating flight budget…" : "");
-    if (!key) return;
-    try {
-      const {energy} = await previewWarehouse(selection);
-      if (budgetKey === key) text("warehouse-budget",
-        energy.seconds.toFixed(1) + " s sim · " + energy.percent.toFixed(1) + " pp · " + energy.reserve_percent.toFixed(1) + " pp reserve");
-    } catch (error) {
-      if (budgetKey === key) text("warehouse-budget", error.message);
-    }
-  }
+  let catalog = [], details = null, warehouseBusy = false;
 
   function renderWarehouses() {
     const status = current?.learned_warehouse;
     el("warehouse-configurations").hidden = !status?.enabled;
     if (!status?.enabled) return;
-    text("warehouse-active", status.error || (status.ready ? "Active · localized on saved LiDAR map · " + status.active_id
+    const activeName = catalog.find(row => row.configuration_id === status.active_id)?.name;
+    text("warehouse-active", status.error || (status.ready ? `${activeName || "Learned warehouse"} · ready for inspections`
       : status.active_id ? "Matching saved map at the dock" : "Choose a saved warehouse to activate"));
     const selected = el("warehouse-select").value;
     const verified = details?.manifest.configuration_id === selected;
@@ -48,12 +29,10 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
       && !["PREPARING", "RESERVED", "RECOVERY"].includes(current.system.safety);
     el("warehouse-confirm-row").hidden = !verified || active;
     el("warehouse-verify").disabled = warehouseBusy || !selected;
+    el("warehouse-activate").hidden = !verified || active;
     el("warehouse-activate").disabled = warehouseBusy || !verified || active || !idle || !el("warehouse-confirm").checked;
     el("warehouse-map-open").disabled = warehouseBusy || !active;
-    el("warehouse-mission").hidden = !active;
-    el("warehouse-dispatch").disabled = warehouseBusy || !active || !idle
-      || !el("warehouse-stops").querySelector("input:checked");
-    showBudget(active ? warehouseSelection(selected) : null);
+    el("warehouse-plan").hidden = !status.ready || !idle;
   }
 
   async function updateCatalog() {
@@ -79,31 +58,17 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     text("warehouse-feedback", "");
     renderWarehouses();
     try {
-      if (action === "dispatch") {
-        await dispatchWarehouse(warehouseSelection(identifier));
-      } else {
-        const { response, body } = await request("warehouses/" + action, {
-          configuration_id:identifier, confirm:el("warehouse-confirm").checked,
-        });
-        if (!response.ok) throw new Error(body.error);
-        details = body;
-        el("warehouse-stops").replaceChildren(...body.locations.map(row => {
-          const label = document.createElement("label");
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.value = row.record_id;
-          checkbox.checked = true;
-          checkbox.addEventListener("change", renderWarehouses);
-          label.append(checkbox, document.createTextNode(" " + row.storage_location_id));
-          return label;
-        }));
-        el("warehouse-confirm").checked = false;
-        text("warehouse-feedback", action === "verify"
-          ? "Verified · " + body.locations.length + " locations · " + body.route.edges.length + " directed segments"
-          : "Activation requested. Waiting for a verified dock match.");
-      }
+      const { response, body } = await request("warehouses/" + action, {
+        configuration_id:identifier, confirm:el("warehouse-confirm").checked,
+      });
+      if (!response.ok) throw new Error(body.error);
+      details = body;
+      el("warehouse-confirm").checked = false;
+      text("warehouse-feedback", action === "verify"
+        ? "Verified · " + body.locations.length + " locations"
+        : "Activation requested. Waiting for the drone to match the saved map.");
     } catch (error) {
-      if (action !== "dispatch") details = null;
+      details = null;
       text("warehouse-feedback", error.message);
     } finally {
       warehouseBusy = false;
@@ -140,6 +105,13 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     const production = calibration.mode === "PRODUCTION";
     const ready = !!mapping;
     const draft = calibration.draft;
+    const step = production ? (catalog.length && !current.learned_warehouse?.ready ? 4 : 0)
+      : calibration.mode === "MAPPING_COMPLETE" ? 3 : calibration.mode === "MAPPING_ACTIVE"
+        ? (mapping?.mapping_phase === "FINISHING" ? 2 : 1) : calibration.mode === "CALIBRATION_READY" ? 1 : 0;
+    for (const [index, item] of [...el("calibration-steps").children].entries()) {
+      if (index === step) item.setAttribute("aria-current", "step");
+      else item.removeAttribute("aria-current");
+    }
     text("service-drone", label(system.drone));
     text("service-connection", system.connection ? "Connected" : "Offline");
     text("service-localization", label(system.localization));
@@ -181,6 +153,7 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     text("calibration-slam", [label(mapping.state), mapping.rms == null ? null : `${mapping.rms.toFixed(3)} m scan fit RMS`].filter(Boolean).join(" · "));
     text("calibration-points", mapping.map_voxels);
     text("calibration-trajectory", mapping.trajectory.length);
+    el("calibration-fly").hidden = calibration.mode === "MAPPING_COMPLETE";
     el("calibration-fly").disabled = mapping.mapping_phase === "EMPTY";
     el("calibration-ply").hidden = el("calibration-result").hidden = !draft.map_reference;
     el("calibration-locations").hidden = !draft.map_reference || !draft.locations_reference;
@@ -195,7 +168,9 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     const camera = el("service-camera");
     camera.hidden = !system.camera;
     el("service-camera-empty").hidden = system.camera;
-    if (visible && system.camera && !document.hidden) camera.src = `/api/frame.jpg?t=${Date.now()}`;
+    if (visible && system.camera && !document.hidden && camera.closest("details").open) {
+      camera.src = `/api/frame.jpg?t=${Date.now()}`;
+    }
   }
 
   async function refresh() {
@@ -206,6 +181,7 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     try {
       const { response, body } = await request("state");
       if (requestGeneration !== generation) return;
+      const hadSession = !!current;
       if (response.ok) {
         current = body;
         if (body.learned_warehouse?.enabled) await updateCatalog();
@@ -214,6 +190,7 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
         if (body.configured === false) text("service-access-message", "Service access is disabled until a code is configured on the server.");
         current = null;
       }
+      if (hadSession !== !!current) sessionChanged?.(!!current);
       render();
     } catch {
       if (requestGeneration === generation) {
@@ -238,6 +215,7 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
         text("service-access-message", response.ok ? "" : body.error);
       } else if (path === "lock" || response.status === 401) {
         current = null;
+        sessionChanged?.(false);
         text("service-access-message", response.ok ? "" : body.error);
       } else if (response.ok) {
         current = { ...current, calibration: body };
@@ -263,11 +241,15 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     input.value = "";
   });
   el("service-lock").addEventListener("click", () => action("lock", {}));
-  el("service-start").addEventListener("click", () => action("calibration/start", {}));
+  el("service-start").addEventListener("click", () => {
+    if (["PREPARING", "RESERVED"].includes(current?.system?.safety) &&
+        !window.confirm("Interrupt the current inspection and return to the dock for calibration?")) return;
+    action("calibration/start", {});
+  });
   el("service-cancel").addEventListener("click", () => action("calibration/cancel", {}));
   el("warehouse-verify").addEventListener("click", () => warehouseAction("verify"));
   el("warehouse-activate").addEventListener("click", () => warehouseAction("activate"));
-  el("warehouse-dispatch").addEventListener("click", () => warehouseAction("dispatch"));
+  el("warehouse-plan").addEventListener("click", () => openPlan(details));
   el("warehouse-map-open").addEventListener("click", () => openWarehouse(details));
   el("warehouse-confirm").addEventListener("change", renderWarehouses);
   el("warehouse-select").addEventListener("change", () => {
@@ -277,6 +259,12 @@ export function createService({ openWarehouse, dispatchWarehouse, previewWarehou
     renderWarehouses();
   });
   return {
+    async planConfiguration(identifier) {
+      const { response, body } = await request("warehouses/verify", {configuration_id:identifier});
+      if (response.status === 401) return null;
+      if (!response.ok) throw new Error(body.error);
+      return body;
+    },
     show(value) {
       visible = value;
       if (value) nextRefresh = 0;

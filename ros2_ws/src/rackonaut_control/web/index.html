@@ -27,15 +27,17 @@
 </header>
 <main>
   <nav aria-label="Control Center">
-    <button type="button" class="tab active" data-view="plan" aria-current="page">Plan</button>
+    <button type="button" class="tab active" data-view="plan" aria-current="page">Plan inspection</button>
     <button type="button" class="tab" data-view="live">Live flight</button>
-    <button type="button" class="tab" id="manual-tab" data-view="manual" hidden>Manual flight</button>
     <button type="button" class="tab" data-view="results">Results</button>
-    <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
-    <button type="button" class="tab service-tab" data-view="service"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2m-3 3v1"/></svg>Service</button>
+    <div class="support-nav">
+      <button type="button" class="tab service-tab" data-view="service">Service</button>
+      <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
+    </div>
   </nav>
+  <p id="critical-alert" class="critical-alert" role="alert" hidden></p>
   <div class="page-heading">
-    <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description">Choose where the drone should inspect.</p></div>
+    <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description" hidden></p></div>
     <div id="run-state" class="run-state" hidden></div>
   </div>
   <p id="connection-status" class="notice" role="status" hidden></p>
@@ -66,6 +68,10 @@
     <p class="footnote" id="recovery-action-message" role="status"></p>
   </section>
   <section id="service-panel" aria-label="Service Center" hidden>
+    <div class="service-tools" id="manual-entry" hidden>
+      <div><h2>Manual flight</h2><p>Fly in reserved space with collision protection and a supervised return.</p></div>
+      <button type="button" class="secondary" id="manual-tab" data-view="manual">Open manual controls</button>
+    </div>
     <form id="service-access" class="card service-access">
       <svg class="service-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>
       <h2>Service access</h2>
@@ -80,7 +86,7 @@
         <button type="button" id="service-lock" class="secondary">Lock Service</button>
       </div>
       <p id="service-feedback" class="notice" role="status" hidden></p>
-      <div id="service-overview" class="service-grid">
+      <details id="service-overview" class="service-overview"><summary>System and warehouse details</summary><div class="service-grid">
         <section class="card service-card" aria-labelledby="service-system-title">
           <h2 id="service-system-title">System Status</h2>
           <dl id="service-system" class="service-metrics">
@@ -101,18 +107,21 @@
             <div><dt>Configuration</dt><dd id="service-config-state">—</dd></div>
           </dl>
         </section>
-      </div>
+      </div></details>
       <section class="card service-card service-transition" aria-labelledby="service-calibration-title">
         <div class="service-transition-head">
           <div><h2 id="service-calibration-title">Warehouse Calibration</h2><p id="service-calibration-detail" class="footnote" role="status"></p></div>
           <span id="service-mode" class="run-state"></span>
         </div>
+        <ol id="calibration-steps" class="calibration-steps" aria-label="Calibration progress">
+          <li>Prepare warehouse</li><li>Map &amp; register locations</li><li>Return to dock</li><li>Review &amp; approve route</li><li>Save &amp; activate</li>
+        </ol>
         <div id="service-introduction">
           <button type="button" id="service-start" class="primary" aria-describedby="service-start-hint">Start Calibration</button>
           <p id="service-start-hint" class="footnote">Starting calibration interrupts the active inspection, returns the drone to its charging dock and prepares a new warehouse configuration.</p>
         </div>
         <section id="calibration-workspace" aria-label="Calibration Workspace" hidden>
-          <div class="service-grid calibration-grid">
+          <details class="calibration-measurements"><summary>Camera and calibration measurements</summary><div class="service-grid calibration-grid">
             <div>
               <h3>Live Camera</h3>
               <div class="video"><img id="service-camera" alt="Live image from the drone camera" hidden /><span id="service-camera-empty">Waiting for camera stream</span></div>
@@ -139,7 +148,7 @@
             <div><dt>SLAM</dt><dd id="calibration-slam">—</dd></div>
             <div><dt>Registered points</dt><dd id="calibration-points">0</dd></div>
             <div><dt>Trajectory samples</dt><dd id="calibration-trajectory">0</dd></div>
-          </dl>
+          </dl></details>
           <button type="button" id="calibration-fly" class="primary">Open mapping flight</button>
           <a id="calibration-ply" hidden>Download point cloud</a>
           <a id="calibration-result" hidden>Download result and trajectory</a>
@@ -159,18 +168,40 @@
         <p id="warehouse-feedback" class="footnote" role="status"></p>
         <label id="warehouse-confirm-row" hidden><input id="warehouse-confirm" type="checkbox"> Activate this revision at the dock</label>
         <button type="button" class="primary" id="warehouse-activate" disabled>Activate warehouse</button>
-        <fieldset class="route-options" id="warehouse-mission" hidden>
-          <legend>Inspection stops</legend>
-          <div id="warehouse-stops"></div>
-          <p class="footnote" id="warehouse-budget" role="status"></p>
-          <button type="button" class="primary" id="warehouse-dispatch">Start learned inspection</button>
-        </fieldset>
+        <button type="button" class="secondary" id="warehouse-plan" hidden>Plan inspection</button>
       </section>
     </div>
   </section>
+  <section id="business-results" class="business-results" hidden>
+  <section class="intelligence-panel" id="intelligence" aria-label="Inventory comparison" hidden>
+    <div class="results-toolbar">
+      <label>Inspection <select id="intelligence-run"></select></label>
+      <a id="intelligence-report" class="secondary" target="_blank" rel="noopener" hidden>Export inspection report</a>
+    </div>
+    <div class="intelligence-metrics" id="intelligence-metrics"></div>
+    <p id="intelligence-status" class="footnote" role="status"></p>
+    <div id="intelligence-content" hidden>
+      <div class="result-locations"><h2>Locations</h2><div id="intelligence-locations" class="location-statuses"></div></div>
+      <div class="result-workbench"><section class="card issue-list" aria-labelledby="issues-title">
+      <h2 id="issues-title">Needs attention</h2>
+      <details class="issue-filters"><summary>Filter findings</summary><div class="intelligence-filters">
+        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
+        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
+        <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
+        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
+      </div></details>
+      <div class="intelligence-table">
+        <table aria-label="Warehouse issues">
+          <tbody id="intelligence-issues"></tbody></table>
+      </div>
+      </section><section id="intelligence-detail" class="card" aria-label="Finding and evidence" hidden></section></div>
+    </div>
+  </section>
+  </section>
   <div class="workspace" id="workspace" data-view="plan">
     <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">
-      <div class="card-head"><div><h2 id="scope-title">Inspection scope</h2></div></div>
+      <div class="card-head"><div><h2 id="scope-title">Where to inspect</h2><p id="active-warehouse-name">Warehouse</p></div></div>
+      <div id="reference-scope">
       <fieldset id="mode-options">
         <legend class="sr-only">Selection mode</legend>
         <label class="mode"><input name="mode" value="full" type="radio"><span><strong>Full inventory</strong><small>All inspection locations</small></span></label>
@@ -184,7 +215,20 @@
         <label class="quality"><span><strong>Check for package damage</strong><small>Save photos of visible damage</small></span><input id="quality" type="checkbox" checked></label>
         <label class="quality" id="adaptive-option" hidden><span><strong>Retry difficult readings</strong><small>Change the camera angle for a second look</small></span><input id="adaptive" type="checkbox"></label>
       </details>
-      <div class="plan-totals"><span><strong id="planned-total">—</strong> locations</span><span id="plan-distance">—</span></div>
+      </div>
+      <div id="learned-scope" hidden>
+        <div id="learned-options" class="learned-options" hidden>
+          <label class="learned-all"><input type="checkbox" id="learned-all"> All registered locations</label>
+          <fieldset class="slot-options" id="learned-locations"><legend class="sr-only">Registered locations</legend></fieldset>
+        </div>
+        <button type="button" class="secondary" id="learned-service" hidden>Open Service</button>
+      </div>
+      <dl class="plan-totals">
+        <div><dt>Selected</dt><dd id="planned-total">—</dd></div>
+        <div><dt>Estimated time</dt><dd id="plan-duration">—</dd></div>
+        <div><dt>Battery required</dt><dd id="plan-battery">—</dd></div>
+      </dl>
+      <p id="plan-distance" class="footnote" hidden></p>
       <button type="button" id="start" class="primary" aria-describedby="dispatch-help" disabled>Start inspection</button>
       <p id="dispatch-help" class="footnote" role="status">Connecting to the drone and inventory API.</p>
     </aside>
@@ -198,6 +242,8 @@
             <div><span>Confirmed</span><strong id="progress-count">—</strong></div>
             <progress id="progress-bar" max="1" value="0" aria-label="Confirmed locations"></progress>
           </div>
+          <div id="flight-battery" class="flight-battery" hidden><span>Battery</span><strong id="flight-battery-level">—</strong></div>
+          <p id="flight-finish" class="footnote" hidden></p>
           <p id="live-detail" class="footnote">Start an inspection to monitor progress.</p>
           <div id="adaptive-progress" class="adaptive-progress" hidden>
             <p id="adaptive-attempt"></p><strong id="adaptive-outcome"></strong>
@@ -224,11 +270,11 @@
           <div class="manual-actions"><label>Speed <input id="manual-speed" type="range" min="20" max="100" step="10" value="60"><output for="manual-speed" id="manual-speed-value">60%</output></label>
             <button type="button" class="secondary" id="manual-hold">Hold position <kbd>Space</kbd></button></div>
         </fieldset>
-        <dl class="manual-telemetry">
+        <details><summary>Motion and clearance</summary><dl class="manual-telemetry">
           <div><dt>Requested X / Y / Z / yaw</dt><dd id="manual-requested">—</dd></div>
           <div><dt>Permitted X / Y / Z / yaw</dt><dd id="manual-permitted">—</dd></div>
           <div><dt>Verified clearance</dt><dd id="manual-clearance">—</dd></div>
-        </dl>
+        </dl></details>
       </section>
       <section id="teaching-panel" class="teaching-panel" aria-labelledby="teaching-title" hidden>
         <div class="card-head">
@@ -293,14 +339,14 @@
       <div class="card-head"><div><h2 id="route-panel-title">Learned Flight Route</h2><p id="route-session"></p></div></div>
       <p id="route-feedback" role="status"></p>
       <section id="route-result" hidden aria-label="Learned route details">
-        <dl class="route-metrics">
+        <details class="route-options"><summary>Route measurements</summary><dl class="route-metrics">
           <div><dt>Recorded samples</dt><dd id="route-samples">—</dd></div>
           <div><dt>Learned waypoints</dt><dd id="route-waypoints">—</dd></div>
           <div><dt>Recorded distance</dt><dd id="route-raw-distance">—</dd></div>
           <div><dt>Learned distance</dt><dd id="route-length">—</dd></div>
           <div><dt>Max deviation</dt><dd id="route-deviation">—</dd></div>
           <div><dt>Validation</dt><dd id="route-validation">—</dd></div>
-        </dl>
+        </dl></details>
         <fieldset class="route-options">
           <legend>3D Scan layers</legend>
           <label><input type="checkbox" id="route-show-raw" checked> Recorded trajectory</label>
@@ -316,8 +362,8 @@
         <section id="route-photo-panel" aria-label="Storage location reference" hidden>
           <h3 id="route-photo-title"></h3><img id="route-photo" alt="Storage location reference">
         </section>
-        <section class="route-options" aria-label="Energy forecast">
-          <h3 id="route-energy-title">Energy forecast</h3>
+        <details class="route-options">
+          <summary id="route-energy-title">Energy forecast</summary>
           <dl class="route-metrics">
             <div><dt>Travel and inspection</dt><dd id="route-time">—</dd></div>
             <div><dt>Ascent</dt><dd id="route-climb">—</dd></div>
@@ -326,7 +372,7 @@
             <div><dt>Required reserve</dt><dd id="route-reserve">—</dd></div>
             <div><dt>Calibration used</dt><dd id="route-actual">—</dd></div>
           </dl>
-        </section>
+        </details>
         <details class="route-options"><summary>Waypoint types and direction</summary><ul id="route-nodes"></ul></details>
         <ul id="route-issues" hidden></ul>
       </section>
@@ -351,18 +397,16 @@
           <button type="button" class="secondary" id="scan-expand" aria-pressed="false">Expand map</button>
         </div>
       </div>
+      <p id="fullscreen-alert" class="critical-alert" role="alert" hidden></p>
       <p id="twin-error" class="footnote twin-error" role="status" hidden></p>
       <section id="twin-panel" aria-label="Interactive warehouse view" data-map-mode="model" hidden>
         <div class="scan-controls">
           <dl class="scan-summary">
-            <div id="scan-session-field" hidden><dt>Mapping session</dt><dd id="scan-session">—</dd></div>
-            <div><dt>Mapping status</dt><dd id="scan-status" role="status">Waiting for measured points</dd></div>
-            <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
-            <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>
-            <div><dt>Localization status</dt><dd id="scan-localization">—</dd></div>
-            <div><dt>Last update</dt><dd id="scan-updated">—</dd></div>
+            <div><dt>Map data</dt><dd id="scan-status" role="status">Waiting for measured points</dd></div>
+            <div><dt>Drone position</dt><dd id="scan-localization">—</dd></div>
+            <div><label class="scan-toggle"><input id="scan-live" type="checkbox"> Current LiDAR returns</label></div>
           </dl>
-          <div class="scan-settings">
+          <details class="scan-options"><summary>Display options</summary><div class="scan-settings">
             <label>Detail <select id="scan-detail"><option value="low">Low</option><option value="balanced" selected>Balanced</option><option value="high">High</option></select></label>
             <label>Colour <select id="scan-colour"><option value="height">Height</option><option value="uniform">Uniform</option></select></label>
             <label>Height filter <select id="scan-height"><option value="full">Full cloud</option><option value="interior">Warehouse interior</option><option value="custom">Custom height</option></select></label>
@@ -371,8 +415,7 @@
               <label>Max Z (m) <input type="number" id="scan-max-z" step="0.1" value="5.9" required></label>
             </div>
             <label>Point size <input type="range" id="scan-size" min="60" max="180" step="10" value="100"><output for="scan-size" id="scan-size-value">100%</output></label>
-            <label class="scan-toggle"><input id="scan-live" type="checkbox"> Live LiDAR</label>
-          </div>
+          </div></details>
           <p id="scan-empty" class="scan-empty" hidden>No measured points in this height range</p>
         </div>
         <div class="twin-toolbar" id="twin-toolbar" role="group" aria-label="3D camera controls">
@@ -400,7 +443,10 @@
           </div>
           <details class="scan-technical"><summary>Map Details</summary>
             <dl>
-              <div><dt>Map source</dt><dd>Onboard LiDAR · measured cloud</dd></div>
+              <div id="scan-session-field" hidden><dt>Saved configuration or mapping session</dt><dd id="scan-session">—</dd></div>
+              <div><dt>Registered points</dt><dd id="scan-registered">0</dd></div>
+              <div><dt>Displayed points</dt><dd id="scan-displayed">0</dd></div>
+              <div><dt>Last map update</dt><dd id="scan-updated">—</dd></div>
               <div><dt>Voxel resolution</dt><dd>0.16 m</dd></div>
               <div><dt>Estimation quality</dt><dd id="scan-quality">—</dd></div>
               <div><dt>Coordinate frame</dt><dd id="scan-frame">rackonaut_odom</dd></div>
@@ -448,6 +494,7 @@
         <g id="aerial-map" aria-hidden="true"></g>
         <g id="flight-lines"><polyline id="plan-line" /><polyline id="flown-line" /><g id="adaptive-lines"></g></g>
         <g id="positions"></g>
+        <g id="learned-map-locations"></g>
         <g id="drone" visibility="hidden"><circle r="13"/><path d="M-6 -5L9 0-6 5-3 0Z"/></g>
       </svg>
       <div class="map-legend" id="map-legend">
@@ -475,30 +522,6 @@
       <tbody id="result-rows"></tbody>
     </table></div>
     <div id="findings" class="findings"></div>
-  </details>
-  <details id="business-results" class="card result-details" hidden>
-    <summary>Inventory comparison</summary>
-  <section class="card intelligence-panel" id="intelligence" aria-labelledby="intelligence-title" hidden>
-    <div class="energy-head"><div><h2 id="intelligence-title">Warehouse Intelligence</h2>
-      <p>Mock SAP · simulated warehouse records</p></div>
-      <label>Inspection <select id="intelligence-run"></select></label>
-    </div>
-    <div class="intelligence-metrics" id="intelligence-metrics"></div>
-    <p id="intelligence-status" class="footnote" role="status"></p>
-    <div id="intelligence-content" hidden>
-      <div class="intelligence-filters">
-        <label>Priority <select id="intelligence-priority"><option value="">All priorities</option><option>HIGH</option><option>MEDIUM</option></select></label>
-        <label>Location <select id="intelligence-slot"><option value="">All locations</option></select></label>
-        <label>Issue type <select id="intelligence-type"><option value="">All types</option></select></label>
-        <label>Review status <select id="intelligence-review"><option value="">All statuses</option><option>OPEN</option><option>VERIFIED</option></select></label>
-      </div>
-      <div class="intelligence-table">
-        <table aria-label="Warehouse issues"><thead><tr><th>Priority</th><th>Issue</th><th>Location</th><th>HU</th><th>Review</th></tr></thead>
-          <tbody id="intelligence-issues"></tbody></table>
-      </div>
-      <section id="intelligence-detail" aria-label="Issue evidence" hidden></section>
-    </div>
-  </section>
   </details>
   <section id="system-details" class="system-details" aria-label="System diagnostics" hidden>
   <section class="card telemetry-panel">

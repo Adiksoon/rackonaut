@@ -169,11 +169,11 @@ export function createMeasuredScene(panel, invalidate, onCloud) {
     el("status").dataset.stale = String(registered > 0 && !fresh && !warehouse);
     show("registered", wholeNumber.format(registered));
     show("displayed", wholeNumber.format(displayed));
-    show("updated", updatedAt ? `${updatedAt.toLocaleTimeString()} · ${Math.max(0, (now - mapTime) / 1000).toFixed(1)} s ago` : "—");
+    show("updated", warehouse || phase === "COMPLETE" ? "Saved snapshot" :
+      updatedAt ? `${updatedAt.toLocaleTimeString()} · ${Math.max(0, (now - mapTime) / 1000).toFixed(1)} s ago` : "—");
     const fit = localization?.rms;
     const tracking = localization?.state ? localization.state.toLowerCase().replace(/^./, c => c.toUpperCase()) : "Unavailable";
-    const source = warehouse ? "Learned map" : mapping ? "SLAM" : "";
-    show("localization", source ? `${source} · ${tracking}${fit == null ? "" : ` · ${fit.toFixed(3)} m`}` : tracking);
+    show("localization", tracking === "Tracking" ? "Position verified" : tracking);
     show("quality", fit != null ? `${fit.toFixed(3)} m RMS · ${Math.round(localization.overlap * 100)}% scan fit` : "—");
     const verifiedFrame = now - tfTime <= maximumAge && localization?.state === "TRACKING";
     show("frame", `rackonaut_odom · ${verifiedFrame ? "TF verified" : "TF unavailable"}`);

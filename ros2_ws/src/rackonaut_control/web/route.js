@@ -39,10 +39,12 @@ export function createRouteReview(api, changed) {
   function render() {
     const route = review();
     const approved = revision?.status==="approved";
-    set("session",session || "");
+    set("session", archive ? "Saved route" : approved ? "Ready to save" : "Review before approving");
     el("result").hidden = !route;
     set("feedback",error || (busy ? "Working…" : sealed || title(revision?.status)));
     el("review-again").hidden = el("validate").hidden = el("approve").hidden = archive;
+    el("validate").hidden ||= trusted();
+    el("approve").hidden ||= !trusted() || approved;
     el("seal").hidden = archive || !canSeal || !approved;
     el("seal").disabled = busy || !!sealed;
     el("stop-options").hidden = archive;
@@ -50,6 +52,10 @@ export function createRouteReview(api, changed) {
     el("review-again").disabled = busy || !session;
     el("validate").disabled = busy || !route;
     el("approve").disabled = busy || !trusted() || approved || !el("confirm").checked;
+    el("validate").classList.toggle("primary", !!route && !trusted());
+    el("validate").classList.toggle("secondary", !route || trusted());
+    el("seal").classList.toggle("primary", approved && !sealed);
+    el("seal").classList.toggle("secondary", !approved || !!sealed);
     el("confirm-area").hidden = !trusted() || approved;
     el("plan").disabled = busy || !trusted() || shortlist.size===0;
     if (!route) {

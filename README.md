@@ -36,7 +36,7 @@ LP_NUM_THREADS=4 ros2 launch rackonaut_control control.launch.py \
 
 1. Open Control Center and wait for **Mock SAP online** and the drone at the pad. [Control Center](http://127.0.0.1:8765)
 2. Choose **Selected locations** and select **A-01-01**, **A-01-02** and **A-01-03**. In **Inspection options**, enable **Check for package damage** and **Retry difficult readings**. Start the inspection.
-3. After landing, open **Results → Inventory comparison**. The recorded reference run identified discontinued P001 at A-01-01, found P003 in the wrong location with visible damage at A-01-02, and found its expected location A-01-03 empty. Inspect the linked issues, compare the evidence and open the HTML report.
+3. After landing, open **Results**. Choose a finding to compare the expected and observed stock, review available evidence and export the HTML report. The recorded reference run identified discontinued P001 at A-01-01, found P003 in the wrong location with visible damage at A-01-02, and found its expected location A-01-03 empty.
 
 The local API serves the v1 Swagger UI on port 8000. [Swagger UI](http://127.0.0.1:8000/docs) · [Mock SAP and business endpoints](docs/SAP_BUSINESS_INTELLIGENCE.md)
 
@@ -52,13 +52,13 @@ Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TR
 
 Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
 
-Use **Manual flight** to fly inside reserved space with the live camera, measured 3D scan and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
+Use **Service → Open manual controls** to fly inside reserved space with the live camera, measured 3D scan and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
 
 Use **Service → Start Calibration → Open mapping flight** to build and export a LiDAR map. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
 
 After verified docking, choose **Review Route** in Service to compare the recorded trajectory with its directed waypoint graph, validate the recorded flight envelope, and approve the proposal for the calibration archive. [Learn a flight route](docs/ROUTE_TEACHING.md)
 
-Launch `scripts/robotics/checkpoint live learned_warehouse:=true` for teach-and-repeat with a saved measured map. Service manages configuration integrity, activation at the dock and taught inspection locations. [Autonomous inspection of a learned warehouse](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
+Launch `scripts/robotics/checkpoint live learned_warehouse:=true` for teach-and-repeat with a saved measured map. Unlock Service and activate the saved warehouse at the dock. Open **Plan inspection** to select its taught locations and start an inspection. [Autonomous inspection of a learned warehouse](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
 
 ### C. Engineering Showcase
 

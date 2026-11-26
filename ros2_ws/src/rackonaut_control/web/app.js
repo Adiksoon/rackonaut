@@ -17,25 +17,24 @@ const retryReasons = { initial: "Reference view", unreadable: "Unreadable label"
   uncertain: "Uncertain occupancy", missing: "No reading", damage: "Damage close-up",
   damage_closeup_unconfirmed: "Close-up unconfirmed" };
 const headings = {
-  plan: ["Plan inspection", "Choose where the drone should inspect."],
-  live: ["Live flight", "Follow the drone and its current inspection."],
+  plan: ["Plan inspection", ""],
+  live: ["Live flight", ""],
   manual: ["Manual flight", "Guide the drone in the reserved space with collision protection active."],
-  results: ["Inspection results", "Review what the drone found."],
+  results: ["Inspection results", ""],
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
-  service: ["Service Center", "Check system readiness and prepare a warehouse calibration."],
+  service: ["Service", "Calibration, warehouse configuration and manual flight."],
   route: ["Learned Flight Route", "Review the measured route from dock to inspection and back."],
 };
 const service = createService({
-  previewWarehouse: request => api("/api/plan",request),
   openWarehouse(configuration) {
     setView("route", true);
     routeReview.openArchive(configuration);
   },
-  async dispatchWarehouse(request) {
-    const result = await api("/api/start", request);
-    wantedRun = result.inspection_id;
-    setView("live", true);
-    loadTwin("scan");
+  openPlan() { setView("plan", true); },
+  sessionChanged() {
+    warehouseRequest = null;
+    warehouseConfiguration = null;
+    if (layout?.learned_warehouse) changePlan();
   },
 });
 const manual = createManual(api, terminal, notice);
@@ -44,13 +43,19 @@ const routeReview = createRouteReview(api, () => drawTwin(state?.mission));
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
+let locatedReport = null;
 let stopping = false;
 let dispatching = false;
 let version = 0;
+let previewPending = false, previewError = "";
 let cameraLoading = false;
 let overviewLoading = false;
 let twin = null, twinLoading = false, show3D = false, focusedLocation = null;
 let mapMode = "2d", mapIntent = "2d";
+let warehouseConfiguration = null, warehouseRequest = null, warehouseError = "", warehouseLocked = false;
+let learnedStops = new Set();
+let replanLocations = null;
+let emergencyTarget = null, connectionLost = false;
 
 function put(id, value) {
   const element = el(id);
@@ -109,12 +114,7 @@ async function loadTwin(mode = "model") {
           if (record) twin?.focusTaughtLocation(record.position_m);
         } else teaching.select(id);
       },
-      onReinspect: (id) => {
-        choices.mode = "custom";
-        choices.slots = new Set([id]);
-        setView("plan");
-        changePlan();
-      },
+      onReinspect: id => planLocations([id]),
       onError: (message) => { twinError(message); twin = null; el("map-3d").disabled = true; },
     });
     if (focusedLocation) twin.focusSlot(focusedLocation);
@@ -130,7 +130,8 @@ async function loadTwin(mode = "model") {
 }
 function drawTwin(job) {
   if (!twin || !show3D || el("warehouse-panel").hidden) return;
-  const selected = Object.keys(layout.slots).filter((slot) => choices.mode === "full"
+  if (view === "results" && locatedReport && job?.inspection_id !== locatedReport) job = null;
+  const selected = layout.learned_warehouse ? [] : Object.keys(layout.slots).filter((slot) => choices.mode === "full"
     || (choices.mode === "custom" ? choices.slots.has(slot) : choices.aisles.has(layout.slots[slot].aisle)));
   const review = view === "route" ? routeReview.display() : null;
   twin.update({ state, view, preview, job, activeFlight: !!job && !terminal.has(job.stage), selection: new Set(selected),
@@ -146,7 +147,9 @@ async function focusTaughtLocation(record) {
 }
 
 async function api(url, data) {
-  const response = await fetch(url, data === undefined ? { cache: "no-store" } : {
+  const response = await fetch(url, data === undefined ? {
+    cache: "no-store", ...(url === "/api/state" ? {signal: AbortSignal.timeout(3000)} : {}),
+  } : {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data),
   });
   const body = await response.json();
@@ -165,9 +168,16 @@ function drawWorkspace() {
   el("workspace").classList.toggle("with-map", showMap);
   el("results-map").setAttribute("aria-expanded", String(resultsMap));
   put("results-map", resultsMap ? "Hide route on map" : "Show route on map");
-  put("map-caption", mapMode === "scan" ? "Registered endpoints from the onboard LiDAR."
-    : view === "plan" ? "Select aisles or locations on the map."
-    : view === "results" ? "Planned and flown route." : "Drone position and flight path.");
+  drawMapCaption();
+}
+
+function drawMapCaption() {
+  const scanSource = view === "route" || state?.localization?.source === "learned_map" ? "Saved measured map"
+    : state?.localization?.state === "TRACKING" ? "Accumulated LiDAR measurements" : "Last measured snapshot";
+  put("map-caption", mapMode === "scan" ? scanSource : mapMode === "model" ? "Reference model of the warehouse"
+    : view === "plan" ? (layout?.learned_warehouse ? "Reference floor plan · measured location markers" : "Reference floor plan · select aisles or locations")
+    : view === "results" ? (locatedReport && state?.mission?.inspection_id !== locatedReport ? "Reference floor plan · selected location" : "Reference floor plan · planned and flown route")
+    : "Reference floor plan · drone and flight path");
 }
 
 function scanFullscreen() { return document.fullscreenElement === el("warehouse-panel"); }
@@ -178,7 +188,7 @@ async function leaveScanFullscreen() {
 }
 
 function setView(next, focus = false) {
-  if (next === "results" && view !== next) resultsMap = false;
+  if (next === "results" && view !== next) { resultsMap = false; locatedReport = null; }
   view = next;
   el("workspace").dataset.view = next;
   el("workspace").hidden = next === "diagnostics" || next === "service";
@@ -191,13 +201,18 @@ function setView(next, focus = false) {
     el(panel).hidden = name !== next && !(name === "live" && next === "manual");
   }
   for (const button of document.querySelectorAll(".tab")) {
-    const active = button.dataset.view === next || (next === "route" && button.dataset.view === "service");
+    const active = button.dataset.view === next || (["route", "manual"].includes(next) && button.dataset.view === "service");
     button.classList.toggle("active", active);
     if (active) button.setAttribute("aria-current", "page");
     else button.removeAttribute("aria-current");
   }
   put("page-title", headings[next][0]);
   put("page-description", headings[next][1]);
+  el("page-description").hidden = !headings[next][1];
+  if (next === "plan" && layout.learned_warehouse) {
+    warehouseRequest = null;
+    syncLearnedPlan();
+  }
   if (next === "route" || (next === "manual" && state?.localization?.mapping_id)) loadTwin("scan");
   draw();
   if (focus) el("page-title").focus();
@@ -285,7 +300,7 @@ function drawScans() {
 }
 
 function toggleAisle(id) {
-  if (view !== "plan") return;
+  if (view !== "plan" || layout.learned_warehouse) return;
   choices.mode = "aisle";
   choices.aisles.has(id) ? choices.aisles.delete(id) : choices.aisles.add(id);
   changePlan();
@@ -293,18 +308,76 @@ function toggleAisle(id) {
 function toggleSlot(slot) {
   focusedLocation = slot;
   twin?.focusSlot(slot);
-  if (view !== "plan") return;
+  if (view !== "plan" || layout.learned_warehouse) return;
   if (choices.mode !== "custom") choices.slots.clear();
   choices.mode = "custom";
   choices.slots.has(slot) ? choices.slots.delete(slot) : choices.slots.add(slot);
   changePlan();
 }
 function selection() {
+  if (layout.learned_warehouse) return {mode: "learned", configuration_id: warehouseConfiguration?.manifest.configuration_id,
+    revision: warehouseConfiguration?.manifest.revision, record_ids: [...learnedStops]};
   return { mode: choices.mode, aisles: [...choices.aisles], slots: [...choices.slots],
     quality: choices.quality, adaptive: choices.adaptive };
 }
+
+function toggleLearned(id) {
+  learnedStops.has(id) ? learnedStops.delete(id) : learnedStops.add(id);
+  changePlan();
+}
+
+function planLocations(ids) {
+  if (layout.learned_warehouse) {
+    if (warehouseConfiguration) {
+      learnedStops = new Set(warehouseConfiguration.locations.filter(row => ids.includes(row.storage_location_id)).map(row => row.record_id));
+    } else replanLocations = ids;
+  } else {
+    choices.mode = ids.length ? "custom" : "aisle";
+    choices.slots = new Set(ids);
+    choices.aisles.clear();
+  }
+  setView("plan", true);
+  changePlan();
+}
+
+async function syncLearnedPlan() {
+  const identifier = state?.localization?.warehouse_id;
+  if (view !== "plan" || !layout.learned_warehouse || !identifier || !state.localization.warehouse_ready) return;
+  if (warehouseRequest?.id === identifier && Date.now() < warehouseRequest.until) return;
+  const request = {id: identifier, until: Date.now() + 60000};
+  warehouseRequest = request;
+  try {
+    const config = await service.planConfiguration(identifier);
+    if (warehouseRequest !== request) return;
+    const changed = config?.manifest.configuration_id !== warehouseConfiguration?.manifest.configuration_id;
+    warehouseLocked = !config;
+    warehouseError = "";
+    warehouseConfiguration = config;
+    if (config && (changed || replanLocations)) {
+      learnedStops = new Set(config.locations.filter(row => !replanLocations || replanLocations.includes(row.storage_location_id))
+        .map(row => row.record_id));
+      replanLocations = null;
+    } else if (!config) learnedStops.clear();
+    if (changed || warehouseLocked || config && !preview && learnedStops.size) changePlan();
+  } catch (error) {
+    if (warehouseRequest !== request) return;
+    warehouseConfiguration = null;
+    warehouseError = error.message;
+    warehouseLocked = false;
+    changePlan();
+  }
+}
+
 function changePlan() {
   notice();
+  if (layout.learned_warehouse) {
+    const locations = warehouseConfiguration?.locations || [];
+    el("learned-options").hidden = !locations.length;
+    el("learned-all").checked = !!locations.length && learnedStops.size === locations.length;
+    el("learned-all").indeterminate = learnedStops.size > 0 && learnedStops.size < locations.length;
+    html("learned-locations", '<legend class="sr-only">Registered locations</legend>' + locations.map(row =>
+      `<label class="learned-choice"><input type="checkbox" value="${safe(row.record_id)}" ${learnedStops.has(row.record_id) ? "checked" : ""}>${safe(row.storage_location_id)}</label>`).join(""));
+  } else {
   for (const radio of document.querySelectorAll("input[name='mode']")) radio.checked = radio.value === choices.mode;
   el("quality").checked = choices.quality;
   el("adaptive").checked = choices.adaptive;
@@ -314,23 +387,36 @@ function changePlan() {
     aria-pressed="${choices.aisles.has(row.id)}" ${row.functional ? "" : "disabled"}>Aisle ${row.id}${row.functional ? "" : " · decorative"}</button>`).join(""));
   html("slot-options", Object.keys(layout.slots).map((slot) => `<button class="chip" type="button" data-slot="${slot}"
     aria-pressed="${choices.slots.has(slot)}">${slot}</button>`).join(""));
+  }
   const revision = ++version;
   preview = null;
-  draw();
+  previewError = "";
   const chosen = selection();
-  if ((chosen.mode === "aisle" && !chosen.aisles.length) || (chosen.mode === "custom" && !chosen.slots.length)) return;
+  previewPending = chosen.mode === "full" || (chosen.mode === "aisle" && !!chosen.aisles.length) ||
+    (chosen.mode === "custom" && !!chosen.slots.length) || (chosen.mode === "learned" &&
+    !!chosen.configuration_id && !!chosen.record_ids.length);
+  draw();
+  if (!previewPending) return;
   api("/api/plan", chosen).then((plan) => {
-    if (version === revision) { preview = plan; draw(); }
+    if (version === revision) { preview = plan; previewPending = false; draw(); }
   }).catch((error) => {
-    if (version === revision) notice(error.message);
+    if (version === revision) { previewError = error.message; previewPending = false; draw(); }
   });
 }
 
 function drawMap(job) {
+  if (view === "results" && locatedReport && job?.inspection_id !== locatedReport) job = null;
   const drawing = view === "plan" ? preview : job;
   const selected = new Set(drawing?.slots || []);
-  const selectedAisles = new Set([...selected].map((slot) => layout.slots[slot].aisle));
+  const selectedAisles = new Set([...selected].map((slot) => layout.slots[slot]?.aisle).filter(Boolean));
   const status = view === "plan" ? {} : job?.status || {};
+  const learned = view === "plan" && layout.learned_warehouse;
+  el("warehouse-map").classList.toggle("learned-plan", learned);
+  const locations = learned ? warehouseConfiguration?.locations || [] : [];
+  html("learned-map-locations", locations.map(row => {
+    const [x,y] = point(...row.position_m);
+    return `<g class="learned-map-location ${learnedStops.has(row.record_id) ? "selected" : ""}" data-record="${safe(row.record_id)}" role="button" tabindex="0" aria-label="${safe(row.storage_location_id)}" aria-pressed="${learnedStops.has(row.record_id)}"><circle cx="${x}" cy="${y}" r="10"/><title>${safe(row.storage_location_id)}</title></g>`;
+  }).join(""));
   const current = inspectionStages.includes(status.stage) ? status.target : null;
   for (const row of layout.aisles) {
     const item = el("aisle-" + row.id);
@@ -502,8 +588,9 @@ function drawEnergy(job) {
   el("dock-state").classList.toggle("good", dock === "READY" || dock === "CHARGING");
   el("energy-panel").dataset.dock = dock.toLowerCase();
   put("energy-cycles", telemetry?.cycles ?? "—");
-  put("energy-need", percent(mission?.required_percent ?? forecast?.estimated_percent));
-  put("energy-budget", forecast ? `${forecast.flight_seconds} sim s flight · ${forecast.inspection_seconds} sim s scan · up to ${forecast.adaptive_percent.toFixed(1)}% adaptive allowance` : "");
+  put("energy-need", percent(mission?.required_percent ?? forecast?.estimated_percent ?? forecast?.percent));
+  put("energy-budget", !forecast ? "" : Number.isFinite(forecast.seconds) ? `${forecast.seconds} s sim · estimated inspection`
+    : `${forecast.flight_seconds} sim s flight · ${forecast.inspection_seconds} sim s scan · up to ${forecast.adaptive_percent.toFixed(1)}% adaptive allowance`);
   const returning = mission?.return_percent ?? forecast?.return_percent;
   const reserve = mission?.reserve_percent ?? forecast?.reserve_percent;
   put("energy-reserve", returning != null ? `${percent(returning)} + ${percent(reserve)}` : "—");
@@ -523,7 +610,7 @@ function drawEnergy(job) {
   if (battery != null) {
     message = mission ? messages[stage] || (telemetry.charging ? "Simulated charging" : "") || "Tracking live simulated energy"
       : forecast && battery < forecast.minimum_percent ? "Insufficient energy for the first stop and safe return"
-      : forecast && battery >= forecast.estimated_percent + forecast.adaptive_percent + forecast.reserve_percent
+      : forecast && (forecast.single_cycle || (layout.learned_warehouse && forecast.can_start))
         ? "Battery sufficient for planned inspection"
         : forecast ? "The route may require a charging stop" : "Select an inspection scope for an energy estimate";
   }
@@ -583,7 +670,7 @@ function drawRecovery() {
   if (!layout.recovery) return;
   const r = state?.recovery;
   const panel = el("emergency-panel");
-  panel.hidden = !r;
+  panel.hidden = !r || (r.phase === "RECOVERY_COMPLETE" && !["live", "results", "diagnostics"].includes(view));
   if (!r) return;
   const phase = r.phase;
   const complete = phase === "RECOVERY_COMPLETE";
@@ -675,10 +762,11 @@ function drawSafety() {
     title = "Choose an inspection scope";
     message = "Required zones follow the planned flight path.";
   }
-  el("safety-banner").hidden = style === "open";
+  el("safety-banner").hidden = !["fault", "preparing"].includes(style) || !!alarm;
   el("safety-banner").dataset.access = style;
   put("safety-headline", title);
   put("safety-message", message);
+  if (view !== "diagnostics") return;
   const source = laser ? "Laser scan" : "Presence feed";
   put("sensor-state", source + (status?.sensor === "FRESH" ? " live" : status?.sensor === "STALE" ? " stale" : " unknown"));
   el("sensor-state").classList.toggle("good", status?.sensor === "FRESH");
@@ -708,6 +796,27 @@ function drawSafety() {
   el("overview-unavailable").hidden = !!state?.overview;
 }
 
+function flightAlert(job, active, returnBalance, reserve) {
+  if (connectionLost) return "Connection lost. Live readings are unavailable. Reconnecting…";
+  if (state?.safety?.alarm) return state.safety.alarm.message;
+  const status = job?.status || {};
+  if (job?.stage === "ABORTED" && state.recovery?.phase !== "RECOVERY_COMPLETE") return status.detail || "Flight stopped.";
+  if (!active) return "";
+  const manual = status.manual;
+  if (["LINK_LOST", "ENERGY_LIMIT", "LOCALIZATION_LOST", "BLOCKED", "FAULT"].includes(manual?.state)) return manual.detail;
+  if (layout.safety_fields && !state.safety) return "Safety connection lost. Flight clearance is unverified.";
+  if (layout.localization?.mode === "sensor_based" && state.localization?.state !== "TRACKING") {
+    return "Drone position is uncertain. Check the flight status.";
+  }
+  if (["BLOCKED", "FAULT", "ABORTED"].includes(status.avoidance?.state)) return status.avoidance.reason || status.detail;
+  if (status.energy?.return_reason?.includes("ENERGY")) return "Battery limit reached. The drone is returning to the dock.";
+  if (layout.dock && !state.energy?.fresh) return "Battery reading unavailable. Return capacity is unverified.";
+  if ((returnBalance != null && returnBalance < reserve) || state.energy?.percent < state.energy?.model?.reserve) {
+    return "Battery warning. Verified return reserve is low.";
+  }
+  return "";
+}
+
 function draw() {
   if (!layout) return;
   const job = state?.mission;
@@ -715,7 +824,8 @@ function draw() {
   const stage = job?.stage;
   const mapping = view === "route" || (view === "manual" && !!state?.localization?.mapping_id);
   el("map-2d").hidden = el("map-3d").hidden = mapping;
-  el("business-results").hidden = view !== "results" || state?.backend?.mode !== "mock_sap";
+  const businessResults = state?.backend?.mode === "mock_sap";
+  el("business-results").hidden = view !== "results" || !businessResults;
   const robot = el("robot-state"), backend = el("api-state");
   robot.textContent = state?.robot ? (state.at_pad ? "Drone at pad" : "Drone connected") : "Drone offline";
   robot.classList.toggle("good", !!state?.robot);
@@ -725,19 +835,37 @@ function draw() {
   el("run-state").hidden = view !== "live" || !stage;
   put("run-state", label(flightPhase));
   el("run-state").classList.toggle("active", !!stage && !terminal.has(stage));
-  put("planned-total", preview?.slots.length ?? "—");
-  put("plan-distance", preview ? `${preview.distance.toFixed(1)} m planned` : "—");
+  const forecast = preview?.energy;
+  const learned = !!layout.learned_warehouse;
+  const learnedReady = state?.localization?.warehouse_ready && warehouseConfiguration &&
+    state.localization.warehouse_id === warehouseConfiguration.manifest.configuration_id;
+  el("reference-scope").hidden = learned;
+  el("learned-scope").hidden = !learned;
+  el("learned-service").hidden = !learned || (!!learnedReady && !warehouseLocked);
+  put("active-warehouse-name", learned ? warehouseConfiguration?.manifest.name || "Learned warehouse" : "Reference warehouse");
+  put("planned-total", preview?.slots.length ?? (learned ? learnedStops.size : "—"));
+  put("plan-distance", Number.isFinite(preview?.distance) ? `${preview.distance.toFixed(1)} m planned` : "");
+  const duration = forecast?.seconds ?? (forecast ? forecast.flight_seconds + forecast.inspection_seconds : null);
+  put("plan-duration", Number.isFinite(duration) ? `~${Math.max(1, Math.ceil(duration/60))} min sim` : layout.dock ? "—" : "Not estimated");
+  put("plan-battery", Number.isFinite(forecast?.minimum_percent) ? `${Math.ceil(forecast.minimum_percent)}% min.` : layout.dock ? "—" : "Not tracked");
   const missing = preview?.slots.filter((slot) => !state?.backend?.slots?.includes(slot)) || [];
   const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
   if (!state) reason = "Connecting to the Control Center.";
-  else if (layout.mapping_only) reason = "Open Service Center to start a mapping session.";
+  else if (layout.mapping_only && !learned) reason = "Open Service to start a mapping session.";
   else if (state.service_mode && state.service_mode !== "PRODUCTION") reason = "Warehouse calibration is active. New inspections are locked.";
   else if (state.busy || dispatching || wantedRun) reason = "An inspection is in progress or its report is being prepared.";
+  else if (learned && state.localization?.warehouse_error) reason = state.localization.warehouse_error;
+  else if (learned && !state.localization?.warehouse_id) reason = "Activate a saved warehouse in Service before planning.";
+  else if (learned && warehouseLocked) reason = "Unlock Service to load the registered locations for this warehouse.";
+  else if (learned && warehouseError) reason = warehouseError;
+  else if (learned && !learnedReady) reason = "Waiting for the drone at the dock to match the verified saved map.";
+  else if (previewError) reason = previewError;
+  else if (previewPending) reason = "Calculating the route and checking departure conditions…";
   else if (!preview) reason = "Select at least one functional location.";
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
-    reason = "Waiting for reliable sensor localization.";
-  else if (!state?.robot) reason = "Waiting for drone odometry.";
+    reason = "The drone’s position is unverified. Wait until it can locate itself.";
+  else if (!state?.robot) reason = "Waiting for the drone connection.";
   else if (!state.at_pad) reason = layout.recovery ? "Use the Recovery Center to return the drone to the dock." :
     "Drone is away from the pad. After an abort, restart the simulator before dispatch.";
   else if (layout.safety_fields && !state.safety) reason = "Waiting for the Safety Manager.";
@@ -746,12 +874,13 @@ function draw() {
     reason = "Waiting for verified safety sensors and signals.";
   else if (selectedZones.some(zone => zone?.occupied)) reason = "A required zone is occupied. Clear it or choose another scope.";
   else if (layout.dock && (!state.energy?.fresh || !state.energy?.contact || !preview.energy)) reason = "Waiting for battery data and dock confirmation.";
-  else if (layout.dock && state.energy.percent < preview.energy.minimum_percent) reason = "Insufficient energy for the first stop and safe return.";
+  else if (layout.dock && (state.energy.percent < forecast.minimum_percent || (learned && !state.energy.budget_verified)))
+    reason = "Waiting for enough verified battery capacity for the inspection and safe return.";
   else if (!state.backend.online) reason = "Waiting for the inventory API.";
   else if (missing.length) reason = "Inventory API profile lacks locations in this plan.";
   el("start").disabled = !!reason;
   put("start", dispatching || wantedRun ? "Starting inspection…" : "Start inspection");
-  put("dispatch-help", reason || "Ready to take off.");
+  put("dispatch-help", reason || (forecast?.single_cycle === false ? "Ready to take off. This inspection may require a charging stop." : "Drone ready to take off."));
   el("camera").hidden = !state?.camera;
   el("no-camera").hidden = !!state?.camera;
   const confirmed = Object.keys(status.confirmed || {}).length;
@@ -763,25 +892,46 @@ function draw() {
   el("progress-bar").value = confirmed;
   put("position-value", state?.robot && state.position ? state.position.slice(0, 3).map((p) => p.toFixed(2)).join(" / ") : "—");
   put("live-detail", job?.error || status.detail || "Start an inspection to monitor progress.");
+  el("flight-battery").hidden = !layout.dock;
+  put("flight-battery-level", state?.energy?.fresh ? `${Math.round(state.energy.percent)}%` : "Unavailable");
+  const returnNeeded = status.energy?.return_percent;
+  const reserve = status.energy?.reserve_percent;
+  const returnBalance = state?.energy?.budget_verified && Number.isFinite(returnNeeded) && Number.isFinite(reserve)
+    ? state.energy.percent - returnNeeded : null;
+  el("flight-finish").hidden = !job || terminal.has(stage) || returnBalance == null || !state.energy.fresh;
+  put("flight-finish", returnBalance == null ? "" : `Estimated battery at dock if returning now: ${Math.max(0, Math.floor(returnBalance))}%`);
   const canStop = !!job && !terminal.has(stage);
   el("abort").hidden = !canStop;
   el("abort").disabled = !canStop || stopping;
   put("abort", stopping ? "Stopping flight…" : job?.mode === "manual" ? "Stop flight" : "Stop inspection");
   const recoveryInMotion = state?.recovery?.permit_request === true;
-  el("global-stop").hidden = !(canStop || recoveryInMotion);
+  if (state) emergencyTarget = canStop || recoveryInMotion ? {inspection_id: job?.inspection_id,
+    recovery: recoveryInMotion ? state.recovery : null} : null;
+  el("global-stop").hidden = !emergencyTarget;
   el("global-stop").disabled = stopping;
   el("scan-stop").hidden = !scanFullscreen() || el("global-stop").hidden;
   el("scan-stop").disabled = stopping;
   el("live-plan").hidden = !!job || view === "manual";
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
-  drawMap(job);
-  drawScans();
+  drawMapCaption();
+  if (mapMode === "2d" && !el("warehouse-panel").hidden) {
+    drawMap(job);
+    drawScans();
+  }
   drawSafety();
+  const concern = flightAlert(job, canStop, returnBalance, reserve);
+  for (const id of ["critical-alert", "fullscreen-alert"]) {
+    el(id).hidden = !concern || (id === "fullscreen-alert") !== scanFullscreen();
+    put(id, concern);
+  }
   drawResults(job);
+  el("results-panel").classList.toggle("mock-results-support", businessResults);
   drawAdaptive(job);
-  drawEnergy(job);
-  drawAvoidance(job);
-  drawLocalization();
+  if (view === "diagnostics") {
+    drawEnergy(job);
+    drawAvoidance(job);
+    drawLocalization();
+  }
   drawRecovery();
   manual.update(state);
   teaching.update(state, view);
@@ -791,8 +941,10 @@ function draw() {
 async function poll() {
   try {
     state = await api("/api/state");
+    connectionLost = false;
     connectionStatus();
-    if (layout.dock && preview && !preview.energy && state.energy?.fresh) changePlan();
+    syncLearnedPlan();
+    if (layout.dock && preview && !preview.energy && state.energy?.fresh && view === "plan") changePlan();
     const job = state.mission;
     if (job && (!wantedRun || job.inspection_id === wantedRun)) {
       if (job.inspection_id !== lastRun) {
@@ -809,9 +961,9 @@ async function poll() {
     }
     draw();
     service.refresh();
-    if (view === "results" && el("business-results").open) intelligence.update(state);
+    if (view === "results") intelligence.update(state);
   } catch (error) {
-    connectionStatus("Connection lost. Keep the Rackonaut terminal open. Reconnecting…");
+    connectionLost = true;
     state = null;
     intelligence.update(null);
     draw();
@@ -828,8 +980,9 @@ async function init() {
     setTimeout(init, 1500);
     return;
   }
-  intelligence = createIntelligence(api, async (slot) => {
+  intelligence = createIntelligence(api, async (slot, inspectionId) => {
     focusedLocation = slot;
+    locatedReport = inspectionId;
     resultsMap = true;
     drawWorkspace();
     await loadTwin();
@@ -889,13 +1042,34 @@ async function init() {
   });
   for (const tab of document.querySelectorAll(".tab")) tab.addEventListener("click", () => setView(tab.dataset.view));
   el("diagnostics-tab").hidden = false;
-  el("manual-tab").hidden = !layout.manual_flight;
+  el("manual-entry").hidden = !layout.manual_flight || !!layout.mapping_only;
+  el("manual-tab").addEventListener("click", () => setView("manual", true));
+  el("learned-service").addEventListener("click", () => setView("service", true));
+  el("learned-all").addEventListener("change", (event) => {
+    learnedStops = new Set(event.target.checked ? warehouseConfiguration.locations.map(row => row.record_id) : []);
+    changePlan();
+  });
+  el("learned-locations").addEventListener("change", (event) => {
+    const id = event.target.value;
+    toggleLearned(id);
+    el("learned-locations").querySelector(`input[value="${CSS.escape(id)}"]`)?.focus();
+  });
+  const chooseLearnedMarker = (event) => {
+    const marker = event.target.closest("[data-record]");
+    if (!marker || (event.type === "keydown" && ![" ", "Enter"].includes(event.key))) return;
+    event.preventDefault();
+    toggleLearned(marker.dataset.record);
+    el("learned-map-locations").querySelector(`[data-record="${CSS.escape(marker.dataset.record)}"]`)?.focus();
+  };
+  el("learned-map-locations").addEventListener("click", chooseLearnedMarker);
+  el("learned-map-locations").addEventListener("keydown", chooseLearnedMarker);
   el("safety-details-link").addEventListener("click", (event) => {
     event.preventDefault();
     setView("diagnostics", true);
   });
   el("live-plan").addEventListener("click", () => setView("plan", true));
   el("results-map").addEventListener("click", () => {
+    locatedReport = null;
     resultsMap = !resultsMap;
     drawWorkspace();
     if (resultsMap) el("map-title").scrollIntoView({block: "nearest"});
@@ -920,11 +1094,11 @@ async function init() {
     finally { dispatching = false; draw(); }
   });
   async function stopInspection() {
-    if (!state?.mission) return;
+    if (!emergencyTarget?.inspection_id) return;
     stopping = true;
     draw();
     try {
-      await api("/api/abort", { inspection_id: state.mission.inspection_id });
+      await api("/api/abort", { inspection_id: emergencyTarget.inspection_id });
       notice("Stop requested. Waiting for the drone to respond.");
     } catch (error) {
       stopping = false;
@@ -934,7 +1108,10 @@ async function init() {
   }
   el("abort").addEventListener("click", stopInspection);
   el("global-stop").addEventListener("click", () => {
-    if (state?.recovery?.permit_request) el("recovery-abort").click();
+    if (emergencyTarget?.recovery) {
+      const {inspection_id, recovery_id, proposal} = emergencyTarget.recovery;
+      api("/api/recovery/abort", {inspection_id,recovery_id,proposal}).catch(error => notice(error.message));
+    }
     else stopInspection();
   });
   for (const action of ["evaluate", "authorize", "abort"]) {
@@ -950,15 +1127,10 @@ async function init() {
     });
   }
   el("recovery-replan").addEventListener("click", () => {
-    const slots = state?.recovery?.retry_slots || [];
-    choices.mode = slots.length ? "custom" : "aisle";
-    choices.slots = new Set(slots);
-    choices.aisles.clear();
-    setView("plan");
-    changePlan();
+    planLocations(state?.recovery?.retry_slots || []);
   });
   el("review-stops").addEventListener("click", () => {
-    choices.mode = "custom"; choices.slots = new Set(reviewSlots(state.mission)); setView("plan"); changePlan();
+    planLocations(reviewSlots(state.mission));
   });
   el("next-inspection").addEventListener("click", () => {
     choices.mode = "aisle"; choices.aisles.clear(); choices.slots.clear(); setView("plan"); changePlan();
@@ -1003,6 +1175,7 @@ async function init() {
       }
     }, 225);
   }
+  setView("plan");
   changePlan();
   poll();
 }

@@ -11,46 +11,61 @@ export function createIntelligence(api, locate, safe, label) {
     }
   };
   let current = null, data = null, selected = null, automatic = true, latest = null, pending = false, next = 0;
-  let detailSignature = "", rowSignature = "";
+  let detailSignature = "", rowSignature = "", locationSignature = "", selectedSlot = null;
+  const outcomes = {
+    match: ["match", "Match"], wrong_pallet: ["mismatch", "Mismatch"],
+    missing_pallet: ["mismatch", "Mismatch"], unexpected_pallet: ["mismatch", "Mismatch"],
+    unreadable_label: ["review", "Needs review"], uncertain: ["unknown", "Unreliable reading"],
+    uninspected: ["uninspected", "Not inspected"],
+  };
+  const outcome = row => outcomes[row.outcome] || ["unknown", "No reliable data"];
 
   function detail(issue) {
-    const slot = data.slots.find(row => row.slot_id === issue?.slot_id);
+    const slot = data.slots.find(row => row.slot_id === (issue?.slot_id || selectedSlot));
     const section = el("detail");
     section.hidden = !slot;
     if (!slot) return;
     const signature = JSON.stringify([issue, slot]);
     if (signature === detailSignature) return;
     detailSignature = signature;
-    const product = item => item ? [item.hu_id, item.product_name, item.sku && `SKU ${item.sku}`,
-      item.batch && `batch ${item.batch}`, item.lifecycle_status, item.quality_status,
-      item.stock_status, item.expected_slot && `assigned ${item.expected_slot}`].filter(Boolean).join(" · ") : "";
-    const allPhotos = new Map([...slot.quality_history, ...issue.quality].map(photo => [photo.quality_id, photo]));
+    const product = item => [item?.hu_id, item?.product_name].filter(Boolean).join(" · ");
+    const stockDetails = [slot.expected_product, slot.observed_product].map((item, index) => item ?
+      `<li><strong>${index ? "Observed stock" : "Expected stock"}</strong> · ${safe([item.hu_id,
+      item.sku && `SKU ${item.sku}`, item.batch && `batch ${item.batch}`, item.lifecycle_status,
+      item.quality_status, item.stock_status, item.expected_slot && `assigned ${item.expected_slot}`].filter(Boolean).join(" · "))}</li>` : "").join("");
+    const allPhotos = new Map([...slot.quality_history, ...(issue?.quality || [])].map(photo => [photo.quality_id, photo]));
     const photos = [...allPhotos.values()].map(photo => `<figure>
       <a href="${safe(photo.photos.annotated)}" target="_blank" rel="noopener">
         <img src="${safe(photo.photos.annotated)}" alt="Annotated camera evidence at ${safe(photo.slot_id)}" loading="lazy"></a>
-      <figcaption>${safe(photo.status)} · ${safe(photo.reason)}<br><code>${safe(photo.observation_id)}</code>
+      <figcaption>${safe(label(photo.status))} · ${safe(photo.reason)}<br>
         <a href="${safe(photo.photos.original)}" target="_blank" rel="noopener">Original photo</a></figcaption></figure>`).join("");
-    const events = new Map([...slot.readings, ...issue.evidence].map(event => [event.observation_id, event]));
+    const events = new Map([...slot.readings, ...(issue?.evidence || [])].map(event => [event.observation_id, event]));
     const observations = [...events.values()].sort((a, b) => a.timestamp.localeCompare(b.timestamp)).map(event =>
       `<li><strong>${safe(event.slot_id)}</strong> · ${safe(event.pallet_id || label(event.occupancy))}
       · ${safe(label(event.label_status))} · <time>${safe(event.timestamp)}</time>
       <code>${safe(event.observation_id)}</code></li>`).join("");
-    const related = issue.related_issue_ids.map(id => data.issues.find(item => item.issue_id === id)).filter(Boolean);
+    const related = (issue?.related_issue_ids || []).map(id => data.issues.find(item => item.issue_id === id)).filter(Boolean);
+    const [kind, caption] = outcome(slot);
+    const reading = slot.readings.at(-1);
+    const observed = reading ? (product(slot.observed_product) || slot.observed_pallet_id ||
+      (reading.occupancy === "empty" ? "Empty location" : reading.occupancy === "occupied"
+        ? "Occupied · label unreadable" : "Occupancy uncertain")) : "No camera observation in this inspection";
     section.innerHTML = `<div class="intelligence-detail-head"><div>
-      <h3>${safe(label(issue.type))} · ${safe(issue.slot_id)}</h3><code>${safe(issue.issue_id)}</code></div>
-      <button class="chip" type="button" data-intel-map="${safe(issue.slot_id)}">Show in Digital Twin</button></div>
+      <span class="outcome-label" data-outcome="${kind}">${caption}</span>
+      <h2>${safe(issue ? label(issue.type) : slot.slot_id)}</h2>
+      ${issue ? `<p>${safe(slot.slot_id)}</p>` : ""}</div>
+      <button class="chip" type="button" data-intel-map="${safe(slot.slot_id)}">Locate on map</button></div>
       <div class="intelligence-facts"><div><strong>Expected</strong><p>${safe(product(slot.expected_product) || slot.expected_pallet_id || "Empty location")}</p></div>
-      <div><strong>Observed</strong><p>${safe(product(slot.observed_product) || label(slot.readings.at(-1)?.occupancy))}
-      · ${safe(label(slot.outcome))}</p></div></div>
-      <div class="intelligence-recommendation"><strong>Recommended action</strong><p>${safe(issue.action)}</p>
-      <p class="footnote">${safe(issue.reason)}</p></div>
+      <div><strong>Observed</strong><p>${safe(observed)}</p></div></div>
+      ${issue ? `<div class="intelligence-recommendation"><strong>Recommended action</strong><p>${safe(issue.action)}</p>
+      <p class="footnote">${safe(issue.reason)}</p></div>` : ""}
       ${related.length ? '<p>Related issues</p><div class="intelligence-related">' + related.map(item =>
         `<button type="button" class="chip" data-intel-issue="${safe(item.issue_id)}">${safe(label(item.type))} · ${safe(item.slot_id)}</button>`).join("") + '</div>' : ""}
-      <details open><summary>Reading history and observation evidence</summary><ul>${observations}</ul></details>
-      ${photos ? '<div class="intelligence-photos">' + photos + '</div>' : ""}
-      <button class="chip" type="button" data-intel-verify="${safe(issue.issue_id)}" ${issue.status === "VERIFIED" ? "disabled" : ""}>
-      ${issue.status === "VERIFIED" ? "Evidence verified" : "Mark evidence as verified"}</button>
-      <p class="footnote">Verification records an operator review. Physical resolution stays a separate decision.</p>`;
+      ${photos ? '<div class="intelligence-photos">' + photos + '</div>' : '<p class="footnote evidence-note">No image was saved for this location.</p>'}
+      ${stockDetails ? `<details><summary>Stock record</summary><ul>${stockDetails}</ul></details>` : ""}
+      ${observations ? `<details><summary>Camera readings and timestamps</summary><ul>${observations}</ul></details>` : ""}
+      ${issue ? `<button class="chip" type="button" data-intel-verify="${safe(issue.issue_id)}" ${issue.status === "VERIFIED" ? "disabled" : ""}>
+      ${issue.status === "VERIFIED" ? "Evidence reviewed" : "Mark evidence as reviewed"}</button>` : ""}`;
   }
 
   function render() {
@@ -58,12 +73,10 @@ export function createIntelligence(api, locate, safe, label) {
     if (!data) { el("metrics").replaceChildren(); return; }
     const m = data.metrics;
     const measures = [
-      ["Inventory accuracy", m.accuracy == null ? "—" : (100*m.accuracy).toFixed(1) + "%", `${m.matches}/${m.decisive} conclusive locations`],
-      ["Locations inspected", `${m.observed}/${m.total}`, ""],
-      ["Stock discrepancies", m.inventory_discrepancies, `${m.inventory_attention} inventory results need attention`],
-      ["Damaged packages", m.damaged_packages, ""],
-      ["Discontinued products", m.discontinued_products, ""],
-      ["Manual review", m.manual_review_locations, "Locations"],
+      ["Locations observed", m.observed, `${m.total} in warehouse records`],
+      ["Stock mismatches", m.inventory_discrepancies, "Confirmed by inventory comparison"],
+      ["Needs manual review", m.manual_review_locations, "Locations"],
+      ["Damaged packages", m.damaged_packages, "Camera evidence"],
     ];
     el("metrics").innerHTML = measures.map(([title,value,hint]) =>
       `<div><span>${safe(title)}</span><strong>${safe(value)}</strong><small>${safe(hint)}</small></div>`).join("");
@@ -72,16 +85,25 @@ export function createIntelligence(api, locate, safe, label) {
     const filters = ["priority","slot","type","review"].map(name => el(name).value);
     const issues = data.issues.filter(item => [item.priority,item.slot_id,item.type,item.status].every((value,index) =>
       !filters[index] || value === filters[index]));
+    if (!selected && !selectedSlot && issues.length) selected = issues[0].issue_id;
+    const activeIssue = data.issues.find(item => item.issue_id === selected);
+    const activeSlot = activeIssue?.slot_id || selectedSlot;
+    const signatureLocations = JSON.stringify([activeSlot, data.slots.map(row => [row.slot_id,row.outcome])]);
+    if (signatureLocations !== locationSignature) {
+      locationSignature = signatureLocations;
+      el("locations").innerHTML = data.slots.map(row => {
+        const [kind, caption] = outcome(row);
+        return `<button type="button" data-intel-location="${safe(row.slot_id)}" data-outcome="${kind}" aria-pressed="${activeSlot === row.slot_id}"><strong>${safe(row.slot_id)}</strong><span>${caption}</span></button>`;
+      }).join("");
+    }
     const signature = JSON.stringify([issues,selected]);
     if (rowSignature !== signature) {
       rowSignature = signature;
       el("issues").innerHTML = issues.map(item =>
-        `<tr data-selected="${selected===item.issue_id}"><td><span class="intelligence-priority" data-priority="${safe(item.priority)}">${safe(item.priority)}</span></td>
-          <td><button class="intelligence-issue" type="button" data-intel-issue="${safe(item.issue_id)}">${safe(label(item.type))}</button></td>
-          <td>${safe(item.slot_id)}</td><td>${safe(item.hu_id || "—")}</td><td>${safe(item.status)}</td></tr>`).join("")
-        || '<tr><td colspan="5">No matching issues</td></tr>';
+        `<tr data-selected="${selected===item.issue_id}"><td><button class="intelligence-issue" type="button" data-intel-issue="${safe(item.issue_id)}" aria-pressed="${selected===item.issue_id}"><strong>${safe(label(item.type))}</strong><span>${safe(item.slot_id)} · ${item.priority === "HIGH" ? "High priority" : "Review"}${item.status === "VERIFIED" ? " · Reviewed" : ""}</span></button></td></tr>`).join("")
+        || '<tr><td>No matching findings.</td></tr>';
     }
-    detail(data.issues.find(item => item.issue_id === selected));
+    detail(activeIssue);
   }
 
   async function refresh() {
@@ -105,7 +127,7 @@ export function createIntelligence(api, locate, safe, label) {
 
   function select(run) {
     if (current === run) return;
-    current = run; selected = null; data = null; next = 0; detailSignature = "";
+    current = run; selected = null; selectedSlot = null; data = null; next = 0; detailSignature = "";
     el("run").value = run || "";
     status(run ? "Loading inspection evidence…" : "Dispatch an inspection to see the comparison.");
     render();
@@ -120,8 +142,13 @@ export function createIntelligence(api, locate, safe, label) {
   el("").addEventListener("click", async event => {
     const item = event.target.closest("button");
     if (!item || !data) return;
-    if (item.dataset.intelIssue) { selected = item.dataset.intelIssue; render(); }
-    if (item.dataset.intelMap) await locate(item.dataset.intelMap);
+    if (item.dataset.intelIssue) { selected = item.dataset.intelIssue; selectedSlot = null; render(); }
+    if (item.dataset.intelLocation) {
+      selectedSlot = item.dataset.intelLocation;
+      selected = data.issues.find(row => row.slot_id === selectedSlot)?.issue_id || null;
+      render();
+    }
+    if (item.dataset.intelMap) await locate(item.dataset.intelMap, current);
     if (item.dataset.intelVerify) {
       const issue = data.issues.find(row => row.issue_id === item.dataset.intelVerify);
       if (!issue) return;
@@ -138,10 +165,14 @@ export function createIntelligence(api, locate, safe, label) {
   return {update(state) {
     el("").hidden = state?.backend?.mode !== "mock_sap";
     if (el("").hidden) return;
-    latest = state.mission?.inspection_id || state.history[0]?.run;
+    latest = state.mission?.mode !== "manual" && state.mission?.inspection_id || state.history[0]?.run;
     const runs = [...new Set([latest, ...state.history.map(item => item.run)].filter(Boolean))];
-    options("run", runs.map(run => [run,run]), runs.length ? "" : "No inspection");
+    options("run", runs.map((run, index) => [run, index === 0 ? "Latest inspection" : `Inspection ending ${run.slice(-8)}`]), runs.length ? "" : "No inspection");
     select(automatic || !runs.includes(current) ? latest : current);
+    const report = (state.mission?.inspection_id === current ? state.mission.result?.url : null) ||
+      state.history.find(item => item.run === current)?.url;
+    el("report").hidden = !report;
+    if (report) el("report").href = report;
     refresh();
   }};
 }
