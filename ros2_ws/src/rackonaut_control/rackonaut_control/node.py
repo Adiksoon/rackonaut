@@ -31,6 +31,7 @@ from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_safety.geometry import route_zones
 
 from .planning import energy_forecast, plan
+from .service import BLOCKED, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
 from .web import serve
 
 
@@ -41,6 +42,7 @@ class Job:
     processes: list
     created: float = field(default_factory=monotonic)
     status: dict = field(default_factory=dict)
+    status_at: float = 0.
     planned: list = field(default_factory=list)
     flown: list = field(default_factory=list)
     evidence: list = field(default_factory=list)
@@ -117,6 +119,13 @@ class Control(Node):
             self.layout["scene"]["parts"]["dock"] = self.layout["dock"]["parts"]
         self.marker_map = warehouse / "config/control_markers.json"
         self.lock = RLock()
+        self.service_access = ServiceAccess()
+        self.calibration = Calibration(self.data / "calibration-draft.json")
+        self.calibration_supported = (self.aerial_enabled and self.avoidance_enabled and self.safety_enabled
+                                      and self.recovery_enabled and self.energy_enabled
+                                      and self.localization_mode == "sensor_based")
+        if self.calibration_supported:
+            self.calibration_request = self.create_publisher(String, "/rackonaut/calibration/request", 5)
         self.odom_at = 0.
         self.position, self.speed = None, 0.
         self.orientation = None
@@ -162,7 +171,8 @@ class Control(Node):
         self.timer = self.create_timer(.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def on_localization(self, message):
-        self.localization, self.localization_at = json.loads(message.data), monotonic()
+        with self.lock:
+            self.localization, self.localization_at = json.loads(message.data), monotonic()
 
     def on_pose_validation(self, message):
         self.pose_validation = json.loads(message.data)
@@ -205,6 +215,7 @@ class Control(Node):
         with self.lock:
             if not self.job or status["inspection_id"] != self.job.run:
                 return
+            self.job.status_at = monotonic()
             if self.recovery_enabled:
                 self.job.recovery = status.pop("recovery", None)
                 self.remember_recovery(self.job.recovery)
@@ -341,6 +352,8 @@ class Control(Node):
     def begin(self, selection):
         planned = self.preview(selection)
         with self.lock:
+            if self.calibration.state != PRODUCTION:
+                raise RuntimeError("Warehouse calibration is active. New inspections are locked.")
             if self.busy():
                 raise RuntimeError("Wait for the running inspection and its report.")
             if self.localization_mode == "sensor_based" and (
@@ -423,6 +436,121 @@ class Control(Node):
                 raise RuntimeError("This inspection has already ended.")
             self.job.abort_requested = True
             return {"accepted": True}
+
+    def service_telemetry(self, now):
+        connection = self.position is not None and now - self.odom_at <= .40
+        localization_age = now - self.localization_at
+        localization = self.localization if localization_age <= .40 else None
+        scan_age = (localization or {}).get("scan_age_ms")
+        imu_age = (localization or {}).get("imu_age_ms")
+        lidar = scan_age is not None and scan_age + 1000 * localization_age <= 640
+        imu = imu_age is not None and imu_age + 1000 * localization_age <= 360
+        energy = self.energy_state() or {}
+        safety = self.safety_status() or {}
+        camera = bool(self.jpeg and now - self.camera_at < 2.)
+        contact = (energy.get("fresh") is True and energy.get("contact") is True
+                   and energy.get("switch_engaged") is True and energy.get("contact_source") == "gazebo_dock_switch")
+        job = self.job
+        stage = self.stage(job) if job else None
+        return {"connection": connection, "localization": (localization or {}).get("state", "UNAVAILABLE"),
+                "lidar": lidar, "imu": imu, "camera": camera, "contact": contact, "dock": energy.get("dock"),
+                "battery": energy.get("percent") if energy.get("fresh") else None,
+                "safety": safety.get("phase", "UNAVAILABLE"), "safety_sensors": safety.get("sensor"),
+                "drone": ("DOCKED" if contact else "IN_FLIGHT" if connection and not self.at_pad()
+                          else "AT_PAD" if connection else "UNAVAILABLE"),
+                "mission": {"inspection_id": job.run, "stage": stage} if job else None,
+                "position": self.position if connection else None, "speed": self.speed if connection else None}
+
+    def service_snapshot(self):
+        with self.lock:
+            return {"available": self.calibration_supported,
+                    "system": self.service_telemetry(monotonic()), "calibration": self.calibration.snapshot(),
+                    "warehouse": {"profile": "Protected aerial" if self.aerial_enabled else "Showcase reference",
+                                  "map_source": "Preconfigured reference warehouse geometry",
+                                  "map": ("localization_map.json" if self.localization_mode == "sensor_based"
+                                          else "Control Center reference layout"),
+                                  "locations": len(self.layout["slots"]), "status": "ACTIVE"}}
+
+    def start_calibration(self, request):
+        warehouse = request.get("warehouse_name")
+        if warehouse is not None and (not isinstance(warehouse, str) or len(warehouse) > 100):
+            raise ValueError("Use at most 100 characters for the optional warehouse name.")
+        with self.lock:
+            if not self.calibration_supported:
+                raise RuntimeError("Calibration requires the Full Robotics profile with sensor localization and Recovery.")
+            if self.calibration.state != PRODUCTION:
+                raise RuntimeError("A calibration is already active.")
+            job = self.job
+            active = job and self.stage(job) not in TERMINAL | {"ERROR"}
+            safety = self.safety_status()
+            if safety and safety["phase"] == "RECOVERY":
+                raise RuntimeError("Resolve the current incident in the Recovery Center first.")
+            if job is None and self.start_client.service_is_ready():
+                raise RuntimeError("An independent Mission Manager is present. It must be stopped first.")
+            self.calibration.start(warehouse.strip() or None if warehouse else None,
+                                   job.run if active else None, monotonic())
+            return self.calibration.snapshot()
+
+    def cancel_calibration(self, _request):
+        with self.lock:
+            if self.calibration.state == PRODUCTION:
+                raise RuntimeError("No active calibration.")
+            self.calibration.cancel_pending = True
+            self.tick_calibration(monotonic())
+            return self.calibration.snapshot()
+
+    def tick_calibration(self, now):
+        calibration = self.calibration
+        if calibration.state == PRODUCTION:
+            return
+        job = self.job
+        stage = self.stage(job) if job else None
+        live = stage is not None and stage not in TERMINAL | {"ERROR"}
+        telemetry = self.service_telemetry(now)
+        safety = self.safety_status() or {}
+        reserved = telemetry["safety"] in {"PREPARING", "RESERVED", "RECOVERY"}
+        docked = (not live and not reserved and self.at_pad() and telemetry["connection"] and telemetry["contact"]
+                  and safety.get("signals_online") and (safety.get("zones", {}).get("D") or {}).get("occupied") is False
+                  and (job is not None or not self.start_client.service_is_ready())
+                  and not self.count_publishers("/rackonaut/drone/cmd_vel"))
+        if not docked:
+            calibration.dock_since = None
+        elif calibration.dock_since is None:
+            calibration.dock_since = now
+        stable = calibration.dock_since is not None and now - calibration.dock_since >= .65
+        if stable and calibration.cancel_pending:
+            try:
+                calibration.clear()
+            except OSError as error:
+                calibration.set_state(BLOCKED, f"The calibration draft could not be cleared: {error.strerror}.")
+            return
+        if calibration.state not in TRANSITIONING:
+            return
+        if telemetry["safety"] == "RECOVERY" or (calibration.owner and stage == "ABORTED"):
+            detail = safety.get("alarm") or {}
+            calibration.set_state(RECOVERY, detail.get("message") or (job.status.get("detail") if job else None)
+                                  or "Safety requires operator-approved Recovery.")
+        elif calibration.owner and stage == "ERROR":
+            calibration.set_state(BLOCKED, job.error)
+        elif live and calibration.owner == job.run:
+            accepted = job.status.get("calibration_id") == calibration.draft["calibration_id"]
+            if (not accepted and now-calibration.started > 8.) or (accepted and now-job.status_at > 1.2):
+                job.abort_requested = True
+                calibration.set_state(RECOVERY, "Mission return acknowledgement lost. Verify the drone in Recovery.")
+            elif accepted and stage in {"RETURN_TO_DOCK", "DOCKING", "LAND"}:
+                docking = stage in {"DOCKING", "LAND"}
+                calibration.set_state("WAITING_FOR_DOCK" if docking else "RETURNING_TO_DOCK", job.status["detail"])
+            else:
+                calibration.set_state("STOPPING_INSPECTION", "Stopping inspection and retaining its observations.")
+        elif stable and telemetry["localization"] == "TRACKING" and telemetry["lidar"] and telemetry["imu"] and telemetry["camera"]:
+            if calibration.state == "PREPARING_CALIBRATION":
+                calibration.set_state(READY, "Physical dock confirmed. The new warehouse draft is ready.")
+            else:
+                calibration.set_state("PREPARING_CALIBRATION", "Preparing a new warehouse draft at the physical dock.")
+        elif now - calibration.started > 25. and (not job or now - (job.finished_at or 0.) > 25.):
+            calibration.set_state(BLOCKED, "Physical dock, current sensors or Safety readiness could not be confirmed.")
+        else:
+            calibration.set_state("WAITING_FOR_DOCK", "Waiting for stable physical dock contact, Safety and fresh sensors.")
 
     def recovery_action(self, request, action):
         with self.lock:
@@ -521,7 +649,12 @@ class Control(Node):
             return
         if job.abort_requested and job.status and self.abort_client.service_is_ready():
             job.command = self.abort_client.call_async(Trigger.Request())
-        elif not job.abort_requested and ready_to_start and self.start_client.service_is_ready():
+        elif (not job.abort_requested and self.calibration.state in TRANSITIONING and self.calibration.owner == job.run
+              and job.status.get("calibration_id") != self.calibration.draft["calibration_id"]):
+            self.calibration_request.publish(String(data=json.dumps({"inspection_id": job.run,
+                                                                     "calibration_id": self.calibration.draft["calibration_id"]})))
+        elif (not job.abort_requested and self.calibration.state == PRODUCTION
+              and ready_to_start and self.start_client.service_is_ready()):
             job.command = self.start_client.call_async(Trigger.Request())
         job.next_command = now + .6
 
@@ -539,6 +672,7 @@ class Control(Node):
                 if self.job.plan["quality"]:
                     source = self.data / "quality" / self.job.run
                     self.job.evidence = [json.loads(file.read_text()) for file in sorted(source.glob("*/report.json"))]
+            self.tick_calibration(now)
 
     def frame(self, overview=False):
         with self.lock:
@@ -559,6 +693,7 @@ class Control(Node):
                            "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
                            "result": job.archive, "error": job.error or job.export_error}
             result = {"robot": monotonic() - self.odom_at < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
+                    "service_mode": self.calibration.state,
                     "position": self.position, "orientation": self.orientation,
                     "energy": self.energy_state(),
                     "backend": self.backend_state, "mission": current,

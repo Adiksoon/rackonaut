@@ -15,6 +15,27 @@ Open [Control Center](http://127.0.0.1:8765). Use `gazebo_gui:=true` to open the
 
 The archive is `ros2_ws/log/ros/control/reports/<inspection_id>/`. It includes HTML and the ROS/API snapshot with stable photo evidence when available. `data_dir:=/absolute/path` sets a separate archive and database root.
 
+## Service Center
+
+Set a local code in the launch shell and use Full Robotics. Enter the same code in the **Service** tab. The code prompt keeps it out of terminal history.
+
+```bash
+read -rsp 'Service code: ' RACKONAUT_SERVICE_CODE
+printf '\n'
+export RACKONAUT_SERVICE_CODE
+scripts/robotics/checkpoint live
+```
+
+The default service session lasts 15 minutes and can be ended with **Lock Service**. Configure a different duration with `RACKONAUT_SERVICE_SESSION_SECONDS` (1–3600). Five unsuccessful attempts within a minute temporarily block unlocks on this local server. The service session uses an HTTP-only, same-site cookie. Direct access to the state or calibration actions also requires a valid session. The short Business and fixture profiles show calibration as unavailable.
+
+**Start Calibration** locks new dispatches. Mission Manager ends the current inspection early and uses its reserved energy return, guarded by sensor-based localization, onboard LiDAR and Safety. Inspect **Live flight** during the return or **Results** for the interrupted inspection and its retained observations. **Emergency stop** remains available from each tab during flight, including when Service is locked. If the return aborts, use the existing Emergency & Recovery Center and explicitly authorize the proposed return after clearing the hazard.
+
+At the dock, the Gazebo contact switch, stable estimated position, fresh sensors and a released Safety reservation gate the workspace. A docked, idle drone creates a draft without dispatch. **Cancel Calibration** waits for a safe dock before unlocking production. An expired service session leaves the return supervised by the same ROS nodes. After a Control Center restart, a saved draft keeps dispatch locked and must be cancelled after physical dock verification.
+
+The draft in `data_dir/calibration-draft.json` starts with zero storage locations, zero waypoints and no approved measurement map. The production localization map is preconfigured reference geometry. The existing camera and flight telemetry remain available in the workspace. Manual flight, mapping and route recording are unavailable there.
+
+Send the `code` in a JSON `POST /api/service/unlock`. The returned session authorizes `GET /api/service/state` and JSON POSTs to `/api/service/lock`, `/api/service/calibration/start` and `/api/service/calibration/cancel`. Start accepts an optional `warehouse_name`. Lock and cancel take an empty JSON object. [ROS message flow](../../../contracts/ros.md#warehouse-calibration-initialization)
+
 ## Warehouse and route
 
 The base `control_showcase.sdf` adds B-01-01, B-01-02 and B-02-01 to the eight A slots. The B cases include torn and intact cartons and an empty slot. The generator publishes shared scene geometry and the marker dictionary. Inventory and visible carton quality are derived from the camera. The short profile uses the front transfer corridor, and the aerial profile follows the overhead infrastructure and reserved descents. [Adaptive warehouse](../../../docs/ADAPTIVE_INSPECTION.md) · [Digital Twin](../../../docs/DIGITAL_TWIN.md) · [Route constraints](../../../docs/INTEGRATION.md#route-and-operator-constraints)

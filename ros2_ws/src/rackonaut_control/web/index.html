@@ -22,6 +22,7 @@
     <span class="environment">Simulation</span>
     <span id="robot-state" class="signal">Connecting to drone</span>
     <span id="api-state" class="signal">Connecting to API</span>
+    <button type="button" class="danger global-stop" id="global-stop" hidden>Emergency stop</button>
   </div>
 </header>
 <main>
@@ -30,6 +31,7 @@
     <button type="button" class="tab" data-view="live">Live flight</button>
     <button type="button" class="tab" data-view="results">Results</button>
     <button type="button" class="tab diagnostics-tab" id="diagnostics-tab" data-view="diagnostics" hidden>Diagnostics</button>
+    <button type="button" class="tab service-tab" data-view="service"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5 7V5a3 3 0 0 1 6 0v2m-3 3v1"/></svg>Service</button>
   </nav>
   <div class="page-heading">
     <div><h1 id="page-title" tabindex="-1">Plan inspection</h1><p id="page-description">Choose where the drone should inspect.</p></div>
@@ -61,6 +63,87 @@
       <button type="button" class="chip" id="recovery-replan" disabled>Plan new inspection</button>
     </div>
     <p class="footnote" id="recovery-action-message" role="status"></p>
+  </section>
+  <section id="service-panel" aria-label="Service Center" hidden>
+    <form id="service-access" class="card service-access">
+      <svg class="service-lock" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></svg>
+      <h2>Service access</h2>
+      <label for="service-code">Service code</label>
+      <input id="service-code" type="password" autocomplete="current-password" required maxlength="512" />
+      <button id="service-unlock" class="primary" type="submit">Unlock</button>
+      <p id="service-access-message" class="footnote" role="status"></p>
+    </form>
+    <div id="service-content" hidden>
+      <div class="service-toolbar">
+        <span class="signal good">Service unlocked</span>
+        <button type="button" id="service-lock" class="secondary">Lock Service</button>
+      </div>
+      <p id="service-feedback" class="notice" role="status" hidden></p>
+      <div id="service-overview" class="service-grid">
+        <section class="card service-card" aria-labelledby="service-system-title">
+          <h2 id="service-system-title">System Status</h2>
+          <dl id="service-system" class="service-metrics">
+            <div><dt>Drone</dt><dd id="service-drone">—</dd></div><div><dt>Connection</dt><dd id="service-connection">—</dd></div>
+            <div><dt>Localization</dt><dd id="service-localization">—</dd></div><div><dt>LiDAR match</dt><dd id="service-lidar">—</dd></div>
+            <div><dt>IMU</dt><dd id="service-imu">—</dd></div><div><dt>Camera</dt><dd id="service-camera-status">—</dd></div>
+            <div><dt>Battery</dt><dd id="service-battery">—</dd></div><div><dt>Dock</dt><dd id="service-dock">—</dd></div>
+            <div><dt>Safety</dt><dd id="service-safety">—</dd></div><div><dt>Current mission</dt><dd id="service-mission">—</dd></div>
+          </dl>
+        </section>
+        <section class="card service-card" aria-labelledby="service-config-title">
+          <h2 id="service-config-title">Warehouse Configuration</h2>
+          <dl class="service-facts">
+            <div><dt>Profile</dt><dd id="service-profile">—</dd></div>
+            <div><dt>Map source</dt><dd id="service-map-source">—</dd></div>
+            <div><dt>Active map</dt><dd id="service-map">—</dd></div>
+            <div><dt>Storage locations</dt><dd id="service-locations">—</dd></div>
+            <div><dt>Configuration</dt><dd id="service-config-state">—</dd></div>
+          </dl>
+        </section>
+      </div>
+      <section class="card service-card service-transition" aria-labelledby="service-calibration-title">
+        <div class="service-transition-head">
+          <div><h2 id="service-calibration-title">Warehouse Calibration</h2><p id="service-calibration-detail" class="footnote" role="status"></p></div>
+          <span id="service-mode" class="run-state"></span>
+        </div>
+        <div id="service-introduction">
+          <button type="button" id="service-start" class="primary" aria-describedby="service-start-hint">Start Calibration</button>
+          <p id="service-start-hint" class="footnote">Starting calibration interrupts the active inspection, returns the drone to its charging dock and prepares a new warehouse configuration.</p>
+        </div>
+        <section id="calibration-workspace" aria-label="Calibration Workspace" hidden>
+          <div class="service-grid calibration-grid">
+            <div>
+              <h3>Live Camera</h3>
+              <div class="video"><img id="service-camera" alt="Live image from the drone camera" hidden /><span id="service-camera-empty">Waiting for camera stream</span></div>
+            </div>
+            <div>
+              <h3>Flight Telemetry</h3>
+              <dl class="service-facts">
+                <div><dt>Estimated position (m)</dt><dd id="calibration-position">—</dd></div>
+                <div><dt>Speed (m/s)</dt><dd id="calibration-speed">—</dd></div>
+                <div><dt>Battery</dt><dd id="calibration-battery">—</dd></div>
+                <div><dt>Physical dock</dt><dd id="calibration-dock">—</dd></div>
+              </dl>
+              <h3>Calibration Progress</h3>
+              <dl class="service-facts">
+                <div><dt>Calibration ID</dt><dd id="calibration-id">—</dd></div>
+                <div><dt>Started</dt><dd id="calibration-started">—</dd></div>
+                <div><dt>Warehouse name</dt><dd id="calibration-name">—</dd></div>
+                <div><dt>Map source</dt><dd id="calibration-map-source">—</dd></div>
+                <div><dt>Measured map</dt><dd id="calibration-map">—</dd></div>
+              </dl>
+            </div>
+          </div>
+          <dl class="service-metrics calibration-tools">
+            <div><dt>3D Mapping</dt><dd>Unavailable</dd></div>
+            <div><dt>Manual Flight</dt><dd>Unavailable</dd></div>
+            <div><dt>Registered Storage Locations</dt><dd id="calibration-locations"></dd></div>
+            <div><dt>Recorded Flight Path</dt><dd id="calibration-waypoints"></dd></div>
+          </dl>
+        </section>
+        <button type="button" id="service-cancel" class="secondary" hidden>Cancel Calibration</button>
+      </section>
+    </div>
   </section>
   <div class="workspace" id="workspace" data-view="plan">
     <aside class="card controls" id="plan-panel" aria-labelledby="scope-title">

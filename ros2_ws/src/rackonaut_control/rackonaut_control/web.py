@@ -2,16 +2,18 @@
 
 import json
 import re
+from http.cookies import CookieError, SimpleCookie
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.error import HTTPError
 from urllib.parse import parse_qs, urlencode, urlsplit
 from urllib.request import Request, urlopen
 
+from .service import COOKIE
 
 STATIC = {"/": ("index.html", "text/html"), "/style.css": ("style.css", "text/css"),
           "/twin.css": ("twin.css", "text/css"),
           **{f"/{name}": (name, "text/javascript") for name in (
-              "app.js", "business.js", "twin.js", "twin-scene.js", "vendor/three.module.min.js",
+              "app.js", "business.js", "service.js", "twin.js", "twin-scene.js", "vendor/three.module.min.js",
               "vendor/three.core.min.js", "vendor/OrbitControls.js")},
           "/vendor/three-LICENSE.txt": ("vendor/three-LICENSE.txt", "text/plain")}
 RUN = r"INS-[A-Z0-9-]{1,60}"
@@ -27,17 +29,65 @@ def serve(control, port):
         def log_message(self, *_):
             pass
 
-        def reply(self, code, data, media_type):
+        def reply(self, code, data, media_type, headers=None):
             self.send_response(code)
             self.send_header("Content-Type", media_type)
             self.send_header("Content-Length", str(len(data)))
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
+            for key, value in (headers or {}).items():
+                self.send_header(key, value)
             self.end_headers()
             self.wfile.write(data)
 
-        def json(self, code, payload):
-            self.reply(code, json.dumps(payload, separators=(",", ":")).encode(), "application/json")
+        def json(self, code, payload, headers=None):
+            self.reply(code, json.dumps(payload, separators=(",", ":")).encode(), "application/json", headers)
+
+        def local_request(self):
+            host = self.headers.get("Host")
+            origin = self.headers.get("Origin")
+            return host in {f"localhost:{port}", f"127.0.0.1:{port}"} and (not origin or origin == f"http://{host}")
+
+        def service_token(self):
+            try:
+                cookie = SimpleCookie(self.headers.get("Cookie", "")).get(COOKIE)
+            except CookieError:
+                return None
+            return cookie.value if cookie else None
+
+        def service_cookie(self, value, max_age):
+            cookie = SimpleCookie({COOKIE: value})
+            cookie[COOKIE]["path"] = "/api/service"
+            cookie[COOKIE]["httponly"] = True
+            cookie[COOKIE]["samesite"] = "Strict"
+            cookie[COOKIE]["max-age"] = str(max_age)
+            return {"Set-Cookie": cookie[COOKIE].OutputString()}
+
+        def require_service(self):
+            if control.service_access.authorized(self.service_token()):
+                return True
+            self.json(401, {"error": "Unlock Service to continue.",
+                            "configured": control.service_access.code_digest is not None})
+            return False
+
+        def service_action(self, path, selection):
+            access = control.service_access
+            if path == "/api/service/unlock":
+                status, token, error = access.unlock(selection.get("code"))
+                if token:
+                    access.revoke(self.service_token())
+                    self.json(200, {"unlocked": True}, self.service_cookie(token, access.ttl))
+                else:
+                    self.json(status, {"error": error}, {"Retry-After": "60"} if status == 429 else None)
+            elif path == "/api/service/lock":
+                access.revoke(self.service_token())
+                self.json(200, {"unlocked": False}, self.service_cookie("", 0))
+            elif path == "/api/service/calibration/start":
+                self.json(200, control.start_calibration(selection))
+            elif path == "/api/service/calibration/cancel":
+                self.json(200, control.cancel_calibration(selection))
+            else:
+                self.json(404, {"error": "Not found"})
 
         def business(self, path, payload=None):
             if control.backend_state["mode"] != "mock_sap":
@@ -66,6 +116,11 @@ def serve(control, port):
                     self.json(200, control.layout)
                 elif path == "/api/state":
                     self.json(200, control.snapshot())
+                elif path == "/api/service/state":
+                    if not self.local_request():
+                        self.json(403, {"error": "Open the local Control Center URL to access Service."})
+                    elif self.require_service():
+                        self.json(200, control.service_snapshot())
                 elif path == "/api/business/summary":
                     inspection = parse_qs(urlsplit(self.path).query).get("inspection_id", [""])[0]
                     if re.fullmatch(RUN, inspection):
@@ -95,11 +150,12 @@ def serve(control, port):
 
         def do_POST(self):
             try:
-                host = self.headers.get("Host")
-                allowed = {f"localhost:{port}", f"127.0.0.1:{port}"}
-                origin = self.headers.get("Origin")
-                if host not in allowed or (origin and origin != f"http://{host}"):
+                if not self.local_request():
                     self.json(403, {"error": "Open the local Control Center URL to send mission commands."})
+                    return
+                path = urlsplit(self.path).path
+                service = path.startswith("/api/service/")
+                if service and path != "/api/service/unlock" and not self.require_service():
                     return
                 size = int(self.headers.get("Content-Length", "0"))
                 if not 0 < size <= 8192 or self.headers.get_content_type() != "application/json":
@@ -109,7 +165,9 @@ def serve(control, port):
                     raise ValueError("Expected a JSON object.")
                 actions = {"/api/plan": control.preview, "/api/start": control.begin, "/api/abort": control.abort,
                            "/api/simulation/worker": control.move_worker, "/api/simulation/obstacle": control.move_obstacle}
-                path = urlsplit(self.path).path
+                if service:
+                    self.service_action(path, selection)
+                    return
                 if BUSINESS_VERIFY.fullmatch(path):
                     self.business(path, selection)
                     return

@@ -50,6 +50,8 @@ scripts/robotics/checkpoint live
 
 Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TRACKING` and the dock to be ready before dispatch. The verified run uses **virtual Safety presence** for ground-zone interlocks. The onboard LiDAR and simulated physical dock contact remain active. Start in 2D and switch to **3D view** when showing the route or recorded results. Use `gazebo_gui:=true` at launch to see the same simulation in Gazebo. [Full profile and launch details](docs/ENGINEERING_SHOWCASE.md#engineering-live)
 
+Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

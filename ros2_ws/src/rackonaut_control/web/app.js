@@ -1,4 +1,5 @@
 import { createIntelligence } from "/business.js";
+import { createService } from "/service.js";
 
 "use strict";
 
@@ -6,7 +7,7 @@ const el = (name) => document.getElementById(name);
 const label = (value) => String(value || "").toLowerCase().replaceAll("_", " ").replace(/^./, (c) => c.toUpperCase());
 const safe = (value) => String(value ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const terminal = new Set(["COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", "ERROR"]);
+const terminal = new Set(["COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", "INTERRUPTED_FOR_CALIBRATION", "ERROR"]);
 const choices = { mode: "aisle", aisles: new Set(["A"]), slots: new Set(), quality: true, adaptive: false };
 const inspectionStages = ["INSPECT", "REINSPECT", "QUALITY_CLOSEUP", "REPOSITION", "RECENTER"];
 const retryReasons = { initial: "Reference view", unreadable: "Unreadable label",
@@ -17,7 +18,9 @@ const headings = {
   live: ["Live flight", "Follow the drone and its current inspection."],
   results: ["Inspection results", "Review what the drone found."],
   diagnostics: ["Diagnostics", "Check live telemetry, safety zones and simulator controls."],
+  service: ["Service Center", "Check system readiness and prepare a warehouse calibration."],
 };
+const service = createService();
 let layout, preview, state, wantedRun, lastRun, lastStage, intelligence;
 let view = "plan";
 let resultsMap = false;
@@ -118,8 +121,9 @@ function setView(next, focus = false) {
   if (next === "results" && view !== next) resultsMap = false;
   view = next;
   el("workspace").dataset.view = next;
-  el("workspace").hidden = next === "diagnostics";
+  el("workspace").hidden = next === "diagnostics" || next === "service";
   el("system-details").hidden = next !== "diagnostics";
+  service.show(next === "service");
   drawWorkspace();
   for (const [name, panel] of [["plan", "plan-panel"], ["live", "live-panel"], ["results", "results-panel"]]) {
     el(panel).hidden = name !== next;
@@ -320,9 +324,10 @@ function drawResults(job) {
   const reports = job?.evidence || [];
   const damage = reports.filter(report => report.status === "DAMAGED");
   const interrupted = job?.stage === "ABORTED";
+  const calibrated = job?.stage === "INTERRUPTED_FOR_CALIBRATION";
   el("completion-id").hidden = !job;
   put("completion-id", job?.inspection_id || "");
-  el("completion-text").classList.toggle("warning", interrupted || !!job?.error || (!!finished && !status.landed));
+  el("completion-text").classList.toggle("warning", interrupted || calibrated || !!job?.error || (!!finished && !status.landed));
   const interruption = status.detail === "Safety Manager heartbeat stopped"
     ? "The flight controller lost contact with the Safety Manager."
     : status.detail;
@@ -330,6 +335,7 @@ function drawResults(job) {
     : "Restart the Rackonaut simulator before starting a new inspection.";
   put("completion-text", job?.error || (finished ? (interrupted
     ? ["Flight stopped.", interruption, !status.landed && nextStep].filter(Boolean).join(" ") + " "
+    : calibrated ? "Inspection interrupted for calibration. Physical dock confirmed. "
     : status.landed ? "The drone landed safely. " : "Landing is unconfirmed. ")
     + (result ? "" : "Preparing the report.")
     : job ? "The inspection is in progress." : "Completed inspections and reports will appear here."));
@@ -348,8 +354,9 @@ function drawResults(job) {
   el("results-map").hidden = !job;
   el("review-stops").hidden = !(finished && review.length);
   const recoveryPending = layout.recovery && state?.safety?.phase === "RECOVERY";
-  el("review-stops").disabled = !state?.at_pad || !!state?.busy || recoveryPending;
-  el("next-inspection").disabled = !!state?.busy || recoveryPending;
+  const servicePending = state?.service_mode && state.service_mode !== "PRODUCTION";
+  el("review-stops").disabled = !state?.at_pad || !!state?.busy || recoveryPending || servicePending;
+  el("next-inspection").disabled = !!state?.busy || recoveryPending || servicePending;
   el("history-panel").hidden = !state?.history?.length;
   html("history", state?.history?.length ? state.history.map((item) => `<div class="history-item"><a target="_blank"
     rel="noopener" href="${safe(item.url)}">${safe(item.run)}</a><span>${item.confirmed}/${item.total}</span></div>`).join("")
@@ -440,11 +447,13 @@ function drawEnergy(job) {
   put("energy-remaining", remaining?.length ?? "—");
   put("energy-remaining-ids", remaining ? remaining.slice(0, 5).join(" · ") + (remaining.length > 5 ? " …" : "") : "");
   const messages = {
-    RETURN_TO_DOCK: mission?.return_reason, DOCKING: "Aligning and landing on the dock",
+    RETURN_TO_DOCK: mission?.return_reason === "CALIBRATION_REQUESTED" ? "Returning to dock for calibration" : mission?.return_reason,
+    DOCKING: "Aligning and landing on the dock",
     CHARGING: "Docking confirmed · Accelerated simulated charging",
     READY_TO_RESUME: "Battery ready — requesting departure clearance",
     RESUMING: "Resuming unfinished inspection", COMPLETE: "Inspection completed",
     COMPLETE_WITH_MISSES: "Inspection completed with unconfirmed stops",
+    INTERRUPTED_FOR_CALIBRATION: "Inspection interrupted for calibration · Physical dock confirmed",
     ABORTED: "Inspection stopped · Automatic departure disabled",
   };
   let message = "Waiting for simulated battery data";
@@ -657,6 +666,7 @@ function draw() {
   const selectedZones = (preview?.required_zones || []).map(id => state?.safety?.zones?.[id]);
   let reason = "";
   if (!state) reason = "Connecting to the Control Center.";
+  else if (state.service_mode && state.service_mode !== "PRODUCTION") reason = "Warehouse calibration is active. New inspections are locked.";
   else if (state.busy || dispatching || wantedRun) reason = "An inspection is in progress or its report is being prepared.";
   else if (!preview) reason = "Select at least one functional location.";
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
@@ -691,6 +701,9 @@ function draw() {
   el("abort").hidden = !canStop;
   el("abort").disabled = !canStop || stopping;
   put("abort", stopping ? "Stopping inspection…" : "Stop inspection");
+  const recoveryInMotion = state?.recovery?.permit_request === true;
+  el("global-stop").hidden = !(canStop || recoveryInMotion);
+  el("global-stop").disabled = stopping;
   el("live-plan").hidden = !!job;
   put("flight-time", job ? `${(status.elapsed_seconds || 0).toFixed(1)} s` : "—");
   drawMap(job);
@@ -725,6 +738,7 @@ async function poll() {
       lastStage = job.stage;
     }
     draw();
+    service.refresh();
     if (view === "results" && el("business-results").open) intelligence.update(state);
   } catch (error) {
     connectionStatus("Connection lost. Keep the Rackonaut terminal open. Reconnecting…");
@@ -811,7 +825,8 @@ async function init() {
     } catch (error) { notice(error.message); }
     finally { dispatching = false; draw(); }
   });
-  el("abort").addEventListener("click", async () => {
+  async function stopInspection() {
+    if (!state?.mission) return;
     stopping = true;
     draw();
     try {
@@ -822,6 +837,11 @@ async function init() {
       draw();
       notice(error.message);
     }
+  }
+  el("abort").addEventListener("click", stopInspection);
+  el("global-stop").addEventListener("click", () => {
+    if (state?.recovery?.permit_request) el("recovery-abort").click();
+    else stopInspection();
   });
   for (const action of ["evaluate", "authorize", "abort"]) {
     el(`recovery-${action}`).addEventListener("click", async () => {

@@ -1,6 +1,21 @@
 from types import SimpleNamespace
 
-from rackonaut_safety.manager import Manager
+from rackonaut_safety.manager import CALIBRATION_INTERRUPTED, Manager
+
+
+def test_calibration_holds_reservation_until_physical_dock():
+    releases = []
+    safety = SimpleNamespace(
+        phase="RESERVED", mission={"stage": CALIBRATION_INTERRUPTED, "landed": True, "motion_owned": False},
+        mission_at=10., calibration_terminal_at=None, energy_at=10., at_pad=lambda _: True,
+        energy={"fresh": True, "contact": True, "contact_source": "gazebo_dock_switch", "switch_engaged": False},
+        release=releases.append,
+    )
+    Manager.supervise(safety, 10.)
+    assert not releases
+    safety.energy["switch_engaged"] = True
+    Manager.supervise(safety, 10.1)
+    assert len(releases) == 1
 
 
 def ready():

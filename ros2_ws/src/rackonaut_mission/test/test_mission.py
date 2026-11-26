@@ -1,14 +1,20 @@
 from datetime import datetime, timezone
 from math import hypot, pi, radians
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import TestCase
 
 from rackonaut_mission.adaptive import next_issue
 from rackonaut_mission.confirmation import current_observation
+from rackonaut_mission.node import Mission
 from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def test_calibration_energy_status_has_no_resume_leg(self):
+        motion = SimpleNamespace(stage="RETURN_TO_DOCK", calibration_id="CAL-TEST", resume_index=None)
+        self.assertEqual(Mission.aerial_remaining_cost(motion, ["A-01-03"], 11.7), 11.7)
+
     def test_adaptive_request_depends_on_observation_and_linked_photo(self):
         readable = {"occupancy": "occupied", "label_status": "readable", "pallet_id": "P999"}
         damaged = {"status": "DAMAGED"}

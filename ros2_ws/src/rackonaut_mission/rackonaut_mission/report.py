@@ -17,7 +17,8 @@ from urllib.request import Request, urlopen
 from ament_index_python.packages import get_package_share_path
 
 
-TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
+CALIBRATION_INTERRUPTED = "INTERRUPTED_FOR_CALIBRATION"
+TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", CALIBRATION_INTERRUPTED}
 IMAGE_NAMES = {"original": "camera.png", "annotated": "annotated.png"}
 
 
