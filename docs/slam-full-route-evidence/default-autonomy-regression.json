@@ -1,0 +1,92 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-120343-DB9A5E1F",
+  "controller": "reference",
+  "lidar_range_m": 8,
+  "stage": "COMPLETE",
+  "physical_dock_contact": true,
+  "safety": "RELEASED",
+  "observations": [
+    {
+      "slot_id": "A-01-01",
+      "expected_pallet_id": "P001",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-183EC37362D843A8BF61AF0C516AC931",
+      "outcome": "unreadable_label"
+    },
+    {
+      "slot_id": "A-01-03",
+      "expected_pallet_id": "P003",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-A88B9068553040D091E528C0D8B4A281",
+      "outcome": "missing_pallet"
+    }
+  ],
+  "samples": 941,
+  "trajectory_length_m": 70.755,
+  "max_dock_distance_m": 16.304,
+  "altitude_range_m": [
+    0.05392,
+    6.70397
+  ],
+  "wall_seconds": 290.0,
+  "simulated_seconds": 156.22,
+  "rtf": 0.5387,
+  "energy_pp": 55.601,
+  "position_error_mm_rmse_p95_max": [
+    7.469,
+    13.47,
+    28.73
+  ],
+  "angle_error_degrees_rmse_p95_max": [
+    0.079,
+    0.154,
+    0.314
+  ],
+  "estimate_rate_wall_hz": 3.245,
+  "dock_drift_mm": 2.348,
+  "regions": {
+    "shaft": {
+      "samples": 166,
+      "position_error_mm_rmse_p95_max": [
+        9.598,
+        13.908,
+        27.369
+      ]
+    },
+    "tunnel": {
+      "samples": 509,
+      "position_error_mm_rmse_p95_max": [
+        3.483,
+        6.802,
+        13.113
+      ]
+    },
+    "aisle": {
+      "samples": 266,
+      "position_error_mm_rmse_p95_max": [
+        10.802,
+        15.365,
+        28.73
+      ]
+    }
+  },
+  "steps": [
+    "STARTING [-4.697, 10.301, 0.042, 0.0]",
+    "WAITING [-4.697, 10.3, 0.043, 0.0]",
+    "VERTICAL_TAKEOFF [-4.698, 10.301, 0.064, 0.0]",
+    "ENTERING_CORRIDOR [-4.687, 10.3, 6.701, 0.0]",
+    "OVERHEAD_TRANSIT [2.103, 10.284, 6.7, 0.0]",
+    "WAITING_FOR_AISLE_CLEARANCE [5.096, 0.449, 6.705, -0.0]",
+    "AISLE_DESCENT [5.101, 0.451, 6.629, 0.0]",
+    "TRANSIT [5.115, 0.45, 0.789, -0.0]",
+    "ALIGN [5.461, 0.451, 0.789, -0.0]",
+    "INSPECT [5.471, 0.45, 0.792, 1.562]",
+    "TRANSIT [5.451, 0.449, 0.791, 1.568]",
+    "INSPECT [8.255, 0.451, 0.79, 1.569]",
+    "AISLE_APPROACH [8.194, 0.452, 0.778, 1.366]",
+    "AISLE_ASCENT [5.112, 0.45, 0.818, 0.001]",
+    "RETURN_TRANSIT [5.094, 0.452, 6.7, -0.0]",
+    "LAND [-4.703, 10.3, 6.54, 0.001]",
+    "COMPLETE [-4.702, 10.299, 0.044, 0.001]"
+  ]
+}

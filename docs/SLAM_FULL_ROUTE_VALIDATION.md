@@ -54,9 +54,13 @@ Lot `INS-CONTROL-20261126-115445-100F3CAC` przez standardowy interfejs Manual Fl
 | Alejka i zejście | 316 | **33,5 mm** | 41,6 mm | 46,6 mm |
 | Cała trasa | 1 143 | 24,0 mm | 37,4 mm | 46,6 mm |
 
-Estymata shadow utrzymała **3,41 Hz** w czasie rzeczywistym. Najdłuższy odstęp wyniósł 0,168 s czasu symulacji, dryf przy doku 2,16 mm, a maksymalny błąd orientacji 0,257°. Estymator przyjął **181 klatek kluczowych** i zarejestrował **55 636 wokseli**. Czas obliczenia pytania o dopasowanie wyniósł p95 **125,9 ms**. Z 372 próbek procesu zmierzono medianę **15,56% jednego rdzenia** i p95 **27,78%**. Najwyższe RSS wyniosło **185,35 MiB**. Gazebo w tym samym oknie zajmowało medianę **198,33% jednego rdzenia** i maksymalnie **864 MiB RSS**.
+Estymata shadow utrzymała **3,41 Hz** w czasie rzeczywistym. Najdłuższy odstęp wyniósł 0,168 s czasu symulacji, dryf przy doku 2,16 mm, a maksymalny błąd orientacji 0,257°. Estymator przyjął **181 klatek kluczowych** i zarejestrował **55 636 wokseli**. Czas dopasowania skanu wyniósł p95 **125,9 ms**. Z 372 próbek procesu zmierzono medianę **15,56% jednego rdzenia** i p95 **27,78%**. Najwyższe RSS wyniosło **185,35 MiB**. Gazebo w tym samym oknie zajmowało medianę **198,33% jednego rdzenia** i maksymalnie **864 MiB RSS**.
 
 W alejce dominuje utrzymujące się przesunięcie w osi X, średnio −28,3 mm. **Bramka całościowa pozostaje niezaliczona**, ponieważ RMSE w tej strefie przekroczył lokalny próg 30 mm. Sterowanie pozostało na lokalizatorze referencyjnym. [Wykres](slam-full-route-evidence/extended-shadow.png) · [Pomiary](slam-full-route-evidence/extended-shadow-verification.json) · [Trajektorie](slam-full-route-evidence/extended-shadow-trace.jsonl)
+
+## Regresja autonomicznej inspekcji na domyślnym profilu
+
+Lot `INS-CONTROL-20261126-120343-DB9A5E1F` uruchomiono końcowym kodem profilu z domyślnym zasięgiem 8 m. Kontroler referencyjny przeszedł przez szyb, tunel i zejście, zapisał po jednej obserwacji A-01-01 i A-01-03 oraz zakończył w stanie `COMPLETE` z fizycznym kontaktem doku i Safety `RELEASED`. Trajektoria miała **70,76 m**. Lot trwał **290,0 s** z **RTF 0,539** i zużyciem **55,601 p.p.** energii. Wyniki odczytu etykiet zapisano zgodnie z raportem inspekcji. [Telemetria regresji](slam-full-route-evidence/default-autonomy-regression.json)
 
 ## Scenariusze
 
@@ -70,4 +74,4 @@ W alejce dominuje utrzymujące się przesunięcie w osi X, średnio −28,3 mm. 
 | 6 | Zmieniona geometria w alejce | Do wykonania po dopuszczeniu SLAM do pełnej trasy. |
 | 7 | Mapa referencyjna fizycznie niedostępna | Do wykonania na pełnej trasie. |
 | 8 | Zabezpieczenia w oddaleniu od doku | Do wykonania podczas pełnej trasy sterowanej SLAM. |
-| 9 | Regresja produkcyjnej trasy autonomicznej | **PASS w próbie bazowej.** Dwie obserwacje, stan `COMPLETE`, potwierdzony dok i `RELEASED`. |
+| 9 | Regresja produkcyjnej trasy autonomicznej | **PASS na domyślnym profilu po zmianach.** Dwie obserwacje, stan `COMPLETE`, potwierdzony dok i `RELEASED`. |
