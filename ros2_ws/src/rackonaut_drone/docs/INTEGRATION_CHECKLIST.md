@@ -47,3 +47,18 @@ Control Center pokazał **Safety alert · Intrusion detected** i zdarzenia **Abo
 Pierwsza próba startu zakończyła się komunikatem „Drone odometry is stale or unknown.” Powtórzenie po trzech sekundach ciągłej gotowości zakończyło się poprawnie. Próba B w tej samej domenie dostała HTTP 409 przed utworzeniem misji. Po zamknięciu launchera wykryto pozostałe procesy wcześniejszej misji. Próba B przeszła w nowej domenie i partycji Gazebo. Zidentyfikowane procesy testowe zatrzymano.
 
 [Wyniki i próbki telemetrii](evidence/x3-reference-acceptance.json)
+
+## Porównanie X3 i drona referencyjnego na tym samym stosie
+
+Cztery loty z 26 listopada 2026 r. używały tego samego kodu Control Center, Mission i Safety z `6e04fcf`, świata `safety_showcase.sdf`, wirtualnego czujnika obecności i profilu `fixture`. X3 używał modułu z `ddf0db2`. Próby odbyły się w osobnych domenach ROS 72–75 i partycjach Gazebo. Lokalny launcher testowy podstawiał proces X3 w miejsce procesu referencyjnego. Parametry Safety, tematy ROS i konfiguracja demonstratora pozostały zgodne z bazą.
+
+| Model | Jeden punkt | Naruszenie strefy i Abort |
+| --- | --- | --- |
+| Dron referencyjny | `INS-CONTROL-20261126-102936-DC1E305E`, 1/1, lądowanie, raport, 49,2 s | `INS-CONTROL-20261126-103040-0CA0A218`, Abort po 1,29 s, zawis 0,003 m poziomo / 0,000 m pionowo, HTTP 409 |
+| X3 UAV v4 | `INS-CONTROL-20261126-102710-4073AEDB`, 1/1, lądowanie, raport, 63,0 s | `INS-CONTROL-20261126-102829-92149FF6`, Abort po 1,28 s, zawis 0,015 m poziomo / 0,002 m pionowo, HTTP 409 |
+
+Oba modele uzyskały odczyt `A-01-01 → P001`, po lądowaniu zwolniły rezerwację i wygenerowały raport HTML z HTTP 200. Po Abort oba pozostały w zawisie z aktywnym `RECOVERY`, utrzymaną rezerwacją A i T oraz zablokowanym startem. Czasy Abort w tabeli są liczone od polecenia ruchu wirtualnego pracownika do pierwszego odczytu `ABORTED` w panelowym API. Są to pojedyncze przebiegi każdego scenariusza.
+
+Dla X3 Safety zarejestrował **Abort confirmed** 0,251 s po wykryciu naruszenia. Panel pokazał **Safety alert · Intrusion detected**. Podsumowanie misji miało ogólny komunikat **Stopped by the operator**, tak jak w próbie referencyjnej. Przyczynę odczytać z alarmu Safety.
+
+Kontrola regresji na tym samym buildzie przeszła **7 testów kontraktu i Mock SAP** oraz **19 testów Control, Mission i Perception**. [Wyniki, identyfikatory i zdarzenia Safety](evidence/x3-mission-validation.json)
