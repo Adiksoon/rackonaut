@@ -1,0 +1,17 @@
+{
+  "case": "incomplete active survey",
+  "session": "CAL-C9FC968659CD435BA192096A97256E17",
+  "mode": "MAPPING_ACTIVE",
+  "finish": {
+    "http": 409,
+    "payload": {
+      "error": "Finish the sortie, save its checkpoint and confirm the physical dock first."
+    }
+  },
+  "start_learned": {
+    "http": 409,
+    "payload": {
+      "error": "Warehouse calibration is active. New inspections are locked."
+    }
+  }
+}

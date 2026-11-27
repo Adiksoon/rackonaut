@@ -14,6 +14,7 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
     STOPPING_INSPECTION: "Stopping inspection", RETURNING_TO_DOCK: "Returning to dock",
     WAITING_FOR_DOCK: "Waiting for dock", PREPARING_CALIBRATION: "Preparing calibration",
     CALIBRATION_READY: "Calibration ready", CALIBRATION_BLOCKED: "Calibration blocked", RECOVERY_REQUIRED: "Recovery required",
+    CALIBRATION_CHARGING: "Charging between mapping flights", CALIBRATION_FINALIZING: "Saving calibration",
     MAPPING_ACTIVE: "Mapping flight", MAPPING_COMPLETE: "Mapping complete",
   };
   let visible = false, section = "management", busy = false, loading = false, generation = 0, current = null;

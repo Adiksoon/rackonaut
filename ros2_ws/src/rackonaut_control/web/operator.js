@@ -65,6 +65,8 @@ export function operatorState(state, target, disconnected = false) {
     if (state.service_mode === "RETURNING_TO_DOCK" || state.service_mode === "STOPPING_INSPECTION")
       return {label: "Returning for calibration", tone: "active"};
     if (state.service_mode === "CALIBRATION_BLOCKED") return {label: "Calibration blocked", tone: "warning"};
+    if (state.service_mode === "CALIBRATION_CHARGING") return {label: "Calibration · docked and charging", tone: "active"};
+    if (state.service_mode === "CALIBRATION_FINALIZING") return {label: "Saving the measured warehouse", tone: "active"};
     if (state.service_mode === "WAITING_FOR_DOCK") return dockState(state);
     if (state.service_mode === "MAPPING_ACTIVE") return {label: "Calibration · mapping flight", tone: "active"};
     return {label: "Calibration in progress", tone: "active"};

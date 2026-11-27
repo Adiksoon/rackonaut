@@ -1,0 +1,371 @@
+{
+  "all": {
+    "count": 4025,
+    "rmse_mm": 11.894,
+    "p95_mm": 19.898,
+    "max_mm": 40.106,
+    "angle_rmse_deg": 0.14388,
+    "angle_p95_deg": 0.2054,
+    "angle_max_deg": 0.2906,
+    "estimate_rate_wall_hz": 3.2043,
+    "rtf": 0.5319,
+    "max_gap_sim_s": 0.168,
+    "passed": false
+  },
+  "sorties": [
+    {
+      "count": 1086,
+      "rmse_mm": 9.316,
+      "p95_mm": 15.922,
+      "max_mm": 19.969,
+      "angle_rmse_deg": 0.13248,
+      "angle_p95_deg": 0.19095,
+      "angle_max_deg": 0.2771,
+      "estimate_rate_wall_hz": 3.127,
+      "rtf": 0.5191,
+      "max_gap_sim_s": 0.168,
+      "passed": false,
+      "zones": {
+        "D": {
+          "count": 242,
+          "rmse_mm": 4.003,
+          "p95_mm": 4.986,
+          "max_mm": 7.144,
+          "angle_rmse_deg": 0.07374,
+          "angle_p95_deg": 0.10829,
+          "angle_max_deg": 0.134,
+          "estimate_rate_wall_hz": 3.1852,
+          "rtf": 0.5288,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "tunnel": {
+          "count": 620,
+          "rmse_mm": 10.663,
+          "p95_mm": 16.044,
+          "max_mm": 16.84,
+          "angle_rmse_deg": 0.13421,
+          "angle_p95_deg": 0.1875,
+          "angle_max_deg": 0.2191,
+          "estimate_rate_wall_hz": 3.1418,
+          "rtf": 0.5215,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "gate_A": {
+          "count": 105,
+          "rmse_mm": 6.149,
+          "p95_mm": 7.614,
+          "max_mm": 7.959,
+          "angle_rmse_deg": 0.17454,
+          "angle_p95_deg": 0.19828,
+          "angle_max_deg": 0.2075,
+          "estimate_rate_wall_hz": 3.0976,
+          "rtf": 0.5141,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "A": {
+          "count": 119,
+          "rmse_mm": 11.56,
+          "p95_mm": 18.486,
+          "max_mm": 19.969,
+          "angle_rmse_deg": 0.16851,
+          "angle_p95_deg": 0.21899,
+          "angle_max_deg": 0.2771,
+          "estimate_rate_wall_hz": 2.9724,
+          "rtf": 0.4934,
+          "max_gap_sim_s": 0.168,
+          "passed": false
+        }
+      },
+      "dryf_mm": 0.3566510900025402,
+      "dock_poses": [
+        [
+          [
+            -4.69986,
+            10.2999,
+            0.05
+          ],
+          [
+            -4.7,
+            10.3,
+            0.05392
+          ]
+        ],
+        [
+          [
+            -4.69966,
+            10.29989,
+            0.05022
+          ],
+          [
+            -4.70001,
+            10.29973,
+            0.054
+          ]
+        ]
+      ],
+      "number": 1,
+      "inspection_id": "INS-CONTROL-20261127-085128-0FF8479F",
+      "sim_s": 180.112,
+      "wall_s": 346.97525400000086,
+      "path_length_m": 64.60043545847022,
+      "energy": {
+        "sorties": [
+          {
+            "departure": 1,
+            "start_percent": 99.947,
+            "start_sim_time": 4.48,
+            "completed_before": [],
+            "result": "COMPLETE",
+            "end_percent": 40.105,
+            "end_sim_time": 182.22,
+            "completed_after": []
+          }
+        ],
+        "landing_percent": 40.578,
+        "landing_sim_time": 182.76,
+        "dock_contact_source": "gazebo_dock_switch"
+      },
+      "localizer_peak_rss_mib": 188.96484375,
+      "processing_p95_ms": 80.46
+    },
+    {
+      "count": 1494,
+      "rmse_mm": 14.142,
+      "p95_mm": 29.682,
+      "max_mm": 40.106,
+      "angle_rmse_deg": 0.14494,
+      "angle_p95_deg": 0.20307,
+      "angle_max_deg": 0.2836,
+      "estimate_rate_wall_hz": 3.2432,
+      "rtf": 0.5384,
+      "max_gap_sim_s": 0.168,
+      "passed": true,
+      "zones": {
+        "D": {
+          "count": 244,
+          "rmse_mm": 4.139,
+          "p95_mm": 4.916,
+          "max_mm": 7.591,
+          "angle_rmse_deg": 0.07043,
+          "angle_p95_deg": 0.09652,
+          "angle_max_deg": 0.1106,
+          "estimate_rate_wall_hz": 3.2472,
+          "rtf": 0.5391,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "tunnel": {
+          "count": 620,
+          "rmse_mm": 10.742,
+          "p95_mm": 16.288,
+          "max_mm": 17.227,
+          "angle_rmse_deg": 0.13159,
+          "angle_p95_deg": 0.18272,
+          "angle_max_deg": 0.2066,
+          "estimate_rate_wall_hz": 3.272,
+          "rtf": 0.5432,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "gate_A": {
+          "count": 105,
+          "rmse_mm": 6.227,
+          "p95_mm": 7.296,
+          "max_mm": 7.91,
+          "angle_rmse_deg": 0.16854,
+          "angle_p95_deg": 0.1898,
+          "angle_max_deg": 0.2118,
+          "estimate_rate_wall_hz": 3.2284,
+          "rtf": 0.536,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "A": {
+          "count": 525,
+          "rmse_mm": 20.425,
+          "p95_mm": 31.625,
+          "max_mm": 40.106,
+          "angle_rmse_deg": 0.17704,
+          "angle_p95_deg": 0.2234,
+          "angle_max_deg": 0.2836,
+          "estimate_rate_wall_hz": 3.2127,
+          "rtf": 0.5333,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        }
+      },
+      "dryf_mm": 0.5194227565288221,
+      "dock_poses": [
+        [
+          [
+            -4.69968,
+            10.2999,
+            0.05029
+          ],
+          [
+            -4.70001,
+            10.29973,
+            0.054
+          ]
+        ],
+        [
+          [
+            -4.69977,
+            10.29993,
+            0.04981
+          ],
+          [
+            -4.69995,
+            10.29989,
+            0.054
+          ]
+        ]
+      ],
+      "number": 2,
+      "inspection_id": "INS-CONTROL-20261127-085733-163DDE59",
+      "sim_s": 247.83999999999997,
+      "wall_s": 460.35158500000034,
+      "path_length_m": 77.55005695834058,
+      "energy": {
+        "sorties": [
+          {
+            "departure": 1,
+            "start_percent": 99.98,
+            "start_sim_time": 194.3,
+            "completed_before": [],
+            "result": "COMPLETE",
+            "end_percent": 19.859,
+            "end_sim_time": 439.54,
+            "completed_after": []
+          }
+        ],
+        "landing_percent": 20.332,
+        "landing_sim_time": 440.1,
+        "dock_contact_source": "gazebo_dock_switch"
+      },
+      "localizer_peak_rss_mib": 242.3359375,
+      "processing_p95_ms": 70.96499999999997
+    },
+    {
+      "count": 1445,
+      "rmse_mm": 11.046,
+      "p95_mm": 16.463,
+      "max_mm": 19.106,
+      "angle_rmse_deg": 0.15083,
+      "angle_p95_deg": 0.21396,
+      "angle_max_deg": 0.2906,
+      "estimate_rate_wall_hz": 3.2243,
+      "rtf": 0.5352,
+      "max_gap_sim_s": 0.168,
+      "passed": true,
+      "zones": {
+        "D": {
+          "count": 240,
+          "rmse_mm": 4.241,
+          "p95_mm": 4.921,
+          "max_mm": 7.041,
+          "angle_rmse_deg": 0.06713,
+          "angle_p95_deg": 0.0912,
+          "angle_max_deg": 0.1006,
+          "estimate_rate_wall_hz": 3.2647,
+          "rtf": 0.5419,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "tunnel": {
+          "count": 797,
+          "rmse_mm": 12.006,
+          "p95_mm": 16.651,
+          "max_mm": 19.106,
+          "angle_rmse_deg": 0.14367,
+          "angle_p95_deg": 0.19812,
+          "angle_max_deg": 0.2328,
+          "estimate_rate_wall_hz": 3.2311,
+          "rtf": 0.5364,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "gate_B": {
+          "count": 106,
+          "rmse_mm": 14.198,
+          "p95_mm": 16.963,
+          "max_mm": 17.845,
+          "angle_rmse_deg": 0.18901,
+          "angle_p95_deg": 0.2084,
+          "angle_max_deg": 0.2263,
+          "estimate_rate_wall_hz": 3.2528,
+          "rtf": 0.5401,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        },
+        "B": {
+          "count": 302,
+          "rmse_mm": 10.878,
+          "p95_mm": 14.815,
+          "max_mm": 16.828,
+          "angle_rmse_deg": 0.19559,
+          "angle_p95_deg": 0.23606,
+          "angle_max_deg": 0.2906,
+          "estimate_rate_wall_hz": 3.1796,
+          "rtf": 0.5278,
+          "max_gap_sim_s": 0.168,
+          "passed": true
+        }
+      },
+      "dryf_mm": 0.3215587038162704,
+      "dock_poses": [
+        [
+          [
+            -4.69965,
+            10.29992,
+            0.04985
+          ],
+          [
+            -4.69995,
+            10.29989,
+            0.054
+          ]
+        ],
+        [
+          [
+            -4.69946,
+            10.29975,
+            0.05012
+          ],
+          [
+            -4.69959,
+            10.29968,
+            0.054
+          ]
+        ]
+      ],
+      "number": 3,
+      "inspection_id": "INS-CONTROL-20261127-090538-DDA9FEC1",
+      "sim_s": 239.704,
+      "wall_s": 447.85015100000055,
+      "path_length_m": 84.35858736873635,
+      "energy": {
+        "sorties": [
+          {
+            "departure": 1,
+            "start_percent": 99.98,
+            "start_sim_time": 455.5,
+            "completed_before": [],
+            "result": "COMPLETE",
+            "end_percent": 20.539,
+            "end_sim_time": 692.84,
+            "completed_after": []
+          }
+        ],
+        "landing_percent": 20.533,
+        "landing_sim_time": 693.24,
+        "dock_contact_source": "gazebo_dock_switch"
+      },
+      "localizer_peak_rss_mib": 289.03125,
+      "processing_p95_ms": 90.11400000000003
+    }
+  ]
+}

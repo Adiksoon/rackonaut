@@ -1018,7 +1018,9 @@ class Control(Node):
         identifier = calibration.draft["calibration_id"] if calibration.draft else None
         if stable and calibration.cancel_pending:
             if identifier and (self.localization or {}).get("mapping_closed") != identifier:
-                if not calibration.mapping_run or (session or {}).get("mapping_phase") == "COMPLETE":
+                if calibration.state == BLOCKED and (calibration.draft or {}).get("multi_sortie"):
+                    self.send_mapping(identifier, "discard", now)
+                elif not calibration.mapping_run or (session or {}).get("mapping_phase") == "COMPLETE":
                     self.send_mapping(identifier, "close", now)
                     return
             elif telemetry["localization"] == "TRACKING" and not (self.localization or {}).get("mapping_id"):

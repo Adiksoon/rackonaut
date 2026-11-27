@@ -36,3 +36,11 @@ scripts/robotics/checkpoint live warehouse_variant:=open-aisle mapping_only:=tru
 ```
 
 W **Service → Warehouse Calibration** wybierz pełną kalibrację. **Return and charge** kończy bieżący odlot przy fizycznym doku. **Continue mapping** ponownie otwiera kontrolowane mapowanie po naładowaniu i sprawdzeniu sensorów. **Finish full calibration** zapisuje główną mapę po potwierdzeniu jedenastu miejsc. Po przejrzeniu i zatwierdzeniu pętli **Save configuration** uruchamia rekonstrukcję z pomiarów i zapisuje model z manifestem.
+
+## Pierwsze trzy odloty
+
+Jedna sesja `CAL-C9FC968659CD435BA192096A97256E17` zebrała po trzecim powrocie 84 402 punkty PLY. Po przejściu z A do B punktowy checkpoint zachował wszystkie 62 508 wcześniejszych komórek. Przyjęto 571 klatek kluczowych. W zachowanych 480 po wyparciu nadmiarowych kadrów było 70 poz w alei A i 29 w B. Licznik odrzuconych wokseli pozostał zerowy. Nowy zasięg mapy obejmuje obie funkcjonalne alejki. [Checkpointy i zakres chmury](full-warehouse-calibration-evidence/checkpoint-coverage.json)
+
+Bramka częstości w próbnej obserwacji A wyniosła 2,9724 Hz, poniżej wymaganych 3 Hz. Po powtórzeniu tej strefy drugi odlot osiągnął 3,2127 Hz w A. Trzeci osiągnął 3,1796 Hz w B, z błędem maksymalnym 19,106 mm w całym odlocie i dryfem 0,32 mm po powrocie. Pozostałe dane z pierwszych trzech lotów są w tabelach pomiarowych. [Wyniki odlotów i stref](full-warehouse-calibration-evidence/flight-metrics.json)
+
+Po trzecim odlocie oryginalne zdjęcia miały A-01-01, B-01-01 i B-02-01. Interfejs pokazał listę brakujących miejsc i stan poprzednich odlotów. W trakcie sesji serwer odrzucił próbę zakończenia kalibracji oraz zwykłe zlecenie inspekcji. Obraz B-02-01 dekoduje znacznik, a użyteczność kadru powierzchni półki pozostaje w ocenie. [Postęp w Chrome](full-warehouse-calibration-evidence/calibration-progress-3.png) · [Blokada niepełnej kalibracji](full-warehouse-calibration-evidence/incomplete-guard.json) · [Niezależny odbiór odometrii Gazebo](full-warehouse-calibration-evidence/validation-topology.txt)

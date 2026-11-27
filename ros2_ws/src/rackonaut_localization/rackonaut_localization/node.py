@@ -235,7 +235,7 @@ class Localization(Node):
                 or self.energy.get("contact_source") != "gazebo_dock_switch"
                 or self.count_publishers("/rackonaut/drone/cmd_vel")):
             return
-        if action == "close" and self.mapping is None:
+        if action in {"close", "discard"} and self.mapping is None:
             self.mapping_closed = identifier
         elif action == "begin" and self.mapping is None:
             if not self.anchor or self.status(now)[0] != "TRACKING":
@@ -272,7 +272,8 @@ class Localization(Node):
                     self.mapping.error = f"Mapping result could not be saved: {error}"
                 else:
                     self.mapping.phase, self.mapping.error = "COMPLETE", ""
-            elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "PAUSED", "COMPLETE"}:
+            elif (action == "close" and self.mapping.phase in {"EMPTY", "READY", "PAUSED", "COMPLETE"}
+                  or action == "discard" and self.mapping.multi_sortie):
                 self.mapping = None
                 self.slam = self.registration_type() if self.mapping_only else None
                 self.mapping_closed = identifier
