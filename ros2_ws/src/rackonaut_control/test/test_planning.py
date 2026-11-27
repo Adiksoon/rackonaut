@@ -32,6 +32,19 @@ class PlanningTests(TestCase):
         self.assertEqual((descent["x"], descent["y"], descent["z"]), (high["x"], high["y"], low["z"]))
         self.assertEqual(descent["phase"], "AISLE_APPROACH")
 
+    def test_x3_descends_before_leaving_the_last_high_inspection_location(self):
+        aerial = json.loads((self.share / "config/aerial_layout.json").read_text())
+        layout = {**self.layout, "aerial": aerial, "pad": aerial["pad"], "takeoff_z": aerial["nodes"]["shaft"][2]}
+        selection = {"mode": "custom", "slots": ["A-01-03", "A-01-04"], "quality": True}
+        result = plan(layout, selection, orthogonal_descent=True)
+        waypoints = result["route"]["waypoints"]
+        index = next(i for i, row in enumerate(waypoints) if row.get("slot_id") == "A-01-04")
+        high, descent, foot = waypoints[index:index + 3]
+        self.assertEqual([foot[key] for key in ("x", "y", "z")], aerial["nodes"]["foot_A"][:3])
+        self.assertEqual([descent[key] for key in ("x", "y", "z")], [high["x"], high["y"], foot["z"]])
+        self.assertEqual(descent["phase"], "AISLE_APPROACH")
+        self.assertEqual(set(result["required_zones"]), {"A", "D"})
+
     def test_layout_slots_match_world_placards(self):
         markers = json.loads((self.share / "config/control_markers.json").read_text())
         world = ElementTree.parse(self.share / "worlds/control_showcase.sdf")

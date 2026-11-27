@@ -90,6 +90,13 @@ def plan(layout, selection, *, orthogonal_descent=False):
             x, y, z, _ = leg.pose
             waypoints.append({"x": x, "y": y, "z": z, "yaw_deg": 0., "phase": leg.phase, "gate": leg.gate})
 
+    def descend_before_crossing(x, y, z):
+        previous = waypoints[-1]
+        if (aerial and orthogonal_descent and previous.get("slot_id")
+                and previous["z"] - z > 1. and hypot(x - previous["x"], y - previous["y"]) > .5):
+            waypoints.append({"x": previous["x"], "y": previous["y"], "z": z,
+                              "yaw_deg": previous["yaw_deg"], "phase": "AISLE_APPROACH"})
+
     previous_y = pad["y"]
     entry = "shaft"
     for zone, group in groupby(ordered, key=lambda slot: slots[slot]["aisle"]):
@@ -101,16 +108,15 @@ def plan(layout, selection, *, orthogonal_descent=False):
             transfer(slots[sequence[0]]["viewpoint"][1])
         for slot in sequence:
             x, y, z, yaw = slots[slot]["viewpoint"]
-            previous = waypoints[-1]
-            if (aerial and orthogonal_descent and previous.get("slot_id")
-                    and previous["z"] - z > 1. and hypot(x - previous["x"], y - previous["y"]) > .5):
-                waypoints.append({"x": previous["x"], "y": previous["y"], "z": z,
-                                  "yaw_deg": previous["yaw_deg"], "phase": "AISLE_APPROACH"})
+            descend_before_crossing(x, y, z)
             waypoints.append({"x": x, "y": y, "z": z, "yaw_deg": yaw, "slot_id": slot})
             previous_y = y
         if aerial:
             entry = f"foot_{zone}"
-            add_legs([Leg(aerial.nodes[entry], "AISLE_APPROACH", zone)])
+            foot = aerial.nodes[entry]
+            if sequence[-1] == ordered[-1]:
+                descend_before_crossing(*foot[:3])
+            add_legs([Leg(foot, "AISLE_APPROACH", zone)])
     if aerial:
         add_legs(aerial.path(entry, "shaft", returning=True))
     else:
