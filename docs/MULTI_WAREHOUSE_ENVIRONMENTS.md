@@ -64,9 +64,20 @@ Gazebo Fortress zaakceptował wszystkie trzy SDF za pomocą `ign sdf -k`. Porów
 
 Rząd ma po jednej bryle kolizyjnej na poziom, a paleta używa obwiedni prostopadłościennej. Części wizualne korzystają ze wspólnych materiałów, prostych brył, tej samej siatki placard i wyłączonych cieni punktowych. Kontrola statyczna obejmuje również odstęp opraw od podwieszenia tunelu i wolne obrysy stref buforowych. Światy referencyjne mają tę samą konfigurację sensorów jak pełny profil lokalizacji, w tym LiDAR 16 m i IMU. Ilość brył i rozmiar SDF opisują skalę scen. Obciążenie w locie zależy od widoczności i częstotliwości przebudowy podmapy, więc wymaga osobnej próby ze zmierzonym RTF, czasem rejestracji i przerwami estymat. [Zasoby bazowe](../ros2_ws/src/rackonaut_warehouse/docs/ASSETS.md)
 
+## Próby uruchomienia przy doku
+
+W osobnych uruchomieniach `checkpoint live` potwierdzono styk doku w Gazebo, stan Safety `AVAILABLE`, estymację SLAM `TRACKING` z pierwszą klatką kluczową oraz dostępność sześciu miejsc z właściwego Mock SAP. Most ROS dostarczał kolejne pomiary LiDAR-u i IMU, a kamera drona dała rzeczywisty obraz 320 × 240. Dron pozostawał przy doku przez całą próbę. Pomiar RTF pochodzi z zegara symulacji podczas inicjalizacji na WSL2 z renderowaniem programowym.
+
+| Hala | Model | Czas do potwierdzenia w próbie | RTF przy doku | Dowody |
+| --- | --- | ---: | ---: | --- |
+| Distribution Center | Referencyjny | 8,99 s | 0,315 | [Telemetria](multi-warehouse-evidence/distribution-center/startup-reference.json) · [Widok z kamery drona](multi-warehouse-evidence/distribution-center/onboard-reference.jpg) |
+| High-Bay Warehouse | Referencyjny | 9,53 s | 0,348 | [Telemetria](multi-warehouse-evidence/high-bay/startup-reference.json) · [Widok z kamery drona](multi-warehouse-evidence/high-bay/onboard-reference.jpg) |
+| Large Logistics Hub | Referencyjny | 9,83 s | 0,337 | [Telemetria](multi-warehouse-evidence/logistics-hub/startup-reference.json) · [Widok z kamery drona](multi-warehouse-evidence/logistics-hub/onboard-reference.jpg) |
+| High-Bay Warehouse | X3 | 9,79 s | 0,386 | [Telemetria](multi-warehouse-evidence/high-bay/startup-x3.json) · [Widok z kamery drona](multi-warehouse-evidence/high-bay/onboard-x3.jpg) |
+
 ## Gotowość i zależności przed pełną kalibracją
 
-Weryfikacja geometrii obejmuje sześć stanowisk na wariant, dwa bezpieczne piony oraz ciągły graf od fizycznego doku. Gotowość do prób kalibracji wymaga spójnego stanu sensorów przy doku i udokumentowanego wejścia do wybranego korytarza. Pełny lot kalibracyjny, odbiór SLAM na długim odcinku i Teach-and-Repeat wymagają własnych prób dla każdej hali.
+Weryfikacja geometrii obejmuje sześć stanowisk na wariant, dwa bezpieczne piony oraz ciągły graf od fizycznego doku. Próby uruchomienia potwierdziły spójny stan sensorów przy doku. Do odbioru gotowości do kalibracji pozostaje pomiar przy wejściu do wybranego korytarza. Pełny lot kalibracyjny, odbiór SLAM na długim odcinku i Teach-and-Repeat wymagają własnych prób dla każdej hali.
 
 | Obszar | Zależność przed pełnym odbiorem |
 | --- | --- |

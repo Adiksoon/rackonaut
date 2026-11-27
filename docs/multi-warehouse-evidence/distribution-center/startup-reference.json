@@ -1,0 +1,73 @@
+{
+  "variant": "distribution-center",
+  "model": "reference",
+  "mission": null,
+  "position": [
+    -7.801,
+    6.699,
+    0.051,
+    -0.0
+  ],
+  "dock": [
+    -7.8,
+    6.7,
+    0.05
+  ],
+  "contact": true,
+  "contact_source": "gazebo_dock_switch",
+  "safety": "AVAILABLE",
+  "mission_dispatched": false,
+  "service_mode": "PRODUCTION",
+  "localization": "TRACKING",
+  "localization_source": "slam",
+  "keyframes": 1,
+  "mapping_only": true,
+  "sap_slots": [
+    "A-02-01",
+    "A-06-02",
+    "A-10-04",
+    "B-03-02",
+    "B-08-03",
+    "B-12-04"
+  ],
+  "wall_s": 8.99,
+  "dock_observed_rtf": 0.315,
+  "sensors": {
+    "/clock": {
+      "count": 320,
+      "sim_hz": 250.0,
+      "wall_hz": 78.632,
+      "last": {
+        "stamp_ns": 1400000000
+      }
+    },
+    "/rackonaut/drone/imu": {
+      "count": 71,
+      "sim_hz": 54.859,
+      "wall_hz": 17.262,
+      "last": {
+        "stamp_ns": 1400000000
+      }
+    },
+    "/rackonaut/camera/camera_info": {
+      "count": 14,
+      "sim_hz": 11.818,
+      "wall_hz": 3.458,
+      "last": {
+        "stamp_ns": 1300000000,
+        "width": 320,
+        "height": 240
+      }
+    },
+    "/rackonaut/drone/lidar/points": {
+      "count": 9,
+      "sim_hz": 7.092,
+      "wall_hz": 2.204,
+      "last": {
+        "stamp_ns": 1328000000,
+        "width": 192,
+        "height": 37
+      }
+    }
+  }
+}
