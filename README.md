@@ -60,6 +60,8 @@ After verified docking, choose **Review Route** in Service to compare the record
 
 Launch `scripts/robotics/checkpoint live learned_warehouse:=true` for teach-and-repeat with a saved measured map. Service manages configuration integrity, activation at the dock and taught inspection locations. [Autonomous inspection of a learned warehouse](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
 
+Use `scripts/robotics/warehouse-in-motion` to run a repeatable X3 inspection with a moving cart, a covered label and a stock discrepancy. [Warehouse in motion](docs/WAREHOUSE_IN_MOTION.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

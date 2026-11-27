@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Run the repeatable warehouse-in-motion scenario on an isolated Full Robotics stack.
+set -eo pipefail
+base="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+export RACKONAUT_ROS_DOMAIN_ID="${RACKONAUT_SCENARIO_DOMAIN_ID:-117}"
+export RACKONAUT_GZ_PARTITION="rackonaut-warehouse-in-motion-$UID-$$"
+source "$base/activate.bash"
+source "$base/processes.bash"
+
+launch_options=()
+case "${1:-}" in
+    "") ;;
+    --gui) launch_options=(gazebo_gui:=true); shift ;;
+    *) printf 'Usage: %s [--gui]\n' "$0" >&2; exit 2 ;;
+esac
+if (( $# )); then printf 'Usage: %s [--gui]\n' "$0" >&2; exit 2; fi
+http_port="${RACKONAUT_SCENARIO_HTTP_PORT:-18770}"
+mock_port="${RACKONAUT_SCENARIO_MOCK_PORT:-18005}"
+python3 - "$http_port" "$mock_port" <<'PYPORTS'
+from contextlib import ExitStack
+import socket
+import sys
+
+with ExitStack() as sockets:
+    for port in map(int, sys.argv[1:]):
+        if not 1024 <= port <= 65535:
+            raise SystemExit("Use unused ports between 1024 and 65535.")
+        listener = sockets.enter_context(socket.socket())
+        listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            listener.bind(("127.0.0.1", port))
+            listener.listen()
+        except OSError as exc:
+            raise SystemExit(f"Scenario port {port} is unavailable: {exc}")
+PYPORTS
+log_root="$RACKONAUT_WS/log"
+mkdir -p "$log_root"
+out="$(mktemp -d "$log_root/warehouse-in-motion.XXXXXXXX")"
+printf 'Scenario evidence: %s\n' "$out"
+
+cleanup() {
+    stop_owned || true
+    # Control Center dispatches mission workers in separate process groups.
+    python3 "$base/scenarios/warehouse_in_motion.py" --cleanup "$out"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+start_owned "$base/checkpoint" live drone_model:=x3 full_route_slam:=false safety_sensor:=virtual \
+    http_port:="$http_port" mock_port:="$mock_port" data_dir:="$out/data" "${launch_options[@]}" >"$out/launch.log" 2>&1
+
+python3 "$base/scenarios/warehouse_in_motion.py" "$out" "$http_port" "$mock_port" | tee "$out/scenario.log"
