@@ -179,15 +179,19 @@ class FullWarehouseRegistration(FullRouteRegistration):
         # the original dock anchor and the most recent frame in every window.
         positions = np.stack([frame.position for frame in self.keyframes])
         rotations = np.stack([frame.orientation.as_quat() for frame in self.keyframes])
-        vicinity = np.linalg.norm(positions - positions[-1], axis=1)
-        candidates = np.flatnonzero(vicinity[:-1] <= 1.2)
-        candidates = candidates[candidates > 0]
+        pairs = cKDTree(positions).query_pairs(.8, output_type="ndarray")
+        directions = np.einsum("ij,ij->i", rotations[pairs[:, 0]], rotations[pairs[:, 1]])
+        population = np.bincount(pairs[np.abs(directions) >= .97].ravel(), minlength=len(positions))
+        candidates = np.flatnonzero(population[1:-1]) + 1
         if not len(candidates):
-            candidates = np.arange(1, len(positions) - 1)
-        distances = np.linalg.norm(positions[candidates, None] - positions[None, :], axis=2)
-        same_view = np.abs(rotations[candidates] @ rotations.T) >= .97
-        population = np.sum((distances <= .8) & same_view, axis=1)
-        return int(candidates[np.argmax(population)]) if population.max() > 1 else len(positions) - 1
+            return len(positions) - 1
+        vicinity = np.linalg.norm(positions[candidates] - positions[-1], axis=1)
+        nearby = candidates[vicinity <= 1.2]
+        if len(nearby):
+            candidates = nearby
+        # If the new area has no redundancy yet, make room in a dense
+        # previously visited area instead of repeatedly dropping new views.
+        return int(candidates[np.argmax(population[candidates])])
 
 
 class FrozenRegistration(FullRouteRegistration):

@@ -33,6 +33,15 @@ class LearnedMapTests(TestCase):
         with self.assertRaisesRegex(ValueError, "different drone model"):
             check_drone_model({"drone_model": "x3"}, "reference")
 
+    def test_new_aisle_can_displace_redundant_views_in_a_different_region(self):
+        registration = FullWarehouseRegistration()
+        points = np.empty((0, 3))
+        xyz = [(-4.7, 10.3, .05), (7., .45, 1.), (7.3, .45, 1.),
+               (7., -5.55, 1.), (8., -5.55, 1.)]
+        registration.keyframes = [Keyframe(np.array(position), Rotation.identity(), points, points)
+                                  for position in xyz]
+        self.assertIn(registration.redundant_frame(), {1, 2})
+
     def test_round_trip_preserves_dock_and_measured_normals(self):
         with TemporaryDirectory() as scratch:
             path = Path(scratch) / "localization.npz"
