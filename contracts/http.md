@@ -107,6 +107,8 @@ Service authentication is required for configuration management. Route sealing a
 | `POST /api/service/warehouses/activate` | Takes `configuration_id` and `confirm: true`. Saves a selection after verification. Localization readiness follows from a separate dock match. |
 | `POST /api/plan` and `POST /api/start` | In `mode: learned` accept the active `configuration_id`, `revision` and nonempty `record_ids`. Use the original sequence of approved directed edges and stop only at the selected learned locations. |
 
+The launcher publishes the active `warehouse_variant` in read-only `GET /api/layout`. Route review, verification, activation and the active Digital Twin require a matching calibration world. Results can still display the measured archive for a past inspection. [World variants](../docs/OPEN_AISLE_DESCENT.md)
+
 The existing Mock SAP API receives current camera observations and the existing report exporter reads those observations by inspection ID. Calibration references remain in the warehouse archive.
 
 The Control Center client may include `expected_inspection_id` in `POST /api/service/calibration/start`. The value is the active inspection ID shown during confirmation or JSON `null` when the operator started from an idle view. A changed active inspection returns HTTP 409 and requires review of the current state. The existing operation still enforces the flight mode, dock and Safety conditions on the server.

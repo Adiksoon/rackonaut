@@ -8,7 +8,7 @@ from math import isfinite
 from rackonaut_energy.aerial import Network
 from rackonaut_energy.model import Model
 from rackonaut_localization.learned_map import MAP_FILE
-from rackonaut_localization.warehouse_config import file_hash
+from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, check_warehouse_variant, file_hash
 
 from .learned_route import forecast, graph, ns
 from .route_recording import FORMAT, MAX_SAMPLES
@@ -28,10 +28,11 @@ def finite_vector(values, size):
 
 
 class RouteReview:
-    def __init__(self, teaching, profile):
+    def __init__(self, teaching, profile, warehouse_variant=HISTORICAL_VARIANT):
         self.teaching = teaching
         self.root = teaching.root
         self.profile = profile
+        self.warehouse_variant = warehouse_variant
 
     def read(self, session, name):
         try:
@@ -49,6 +50,7 @@ class RouteReview:
         result = self.read(session,"result.json")
         if not result or result.get("mapping_id") != session or result.get("frame") != FRAME:
             raise RuntimeError("Route review requires the saved map from verified docking.")
+        check_warehouse_variant(result, self.warehouse_variant)
         if not session_path(self.root,session,"map.ply").is_file() or not path.is_file():
             raise RuntimeError("The mapping archive or timed trajectory is incomplete.")
         with path.open("rb") as stream:

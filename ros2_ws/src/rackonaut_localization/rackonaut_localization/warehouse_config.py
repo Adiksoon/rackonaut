@@ -13,6 +13,8 @@ STORE = "warehouse-configurations"
 ACTIVE = "active-warehouse.json"
 FORMAT = 1
 FRAME = "rackonaut_odom"
+HISTORICAL_VARIANT = "historical"
+OPEN_AISLE_VARIANT = "open-aisle"
 REQUIRED = {"map.ply", "localization.npz", "result.json", "locations.json", "trajectory.jsonl",
             "route.json", "route-validation.json", "safety.json", "sensors.json"}
 
@@ -37,6 +39,19 @@ def read(path):
 def check_drone_model(record, drone_model):
     if not isinstance(record, dict) or record.get("drone_model", "reference") != drone_model:
         raise ValueError("The warehouse calibration uses a different drone model.")
+
+
+def warehouse_prefix(variant):
+    if variant == HISTORICAL_VARIANT:
+        return ""
+    if variant == OPEN_AISLE_VARIANT:
+        return "open_aisle_"
+    raise ValueError("warehouse_variant must be historical or open-aisle.")
+
+
+def check_warehouse_variant(record, variant):
+    if not isinstance(record, dict) or record.get("warehouse_variant", HISTORICAL_VARIANT) != variant:
+        raise ValueError("The warehouse calibration uses a different warehouse geometry.")
 
 
 def verified_package(root, identifier):

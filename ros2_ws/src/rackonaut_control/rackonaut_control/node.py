@@ -32,6 +32,7 @@ from tf2_msgs.msg import TFMessage
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner, stamp
 from rackonaut_energy.model import Model
 from rackonaut_localization.node import MAPPING_COMMAND, SLAM_MAP
+from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_mission.manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, decode_axes, departure_energy
 from rackonaut_safety.geometry import route_zones
@@ -100,7 +101,10 @@ class Control(Node):
         self.data.mkdir(parents=True, exist_ok=True)
         self.web = get_package_share_path("rackonaut_control") / "web"
         warehouse = get_package_share_path("rackonaut_warehouse")
+        variant = self.declare_parameter("warehouse_variant", HISTORICAL_VARIANT).value
+        self.warehouse_prefix = warehouse_prefix(variant)
         self.layout = json.loads((warehouse / "config/control_layout.json").read_text())
+        self.layout["warehouse_variant"] = variant
         if self.safety_enabled:
             self.layout["safety_fields"] = json.loads((warehouse / "config/safety_fields.json").read_text())
         if self.laser_enabled:
@@ -134,7 +138,7 @@ class Control(Node):
         self.energy_enabled = self.declare_parameter("energy_enabled", False).value
         if self.energy_enabled:
             if self.aerial_enabled:
-                profile = json.loads((warehouse / "config/aerial_layout.json").read_text())
+                profile = json.loads((warehouse / f"config/{self.warehouse_prefix}aerial_layout.json").read_text())
                 self.layout["aerial"] = profile
                 self.layout["pad"] = profile["pad"]
                 self.layout["takeoff_z"] = profile["nodes"]["shaft"][2]
@@ -149,11 +153,11 @@ class Control(Node):
         self.service_access = ServiceAccess()
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
-        self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
+        self.route_review = RouteReview(self.teaching, self.layout.get("aerial"), variant)
         self.drone_model = self.declare_parameter("drone_model", "reference").value
         self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor,
                                                   self.drone_model)
-        self.visualizations = Visualizations(self.data, self.web.parent / "config" / "reference-camera.json")
+        self.visualizations = Visualizations(self.data, self.web.parent / "config" / "reference-camera.json", variant)
         if self.learned_mode:
             try:
                 self.visualizations.prime("warehouse", self.warehouse_archive.active_id())
@@ -738,14 +742,17 @@ class Control(Node):
                       if self.mapping_only else "Preconfigured reference warehouse geometry")
             current_map = (learned.get("active_id") or "Choose a saved configuration") if self.learned_mode else (
                 "Awaiting a mapping session" if self.mapping_only else
-                "localization_map.json" if self.localization_mode == "sensor_based" else "Control Center reference layout")
+                f"{self.warehouse_prefix}localization_map.json" if self.localization_mode == "sensor_based"
+                else "Control Center reference layout")
+            profile = ("Learned warehouse" if self.learned_mode else "Protected survey" if self.mapping_only else
+                       "Protected aerial" if self.aerial_enabled else "Showcase reference")
+            if self.warehouse_prefix:
+                profile += " · Open aisle descent"
             return {"available": self.calibration_supported,
                     "system": self.service_telemetry(monotonic()), "calibration": calibration,
                     "mapping": self.mapping_status(),
                     "learned_warehouse": learned,
-                    "warehouse": {"profile": "Learned warehouse" if self.learned_mode else
-                                  "Protected survey" if self.mapping_only else
-                                  "Protected aerial" if self.aerial_enabled else "Showcase reference",
+                    "warehouse": {"profile": profile,
                                   "map_source": source, "map": current_map,
                                   "locations": None if self.learned_mode else len(self.layout["slots"]),
                                   "status": "ACTIVE" if not self.learned_mode or learned["ready"] else "PENDING"}}

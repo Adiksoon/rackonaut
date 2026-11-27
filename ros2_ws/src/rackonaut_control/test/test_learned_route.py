@@ -77,6 +77,15 @@ class LearnedRouteTests(TestCase):
             self.assertTrue(valid["validation"]["valid"])
             self.assertEqual(review.action("approve", SESSION, request)["status"], "approved")
             self.assertEqual(RouteReview(Teaching(Path(scratch), None), PROFILE).state(SESSION)["status"], "approved")
+            open_aisle = RouteReview(teaching, PROFILE, "open-aisle")
+            with self.assertRaisesRegex(ValueError, "different warehouse geometry"):
+                open_aisle.action("review", SESSION, {})
+            result = review.read(SESSION, "result.json")
+            open_aisle.write(SESSION, "result.json", {**result, "warehouse_variant": "open-aisle"})
+            with self.assertRaisesRegex(ValueError, "different warehouse geometry"):
+                review.action("review", SESSION, {})
+            self.assertEqual(open_aisle.state(SESSION)["status"], "stale")
+            review.write(SESSION, "result.json", result)
             route = review.read(SESSION, "route.json")
             route["nodes"][3]["position_m"][1] = 5.
             review.write(SESSION, "route.json", route)

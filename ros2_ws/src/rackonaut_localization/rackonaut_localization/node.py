@@ -28,7 +28,8 @@ from .inertial import GRAVITY, State, propagate
 from .learned_map import MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
 from .registration import StaticMap, voxel_sample
 from .slam import FrozenRegistration, FullRouteRegistration, MeasuredRegistration
-from .warehouse_config import active_identifier, check_drone_model, read, verified_package
+from .warehouse_config import (HISTORICAL_VARIANT, active_identifier, check_drone_model,
+                               check_warehouse_variant, read, verified_package, warehouse_prefix)
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -95,6 +96,8 @@ class Localization(Node):
             raise ValueError("Unknown localization mode")
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
         self.drone_model = self.declare_parameter("drone_model", "reference").value
+        self.warehouse_variant = self.declare_parameter("warehouse_variant", HISTORICAL_VARIANT).value
+        prefix = warehouse_prefix(self.warehouse_variant)
         self.mapping_only = self.declare_parameter("mapping_only", False).value
         full_route = self.declare_parameter("full_route_slam", False).value
         self.learned_mode = self.declare_parameter("learned_warehouse", False).value
@@ -108,9 +111,9 @@ class Localization(Node):
             dock = [-4.7, 10.3, .05]
         else:
             config = get_package_share_path("rackonaut_warehouse") / "config"
-            layout = json.loads((config / "localization_map.json").read_text())
+            layout = json.loads((config / f"{prefix}localization_map.json").read_text())
             self.reference = StaticMap(layout["boxes"], layout["triangles"])
-            dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
+            dock = json.loads((config / f"{prefix}aerial_layout.json").read_text())["nodes"]["dock"]
         self.dock = np.array(self.declare_parameter("dock_xyz", dock).value)
         self.installation_dock = self.dock.copy()
         self.warehouse_id = None
@@ -184,7 +187,9 @@ class Localization(Node):
                 return
             folder, manifest = verified_package(self.directory, identifier)
             check_drone_model(read(folder / "sensors.json"), self.drone_model)
-            check_drone_model(read(folder / "result.json"), self.drone_model)
+            result = read(folder / "result.json")
+            check_drone_model(result, self.drone_model)
+            check_warehouse_variant(result, self.warehouse_variant)
             dock, frames = load_learned_map(folder / MAP_FILE)
             if np.linalg.norm(dock-self.installation_dock) > .02:
                 raise ValueError("Learned warehouse dock does not match the physical installation.")
@@ -538,6 +543,8 @@ class Localization(Node):
                   "points": len(self.cloud.voxels), "trajectory": [rounded(point, 5) for point in self.cloud.path]}
         if self.drone_model != "reference":
             result["drone_model"] = self.drone_model
+        if self.warehouse_variant != HISTORICAL_VARIANT:
+            result["warehouse_variant"] = self.warehouse_variant
         if type(self.slam) is FullRouteRegistration:
             save_learned_map(directory / MAP_FILE, self.slam.keyframes, self.dock)
             result["localization_archive"] = MAP_FILE

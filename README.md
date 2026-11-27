@@ -72,6 +72,8 @@ Launch `scripts/robotics/checkpoint live drone_model:=reference learned_warehous
 
 Use `scripts/robotics/warehouse-in-motion` to run a repeatable X3 inspection with a moving cart, a covered label and a stock discrepancy. [Warehouse in motion](docs/WAREHOUSE_IN_MOTION.md)
 
+Select `warehouse_variant:=open-aisle` on the live launcher for the overhead portals and open descents into aisles A and B. The default `warehouse_variant:=historical` retains the earlier warehouse and its calibration compatibility. [Geometry, validation and views](docs/OPEN_AISLE_DESCENT.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

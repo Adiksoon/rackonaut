@@ -11,7 +11,8 @@ from threading import Lock
 from time import monotonic
 
 from rackonaut_localization.warehouse_config import (
-    CONFIG_ID, FRAME, SESSION_ID, STORE, active_identifier, digest, file_hash, read, verified_package,
+    CONFIG_ID, FRAME, HISTORICAL_VARIANT, SESSION_ID, STORE, active_identifier,
+    check_warehouse_variant, digest, file_hash, read, verified_package,
 )
 
 from .teaching import atomic_write, session_path
@@ -36,8 +37,9 @@ def sources(folder):
 
 
 class Visualizations:
-    def __init__(self, root, camera):
+    def __init__(self, root, camera, warehouse_variant=HISTORICAL_VARIANT):
         self.root = Path(root)
+        self.warehouse_variant = warehouse_variant
         self.cameras = {"reference": camera, "x3": camera.with_name("x3-camera.json")}
         self.pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="warehouse-visualization")
         self.lock = Lock()
@@ -182,7 +184,10 @@ class Visualizations:
         return body, '"' + sha256(body).hexdigest() + '"'
 
     def active(self):
-        return self.get("warehouse", active_identifier(self.root))
+        identifier = active_identifier(self.root)
+        if identifier:
+            check_warehouse_variant(read(self.root / STORE / identifier / "result.json"), self.warehouse_variant)
+        return self.get("warehouse", identifier)
 
     def for_run(self, run):
         route = self.root / "dispatch" / run / "route.json"

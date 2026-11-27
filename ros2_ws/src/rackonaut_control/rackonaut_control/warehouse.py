@@ -12,8 +12,8 @@ from rackonaut_energy.model import Model
 from rackonaut_localization.learned_map import MAP_FILE, load as load_map
 from rackonaut_localization.node import IMU, IMU_FRAME
 from rackonaut_localization.warehouse_config import (ACTIVE, CONFIG_ID, FORMAT, FRAME, PHOTO, REQUIRED, STORE,
-                                                    active_identifier, check_drone_model, digest, file_hash, read,
-                                                    verified_package)
+                                                    active_identifier, check_drone_model, check_warehouse_variant,
+                                                    digest, file_hash, read, verified_package)
 from rackonaut_mission.learned import forecast, ordered_targets
 
 from .teaching import atomic_write, session_path
@@ -96,7 +96,9 @@ class WarehouseArchive:
         folder, manifest = verified_package(self.directory, identifier)
         sensors = read(folder / "sensors.json")
         check_drone_model(sensors, self.drone_model)
-        check_drone_model(read(folder / "result.json"), self.drone_model)
+        result = read(folder / "result.json")
+        check_drone_model(result, self.drone_model)
+        check_warehouse_variant(result, self.review.warehouse_variant)
         source = self.review.state(manifest["mapping_id"])
         route = source["route"]
         if (source["status"] != "approved" or not route or manifest["route_sha256"] != source["route_sha256"]

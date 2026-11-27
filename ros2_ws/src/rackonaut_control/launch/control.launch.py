@@ -12,6 +12,8 @@ from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
+from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
+
 
 def setup(context):
     def arg(name):
@@ -37,6 +39,10 @@ def setup(context):
     if localization not in {"ground_truth", "shadow", "sensor_based"}:
         raise ValueError("Select ground_truth, shadow or sensor_based localization.")
     localizer = localization != "ground_truth"
+    variant = arg("warehouse_variant")
+    prefix = warehouse_prefix(variant)
+    if prefix and not localizer:
+        raise ValueError("warehouse_variant:=open-aisle requires the aerial localization profile.")
     diagnostics = enabled("localization_diagnostics")
     recovery = enabled("recovery")
     learned_warehouse = enabled("learned_warehouse")
@@ -73,13 +79,13 @@ def setup(context):
     if avoidance:
         world = "avoidance_laser_showcase.sdf" if laser else "avoidance_showcase.sdf"
     if localizer:
-        world = "localization_laser_showcase.sdf" if laser else "localization_showcase.sdf"
+        world = prefix + ("localization_laser_showcase.sdf" if laser else "localization_showcase.sdf")
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
     if x3:
         command.append("--x3")
         if arg("x3_source"):
             command.extend(["--x3-source", arg("x3_source")])
-    profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
+    profile = json.loads((warehouse / f"config/{prefix}aerial_layout.json").read_text()) if aerial else None
     props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
     if avoidance:
         command.append("--avoidance")
@@ -95,7 +101,7 @@ def setup(context):
     if enabled("gazebo_gui"):
         command.append("--gui")
     processes = [ExecuteProcess(cmd=command, cwd=str(root), output="screen", name="control_simulator")]
-    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / "control")
+    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / f"{prefix}control")
     api_profile = arg("api_profile")
     if api_profile not in {"fixture", "mock_sap"}:
         raise ValueError("api_profile must be fixture or mock_sap.")
@@ -125,7 +131,7 @@ def setup(context):
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
                               parameters=[{"mode": localization, "data_dir": data, "mapping_only": mapping_only,
                                            "full_route_slam": full_route_slam, "learned_warehouse": learned_warehouse,
-                                           "drone_model": drone_model,
+                                           "drone_model": drone_model, "warehouse_variant": variant,
                                            **({"dock_xyz": dock_xyz} if mapping_only or x3 else {})}]))
     if recovery and not x3:
         localization_nodes.append(Node(
@@ -152,6 +158,7 @@ def setup(context):
         "full_route_slam": full_route_slam,
         "learned_warehouse": learned_warehouse,
         "drone_model": drone_model,
+        "warehouse_variant": variant,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -210,7 +217,8 @@ def generate_launch_description():
                 "energy": "false", "aerial": "false", "avoidance": "false",
                 "localization": "ground_truth", "localization_diagnostics": "false",
                 "recovery": "false", "mapping_only": "false", "full_route_slam": "false", "learned_warehouse": "false",
-                "battery_initial": "auto", "charge_rate": "6.0", "drone_model": "reference", "x3_source": ""}
+                "battery_initial": "auto", "charge_rate": "6.0", "drone_model": "reference", "x3_source": "",
+                "warehouse_variant": HISTORICAL_VARIANT}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),
