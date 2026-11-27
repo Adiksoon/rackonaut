@@ -1,6 +1,8 @@
 # GOAL 28 — Pełna kalibracja magazynu Rackonaut
 
-**Status roboczy.** Punktem wyjścia jest zaakceptowany wariant `open-aisle` z `dc9813c`. Branch integracyjny osiągnął tę rewizję przez fast-forward. Prace nad kalibracją są na `feature/full-warehouse-calibration`.
+Kalibracja referencyjnego drona w wariancie `open-aisle` zarejestrowała **11 z 11 miejsc**, **94 194 punkty PLY** i **cztery zatwierdzone pętle od doku do doku**. Wszystkie sektory czterech odlotów sesji końcowej spełniły bramki GOAL 21A. Konfigurację `WH-D11FA03D45502B0ECE140FB6C611E072` odtworzono po pełnym restarcie z pliku archiwum i ułożono plan z czterema odlotami. [Archiwum do odtworzenia](full-warehouse-calibration-evidence/verified-survey/warehouse-configuration.tar.gz) · [Plan po restarcie](full-warehouse-calibration-evidence/verified-survey/restart-plan.json)
+
+Punktem wyjścia był zaakceptowany wariant `open-aisle` z `dc9813c`, dołączony do `integration/full-system` przez fast-forward. Wyniki i implementacja są na `feature/full-warehouse-calibration`.
 
 ## Audyt i przewidywany czas
 
@@ -37,7 +39,7 @@ scripts/robotics/checkpoint live warehouse_variant:=open-aisle mapping_only:=tru
 
 W **Service → Warehouse Calibration** wybierz pełną kalibrację. **Return and charge** kończy bieżący odlot przy fizycznym doku. **Continue mapping** ponownie otwiera kontrolowane mapowanie po naładowaniu i sprawdzeniu sensorów. **Finish full calibration** zapisuje główną mapę po potwierdzeniu jedenastu miejsc. Po przejrzeniu i zatwierdzeniu pętli **Save configuration** uruchamia rekonstrukcję z pomiarów i zapisuje model z manifestem.
 
-## Pierwsze trzy odloty
+## Pierwsza sesja próbna
 
 Jedna sesja `CAL-C9FC968659CD435BA192096A97256E17` zebrała po trzecim powrocie 84 402 punkty PLY. Po przejściu z A do B punktowy checkpoint zachował wszystkie 62 508 wcześniejszych komórek. Przyjęto 571 klatek kluczowych. W zachowanych 480 po wyparciu nadmiarowych kadrów było 70 poz w alei A i 29 w B. Licznik odrzuconych wokseli pozostał zerowy. Nowy zasięg mapy obejmuje obie funkcjonalne alejki. [Checkpointy i zakres chmury](full-warehouse-calibration-evidence/checkpoint-coverage.json)
 
@@ -51,4 +53,65 @@ Pokładowa kamera dostarczyła dwa kolejne oryginalne zdjęcia i odczyty ArUco. 
 
 O 09:18:09 UTC lokalizator zgłosił przerwę w danych IMU. Mission Manager przerwał lot, a Safety zachowało rezerwacje D i A. W momencie zatrzymania odnotowano 51,822% energii. Po ponownej ocenie lokalizator odzyskał `TRACKING`, a sygnalizacja potwierdziła rezerwacje. Procedura Recovery miała wówczas do dyspozycji 34,428%, przy prognozowanym koszcie powrotu 31,780% i rezerwie 8%. System utrzymał `RECOVERY_BLOCKED`. Przerwany odlot nie ma fizycznego dokowania ani zatwierdzonej pętli. Zachowano osobno ostatnią zapisaną chmurę z trzeciego odlotu. [Telemetria i warunki Recovery](full-warehouse-calibration-evidence/first-survey/sortie-04-recovery.json) · [Checkpoint PLY](full-warehouse-calibration-evidence/first-survey/checkpoint-03.ply) · [Trajektorie zweryfikowane przed przerwaniem](full-warehouse-calibration-evidence/first-survey/trajectories.png) · [Błędy pozycji](full-warehouse-calibration-evidence/first-survey/slam-error.png) · [Pokładowa kamera, próbkowanie co 2,5 s](full-warehouse-calibration-evidence/first-survey/camera-timelapse.mp4)
 
-Przed zatrzymaniem rejestracja części skanów zajmowała do 171 ms. W tej wersji odbiór IMU drona referencyjnego i dopasowanie LiDAR korzystały z jednego wykonawcy ROS 2. W pełnym profilu `open-aisle` oddzielono odbiór IMU przy użyciu mechanizmu z profilu X3. Czas nadejścia wiadomości jest zapisywany przed umieszczeniem jej w kolejce, a poprawność ramy, kolejność i limity wieku próbek są sprawdzane tak jak dotąd. Kompilacja 11 pakietów i 57 testów lokalizacji, Mission Managera i Control Center przeszły. Skuteczność poprawki w kolejnym locie wymaga pomiaru.
+Przed zatrzymaniem rejestracja części skanów zajmowała do 171 ms. Odbiór IMU drona referencyjnego i dopasowanie LiDAR korzystały wtedy z jednego wykonawcy ROS 2. W pełnym profilu `open-aisle` oddzielono odbiór IMU przy użyciu mechanizmu z profilu X3. Czas nadejścia wiadomości jest zapisywany przed umieszczeniem jej w kolejce. Od tego czasu są liczone limity wieku próbek. W nowej sesji telemetria z czterech odlotów pokazała `TRACKING` w całym próbkowanym przebiegu.
+
+## Zakończona sesja pomiarowa
+
+Nowa sesja `CAL-40F4227CCAB2440CA0B9D91802A51805` rozpoczęła się z pustą chmurą. Jeden dziennik sesji wiąże cztery odloty i 11 zdjęć. Przebyto 335,11 m w około 29 min 34 s czasu rzeczywistego naliczonego w oknach lotów. Każdy powrót zakończył się po sygnale `gazebo_dock_switch`, a Safety zwolniło obszary. Przed dalszym startem akumulator doładowano do co najmniej 99,5% i uzyskano nową rezerwację. [Dziennik ładowania](full-warehouse-calibration-evidence/verified-survey/charge-cycles.jsonl) · [Dziennik Safety](full-warehouse-calibration-evidence/verified-survey/safety-events.jsonl) · [Postęp i fizyczne dokowanie w Chrome](full-warehouse-calibration-evidence/verified-survey/calibration-progress-11.png)
+
+| Odlot | Obszar i miejsca | Droga | Energia na początku / przy zapisie dokowania | Próg planu z rezerwą 8% | RMSE / p95 / maks. / dryf (mm) | Hz / RTF |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 1 | A, dolne cztery miejsca | 84,00 m | 99,78% / 18,13% | 98,66% | 13,20 / 26,41 / 40,88 / 0,57 | 3,317 / 0,551 |
+| 2 | A, trzy górne miejsca | 84,16 m | 99,73% / 16,08% | 99,23% | 12,50 / 23,62 / 35,94 / 0,28 | 3,363 / 0,558 |
+| 3 | B, wszystkie trzy miejsca | 86,58 m | 99,60% / 19,48% | 95,09% | 16,17 / 33,67 / 40,91 / 0,18 | 3,364 / 0,558 |
+| 4 | A, A-01-08 | 80,36 m | 99,64% / 28,00% | 85,45% | 12,57 / 24,73 / 31,95 / 0,57 | 3,097 / 0,514 |
+
+5 839 sparowanych estymat dało RMSE **13,71 mm**, p95 **26,67 mm** i maksimum **40,91 mm**. Średnio uzyskano **3,289 Hz** i **RTF 0,546**. Najwolniejszym sektorem był szyb D w czwartym odlocie z **3,033 Hz**. Najwyższe sektorowe RMSE wyniosło **28,15 mm** w bramie B. Walidator otrzymywał własny strumień odometrii Gazebo. Odbiorca IMU, źródło sterowania i wydawca poleceń pozostali rozdzieleni przez interfejsy ROS. [Metryki każdego sektora](full-warehouse-calibration-evidence/verified-survey/flight-metrics.json) · [Błąd pozycji](full-warehouse-calibration-evidence/verified-survey/slam-error.png) · [Porównanie trajektorii](full-warehouse-calibration-evidence/verified-survey/trajectories.png) · [Topologia ROS](full-warehouse-calibration-evidence/verified-survey/ros-topology.txt) · [Nagranie z pokładowej kamery, próbki co 2,5 s](full-warehouse-calibration-evidence/verified-survey/camera-timelapse.mp4)
+
+Graf zawiera **496 skierowanych krawędzi**. Ograniczenia obwiedni, ciągłość danych, rezerwacje i prześwit sprawdzono z dzienników i grafu. Dwa odloty zaczynają graf od pierwszej świeżej pozycji po spóźnionej próbce sygnału stanu przed startem, przy fizycznym doku. Walidator zachował wskaźniki do oryginalnego dziennika. Ponowna inspekcja wymaga aktualnego sprawdzenia prześwitu. [Walidacja zatwierdzonych odlotów](full-warehouse-calibration-evidence/verified-survey/route-validation.json) · [Indeks odlotów](full-warehouse-calibration-evidence/verified-survey/sorties.json)
+
+## Pokrycie i wydajność
+
+Checkpointy zawierały kolejno 65 252, 71 076, 93 085 i **94 194** punkty. Chmura obejmuje zakres XYZ od `(-6,963, -12,361, -0,061)` do `(20,752, 12,381, 10,368)` m w ramie `rackonaut_odom`. Skróty stanu i pozycje w rejonie doku wiążą wszystkie odloty w jednej ramie. Różnice w dopasowaniu kluczy pojedynczego woksela między PLY pochodzą z zaokrąglenia zapisu float32 na granicy siatki. Licznik pomiarów odrzuconych przez limit 160 000 wokseli wyniósł zero.
+
+Widok wykorzystuje do 80 000 rzeczywistych punktów. Z 910 przyjętych klatek kluczowych zapisano 480, w tym 190 z przestrzeni inspekcyjnej A. W opublikowanym NPZ z B pozostała klatka podejścia do bramy oraz zwroty z B widziane z sąsiednich pozycji. Wewnętrzne pozy B zostały wyparte mimo zachowanej chmury B. Wykryto przypadek, w którym brak powtórzonej klatki blisko nowej obserwacji powodował odrzucanie nowego obszaru. Reguła retencji może teraz zwolnić miejsce w gęściej próbkowanym obszarze. Regresję pokrywa test w dwóch rozłącznych regionach. Oryginalne NPZ zawiera pomiary zapisane podczas ukończonej kalibracji.
+
+P95 czasu dopasowania z próbek Control Center wyniosło od 76 do 91 ms. Szczytowe zużycie pamięci wyniosło około 343 MiB dla lokalizatora, 297 MiB dla Control Center wraz z generowaniem modelu i 994 MiB dla Gazebo. Pomiar wykonano na Ubuntu 22.04 w WSL2, ROS 2 Humble i Gazebo Fortress z llvmpipe. [Checkpointy](full-warehouse-calibration-evidence/verified-survey/checkpoint-coverage.json) · [Pamięć procesów](full-warehouse-calibration-evidence/verified-survey/process-memory.txt) · [Plik PLY](full-warehouse-calibration-evidence/verified-survey/map.ply)
+
+## Digital Twin
+
+Rekonstrukcja przed porównaniem z SDF korzystała z obserwowanych płaszczyzn i słupów, pozy drona, parametrów kamery i zdjęć. Słownik ArUco zawiera identyfikatory A i B. Dwa rzędy mają po trzy zmierzone poziomy. W rzędzie zewnętrznym B widać dwa poziomy z zachowanymi pomiarami słupów po obu stronach. Model oznacza go jako częściowo obserwowany i pokazuje tylko wspierany zakres wysokości. Część końców rzędów i rząd scenograficzny pozostały poza zakresem widocznej rekonstrukcji.
+
+| Rząd | Wymiary modelu (m) | Poziomy (m) | Zmierzona długość względem SDF | Przesunięcie środka w poprzek |
+| --- | --- | --- | ---: | ---: |
+| R01 | 15,19 × 1,18 × 5,55 | 0,429 / 2,475 / 4,520 | 77% | 4,9 cm |
+| R02 | 15,73 × 1,17 × 5,54 | 0,420 / 2,467 / 4,514 | 80% | 2,2 cm |
+| R03, częściowy | 10,12 × 1,20 × 3,46 | 2,453 / 4,545 | 51% | 7,1 cm |
+
+W porównaniu z GOAL 26B wynik wzrósł z dwóch do trzech poprawnych rzędów, z jednego do dwóch odwzorowanych przebiegów alejek oraz z dwóch do 11 przypisanych stanowisk. Obydwa wcześniej rozpoznane rzędy miały około 9,56 i 9,92 m. Obecnie widać 15,19 i 15,73 m ich zmierzonego przebiegu. Osobne porównanie z SDF nie wykazało fałszywych rzędów. Błąd orientacji to około **0,035°**, odchylenie wykrytych powierzchni półek od najbliższej powierzchni referencyjnej wyniosło do **3,2 cm**, a wszystkie 11 projekcji trafiło we właściwy rząd, w odległości od **1,4 do 9,8 cm** od znaczników odniesienia. Poziom A-01-07 nie miał osobno potwierdzonej krawędzi półki. [Porównanie z SDF i GOAL 26B](full-warehouse-calibration-evidence/verified-survey/twin-validation.json) · [Model 3D](full-warehouse-calibration-evidence/verified-survey/digital-twin.json) · [Rzut chmury z obrysem modelu](full-warehouse-calibration-evidence/verified-survey/cloud-model-top.png)
+
+## Stanowiska
+
+W każdym oryginalnym JPEG-u dekodowanie potwierdziło ID miejsca. Odczyty przyporządkowano do zsynchronizowanych próbek LiDAR–IMU i zmierzonych węzłów trasy. Tabela podaje współrzędne drona, a nie pozycję półki. A-01-07 ma widoczny towar, choć automatyczna ocena zdjęcia zwróciła niepewność. A-01-05 pokazuje towar z nieczytelnym dodatkowym oznaczeniem palety. Oba znaczniki miejsc są czytelne. [Pełne dane, kwaterniony, czasy i SHA-256 JPEG-ów](full-warehouse-calibration-evidence/verified-survey/photos.json)
+
+| Miejsce | Pozycja XYZ (m) | Yaw | Czas kamery (s) | Kadr | Rząd / poziom | Odlot / w planie |
+| --- | --- | ---: | ---: | --- | --- | --- |
+| A-01-01 | 5,098 · 0,451 · 0,833 | 87,7° | 126,2 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-01.jpg) | R02 / 1 | 1 / tak |
+| A-01-02 | 5,099 · 0,448 · 2,621 | 88,2° | 398,5 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-02.jpg) | R02 / 2 | 2 / tak |
+| A-01-03 | 7,961 · 0,449 · 0,803 | 87,8° | 144,5 | [42 px, puste](full-warehouse-calibration-evidence/verified-survey/photos/A-01-03.jpg) | R02 / 1 | 1 / tak |
+| A-01-04 | 7,963 · 0,449 · 2,623 | 88,0° | 416,8 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-04.jpg) | R02 / 2 | 2 / tak |
+| A-01-05 | 10,838 · 0,449 · 0,762 | 87,9° | 163,2 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-05.jpg) | R02 / 1 | 1 / tak |
+| A-01-06 | 10,839 · 0,449 · 2,624 | 87,8° | 435,3 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-06.jpg) | R02 / 2 | 2 / tak |
+| A-01-07 | 13,358 · 0,448 · 0,861 | 87,7° | 181,2 | [41 px, automatycznie niepewne](full-warehouse-calibration-evidence/verified-survey/photos/A-01-07.jpg) | R02 / nieokreślony | 1 / tak |
+| A-01-08 | 13,479 · 0,450 · 2,622 | 87,9° | 939,4 | [41 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/A-01-08.jpg) | R02 / 2 | 4 / tak |
+| B-01-01 | 5,100 · −5,551 · 0,843 | 88,1° | 680,2 | [42 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/B-01-01.jpg) | R01 / 1 | 3 / tak |
+| B-01-02 | 5,340 · −5,550 · 2,727 | 90,0° | 690,0 | [41 px, towar](full-warehouse-calibration-evidence/verified-survey/photos/B-01-02.jpg) | R01 / 2 | 3 / tak |
+| B-02-01 | 8,192 · −5,550 · 1,041 | 87,8° | 709,4 | [42 px, puste](full-warehouse-calibration-evidence/verified-survey/photos/B-02-01.jpg) | R01 / 1 | 3 / tak |
+
+## Restart i odtworzenie
+
+Zatrzymano procesy Gazebo, ROS, Control Center i Mock SAP. Porty obu usług przestały nasłuchiwać. Na czystym katalogu danych rozpakowano archiwum, uruchomiono cały stos i z aktywnym fizycznym stykiem doku wybrano konfigurację `WH-D11FA03D45502B0ECE140FB6C611E072`. Weryfikacja 25 plików i konfiguracji przeszła. Lokalizator przeszedł do `TRACKING` ze źródłem `learned_map`. W Chrome sprawdzono 11 miejsc, trzy rzędy, chmurę i widok z 496 krawędziami trasy. [Konfiguracja w Chrome](full-warehouse-calibration-evidence/verified-survey/restart-configuration.png) · [Widok z trasą](full-warehouse-calibration-evidence/verified-survey/restart-twin-routes.png) · [Sprawdzenie przeglądarkowe](full-warehouse-calibration-evidence/verified-survey/restart-browser.json) · [Manifest](full-warehouse-calibration-evidence/verified-survey/manifest.json)
+
+Pakiet zawiera surowy katalog `mapping` i odpowiadający mu `warehouse-configurations`. Rozpakuj pakiet do pustego katalogu i podaj go jako `data_dir` w poleceniu uruchomienia. Przy fizycznie zadokowanym dronie otwórz **Service → Warehouse Configuration**, wybierz powyższy identyfikator, sprawdź integralność i aktywuj magazyn. Plan z pełną listą miejsc pokazuje oddzielne budżety każdego odlotu. [Plan 11/11](full-warehouse-calibration-evidence/verified-survey/restart-plan.json)
+
+Pierwsza próba uruchomienia jednej nauczonej pętli zatrzymała się przy doku. Proces misji porównał skrót całego grafu z treścią jednej pętli. Po poprawce dyspozycja przekazuje zatwierdzony graf i numer pętli, a proces misji sprawdza skrót przed wyborem odlotu i walidacją jego stanowisk. [Stan po odrzuceniu pierwszej dyspozycji](full-warehouse-calibration-evidence/verified-survey/restart-first-dispatch.json)

@@ -1,0 +1,7 @@
+{
+  "configuration": "WH-D11FA03D45502B0ECE140FB6C611E072",
+  "verified_files": 25,
+  "case": "one changed map byte in a disposable copy",
+  "rejected": true,
+  "error": "Warehouse file integrity check failed for map.ply."
+}

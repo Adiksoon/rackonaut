@@ -1,0 +1,102 @@
+[
+  {
+    "checkpoint": 1,
+    "points": 65252,
+    "retained_cells": 0,
+    "previous_cells": 0,
+    "retained_keyframes": 240,
+    "accepted_keyframes": 240,
+    "throttled_voxel_updates": 0,
+    "measured_range_m": [
+      [
+        -6.962833881378174,
+        -6.949445724487305,
+        -0.061433907598257065
+      ],
+      [
+        20.752044677734375,
+        12.388118743896484,
+        10.358354568481445
+      ]
+    ],
+    "observed_aisle_pose_keyframes": {
+      "A": 95,
+      "B": 0
+    }
+  },
+  {
+    "checkpoint": 2,
+    "points": 71076,
+    "retained_cells": 65251,
+    "previous_cells": 65251,
+    "retained_keyframes": 480,
+    "accepted_keyframes": 482,
+    "throttled_voxel_updates": 0,
+    "measured_range_m": [
+      [
+        -6.962833881378174,
+        -6.949445724487305,
+        -0.06051968038082123
+      ],
+      [
+        20.752044677734375,
+        12.388118743896484,
+        10.353330612182617
+      ]
+    ],
+    "observed_aisle_pose_keyframes": {
+      "A": 193,
+      "B": 0
+    }
+  },
+  {
+    "checkpoint": 3,
+    "points": 93085,
+    "retained_cells": 71075,
+    "previous_cells": 71075,
+    "retained_keyframes": 480,
+    "accepted_keyframes": 709,
+    "throttled_voxel_updates": 0,
+    "measured_range_m": [
+      [
+        -6.962833881378174,
+        -12.3613920211792,
+        -0.06051968038082123
+      ],
+      [
+        20.752044677734375,
+        12.386167526245117,
+        10.368144035339355
+      ]
+    ],
+    "observed_aisle_pose_keyframes": {
+      "A": 193,
+      "B": 0
+    }
+  },
+  {
+    "checkpoint": 4,
+    "points": 94194,
+    "retained_cells": 93084,
+    "previous_cells": 93084,
+    "retained_keyframes": 480,
+    "accepted_keyframes": 910,
+    "throttled_voxel_updates": 0,
+    "measured_range_m": [
+      [
+        -6.962833881378174,
+        -12.3613920211792,
+        -0.06051968038082123
+      ],
+      [
+        20.752044677734375,
+        12.381169319152832,
+        10.368144035339355
+      ]
+    ],
+    "observed_aisle_pose_keyframes": {
+      "A": 190,
+      "B": 0
+    }
+  }
+]
