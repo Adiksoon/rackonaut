@@ -158,12 +158,14 @@ class WarehouseArchive:
             raise ValueError("Select locations from the approved revision.")
         if "sorties" not in graph:
             return self.plan_sortie(manifest, config["route_sha256"], graph, selected, telemetry)
+        requested = [(leg, stops) for leg in graph["sorties"]
+                     if (stops := selected & {row["record_id"] for row in leg["locations"]})]
+        if len(requested) == 1:
+            leg, stops = requested[0]
+            planned = self.plan_sortie(manifest, config["route_sha256"], leg, stops, telemetry, approved=graph)
+            return {**planned, "sortie": leg["sortie"]}
         sorties = [self.plan_sortie(manifest, config["route_sha256"], leg, stops, telemetry)
-                   for leg in graph["sorties"]
-                   if (stops := selected & {row["record_id"] for row in leg["locations"]})]
-        if len(sorties) == 1:
-            return {**sorties[0], "sortie": next(leg["sortie"] for leg in graph["sorties"] if
-                                               any(row["record_id"] in selected for row in leg["locations"]))}
+                   for leg, stops in requested]
         budget = aggregate_forecasts([{
             **item["energy"], "mission_percent": item["energy"]["percent"],
             "duration_sim_s": item["energy"]["seconds"],
@@ -177,7 +179,7 @@ class WarehouseArchive:
                 "display_points": [point for item in sorties for point in item["display_points"]],
                 "energy": budget, "sorties": sorties}
 
-    def plan_sortie(self, manifest, approval, graph, selected, telemetry):
+    def plan_sortie(self, manifest, approval, graph, selected, telemetry, approved=None):
         profile = self.safety["aerial"]
         targets, zones = ordered_targets(graph, selected, Network(profile))
         stops = [slot for _, _, slot, _, _ in targets if slot]
@@ -197,5 +199,6 @@ class WarehouseArchive:
                 "route": {"pad": pad, "aerial": profile, "energy_zones": list(zones),
                           "energy_crossing_x": profile["nodes"]["entry_A"][0],
                           "learned": {"configuration_id": manifest["configuration_id"], "revision": manifest["revision"],
-                                      "approval_sha256": approval, "graph": graph,
+                                      "approval_sha256": approval, "graph": approved if approved is not None else graph,
+                                      **({"sortie": graph["sortie"]} if approved is not None else {}),
                                       "record_ids": sorted(set(selected))}}}

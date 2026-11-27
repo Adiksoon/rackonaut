@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
@@ -6,7 +7,9 @@ from rackonaut_control.learned_route import raw_knots, stale_dock_preflight, wit
 from rackonaut_control.route_recording import RouteRecorder
 from rackonaut_control.route_review import RouteReview
 from rackonaut_control.teaching import FRAME, Pose, Teaching
+from rackonaut_control.warehouse import WarehouseArchive
 from rackonaut_energy.model import Model
+from rackonaut_mission.route import load_route
 
 
 SESSION = "CAL-" + "A" * 32
@@ -83,7 +86,22 @@ class LearnedRouteTests(TestCase):
             self.assertTrue(all(edge["from"][:3] == edge["to"][:3] for edge in route["edges"]))
             request = {"route_sha256": proposal["route_sha256"], "confirm": True}
             self.assertEqual(review.action("validate", SESSION, request)["status"], "validated")
-            self.assertEqual(review.action("approve", SESSION, request)["status"], "approved")
+            approved = review.action("approve", SESSION, request)
+            self.assertEqual(approved["status"], "approved")
+            archive = WarehouseArchive(scratch, review, {"aerial": {**PROFILE, "pad": {
+                "x": 0., "y": 0., "z": 0., "yaw_deg": 0.,
+            }}}, "virtual")
+            graph = approved["route"]
+            manifest = {"configuration_id": "WH-" + "E"*32, "revision": 2, "dock": [0., 0., 0.]}
+            selection = archive.plan_sortie(manifest, approved["route_sha256"], graph["sorties"][1],
+                                            {"LOC-2"}, None, approved=graph)["route"]
+            dispatch = Path(scratch) / "dispatch.json"
+            dispatch.write_text(json.dumps(selection))
+            self.assertEqual([stop.slot_id for stop in load_route(dispatch).stops], ["A-01-02"])
+            selection["learned"]["sortie"] = 1
+            dispatch.write_text(json.dumps(selection))
+            with self.assertRaisesRegex(ValueError, "approved revision"):
+                load_route(dispatch)
             planned = review.action("plan", SESSION, {**request, "record_ids": ["LOC-1", "LOC-2"]})
             self.assertEqual(len(planned["sorties"]), 2)
             self.assertLess(planned["forecast"]["required_percent"], 100.)

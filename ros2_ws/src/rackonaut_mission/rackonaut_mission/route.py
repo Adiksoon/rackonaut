@@ -65,6 +65,14 @@ def load_route(path):
         if (signature != metadata["approval_sha256"] or graph.get("approval", {}).get("route_sha256") != signature
                 or graph["location_revision"] != metadata["revision"] or config.get("retries")):
             raise ValueError("The approved learned route revision does not match the dispatch.")
+        if "sorties" in graph:
+            number = metadata.get("sortie")
+            options = [leg for leg in graph["sorties"] if leg["sortie"] == number]
+            if type(number) is not int or len(options) != 1 or options[0]["location_revision"] != metadata["revision"]:
+                raise ValueError("Choose one sortie from the approved learned route.")
+            graph = options[0]
+        elif "sortie" in metadata:
+            raise ValueError("The approved learned route has no separate sorties.")
         aerial = Network(config["aerial"])
         targets, zones = ordered_targets(graph, set(metadata["record_ids"]), aerial)
         if not metadata["record_ids"] or set(zones) != set(config["energy_zones"]):
