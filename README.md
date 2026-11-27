@@ -29,9 +29,7 @@ The setup command installs pinned backend packages into `.venv-backend`. ROS nod
 This short profile focuses on HU reads, carton quality, Mock SAP comparison and the supervisor's decisions.
 
 ```bash
-source scripts/robotics/activate.bash
-LP_NUM_THREADS=4 ros2 launch rackonaut_control control.launch.py \
-  api_profile:=mock_sap safety:=true adaptive_world:=true
+scripts/robotics/checkpoint business
 ```
 
 1. Open Control Center and wait for **Mock SAP online** and the drone at the pad. [Control Center](http://127.0.0.1:8765)
@@ -40,25 +38,37 @@ LP_NUM_THREADS=4 ros2 launch rackonaut_control control.launch.py \
 
 The local API serves the v1 Swagger UI on port 8000. [Swagger UI](http://127.0.0.1:8000/docs) · [Mock SAP and business endpoints](docs/SAP_BUSINESS_INTELLIGENCE.md)
 
-### B. Full Robotics Demo
+### B. Full Robotics Demo and calibration
 
 The full profile enables protected aerial corridors, LiDAR–IMU localization, onboard obstacle checks, energy and docking, operator-approved Recovery, Digital Twin and Mock SAP.
 
 ```bash
-scripts/robotics/checkpoint live
+scripts/robotics/checkpoint live drone_model:=reference
 ```
 
 Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TRACKING` and the dock to be ready before dispatch. The verified run uses **virtual Safety presence** for ground-zone interlocks. The onboard LiDAR and simulated physical dock contact remain active. Switch between **2D Map**, **3D Model** and **3D Scan** to compare the plan, reference warehouse and live LiDAR measurements. Use `gazebo_gui:=true` at launch to see the same simulation in Gazebo. [Full profile and launch details](docs/ENGINEERING_SHOWCASE.md#engineering-live) · [Measured 3D map](docs/MEASURED_3D_MAP.md)
+
+Reference is the default. X3 uses the same ROS stack and Control Center. Cache version 4 of the Fuel model once, or pass `x3_source:=` with the verified model directory. Stop the previous simulation first.
+
+```bash
+source scripts/robotics/activate.bash
+ign fuel download -u 'https://fuel.gazebosim.org/1.0/OpenRobotics/models/X3%20UAV/4'
+RACKONAUT_ROS_DOMAIN_ID=227 RACKONAUT_GZ_PARTITION=rackonaut-x3-demo \
+  scripts/robotics/checkpoint live drone_model:=x3 full_route_slam:=false \
+  http_port:=8777 mock_port:=8002 data_dir:="$PWD/.rackonaut-data/x3-known"
+```
+
+On a known map, choose **Full inventory** for the X3 8 m profile, including automatic charging and resumption. Service and Diagnostics show the active drone profile. Restart with the other launch argument to switch profiles. [X3 asset and profile requirements](docs/X3_FULL_ROBOTICS_INTEGRATION.md) · [Integration acceptance](docs/FULL_SYSTEM_INTEGRATION.md)
 
 Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
 
 Use **Service → Manual Control** to fly inside reserved space with the live camera, shared 3D view and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
 
-Use **Service → Warehouse Calibration → Start calibration → Open mapping controls** to prepare a LiDAR survey. Start the mapping flight from the controls once the dock and sensors are ready. Launch with `mapping_only:=true` for a survey profile that starts with onboard localization at the known dock. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
+Use **Service → Warehouse Calibration → Start calibration → Open mapping controls** to prepare a LiDAR survey. Start the mapping flight from the controls once the dock and sensors are ready. Use `mapping_only:=true full_route_slam:=true` with an empty data directory for a new calibration without a factory localization map. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
 
 After verified docking, choose **Review Route** in Service to compare the recorded trajectory with its directed waypoint graph, validate the recorded flight envelope, and approve the proposal for the calibration archive. [Learn a flight route](docs/ROUTE_TEACHING.md)
 
-Launch `scripts/robotics/checkpoint live learned_warehouse:=true` for teach-and-repeat with a saved measured map. Unlock Service and activate the saved warehouse at the dock. Open **Plan inspection** to select its taught locations and start an inspection. [Autonomous inspection of a learned warehouse](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
+Launch `scripts/robotics/checkpoint live drone_model:=reference learned_warehouse:=true data_dir:=/absolute/path/to/a/copy` to use a sealed reference archive. Set `drone_model:=x3` and use a separate compatible archive for X3. Unlock Service and verify or activate the saved warehouse at the physical dock. Open **Plan inspection** to select its taught locations. [Archive setup and autonomous inspection](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
 
 ### C. Engineering Showcase
 
@@ -134,9 +144,11 @@ python scripts/api/setup.py
 
 [Backend setup and test data](backend/README.md) · [Baseline test evidence](docs/TEST_RESULTS.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 
+The standalone CSV importer validates inventory and product data against Mock SAP conventions. Run `python3 scripts/inventory/import_csv.py --help` for options. [Importer, templates and examples](scripts/inventory/README.md)
+
 ## Team onboarding
 
-Adrian owns the integrated demonstrator, computer vision, autonomy, backend and business recommendations. Michał's drone and camera work is independent until he provides a reproducible model and test evidence for review. The dashboard onboarding material remains available for independent development. [Current responsibilities and historical assignments](docs/TEAM_TASKS.md) · [Adrian's setup](docs/onboarding/ADRIAN.md) · [Michał's integration checklist](docs/onboarding/MICHAL.md) · [Dashboard guide](docs/onboarding/DASHBOARD.md)
+Adrian owns the integrated demonstrator, computer vision, autonomy, backend and business recommendations. The X3 profile incorporates Michał's drone and camera contribution. The CSV importer incorporates Vahid's standalone validation and conversion tool. [Current responsibilities and historical assignments](docs/TEAM_TASKS.md) · [Adrian's setup](docs/onboarding/ADRIAN.md) · [Michał's integration checklist](docs/onboarding/MICHAL.md) · [Dashboard guide](docs/onboarding/DASHBOARD.md)
 
 ## Known limitations
 

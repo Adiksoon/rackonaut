@@ -1,0 +1,21 @@
+{
+  "verify": {
+    "status": 400,
+    "result": {
+      "error": "The warehouse calibration uses a different drone model."
+    }
+  },
+  "activate": {
+    "status": 400,
+    "result": {
+      "error": "The warehouse calibration uses a different drone model."
+    }
+  },
+  "active": {
+    "enabled": true,
+    "active_id": "WH-216C75B710D2AF0D46B298CEC6B92350",
+    "loaded_id": "WH-216C75B710D2AF0D46B298CEC6B92350",
+    "ready": true,
+    "error": ""
+  }
+}

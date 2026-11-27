@@ -1,0 +1,115 @@
+{
+  "model": {
+    "binding": {
+      "format": 1,
+      "configuration_id": "WH-216C75B710D2AF0D46B298CEC6B92350",
+      "mapping_id": "CAL-5437DA50D82A4E07A24D488AE0145A90",
+      "revision": 2,
+      "source_sha256": "afe2fb7bcfd2a20843ff1cb7ac37ab9eadbcd8edf9d1537af518e40ffc1a1a67",
+      "camera_profile": "x3",
+      "camera_sha256": "b12140a4ee755d7e04f642d0845884f98f35a0fd68a1697574e965887b15db8a"
+    },
+    "points": 58405,
+    "locations": [
+      {
+        "id": "A-01-01",
+        "viewpoint_m": [
+          5.522279228241386,
+          0.4575767457635473,
+          0.8206344770734384
+        ],
+        "status": "projected",
+        "marker_pixel": [
+          112,
+          160.75
+        ],
+        "rack_id": "R02",
+        "level": null,
+        "position_m": [
+          4.688975691939799,
+          2.364627936558664,
+          0.6030785722086554
+        ],
+        "distance_m": 1.8330491265106434,
+        "support_nearby": 19,
+        "camera_origin_m": [
+          5.452469066494644,
+          0.7182853314838994,
+          0.8613477998141288
+        ]
+      },
+      {
+        "id": "A-01-03",
+        "viewpoint_m": [
+          8.482786139805778,
+          0.48301423785588427,
+          0.8854645814685822
+        ],
+        "status": "projected",
+        "marker_pixel": [
+          110,
+          171.25
+        ],
+        "rack_id": "R02",
+        "level": 1,
+        "position_m": [
+          7.490400380370249,
+          2.366192043183328,
+          0.5885149819845289
+        ],
+        "distance_m": 1.8927895969586392,
+        "support_nearby": 23,
+        "camera_origin_m": [
+          8.395864039692015,
+          0.738596655430085,
+          0.925740831774932
+        ]
+      }
+    ]
+  },
+  "plan": {
+    "selected": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "battery": "100%",
+    "required": "87% min.",
+    "status": "Ready for simulated takeoff."
+  },
+  "run": "INS-CONTROL-20261127-064212-5DE7E03B",
+  "manualDuringAutonomy": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "calibrationConfirmation": {
+    "run": "INS-CONTROL-20261127-064212-5DE7E03B",
+    "cancelRetainedInspection": true,
+    "text": "Interrupt inspection and start calibration?\n\nInspection INS-CONTROL-20261127-064212-5DE7E03B · A-01-01 → A-01-03\n\nRecorded observations are retained under this inspection.\nThe drone will return and wait for verified physical docking.\nNew inspections stay locked until calibration is closed.\nEmergency stop\nKeep inspecting\nInterrupt and return to dock"
+  },
+  "live": {
+    "target": "A-01-01",
+    "phase": "Waiting for a valid observation",
+    "battery": "69%",
+    "projected": "26%",
+    "reserve": "8%",
+    "margin": "+17.9 pp"
+  },
+  "finish": {
+    "stage": "COMPLETE_WITH_MISSES",
+    "detail": "Learned route ended at the verified physical dock",
+    "docked": true,
+    "safety": "RELEASED",
+    "remainingBattery": 30.349,
+    "wallSeconds": 354.926,
+    "observed": [
+      "A-01-01"
+    ],
+    "visited": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "poses": 747,
+    "archive": "/reports/INS-CONTROL-20261127-064212-5DE7E03B",
+    "videoFrames": 215
+  },
+  "error": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'COMPLETE_WITH_MISSES'\n- 'COMPLETE'\n           ^\n"
+}
