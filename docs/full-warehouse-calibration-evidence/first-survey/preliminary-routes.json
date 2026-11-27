@@ -1,0 +1,32 @@
+[
+  {
+    "sortie": 1,
+    "location_ids": [],
+    "waypoints": 78,
+    "samples": 845,
+    "distance_m": 64.64312015373113,
+    "required_percent": 70.76817330162157,
+    "reserve_percent": 8.0,
+    "landing_percent": 40.578,
+    "checkpoints_points": 52824,
+    "checkpoints_keyframes": 166,
+    "cells_shared_with_previous": 0,
+    "previous_cell_count": 0
+  },
+  {
+    "sortie": 2,
+    "location_ids": [
+      "A-01-01"
+    ],
+    "waypoints": 158,
+    "samples": 1163,
+    "distance_m": 77.61012510675135,
+    "required_percent": 85.34184644144673,
+    "reserve_percent": 8.0,
+    "landing_percent": 20.332,
+    "checkpoints_points": 62508,
+    "checkpoints_keyframes": 360,
+    "cells_shared_with_previous": 52824,
+    "previous_cell_count": 52824
+  }
+]

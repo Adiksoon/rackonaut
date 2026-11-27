@@ -1,0 +1,48 @@
+[
+  {
+    "slot": "A-01-03",
+    "capture_id": "CAP-BA155F723BA8401982E26B3D245A548F",
+    "reading": "empty",
+    "label_status": "not_applicable",
+    "reason": "Clear shelf surface",
+    "roi": [
+      52.0,
+      131.0,
+      298.922607421875,
+      174.0
+    ],
+    "marker_min_px": 42.0,
+    "camera_stamp": {
+      "sec": 836,
+      "nanosec": 0
+    },
+    "measured_position": [
+      7.955635757334029,
+      0.4519069523777271,
+      0.8027280580058163
+    ]
+  },
+  {
+    "slot": "A-01-05",
+    "capture_id": "CAP-45495CAF37DD4A3E81A6AD9F22EC2B54",
+    "reading": "occupied",
+    "label_status": "unreadable",
+    "reason": "Pallet base visible",
+    "roi": [
+      41.0,
+      125.0,
+      259.5489196777344,
+      168.0
+    ],
+    "marker_min_px": 41.01219177246094,
+    "camera_stamp": {
+      "sec": 855,
+      "nanosec": 100000000
+    },
+    "measured_position": [
+      10.820334054407134,
+      0.44991824460232877,
+      0.7632353276695074
+    ]
+  }
+]

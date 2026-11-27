@@ -148,14 +148,19 @@ class Localization(Node):
         self.diag_pub = self.create_publisher(String, STATUS, latest)
         self.map_pub = self.create_publisher(PointCloud2, MAP, qos_profile_sensor_data)
         self.imu_worker = None
-        if self.drone_model == "x3" and self.mode == "sensor_based":
+        full_warehouse_profile = self.mapping_only and full_route and self.warehouse_variant == "open-aisle"
+        if self.mode == "sensor_based" and (self.drone_model == "x3" or full_warehouse_profile):
+            # Registration and map publication share the main executor. Record IMU arrivals
+            # independently so a busy scan fit cannot delay receipt of new inertial samples.
             self.imu_inbox = deque(maxlen=32)
             self.imu_lock = Lock()
-            self.imu_receiver = Node("rackonaut_x3_imu_receiver")
+            receiver_name = ("rackonaut_x3_imu_receiver" if self.drone_model == "x3"
+                             else "rackonaut_localization_imu_receiver")
+            self.imu_receiver = Node(receiver_name)
             self.imu_receiver.create_subscription(Imu, IMU, self.enqueue_imu, qos_profile_sensor_data)
             self.imu_executor = SingleThreadedExecutor()
             self.imu_executor.add_node(self.imu_receiver)
-            self.imu_worker = Thread(target=self.receive_imu, name="x3-imu")
+            self.imu_worker = Thread(target=self.receive_imu, name="localization-imu")
             self.imu_worker.start()
         else:
             self.create_subscription(Imu, IMU, self.on_imu, qos_profile_sensor_data)
