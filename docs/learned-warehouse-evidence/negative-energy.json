@@ -1,0 +1,14 @@
+{
+  "kind": "energy",
+  "configuration_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "revision": 2,
+  "checks": [
+    {
+      "endpoint": "start",
+      "status": 409,
+      "detail": "Insufficient energy for the first stop and safe return (79.1% required)."
+    }
+  ],
+  "battery_percent": 49.989,
+  "needed": 79.14700103890587
+}

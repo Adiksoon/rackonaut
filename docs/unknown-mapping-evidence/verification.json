@@ -1,0 +1,3698 @@
+{
+  "preregistered": {
+    "rmse_m": 0.03,
+    "p95_m": 0.045,
+    "max_m": 0.06,
+    "dock_drift_m": 0.035,
+    "estimate_hz_wall": 3.0,
+    "rtf": 0.45
+  },
+  "pose": {
+    "shadow": {
+      "samples": 98,
+      "rmse_m": 0.002996,
+      "p95_m": 0.004288,
+      "max_m": 0.0055,
+      "dock_error_change_m": null,
+      "attitude_error_max_deg": 0.2782
+    },
+    "controlled": {
+      "samples": 146,
+      "rmse_m": 0.003416,
+      "p95_m": 0.004643,
+      "max_m": 0.010885,
+      "dock_error_change_m": 0.001287,
+      "attitude_error_max_deg": 0.2915
+    },
+    "geometry": {
+      "samples": 80,
+      "rmse_m": 0.004008,
+      "p95_m": 0.005588,
+      "max_m": 0.007313,
+      "dock_error_change_m": 0.00107,
+      "attitude_error_max_deg": 0.211
+    },
+    "no_reference_low_reserve": {
+      "samples": 135,
+      "rmse_m": 0.003997,
+      "p95_m": 0.004932,
+      "max_m": 0.010544,
+      "dock_error_change_m": 0.001054,
+      "attitude_error_max_deg": 0.246
+    },
+    "revisit": {
+      "samples": 130,
+      "rmse_m": 0.003677,
+      "p95_m": 0.004862,
+      "max_m": 0.006564,
+      "dock_error_change_m": 0.002095,
+      "attitude_error_max_deg": 0.4091
+    }
+  },
+  "performance": {
+    "matched_estimate_hz_wall": {
+      "min": 3.59,
+      "median": 3.615,
+      "p95": 3.66,
+      "max": 3.66
+    },
+    "matched_estimate_hz_sim": {
+      "min": 6.02,
+      "median": 6.03,
+      "p95": 6.03,
+      "max": 6.03
+    },
+    "rtf_from_timestamp_rate": {
+      "min": 0.595,
+      "median": 0.6,
+      "p95": 0.608,
+      "max": 0.608
+    },
+    "match_processing_ms": {
+      "min": 9.32,
+      "median": 9.99,
+      "p95": 10.645,
+      "max": 10.74
+    }
+  },
+  "measured_resources": {
+    "combined_profile_localizer": {
+      "samples_approx_0_8s": 16,
+      "cpu_percent_single_core": {
+        "min": 9.823,
+        "median": 12.303,
+        "p95": 13.547,
+        "max": 13.551
+      },
+      "rss_peak_mib": 198.4
+    },
+    "survey_only_localizer": {
+      "samples_approx_0_8s": 16,
+      "cpu_percent_single_core": {
+        "min": 8.563,
+        "median": 9.846,
+        "p95": 12.293,
+        "max": 12.319
+      },
+      "rss_peak_mib": 79.9
+    }
+  },
+  "revisit": {
+    "point_counts": [
+      6270,
+      6270
+    ],
+    "bidirectional_nearest_m": {
+      "min": 0.0,
+      "median": 0.002,
+      "p95": 0.009,
+      "max": 0.299
+    },
+    "percentage_within_0_05m": 99.82
+  },
+  "modified_fixture": {
+    "bounds_m": {
+      "x": [
+        -4.135,
+        -4.045
+      ],
+      "y": [
+        9.56,
+        11.04
+      ],
+      "z": [
+        0.38,
+        1.65
+      ]
+    },
+    "original": {
+      "total": 6317,
+      "face_returns": 0,
+      "face_median_x_m": null
+    },
+    "changed": {
+      "total": 2939,
+      "face_returns": 74,
+      "face_median_x_m": -4.0912
+    }
+  },
+  "browser_events": [
+    {
+      "wall": 1795691352.943,
+      "name": "production-before",
+      "status": 200,
+      "session": "b6bf5afa2b8642a0abe4470a0dd9de75",
+      "source": "/rackonaut/localization/measured_map",
+      "points": "1141"
+    },
+    {
+      "wall": 1795691355.445,
+      "name": "calibration-ready",
+      "service": "CALIBRATION_READY",
+      "pose": [
+        -4.699,
+        10.299,
+        0.05,
+        -0.001
+      ],
+      "safety": "AVAILABLE",
+      "battery": 99.947,
+      "contact": true,
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "READY",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 0,
+        "path": 0,
+        "wallHz": 3.43,
+        "simHz": 6.05,
+        "rms": 0.007,
+        "overlap": 0.763,
+        "cpuMs": 3.62,
+        "pipelineMs": 16.18,
+        "age": 113,
+        "imuAge": 15
+      }
+    },
+    {
+      "wall": 1795691355.448,
+      "name": "empty-mapping",
+      "status": 204,
+      "session": "CAL-51F2983607AF4DCD97CA0754320930CA",
+      "source": "/rackonaut/localization/slam_map"
+    },
+    {
+      "wall": 1795691363.99,
+      "name": "airborne",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.699,
+        10.299,
+        0.718,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 99.035,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 3701,
+        "path": 5,
+        "wallHz": 3.66,
+        "simHz": 6.02,
+        "rms": 0.0109,
+        "overlap": 0.74,
+        "cpuMs": 9.92,
+        "pipelineMs": 11.08,
+        "age": 26,
+        "imuAge": 9
+      }
+    },
+    {
+      "wall": 1795691367.268,
+      "name": "held-r",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.699,
+        10.3,
+        0.721,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 98.533,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 3792,
+        "path": 5,
+        "wallHz": 3.64,
+        "simHz": 6.03,
+        "rms": 0.0104,
+        "overlap": 0.744,
+        "cpuMs": 9.64,
+        "pipelineMs": 25.31,
+        "age": 241,
+        "imuAge": 35
+      }
+    },
+    {
+      "wall": 1795691367.817,
+      "name": "released-r",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.698,
+        10.3,
+        0.722,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 98.444,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 3792,
+        "path": 5,
+        "wallHz": 3.62,
+        "simHz": 6.03,
+        "rms": 0.0104,
+        "overlap": 0.744,
+        "cpuMs": 9.85,
+        "pipelineMs": 31.15,
+        "age": 271,
+        "imuAge": 43
+      }
+    },
+    {
+      "wall": 1795691368.903,
+      "name": "held-a",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.7,
+        10.342,
+        0.722,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 98.259,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0,
+          0.24,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0.24,
+          0,
+          0
+        ],
+        "clearance": 0.311
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 4053,
+        "path": 5,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0109,
+        "overlap": 0.739,
+        "cpuMs": 10.06,
+        "pipelineMs": 30.3,
+        "age": 145,
+        "imuAge": 27
+      }
+    },
+    {
+      "wall": 1795691369.448,
+      "name": "released-a",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.699,
+        10.408,
+        0.718,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 98.18,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 4387,
+        "path": 5,
+        "wallHz": 3.61,
+        "simHz": 6.02,
+        "rms": 0.0106,
+        "overlap": 0.744,
+        "cpuMs": 10.59,
+        "pipelineMs": 34.93,
+        "age": 24,
+        "imuAge": 7
+      }
+    },
+    {
+      "wall": 1795691370.402,
+      "name": "held-d",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.702,
+        10.399,
+        0.715,
+        0.002
+      ],
+      "safety": "RESERVED",
+      "battery": 98.017,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0,
+          -0.24,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          -0.24,
+          0,
+          0
+        ],
+        "clearance": 0.445
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 4684,
+        "path": 6,
+        "wallHz": 3.62,
+        "simHz": 6.03,
+        "rms": 0.0121,
+        "overlap": 0.727,
+        "cpuMs": 9.92,
+        "pipelineMs": 10.65,
+        "age": 76,
+        "imuAge": 18
+      }
+    },
+    {
+      "wall": 1795691370.942,
+      "name": "released-d",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.702,
+        10.32,
+        0.71,
+        0
+      ],
+      "safety": "RESERVED",
+      "battery": 97.89,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 4754,
+        "path": 6,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0118,
+        "overlap": 0.748,
+        "cpuMs": 9.89,
+        "pipelineMs": 10.86,
+        "age": 101,
+        "imuAge": 3
+      }
+    },
+    {
+      "wall": 1795691371.914,
+      "name": "held-w",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.663,
+        10.297,
+        0.709,
+        -0.002
+      ],
+      "safety": "RESERVED",
+      "battery": 97.733,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0.24,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0.24,
+          0,
+          0,
+          0
+        ],
+        "clearance": 0.311
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5092,
+        "path": 6,
+        "wallHz": 3.59,
+        "simHz": 6.03,
+        "rms": 0.0107,
+        "overlap": 0.739,
+        "cpuMs": 9.32,
+        "pipelineMs": 11.47,
+        "age": 2,
+        "imuAge": 89
+      }
+    },
+    {
+      "wall": 1795691372.462,
+      "name": "released-w",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.585,
+        10.3,
+        0.707,
+        -0.003
+      ],
+      "safety": "RESERVED",
+      "battery": 97.648,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5272,
+        "path": 7,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0108,
+        "overlap": 0.739,
+        "cpuMs": 10.25,
+        "pipelineMs": 34.9,
+        "age": 25,
+        "imuAge": 7
+      }
+    },
+    {
+      "wall": 1795691373.435,
+      "name": "held-s",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.591,
+        10.3,
+        0.706,
+        -0.002
+      ],
+      "safety": "RESERVED",
+      "battery": 97.509,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          -0.24,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          -0.24,
+          0,
+          0,
+          0
+        ],
+        "clearance": 0.457
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5448,
+        "path": 7,
+        "wallHz": 3.61,
+        "simHz": 6.02,
+        "rms": 0.0122,
+        "overlap": 0.713,
+        "cpuMs": 10.74,
+        "pipelineMs": 22.88,
+        "age": 12,
+        "imuAge": 140
+      }
+    },
+    {
+      "wall": 1795691373.976,
+      "name": "released-s",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.674,
+        10.301,
+        0.7,
+        -0.004
+      ],
+      "safety": "RESERVED",
+      "battery": 97.364,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5501,
+        "path": 7,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0112,
+        "overlap": 0.719,
+        "cpuMs": 9.7,
+        "pipelineMs": 15.45,
+        "age": 256,
+        "imuAge": 34
+      }
+    },
+    {
+      "wall": 1795691374.933,
+      "name": "held-q",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.692,
+        10.301,
+        0.701,
+        0.073
+      ],
+      "safety": "RESERVED",
+      "battery": 97.225,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0,
+          0,
+          0,
+          0.24
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0.24
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5662,
+        "path": 7,
+        "wallHz": 3.59,
+        "simHz": 6.03,
+        "rms": 0.0113,
+        "overlap": 0.734,
+        "cpuMs": 9.92,
+        "pipelineMs": 23.32,
+        "age": 163,
+        "imuAge": 65
+      }
+    },
+    {
+      "wall": 1795691375.478,
+      "name": "released-q",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.69,
+        10.301,
+        0.702,
+        0.122
+      ],
+      "safety": "RESERVED",
+      "battery": 97.141,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5742,
+        "path": 7,
+        "wallHz": 3.64,
+        "simHz": 6.03,
+        "rms": 0.0108,
+        "overlap": 0.74,
+        "cpuMs": 9.57,
+        "pipelineMs": 11.09,
+        "age": 202,
+        "imuAge": 17
+      }
+    },
+    {
+      "wall": 1795691376.438,
+      "name": "held-e",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.685,
+        10.302,
+        0.705,
+        0.038
+      ],
+      "safety": "RESERVED",
+      "battery": 96.989,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0,
+          0,
+          0,
+          -0.24
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          -0.24
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5800,
+        "path": 7,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0116,
+        "overlap": 0.755,
+        "cpuMs": 10.64,
+        "pipelineMs": 16.49,
+        "age": 106,
+        "imuAge": 8
+      }
+    },
+    {
+      "wall": 1795691376.982,
+      "name": "released-e",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.688,
+        10.302,
+        0.706,
+        0.01
+      ],
+      "safety": "RESERVED",
+      "battery": 96.885,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5829,
+        "path": 7,
+        "wallHz": 3.66,
+        "simHz": 6.03,
+        "rms": 0.0105,
+        "overlap": 0.75,
+        "cpuMs": 10.51,
+        "pipelineMs": 17.32,
+        "age": 157,
+        "imuAge": 19
+      }
+    },
+    {
+      "wall": 1795691376.987,
+      "name": "pass-one",
+      "status": 200,
+      "session": "CAL-51F2983607AF4DCD97CA0754320930CA",
+      "source": "/rackonaut/localization/slam_map",
+      "points": "5787"
+    },
+    {
+      "wall": 1795691380.06,
+      "name": "held-f",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.685,
+        10.3,
+        0.497,
+        0.007
+      ],
+      "safety": "RESERVED",
+      "battery": 96.419,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "BRAKING",
+        "detail": "Obstacle in swept volume",
+        "requested": [
+          0,
+          0,
+          -0.168,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": 0.326
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5926,
+        "path": 8,
+        "wallHz": 3.65,
+        "simHz": 6.02,
+        "rms": 0.0117,
+        "overlap": 0.75,
+        "cpuMs": 10.07,
+        "pipelineMs": 18.63,
+        "age": 109,
+        "imuAge": 11
+      }
+    },
+    {
+      "wall": 1795691380.612,
+      "name": "released-f",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.689,
+        10.301,
+        0.478,
+        0.007
+      ],
+      "safety": "RESERVED",
+      "battery": 96.325,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 5980,
+        "path": 8,
+        "wallHz": 3.66,
+        "simHz": 6.02,
+        "rms": 0.0118,
+        "overlap": 0.766,
+        "cpuMs": 10.14,
+        "pipelineMs": 14.98,
+        "age": 130,
+        "imuAge": 11
+      }
+    },
+    {
+      "wall": 1795691383.699,
+      "name": "held-r",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.687,
+        10.301,
+        0.714,
+        0.006
+      ],
+      "safety": "RESERVED",
+      "battery": 95.711,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "MOVING",
+        "detail": "Motion permitted",
+        "requested": [
+          0,
+          0,
+          0.168,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0.168,
+          0
+        ],
+        "clearance": 1.5
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 6042,
+        "path": 8,
+        "wallHz": 3.62,
+        "simHz": 6.03,
+        "rms": 0.0119,
+        "overlap": 0.726,
+        "cpuMs": 10.62,
+        "pipelineMs": 17.25,
+        "age": 157,
+        "imuAge": 56
+      }
+    },
+    {
+      "wall": 1795691384.239,
+      "name": "released-r",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.69,
+        10.301,
+        0.765,
+        0.006
+      ],
+      "safety": "RESERVED",
+      "battery": 95.617,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 6056,
+        "path": 9,
+        "wallHz": 3.64,
+        "simHz": 6.03,
+        "rms": 0.0119,
+        "overlap": 0.74,
+        "cpuMs": 9.69,
+        "pipelineMs": 17.19,
+        "age": 133,
+        "imuAge": 35
+      }
+    },
+    {
+      "wall": 1795691384.243,
+      "name": "pass-two",
+      "status": 200,
+      "session": "CAL-51F2983607AF4DCD97CA0754320930CA",
+      "source": "/rackonaut/localization/slam_map",
+      "points": "6041"
+    },
+    {
+      "wall": 1795691384.815,
+      "name": "link-cut"
+    },
+    {
+      "wall": 1795691386.029,
+      "name": "browser-link-lost",
+      "service": "MAPPING_ACTIVE",
+      "pose": [
+        -4.688,
+        10.302,
+        0.866,
+        0.007
+      ],
+      "safety": "RESERVED",
+      "battery": 95.281,
+      "contact": false,
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "LINK_LOST",
+        "detail": "Operator heartbeat expired; holding position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "RECORDING",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 6199,
+        "path": 10,
+        "wallHz": 3.61,
+        "simHz": 6.03,
+        "rms": 0.0104,
+        "overlap": 0.732,
+        "cpuMs": 10.35,
+        "pipelineMs": 12.25,
+        "age": 227,
+        "imuAge": 16
+      }
+    },
+    {
+      "wall": 1795691394.866,
+      "name": "mapping-complete",
+      "service": "MAPPING_COMPLETE",
+      "pose": [
+        -4.7,
+        10.3,
+        0.051,
+        0.001
+      ],
+      "safety": "RELEASED",
+      "battery": 95.587,
+      "contact": true,
+      "stage": "COMPLETE",
+      "manual": {
+        "state": "DOCKED",
+        "detail": "Manual flight ended at the verified physical dock",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": "CAL-51F2983607AF4DCD97CA0754320930CA",
+        "source": "slam",
+        "phase": "COMPLETE",
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 6317,
+        "path": 15,
+        "wallHz": 3.62,
+        "simHz": 6.02,
+        "rms": 0.0078,
+        "overlap": 0.831,
+        "cpuMs": 4.46,
+        "pipelineMs": 21,
+        "age": 66,
+        "imuAge": 8
+      }
+    },
+    {
+      "wall": 1795691395.498,
+      "name": "reference-restored",
+      "service": "PRODUCTION",
+      "pose": [
+        -4.696,
+        10.302,
+        0.043,
+        0.001
+      ],
+      "safety": "RELEASED",
+      "battery": 98.227,
+      "contact": true,
+      "stage": "COMPLETE",
+      "manual": {
+        "state": "DOCKED",
+        "detail": "Manual flight ended at the verified physical dock",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": null,
+        "source": "reference",
+        "phase": null,
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 1168,
+        "path": 1,
+        "wallHz": 0,
+        "simHz": 0,
+        "rms": 0.0113,
+        "overlap": 1,
+        "cpuMs": 12.36,
+        "pipelineMs": 17.05,
+        "age": 30,
+        "imuAge": 12
+      }
+    },
+    {
+      "wall": 1795691395.502,
+      "name": "production-restored",
+      "status": 200,
+      "session": "b6bf5afa2b8642a0abe4470a0dd9de75",
+      "source": "/rackonaut/localization/measured_map",
+      "points": "1141"
+    },
+    {
+      "wall": 1795691398.273,
+      "name": "second-empty",
+      "status": 204,
+      "session": "CAL-3A5ED00A476C45ADB5B2CF0ED0E0F334",
+      "source": "/rackonaut/localization/slam_map"
+    },
+    {
+      "wall": 1795691398.769,
+      "name": "second-session-closed",
+      "service": "PRODUCTION",
+      "pose": [
+        -4.696,
+        10.302,
+        0.044,
+        0.001
+      ],
+      "safety": "RELEASED",
+      "battery": 100,
+      "contact": true,
+      "stage": "COMPLETE",
+      "manual": {
+        "state": "DOCKED",
+        "detail": "Manual flight ended at the verified physical dock",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "slam": {
+        "id": null,
+        "source": "reference",
+        "phase": null,
+        "reason": "Synchronized LiDAR fit and inertial prediction",
+        "tracking": "TRACKING",
+        "points": 1169,
+        "path": 1,
+        "wallHz": 0,
+        "simHz": 0,
+        "rms": 0.0113,
+        "overlap": 1,
+        "cpuMs": 11.46,
+        "pipelineMs": 18.97,
+        "age": 57,
+        "imuAge": 20
+      }
+    }
+  ],
+  "simulator_scenarios": {
+    "geometry": [
+      {
+        "wall": 1795691438.2725158,
+        "label": "transport-request",
+        "model": "aisle_block",
+        "xyz": [
+          -3.92,
+          10.3,
+          0.81
+        ],
+        "yaw": 0
+      },
+      {
+        "wall": 1795691438.573069,
+        "label": "transport-ack",
+        "model": "aisle_block",
+        "xyz": [
+          -3.92,
+          10.3,
+          0.81
+        ],
+        "yaw": 0,
+        "output": "data: true"
+      },
+      {
+        "wall": 1795691440.325176,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-110916-30F21669",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.7,
+          10.3,
+          0.049,
+          0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-FD9A4B5C620F48E8A3A90E97198CF34D",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.2,
+        "scan_hz": 6.02,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      },
+      {
+        "wall": 1795691448.487808,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.701,
+          10.299,
+          0.722,
+          -0.001
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 2412,
+        "contact": false,
+        "battery": 99.138,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-FD9A4B5C620F48E8A3A90E97198CF34D",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691449.4429126,
+        "label": "fixed-obstacle-block",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          0.725,
+          0.0
+        ],
+        "manual": {
+          "state": "BLOCKED",
+          "detail": "Obstacle in swept volume",
+          "requested": [
+            0.4,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 0.159
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 2433,
+        "contact": false,
+        "battery": 98.965,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-FD9A4B5C620F48E8A3A90E97198CF34D",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.72,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691452.2508051,
+        "label": "mapped-changed-world",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.701,
+          10.3,
+          1.046,
+          0.0
+        ],
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 2748,
+        "contact": false,
+        "battery": 98.349,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-FD9A4B5C620F48E8A3A90E97198CF34D",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.69,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691461.3709528,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.7,
+          10.3,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 2939,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-FD9A4B5C620F48E8A3A90E97198CF34D",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.72,
+        "scan_hz": 6.02,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      },
+      {
+        "wall": 1795691461.3733318,
+        "label": "transport-request",
+        "model": "aisle_block",
+        "xyz": [
+          29.5,
+          -8.15,
+          1.53
+        ],
+        "yaw": 0
+      },
+      {
+        "wall": 1795691461.6694489,
+        "label": "transport-ack",
+        "model": "aisle_block",
+        "xyz": [
+          29.5,
+          -8.15,
+          1.53
+        ],
+        "yaw": 0,
+        "output": "data: true"
+      },
+      {
+        "wall": 1795691461.9868407,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.7,
+          10.302,
+          0.038,
+          0.001
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 1298,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "reference",
+        "estimation_hz": 0.0,
+        "scan_hz": 0.0,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      }
+    ],
+    "lidar": [
+      {
+        "wall": 1795691463.9001749,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-111040-16E29AD8",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.698,
+          10.298,
+          0.05,
+          -0.001
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.64,
+        "scan_hz": 6.02,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      },
+      {
+        "wall": 1795691471.997995,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          0.716,
+          -0.001
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3641,
+        "contact": false,
+        "battery": 99.1,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691473.0778456,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          0.813,
+          -0.001
+        ],
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3838,
+        "contact": false,
+        "battery": 98.905,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691473.0779297,
+        "label": "fault-trigger",
+        "fault": "lidar"
+      },
+      {
+        "wall": 1795691473.982857,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.704,
+          10.298,
+          0.918,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "Matched scans stopped advancing",
+        "map": 3926,
+        "contact": false,
+        "battery": 98.719,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.74,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691475.1880238,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.704,
+          10.298,
+          0.918,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "Matched scans stopped advancing",
+        "map": 3926,
+        "contact": false,
+        "battery": 98.118,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.74,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691486.1837447,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.699,
+          10.3,
+          0.049,
+          -0.001
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4874,
+        "contact": true,
+        "battery": 98.921,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.74,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691486.9644692,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.698,
+          10.3,
+          0.049,
+          -0.002
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4874,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-0DA611E58192451F915D351092A015C6",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691487.74546,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.696,
+          10.303,
+          0.042,
+          -0.001
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 1326,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "reference",
+        "estimation_hz": 0.0,
+        "scan_hz": 0.0,
+        "return_reason": ""
+      }
+    ],
+    "imu": [
+      {
+        "wall": 1795691489.863479,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-111104-593BD0FC",
+        "stage": "ABORTED",
+        "pose": [
+          -4.698,
+          10.299,
+          0.049,
+          -0.001
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.64,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691497.6712854,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          0.722,
+          0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3645,
+        "contact": false,
+        "battery": 99.101,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.68,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691498.7497299,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.697,
+          10.299,
+          0.825,
+          -0.002
+        ],
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3807,
+        "contact": false,
+        "battery": 98.841,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.77,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691498.749815,
+        "label": "fault-trigger",
+        "fault": "imu"
+      },
+      {
+        "wall": 1795691499.4284549,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.697,
+          10.299,
+          0.825,
+          -0.002
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "IMU data stopped advancing",
+        "map": 3910,
+        "contact": false,
+        "battery": 98.588,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.77,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691500.63418,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.697,
+          10.299,
+          0.825,
+          -0.002
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "IMU data stopped advancing",
+        "map": 3910,
+        "contact": false,
+        "battery": 98.076,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.77,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691511.472338,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.7,
+          10.3,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4673,
+        "contact": true,
+        "battery": 98.607,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.74,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691512.4084384,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.699,
+          10.3,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4673,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-115DCD7D8652430D8540759096AF0ACC",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691512.8799043,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.698,
+          10.304,
+          0.043,
+          -0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 1342,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "reference",
+        "estimation_hz": 0.0,
+        "scan_hz": 0.0,
+        "return_reason": ""
+      }
+    ],
+    "localization": [
+      {
+        "wall": 1795691514.7945204,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-111130-FF55C63C",
+        "stage": "ABORTED",
+        "pose": [
+          -4.699,
+          10.3,
+          0.05,
+          -0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.08,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691522.913686,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.697,
+          10.3,
+          0.721,
+          -0.001
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3671,
+        "contact": false,
+        "battery": 99.101,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.67,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691523.9950716,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.702,
+          10.299,
+          0.839,
+          -0.0
+        ],
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3887,
+        "contact": false,
+        "battery": 98.882,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691523.99516,
+        "label": "fault-trigger",
+        "fault": "localization"
+      },
+      {
+        "wall": 1795691524.6760309,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.702,
+          10.299,
+          0.839,
+          -0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "Localization heartbeat stopped advancing",
+        "map": 3887,
+        "contact": false,
+        "battery": 98.643,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691525.8815327,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.702,
+          10.299,
+          0.839,
+          -0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "LOST",
+        "tracking_detail": "Localization heartbeat stopped advancing",
+        "map": 3887,
+        "contact": false,
+        "battery": 98.123,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.73,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691536.8767774,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.701,
+          10.3,
+          0.049,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4757,
+        "contact": true,
+        "battery": 98.643,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.67,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691537.9720657,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.702,
+          10.299,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4757,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-72F6E1C97D31435A82DF5F4273588A4F",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.61,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691538.4447396,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.698,
+          10.305,
+          0.042,
+          0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 1346,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "reference",
+        "estimation_hz": 0.0,
+        "scan_hz": 0.0,
+        "return_reason": ""
+      }
+    ],
+    "emergency": [
+      {
+        "wall": 1795691540.362693,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-111155-5EA60D99",
+        "stage": "ABORTED",
+        "pose": [
+          -4.699,
+          10.3,
+          0.05,
+          -0.0
+        ],
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.48,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691548.8469765,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.7,
+          10.3,
+          0.721,
+          -0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3621,
+        "contact": false,
+        "battery": 99.067,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.68,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691549.8520246,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.3,
+          0.813,
+          -0.0
+        ],
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3734,
+        "contact": false,
+        "battery": 98.874,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.71,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691549.852825,
+        "label": "fault-trigger",
+        "fault": "emergency"
+      },
+      {
+        "wall": 1795691550.1582537,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "ABORTED",
+        "pose": [
+          -4.7,
+          10.299,
+          0.846,
+          0.0
+        ],
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3858,
+        "contact": false,
+        "battery": 98.803,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.67,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691551.3641899,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "ABORTED",
+        "pose": [
+          -4.697,
+          10.299,
+          0.89,
+          -0.0
+        ],
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4199,
+        "contact": false,
+        "battery": 98.571,
+        "at_pad": false,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.74,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691561.5806243,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "ABORTED",
+        "pose": [
+          -4.7,
+          10.299,
+          0.051,
+          -0.0
+        ],
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4526,
+        "contact": true,
+        "battery": 99.137,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "RECOVERY_REQUIRED",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.68,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691562.6680741,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "ABORTED",
+        "pose": [
+          -4.699,
+          10.299,
+          0.051,
+          -0.0
+        ],
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4526,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-9234D843DFA04151BB50171C620210E8",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.67,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691562.829394,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111220-703685CD",
+        "stage": "ABORTED",
+        "pose": [
+          -4.697,
+          10.303,
+          0.042,
+          0.0
+        ],
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 1351,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE",
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "reference",
+        "estimation_hz": 0.0,
+        "scan_hz": 0.0,
+        "return_reason": ""
+      }
+    ],
+    "reserve": [
+      {
+        "wall": 1795691573.8845687,
+        "label": "mapping-ready",
+        "run": null,
+        "stage": null,
+        "pose": [
+          -4.699,
+          10.298,
+          0.049,
+          -0.001
+        ],
+        "manual": null,
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 14.972,
+        "at_pad": true,
+        "safety": "AVAILABLE",
+        "recovery": null,
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-AD538B436C5E471582D25480478FBB0E",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.48,
+        "scan_hz": 6.02,
+        "return_reason": null
+      },
+      {
+        "wall": 1795691581.5245717,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111253-5999CB89",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.698,
+          10.301,
+          0.722,
+          0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3678,
+        "contact": false,
+        "battery": 14.099,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-AD538B436C5E471582D25480478FBB0E",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.49,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691603.1438925,
+        "label": "energy-return-started",
+        "run": "INS-CONTROL-20261126-111253-5999CB89",
+        "stage": "DOCKING",
+        "pose": [
+          -4.7,
+          10.299,
+          0.821,
+          -0.0
+        ],
+        "manual": {
+          "state": "RETURNING",
+          "detail": "Landing in the technical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4131,
+        "contact": false,
+        "battery": 10.736,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-AD538B436C5E471582D25480478FBB0E",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.49,
+        "scan_hz": 6.02,
+        "return_reason": "ENERGY_RETURN"
+      },
+      {
+        "wall": 1795691611.5076485,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111253-5999CB89",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.701,
+          10.3,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4361,
+        "contact": true,
+        "battery": 10.998,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-AD538B436C5E471582D25480478FBB0E",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.53,
+        "scan_hz": 6.03,
+        "return_reason": "ENERGY_RETURN"
+      },
+      {
+        "wall": 1795691614.4103062,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111253-5999CB89",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.699,
+          10.299,
+          0.05,
+          -0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 11.94,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "slam",
+        "estimation_hz": 3.59,
+        "scan_hz": 6.01,
+        "return_reason": "ENERGY_RETURN"
+      }
+    ],
+    "repeat": [
+      {
+        "wall": 1795691729.3201253,
+        "label": "mapping-ready",
+        "run": "INS-CONTROL-20261126-111253-5999CB89",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.699,
+          10.299,
+          0.05,
+          -0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 100.0,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "CALIBRATION_READY",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "READY",
+        "source": "slam",
+        "estimation_hz": 3.33,
+        "scan_hz": 6.02,
+        "return_reason": "ENERGY_RETURN"
+      },
+      {
+        "wall": 1795691739.10093,
+        "label": "airborne",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.698,
+          10.299,
+          0.724,
+          -0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 3645,
+        "contact": false,
+        "battery": 99.094,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.44,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691744.9079065,
+        "label": "revisit-first",
+        "stamp": "\"CAL-72EAD3F6618F43E79AD5D6EA0E214FFB-102-424000000-live\"",
+        "points": "6270",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          1.039,
+          0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 4840,
+        "contact": false,
+        "battery": 98.058,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.55,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691750.9814258,
+        "label": "revisit-turn",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.698,
+          10.3,
+          0.675,
+          0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 5013,
+        "contact": false,
+        "battery": 97.129,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.41,
+        "scan_hz": 6.03,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691757.5752034,
+        "label": "revisit-second",
+        "stamp": "\"CAL-72EAD3F6618F43E79AD5D6EA0E214FFB-109-728000000-live\"",
+        "points": "6270",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "MANUAL_FLIGHT",
+        "pose": [
+          -4.699,
+          10.299,
+          1.04,
+          0.0
+        ],
+        "manual": {
+          "state": "HOLD",
+          "detail": "Hold position",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 5075,
+        "contact": false,
+        "battery": 95.941,
+        "at_pad": false,
+        "safety": "RESERVED",
+        "recovery": null,
+        "service": "MAPPING_ACTIVE",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "RECORDING",
+        "source": "slam",
+        "estimation_hz": 3.47,
+        "scan_hz": 6.02,
+        "return_reason": ""
+      },
+      {
+        "wall": 1795691765.9461992,
+        "label": "mapping-saved",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.701,
+          10.299,
+          0.052,
+          -0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 5235,
+        "contact": true,
+        "battery": 95.913,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "MAPPING_COMPLETE",
+        "mapping": "CAL-72EAD3F6618F43E79AD5D6EA0E214FFB",
+        "phase": "COMPLETE",
+        "source": "slam",
+        "estimation_hz": 3.49,
+        "scan_hz": 6.02,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      },
+      {
+        "wall": 1795691768.854953,
+        "label": "production-restored",
+        "run": "INS-CONTROL-20261126-111531-BD9D832C",
+        "stage": "COMPLETE",
+        "pose": [
+          -4.699,
+          10.3,
+          0.05,
+          0.0
+        ],
+        "manual": {
+          "state": "DOCKED",
+          "detail": "Manual flight ended at the verified physical dock",
+          "requested": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": null
+        },
+        "clearance": null,
+        "tracking": "TRACKING",
+        "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+        "map": 0,
+        "contact": true,
+        "battery": 97.464,
+        "at_pad": true,
+        "safety": "RELEASED",
+        "recovery": null,
+        "service": "PRODUCTION",
+        "mapping": null,
+        "phase": null,
+        "source": "slam",
+        "estimation_hz": 3.68,
+        "scan_hz": 6.01,
+        "return_reason": "MANUAL_RETURN_REQUESTED"
+      }
+    ]
+  },
+  "autonomy": {
+    "inspection_id": "INS-CONTROL-20261126-111243-CA57E000",
+    "stage": "COMPLETE",
+    "observations": 2,
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261126-111243-CA57E000",
+        "observation_id": "OBS-B1239EFE69C04C59AF1BF6918964F829",
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-26T11:14:52.201Z"
+      },
+      "A-01-03": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261126-111243-CA57E000",
+        "observation_id": "OBS-F1C0F4F85B69413993AF4B749B0C38C2",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-26T11:15:05.201Z"
+      }
+    },
+    "physical_contact": true,
+    "safety": "RELEASED"
+  }
+}

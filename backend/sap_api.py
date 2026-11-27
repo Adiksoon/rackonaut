@@ -35,7 +35,7 @@ def bundle(payload):
         inspection = report["inspection_id"]
         check_inspection(inspection)
         if (not QUALITY_ID.fullmatch(quality_id) or report["quality_schema_version"] != "0.1"
-                or report["status"] not in {"DAMAGED", "OK"}
+                or report["status"] not in {"DAMAGED", "OK", "CAPTURED"}
                 or not isinstance(report["reason"], str) or not 1 <= len(report["reason"]) <= 1024
                 or not UTC.fullmatch(report["timestamp"]) or not UTC.fullmatch(report["observation_timestamp"])
                 or capture_time(report) < capture_time({"timestamp": report["observation_timestamp"]})
@@ -48,6 +48,10 @@ def bundle(payload):
             if not isinstance(report[name], str):
                 raise ValueError
         if report["pallet_id"] is not None and not isinstance(report["pallet_id"], str):
+            raise ValueError
+        if report["status"] == "CAPTURED" and (
+                report.get("occupancy") not in {"occupied", "empty", "uncertain"}
+                or capture_time(report) != capture_time({"timestamp": report["observation_timestamp"]})):
             raise ValueError
         return report, raw
     except (KeyError, TypeError, ValueError, Error) as exc:

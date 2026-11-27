@@ -1,0 +1,49 @@
+{
+  "slot": "B-02-01",
+  "inspection_id": "INS-CONTROL-20261127-100452-57599A68",
+  "requested": {
+    "mode": "learned",
+    "configuration_id": "WH-D11FA03D45502B0ECE140FB6C611E072",
+    "revision": 11,
+    "record_ids": [
+      "LOC-544D89AF12DB44019EB787B6BDC22B0A"
+    ]
+  },
+  "forecast": {
+    "seconds": 257.20308871413283,
+    "percent": 85.5291005820885,
+    "climb_m": 14.76306087752054,
+    "distance_m": 86.37026740281556,
+    "return_percent": 38.521456508338865,
+    "reserve_percent": 8.0,
+    "required_percent": 93.5291005820885,
+    "minimum_percent": 93.5291005820885,
+    "can_start": true
+  },
+  "terminal": {
+    "recorded_wall": 14477.729137291,
+    "clock_s": 88.7,
+    "stage": "ERROR",
+    "flight_phase": null,
+    "details": null,
+    "position": [
+      -4.699,
+      10.3,
+      0.05,
+      -0.001
+    ],
+    "physical_dock": true,
+    "safety": "PREPARING",
+    "energy": 98.679,
+    "localization": {
+      "state": "TRACKING",
+      "source": "learned_map",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "update_hz": 3.09,
+      "imu_age_ms": 100
+    },
+    "visited": null,
+    "confirmed": null,
+    "missed": null
+  }
+}

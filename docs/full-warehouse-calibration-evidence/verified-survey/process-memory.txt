@@ -1,0 +1,6 @@
+gazebo VmHWM:	 1017552 kB
+gazebo VmRSS:	  902128 kB
+control VmHWM:	  304496 kB
+control VmRSS:	  255684 kB
+localizer VmHWM:	  351308 kB
+localizer VmRSS:	  351308 kB

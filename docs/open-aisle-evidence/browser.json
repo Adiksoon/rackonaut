@@ -1,0 +1,9 @@
+{
+  "chrome": "158.0.8127.88",
+  "variant": "open-aisle",
+  "localization": "TRACKING",
+  "physical_dock": true,
+  "infrastructure_and_corridor_independently_toggled": true,
+  "access_zones_visible": true,
+  "errors": []
+}

@@ -1,0 +1,2 @@
+Factory localization asset absent at restart.
+Factory localization asset absent after replay, docking and report.

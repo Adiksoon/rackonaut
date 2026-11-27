@@ -3,6 +3,7 @@
 import json
 from collections import deque
 from pathlib import Path
+from time import monotonic
 
 import numpy as np
 import rclpy
@@ -48,14 +49,14 @@ class Validation(Node):
                 self.trajectory.append(item[1])
 
     def on_estimate(self, message):
-        self.pending.append(pose(message))
+        self.pending.append((*pose(message), monotonic()))
 
     def align(self):
         if len(self.truth) < 2:
             return
         truth = list(self.truth)
         while self.pending and self.pending[0][0] <= truth[-1][0]:
-            time, xyz, attitude = self.pending.popleft()
+            time, xyz, attitude, received = self.pending.popleft()
             interval = next(((a, b) for a, b in zip(truth, truth[1:]) if a[0] <= time <= b[0]), None)
             if interval is None:
                 continue
@@ -67,7 +68,8 @@ class Validation(Node):
             reference_attitude = q0 * Rotation.from_rotvec((q0.inv()*q1).as_rotvec()*alpha)
             error = xyz - actual
             angle = float(np.degrees((reference_attitude.inv()*attitude).magnitude()))
-            row = {"sim_time": round(time, 4), "estimate": rounded(xyz, 5), "reference": rounded(actual, 5),
+            row = {"sim_time": round(time, 4), "received_monotonic": round(received, 6),
+                   "estimate": rounded(xyz, 5), "reference": rounded(actual, 5),
                    "error_xyz": rounded(error, 5), "angle_deg": round(angle, 4)}
             self.rows.append(row)
             self.records.write(json.dumps(row, separators=(",", ":"))+"\n")

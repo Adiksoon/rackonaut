@@ -1,0 +1,263 @@
+{
+  "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+  "inspection_id": "INS-CONTROL-20261126-131104-CE011A0B",
+  "original_locations_count": 2,
+  "map_vertices": 56549,
+  "trajectory_points": 421,
+  "truth_distance_m": 71.08199415254583,
+  "wall_s": 362.6,
+  "sim_s": 203.5,
+  "physical_dock": "gazebo_dock_switch",
+  "safety_final": "RELEASED",
+  "energy_used_pp": 67.759,
+  "capture_validation": [
+    {
+      "storage_location_id": "A-01-01",
+      "camera_stamp": {
+        "sec": 127,
+        "nanosec": 500000000
+      },
+      "source": "operator",
+      "independent_xyz": [
+        5.475052543814701,
+        0.4626156204420191,
+        0.8084189810471483
+      ],
+      "taught_xyz": [
+        5.462668406378948,
+        0.4503853553372726,
+        0.7933518348490867
+      ],
+      "position_error_mm": 23.02097172392488,
+      "orientation_error_deg": 0.12489013200067878,
+      "pose_bracket_ms": {
+        "before_ms": 40.0,
+        "after_ms": 0.0
+      },
+      "odom_reproduction_error_m": 0.0,
+      "sha256_unannotated_camera_jpeg": "1369651c105fcac442f18624fcaa368982755365f1ff98539727cd8584b5160a"
+    },
+    {
+      "storage_location_id": "A-01-03",
+      "camera_stamp": {
+        "sec": 143,
+        "nanosec": 400000000
+      },
+      "source": "operator",
+      "independent_xyz": [
+        8.278765623082805,
+        0.4628580614602243,
+        0.8146583722252841
+      ],
+      "taught_xyz": [
+        8.259327583789991,
+        0.4533288532104129,
+        0.7939846753519866
+      ],
+      "position_error_mm": 29.934009484635187,
+      "orientation_error_deg": 0.12333149726521637,
+      "pose_bracket_ms": {
+        "before_ms": 60.0,
+        "after_ms": 0.0
+      },
+      "odom_reproduction_error_m": 0.0,
+      "sha256_unannotated_camera_jpeg": "478f5be84fa391b2f4b77b065d7d9040615801cf076f0bfd4e9b8ce5dd17f875"
+    },
+    {
+      "storage_location_id": "DEMO-NEW-22",
+      "camera_stamp": {
+        "sec": 127,
+        "nanosec": 0
+      },
+      "source": "operator",
+      "independent_xyz": [
+        5.475056211075521,
+        0.46261371957300385,
+        0.8084040338114667
+      ],
+      "taught_xyz": [
+        5.460217954030889,
+        0.4502083653099642,
+        0.793687724817568
+      ],
+      "position_error_mm": 24.30301291852493,
+      "orientation_error_deg": 0.1140850516959977,
+      "pose_bracket_ms": {
+        "before_ms": 20,
+        "after_ms": 20
+      },
+      "odom_reproduction_error_m": 0.0,
+      "sha256_unannotated_camera_jpeg": "b023e253ab8b2af2d1cec47a917b456a8145ea883f18884dd1df0c45734068dd"
+    }
+  ],
+  "collision_guard": {
+    "wall": 1795698884.6296701,
+    "event": "collision-guard",
+    "name": "verified side obstacle",
+    "xyz": [
+      6.953,
+      0.451,
+      0.792,
+      0.001
+    ],
+    "battery": 60.508,
+    "clock": 137.48,
+    "contact": false,
+    "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+    "mission": "INS-CONTROL-20261126-131104-CE011A0B",
+    "stage": "MANUAL_FLIGHT",
+    "manual": {
+      "state": "BLOCKED",
+      "detail": "Obstacle in swept volume",
+      "requested": [
+        -0.002,
+        0.4,
+        -0.003,
+        -0.001
+      ],
+      "permitted": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "clearance": 0.159
+    },
+    "safety": "RESERVED",
+    "service": "MAPPING_ACTIVE",
+    "source": "slam",
+    "tracking": "TRACKING",
+    "reason": "Synchronized LiDAR fit and inertial prediction",
+    "pose_status": {
+      "map_voxels": 50653,
+      "keyframe_count": 98,
+      "keyframe_window": 98,
+      "update_hz": 3.37,
+      "sim_hz": 6.03,
+      "processing_ms": 16.5,
+      "pipeline_ms": 21.25,
+      "overlap": 0.825,
+      "weakest": 0.04324,
+      "scan_age_ms": 5,
+      "rms": 0.0146
+    }
+  },
+  "browser_events": [
+    {
+      "event": "empty",
+      "wall": 1795698664.537,
+      "session": "CAL-0E4AA36E84344679B1371C9267F60E61",
+      "points": 0,
+      "locations": 0
+    },
+    {
+      "event": "moving-rejected",
+      "wall": 1795698673.38,
+      "status": 409,
+      "error": "Release the movement controls and hold position.",
+      "position": [
+        -4.7,
+        10.299,
+        0.721,
+        0
+      ]
+    },
+    {
+      "event": "authorization-denied",
+      "wall": 1795698865.062,
+      "capture": 401,
+      "save": 401,
+      "rename": 401,
+      "delete": 401
+    },
+    {
+      "event": "saved",
+      "wall": 1795698865.556,
+      "id": "A-01-01",
+      "source": "operator",
+      "stamp": {
+        "sec": 126,
+        "nanosec": 600000000
+      },
+      "position": [
+        5.460601730438173,
+        0.45026650370381105,
+        0.7935545610183568
+      ],
+      "reference": "locations/CAP-236D6B1E6889499181F55A59D490119D/reference.jpg",
+      "record_id": "LOC-6F8F93FFC154491882B0C460E8FF81E8",
+      "initial_id_field": null
+    },
+    {
+      "event": "saved",
+      "wall": 1795698866.041,
+      "id": "DEMO-NEW-22",
+      "source": "operator",
+      "stamp": {
+        "sec": 127,
+        "nanosec": 0
+      },
+      "position": [
+        5.460217954030889,
+        0.4502083653099642,
+        0.793687724817568
+      ],
+      "reference": "locations/CAP-2A8FC60A90D445B38A0B6AAA1165DF79/reference.jpg",
+      "record_id": "LOC-1E1833B12E0A478CA025C7FF72DFD236",
+      "initial_id_field": null
+    },
+    {
+      "event": "renamed",
+      "wall": 1795698866.195,
+      "id": "DEMO-NEW-22B",
+      "record_id": "LOC-1E1833B12E0A478CA025C7FF72DFD236"
+    },
+    {
+      "event": "deleted",
+      "wall": 1795698866.59,
+      "id": "DEMO-NEW-22B"
+    },
+    {
+      "event": "saved",
+      "wall": 1795698866.979,
+      "id": "A-01-01",
+      "source": "operator",
+      "stamp": {
+        "sec": 127,
+        "nanosec": 500000000
+      },
+      "position": [
+        5.462668406378948,
+        0.4503853553372726,
+        0.7933518348490867
+      ],
+      "reference": "locations/CAP-F31A39A79B3C44D188A46BC5793D0FBB/reference.jpg",
+      "record_id": "LOC-6F8F93FFC154491882B0C460E8FF81E8",
+      "initial_id_field": "A-01-01"
+    },
+    {
+      "event": "saved",
+      "wall": 1795698895.178,
+      "id": "A-01-03",
+      "source": "operator",
+      "stamp": {
+        "sec": 143,
+        "nanosec": 400000000
+      },
+      "position": [
+        8.259327583789991,
+        0.4533288532104129,
+        0.7939846753519866
+      ],
+      "reference": "locations/CAP-96AB259B9F114788A3A5C4A87993D7C2/reference.jpg",
+      "record_id": "LOC-D9DE32BA288644E79E5DDA80B6975D87",
+      "initial_id_field": null
+    },
+    {
+      "event": "marker-click",
+      "wall": 1795698895.685,
+      "id": "A-01-03",
+      "filter": "interior"
+    }
+  ]
+}

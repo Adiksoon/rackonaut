@@ -1,0 +1,44 @@
+{
+  "calibration": "CAL-7E1488E90FE6414AAE778D3923425103",
+  "sealedConfiguration": "WH-FCF24BB703AA3198A71098E8AC100C03",
+  "revision": 2,
+  "automaticallyGeneratedBeforeRouteApproval": {
+    "sizeBytes": 990227,
+    "sha256": "7afd4f83135cb19dfa5c5070c46e17fe2eaed4e06ea48bde0b90f818a74efa88",
+    "binding": {
+      "format": 1,
+      "configuration_id": null,
+      "mapping_id": "CAL-7E1488E90FE6414AAE778D3923425103",
+      "revision": 2,
+      "source_sha256": "64864e81ee95ec1c60e73cdcb20e2c5de1e4226b1d61b13edb076d2f10a5acf8",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "sealedModel": {
+    "sizeBytes": 979702,
+    "sha256": "c98d67217f6e75fa1433585af25c8ab1ff7e231cddc8f39f4c03f9a3d02f91c5",
+    "binding": {
+      "format": 1,
+      "configuration_id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+      "mapping_id": "CAL-7E1488E90FE6414AAE778D3923425103",
+      "revision": 2,
+      "source_sha256": "82f6b5e445a37a278dfd7cdd20ba608a0e2e626a115d712a25e08baae45a06eb",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "originalArchiveFilesVerifiedBySha256": [
+    "localization.npz",
+    "locations.json",
+    "locations/CAP-12A56223615B4248BE96665B15AF7ADE/reference.jpg",
+    "locations/CAP-55B6ACEF41CD4547A0CD092296C6EB4D/reference.jpg",
+    "map.ply",
+    "result.json",
+    "route-validation.json",
+    "route.json",
+    "safety.json",
+    "sensors.json",
+    "trajectory.jsonl"
+  ],
+  "visualizationIsSeparateFromArchiveIntegrityManifest": true,
+  "savedAtPhysicalDock": true
+}

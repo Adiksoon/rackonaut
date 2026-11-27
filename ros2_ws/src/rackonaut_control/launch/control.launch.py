@@ -1,4 +1,4 @@
-"""Start a local Control Center with the reference simulator and an optional fixture API."""
+"""Start a local Control Center with a selectable simulator drone."""
 
 import json
 import os
@@ -11,6 +11,8 @@ from launch.event_handlers import OnProcessExit
 from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+
+from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
 
 
 def setup(context):
@@ -37,10 +39,27 @@ def setup(context):
     if localization not in {"ground_truth", "shadow", "sensor_based"}:
         raise ValueError("Select ground_truth, shadow or sensor_based localization.")
     localizer = localization != "ground_truth"
+    variant = arg("warehouse_variant")
+    prefix = warehouse_prefix(variant)
+    if prefix and not localizer:
+        raise ValueError("warehouse_variant:=open-aisle requires the aerial localization profile.")
     diagnostics = enabled("localization_diagnostics")
     recovery = enabled("recovery")
+    learned_warehouse = enabled("learned_warehouse")
+    mapping_only = enabled("mapping_only") or learned_warehouse
+    full_route_slam = enabled("full_route_slam") or learned_warehouse
+    drone_model = arg("drone_model")
+    if drone_model not in {"reference", "x3"}:
+        raise ValueError("drone_model must be reference or x3.")
+    x3 = drone_model == "x3"
+    if x3 and (localization != "sensor_based" or not recovery):
+        raise ValueError("drone_model:=x3 requires sensor_based localization and Recovery.")
     if recovery and localization != "sensor_based":
         raise ValueError("recovery:=true requires localization:=sensor_based.")
+    if mapping_only and not recovery:
+        raise ValueError("mapping_only:=true requires the Full Robotics profile with Recovery.")
+    if full_route_slam and not recovery:
+        raise ValueError("full_route_slam:=true requires the Full Robotics profile with Recovery.")
     if diagnostics and not localizer:
         raise ValueError("Localization diagnostics require the localizer.")
     avoidance = enabled("avoidance") or localizer
@@ -60,9 +79,13 @@ def setup(context):
     if avoidance:
         world = "avoidance_laser_showcase.sdf" if laser else "avoidance_showcase.sdf"
     if localizer:
-        world = "localization_laser_showcase.sdf" if laser else "localization_showcase.sdf"
+        world = prefix + ("localization_laser_showcase.sdf" if laser else "localization_showcase.sdf")
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
-    profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
+    if x3:
+        command.append("--x3")
+        if arg("x3_source"):
+            command.extend(["--x3-source", arg("x3_source")])
+    profile = json.loads((warehouse / f"config/{prefix}aerial_layout.json").read_text()) if aerial else None
     props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
     if avoidance:
         command.append("--avoidance")
@@ -70,13 +93,15 @@ def setup(context):
         command.extend(["--localization", localization])
     if diagnostics:
         command.append("--localization-validation")
+    if full_route_slam:
+        command.append("--full-route-slam")
     if profile:
         dock = profile["nodes"]["dock"]
         command.extend(["--spawn", str(dock[0]), str(dock[1]), str(dock[2] + .07), "0"])
     if enabled("gazebo_gui"):
         command.append("--gui")
     processes = [ExecuteProcess(cmd=command, cwd=str(root), output="screen", name="control_simulator")]
-    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / "control")
+    data = arg("data_dir") or str(Path(os.environ["ROS_LOG_DIR"]) / f"{prefix}control")
     api_profile = arg("api_profile")
     if api_profile not in {"fixture", "mock_sap"}:
         raise ValueError("api_profile must be fixture or mock_sap.")
@@ -98,10 +123,17 @@ def setup(context):
         raise ValueError("Provide backend_url when mock:=false.")
     localization_nodes = []
     if localizer:
+        dock_xyz = profile["nodes"]["dock"].copy()
+        if x3:
+            # The X3 body extends 55 mm below its origin. The dock surface is at 4 mm.
+            dock_xyz[2] = .059
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
-                              parameters=[{"mode": localization, "data_dir": data}]))
-    if recovery:
+                              parameters=[{"mode": localization, "data_dir": data, "mapping_only": mapping_only,
+                                           "full_route_slam": full_route_slam, "learned_warehouse": learned_warehouse,
+                                           "drone_model": drone_model, "warehouse_variant": variant,
+                                           **({"dock_xyz": dock_xyz} if mapping_only or x3 else {})}]))
+    if recovery and not x3:
         localization_nodes.append(Node(
             package="ros_gz_bridge", executable="parameter_bridge", name="rackonaut_flight_enable_bridge", output="screen",
             arguments=["/rackonaut_reference/enable@std_msgs/msg/Bool]ignition.msgs.Boolean"],
@@ -122,6 +154,11 @@ def setup(context):
         "localization_mode": localization,
         "localization_diagnostics": diagnostics,
         "autonomous_recovery": recovery,
+        "mapping_only": mapping_only,
+        "full_route_slam": full_route_slam,
+        "learned_warehouse": learned_warehouse,
+        "drone_model": drone_model,
+        "warehouse_variant": variant,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -133,6 +170,7 @@ def setup(context):
             "aerial": aerial,
             "sensor_localization": localization == "sensor_based",
             "autonomous_recovery": recovery,
+            **({"dock_contact_collision": "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"} if x3 else {}),
             **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
@@ -178,7 +216,9 @@ def generate_launch_description():
                 "safety_sensor": "virtual", "laser_rviz": "false", "adaptive_world": "false",
                 "energy": "false", "aerial": "false", "avoidance": "false",
                 "localization": "ground_truth", "localization_diagnostics": "false",
-                "recovery": "false", "battery_initial": "auto", "charge_rate": "6.0"}
+                "recovery": "false", "mapping_only": "false", "full_route_slam": "false", "learned_warehouse": "false",
+                "battery_initial": "auto", "charge_rate": "6.0", "drone_model": "reference", "x3_source": "",
+                "warehouse_variant": HISTORICAL_VARIANT}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

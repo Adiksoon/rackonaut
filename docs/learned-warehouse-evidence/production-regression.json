@@ -1,0 +1,45 @@
+{
+  "launch": {
+    "inspection_id": "INS-CONTROL-20261126-150421-357840A0"
+  },
+  "source": "reference",
+  "motion_plan": "custom",
+  "stage": "COMPLETE",
+  "report": {
+    "url": "/reports/INS-CONTROL-20261126-150421-357840A0",
+    "events": 1,
+    "rows": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-0FEF3E4A46AD406A9E8B9586FD309394",
+        "outcome": "unreadable_label"
+      }
+    ],
+    "discrepancies": [
+      {
+        "slot_id": "A-01-01",
+        "expected_pallet_id": "P001",
+        "observed_pallet_id": null,
+        "observation_id": "OBS-0FEF3E4A46AD406A9E8B9586FD309394",
+        "outcome": "unreadable_label"
+      }
+    ]
+  },
+  "mock_sap_observations": 1,
+  "safety": "RELEASED",
+  "contact": "gazebo_dock_switch",
+  "sortie": {
+    "departure": 1,
+    "start_percent": 99.961,
+    "start_sim_time": 3.2,
+    "completed_before": [],
+    "result": "COMPLETE",
+    "end_percent": 48.345,
+    "end_sim_time": 149.08,
+    "completed_after": [
+      "A-01-01"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "session": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+  "status": "approved",
+  "source": "slam",
+  "first_stamp_ns": 5580000000,
+  "last_stamp_ns": 205180000000,
+  "maximum_gap_s": 0.32,
+  "phases": {
+    "STARTING": 2,
+    "WAITING": 12,
+    "VERTICAL_TAKEOFF": 10,
+    "MANUAL_FLIGHT": 555,
+    "RETURN_TO_DOCK": 274,
+    "DOCKING": 72,
+    "COMPLETE": 3
+  },
+  "node_types": {
+    "DOCK": 2,
+    "TRANSIT": 47,
+    "TAKEOFF": 2,
+    "TURN": 4,
+    "INSPECTION": 2,
+    "RETURN": 30,
+    "LANDING": 8
+  },
+  "edge_types": {
+    "recorded": 20,
+    "simplified": 74
+  },
+  "tracked_segments": 94,
+  "measured_shaft_and_tunnel_edges": {
+    "dock/shaft": {
+      "OUTBOUND": 7,
+      "RETURN": 8
+    },
+    "shaft/junction": {
+      "OUTBOUND": 11,
+      "RETURN": 9
+    },
+    "trunk_A/entry_A": {
+      "OUTBOUND": 8,
+      "RETURN": 6
+    },
+    "junction/trunk_A": {
+      "OUTBOUND": 15,
+      "RETURN": 10
+    }
+  },
+  "dock_contact": "gazebo_dock_switch",
+  "dropped_samples": 0,
+  "unauthorized_segment": "Route segments leave the approved flight volume: [46, 47].",
+  "invalid_segment_approval": "Validate the measured route before planning or approving.",
+  "changed_position_approval": "The learned route changed. Review the current revision first.",
+  "incomplete_approval": "The recording must include a complete SLAM flight and verified docking."
+}

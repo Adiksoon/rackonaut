@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rackonaut inspection · INS-CONTROL-20261126-151646-BD5C167B</title>
+  <style>
+    :root { color-scheme: light; --base:#f4f7fb; --card:#ffffff; --line:#dce4ef;
+      --ink:#1c2c42; --muted:#506176; --accent:#285a92; --gold:#87510c; --red:#a33132; --success:#245740;
+      --success-bg:#e1f0e6; --warn-bg:#fff3df; --alert-bg:#faeae7; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--base); color:var(--ink);
+      font:16px/1.55 "Segoe UI",system-ui,sans-serif; }
+    main { width:min(1180px, calc(100% - 48px)); margin:36px auto 64px; }
+    header { padding:34px 38px; border:1px solid var(--line); border-radius:10px;
+      background:var(--card); border-top:3px solid var(--accent); }
+    .eyebrow { color:var(--muted); font-size:.75rem; font-weight:700; letter-spacing:.12em; }
+    header .eyebrow { color:var(--accent); }
+    h1,h2,h3,p,dl { margin:0; }
+    h1 { font-size:clamp(1.9rem,4vw,2.6rem); line-height:1.1; margin:8px 0; letter-spacing:-.035em; }
+    h2 { font-size:clamp(1.25rem,2.5vw,1.65rem); line-height:1.2; }
+    h3 { font-size:1.08rem; line-height:1.2; }
+    header p, .subtitle { color:var(--muted); }
+    .hero-sub { display:flex; flex-wrap:wrap; align-items:center; gap:10px 20px; }
+    .mission-id { overflow-wrap:anywhere; }
+    .pill,.badge,.outcome { display:inline-block; border-radius:6px; font-size:.8rem; font-weight:650; padding:3px 10px; }
+    .pill { background:#e8f0fb; color:var(--accent); }
+    .metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:14px; }
+    .metric { padding:15px 18px; border:1px solid var(--line); border-radius:10px; background:var(--card); }
+    .metric strong { font-size:1.8rem; line-height:1.2; display:block; font-variant-numeric:tabular-nums; }
+    .metric span { color:var(--muted); font-size:.83rem; }
+    .metric.defects strong { color:var(--red); }
+    section { margin-top:36px; }
+    .section-head { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 16px; margin-bottom:14px; }
+    .subtitle { font-size:.94rem; }
+    .gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .evidence { min-width:0; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--card); }
+    .evidence.ok { order:1; }
+    .evidence-title { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 17px; }
+    .evidence.damage .badge { color:var(--red); background:var(--alert-bg); }
+    .evidence.ok .badge { color:var(--success); background:var(--success-bg); }
+    img { display:block; max-width:100%; }
+    .photo { width:100%; height:auto; border-block:1px solid var(--line); }
+    .original { margin-top:10px; border:1px solid var(--line); border-radius:7px; image-rendering:pixelated; }
+    .evidence-copy { padding:15px 18px 18px; }
+    dl { display:grid; grid-template-columns:1fr 1fr; gap:8px 14px; margin-top:10px; }
+    dt,.link-state { color:var(--muted); font-size:.83rem; }
+    dd { margin:0; overflow-wrap:anywhere; font-size:.85rem; font-variant-numeric:tabular-nums; }
+    .link-state { margin:8px 0 4px; }
+    code { display:block; color:var(--muted); font-size:.74rem; overflow-wrap:anywhere; }
+    details { margin-top:12px; }
+    summary { color:var(--accent); font-weight:650; cursor:pointer; }
+    summary:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+    .comparison { margin-bottom:12px; padding:11px 15px; border-radius:9px; color:var(--gold); background:var(--warn-bg); }
+    .table-wrap { background:var(--card); overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+    table { width:100%; border-collapse:collapse; text-align:left; white-space:nowrap; font-size:.9rem; }
+    th,td { padding:9px 13px; border-bottom:1px solid var(--line); }
+    thead { color:var(--muted); background:#edf2f8; }
+    .business table { white-space:normal; min-width:760px; }
+    .business p { margin-bottom:12px; }
+    tbody tr:last-child th,tbody tr:last-child td { border-bottom:0; }
+    .outcome { color:var(--muted); background:#edf2f8; }
+    .outcome.pending,.outcome.uncertain,.outcome.unreadable_label { color:var(--gold); background:var(--warn-bg); }
+    .outcome.match { color:var(--success); background:var(--success-bg); }
+    .outcome.wrong_pallet,.outcome.missing_pallet,.outcome.unexpected_pallet { color:var(--red); background:var(--alert-bg); }
+    footer { color:var(--muted); font-size:.85rem; border-top:1px solid var(--line); margin-top:30px; padding-top:14px; }
+    @media(max-width:720px) { main { width:calc(100% - 30px); margin-top:15px; }
+      header { padding:23px; } .metrics { grid-template-columns:repeat(2,1fr); } .gallery { grid-template-columns:1fr; } }
+    @media print { body { background:#fff; print-color-adjust:exact; -webkit-print-color-adjust:exact; } main { width:100%; }
+      .evidence, .metric { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">RACKONAUT · SIMULATED WAREHOUSE</div>
+    <h1>Inspection report</h1>
+    <div class="hero-sub">
+      <p class="mission-id">INS-CONTROL-20261126-151646-BD5C167B</p>
+      <span class="pill">Complete</span>
+      <p>Touchdown confirmed · Learned route ended at the verified physical dock</p>
+    </div>
+  </header>
+  <div class="metrics" aria-label="Mission totals">
+    <div class="metric"><strong>2</strong><span>Planned stops</span></div>
+    <div class="metric"><strong>2</strong><span>API-confirmed stops</span></div>
+    <div class="metric defects"><strong>0</strong><span>Damaged slot–pallet pairs</span></div>
+    <div class="metric"><strong>315.7 s</strong><span>Mission time</span></div>
+  </div>
+<section aria-label="Warehouse Intelligence" class="business">
+      <div class="section-head"><h2>Warehouse Intelligence</h2><p class="subtitle">Mock SAP comparison · synthetic product data</p></div>
+      <p><strong>0.0% (0/1 conclusive)</strong> inventory accuracy · 2/11 locations observed ·
+        1 stock discrepancies · 0 damaged packages ·
+        0 discontinued products · 1 locations for manual review</p>
+      <p class="subtitle">Recommendations require an operator decision. Verification records a review of the evidence.</p>
+      <div class="table-wrap"><table aria-label="Recommended warehouse actions"><thead><tr><th>Issue</th><th>Location / HU</th>
+        <th>Evidence and recommendation</th><th>Observations and related issues</th><th>Review</th></tr></thead>
+        <tbody><tr><td>HIGH<br>MISSING PALLET<br>
+          <code>ISS-FC55D3E148B5C1BAAE74</code></td><td>A-01-03<br>P003</td>
+          <td>The inspected location is empty and Mock SAP expects a handling unit.<br><strong>Review the last warehouse movements and check the assigned handling unit.</strong></td>
+          <td>A-01-03 · OBS-99D10E3081EB49409909B396DA9464FB<br> </td><td>OPEN</td></tr><tr><td>MEDIUM<br>UNREADABLE LABEL<br>
+          <code>ISS-AE391B73A224F23251DC</code></td><td>A-01-01<br>—</td>
+          <td>The location is occupied and the label could not be read.<br><strong>Verify the handling unit identity and replace or reprint the unreadable label.</strong></td>
+          <td>A-01-01 · OBS-CDD01ACF0CD747DF9B438F409F07B79E<br> </td><td>OPEN</td></tr></tbody></table></div>
+      </section>
+
+
+  <section aria-labelledby="energy-title">
+    <h2 id="energy-title">Simulated energy and dock visits</h2>
+    <p>1 sorties under this inspection ID · 0 unfinished locations</p>
+    <p>Interrupted observations · None</p>
+    <div class="table-wrap"><table aria-label="Flights and dock charging">
+      <thead><tr><th>Departure</th><th>Start battery</th><th>End battery</th><th>After charging</th>
+        <th>Outcome</th><th>Locations finished on this flight</th></tr></thead>
+      <tbody><tr><td>1</td><td>99.9%</td><td>38.0%</td><td>—</td><td>Complete</td><td>A-01-01, A-01-03</td></tr></tbody>
+    </table></div>
+  </section>
+  <section aria-labelledby="quality-title">
+    <div class="section-head">
+      <h2 id="quality-title">Carton evidence</h2>
+      <p class="subtitle">0 saved captures · 0 matched to inventory history</p>
+    </div>
+    <div class="gallery"><p class="empty">No stable carton captures were archived for this inspection.</p></div>
+  </section>
+  <section aria-labelledby="inventory-title">
+    <div class="section-head">
+      <h2 id="inventory-title">Inventory observations</h2>
+      <p class="subtitle">2 API events across 2 observed locations</p>
+    </div>
+    <p class="comparison"><strong>Mock SAP</strong> · 2 reported discrepancies · 0 pending</p>
+    <div class="table-wrap">
+      <table aria-label="Latest API observation by location">
+        <thead><tr><th>Location</th><th>Pallet</th><th>Occupancy</th><th>Label</th><th>Mission stop</th><th>API comparison</th></tr></thead>
+        <tbody><tr><th scope='row'>A-01-01</th><td>—</td><td>Occupied</td><td>Unreadable</td><td>Confirmed</td><td><span class='outcome unreadable_label'>Unreadable label</span></td></tr><tr><th scope='row'>A-01-02</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>A-01-03</th><td>—</td><td>Empty</td><td>Not applicable</td><td>Confirmed</td><td><span class='outcome missing_pallet'>Missing pallet</span></td></tr><tr><th scope='row'>A-01-04</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>A-01-05</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>A-01-06</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>A-01-07</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>A-01-08</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>B-01-01</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>B-01-02</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr><tr><th scope='row'>B-02-01</th><td>—</td><td>Uninspected</td><td>Uninspected</td><td>Outside scope</td><td><span class='outcome uninspected'>Uninspected</span></td></tr></tbody>
+      </table>
+    </div>
+  </section>
+  <footer>Quality photos and inventory observations have separate capture timestamps. The table shows the latest result returned for each location.</footer>
+</main>
+</body>
+</html>

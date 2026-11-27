@@ -1,0 +1,30 @@
+<sdf version="1.8">
+  <model name="scenario_label_wrap">
+    <static>true</static>
+    <link name="wrap">
+      <visual name="folded_wrap">
+        <geometry>
+          <box>
+            <size>.58 .008 .35</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>.65 .60 .49 1</ambient>
+          <diffuse>.79 .74 .63 1</diffuse>
+          <specular>.25 .24 .21 1</specular>
+        </material>
+      </visual>
+      <visual name="fold">
+        <pose>.09 -.005 .015 0 .22 0</pose>
+        <geometry>
+          <box>
+            <size>.055 .004 .34</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>.63 .58 .49 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

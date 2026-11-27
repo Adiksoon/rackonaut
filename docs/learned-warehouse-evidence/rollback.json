@@ -1,0 +1,18 @@
+[
+  {
+    "configuration": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "map_sha256": "2cf90f4052a258d332672b447fb574c2cb7b3fab832ecb6f9651dae4de056409",
+    "measured_3d_preview_points": 2200,
+    "localized": "TRACKING",
+    "physical_contact": "gazebo_dock_switch",
+    "automatic_mission": false
+  },
+  {
+    "configuration": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+    "map_sha256": "677c7191dc26a4010cc0f570e67ea5b90e0e4f358bbc452030883eb70d03fd7e",
+    "measured_3d_preview_points": 2200,
+    "localized": "TRACKING",
+    "physical_contact": "gazebo_dock_switch",
+    "automatic_mission": false
+  }
+]

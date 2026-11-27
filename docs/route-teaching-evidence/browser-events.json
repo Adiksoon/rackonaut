@@ -1,0 +1,69 @@
+[
+  {
+    "event": "empty",
+    "wall": 1795701189.014,
+    "session": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+    "points": 0,
+    "locations": 0
+  },
+  {
+    "event": "incomplete-rejected",
+    "wall": 1795701390.185,
+    "id": "A-01-01",
+    "status": 409,
+    "reason": "Route review requires a completed mapping session and physical docking."
+  },
+  {
+    "event": "saved",
+    "wall": 1795701390.405,
+    "id": "A-01-01",
+    "source": "operator",
+    "suggested": null,
+    "stamp": {
+      "sec": 119,
+      "nanosec": 200000000
+    },
+    "position": [
+      5.459234763262235,
+      0.4497982436219589,
+      0.7925781302634274
+    ],
+    "reference": "locations/CAP-81303FDDFE734502B524B9C93D8C6E38/reference.jpg",
+    "record_id": "LOC-E065774CBEEA42AF9E7C6DD2332824D7"
+  },
+  {
+    "event": "incomplete-rejected",
+    "wall": 1795701405.614,
+    "id": "A-01-03",
+    "status": 409,
+    "reason": "Route review requires a completed mapping session and physical docking."
+  },
+  {
+    "event": "saved",
+    "wall": 1795701408.003,
+    "id": "A-01-03",
+    "source": "aruco",
+    "suggested": "A-01-03",
+    "stamp": {
+      "sec": 129,
+      "nanosec": 400000000
+    },
+    "position": [
+      8.254795403613123,
+      0.45139392686525004,
+      0.7938012830864587
+    ],
+    "reference": "locations/CAP-FF3F2567B612480E87FAFC1A08AFC651/reference.jpg",
+    "record_id": "LOC-58F20C0733BF4CBB859537FECAAD7935"
+  },
+  {
+    "event": "physical-dock",
+    "wall": 1795701542.124,
+    "session": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+    "stage": "COMPLETE",
+    "battery": 35.823,
+    "sensor": "gazebo_dock_switch",
+    "safety": "RELEASED",
+    "points": 55955
+  }
+]

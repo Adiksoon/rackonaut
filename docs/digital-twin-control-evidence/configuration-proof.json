@@ -1,0 +1,50 @@
+{
+  "secondary": {
+    "warehouse": {
+      "enabled": true,
+      "active_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+      "loaded_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+      "ready": true,
+      "error": ""
+    },
+    "contact": "gazebo_dock_switch",
+    "model": {
+      "format": 1,
+      "configuration_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+      "mapping_id": "CAL-07BBB71CDCDD4BF9AB2B52F0A917BA5A",
+      "revision": 2,
+      "source_sha256": "3e5a1315dbb3c0f082f5d03348839714ddd8129823fcdb3abef8d94e709847c6",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "restored": {
+    "warehouse": {
+      "enabled": true,
+      "active_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "loaded_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "ready": true,
+      "error": ""
+    },
+    "contact": "gazebo_dock_switch",
+    "model": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "archive": {
+    "run": "INS-CONTROL-20261126-173342-61439CAF",
+    "binding": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,1781 @@
+{
+  "date": "2026-11-26",
+  "environment": "Ubuntu 22.04.5 WSL2 / ROS 2 Humble / Gazebo Fortress 6.16.0 / Full Robotics / Mock SAP",
+  "A": {
+    "access": "Chrome and direct HTTP",
+    "unauthorized_start_and_cancel": 401,
+    "explicit_lock_invalidated_old_cookie": true,
+    "wrong_code_status": 401,
+    "fifth_failure_blocks_later_attempts": {
+      "invalid_unlocks": 5,
+      "next_correct_unlock_status": 429
+    },
+    "session_expired_during_return": true,
+    "locked_post_returns": 401
+  },
+  "B": {
+    "no_mission_dispatched": true,
+    "duplicate_and_production_start_status": 409,
+    "service_snapshot": {
+      "available": true,
+      "system": {
+        "connection": true,
+        "localization": "TRACKING",
+        "lidar": true,
+        "imu": true,
+        "camera": true,
+        "contact": true,
+        "dock": "AVAILABLE",
+        "battery": 99.816,
+        "safety": "AVAILABLE",
+        "safety_sensors": "FRESH",
+        "drone": "DOCKED",
+        "mission": null,
+        "position": [
+          -4.697,
+          10.301,
+          0.042,
+          0
+        ],
+        "speed": 0.008702145755346075
+      },
+      "calibration": {
+        "mode": "CALIBRATION_READY",
+        "detail": "Physical dock confirmed. The new warehouse draft is ready.",
+        "cancel_pending": false,
+        "draft": {
+          "calibration_id": "CAL-2A34DAF2820847258FEC3986D60F553F",
+          "started_at": "2026-11-26T09:19:53.090126+00:00",
+          "status": "CALIBRATION_READY",
+          "warehouse_name": null,
+          "map_source": "FUTURE_SENSOR_MEASUREMENT",
+          "locations": [],
+          "waypoints": [],
+          "map_reference": null
+        }
+      },
+      "warehouse": {
+        "profile": "Protected aerial",
+        "map_source": "Preconfigured reference warehouse geometry",
+        "map": "localization_map.json",
+        "locations": 11,
+        "status": "ACTIVE"
+      }
+    }
+  },
+  "C": {
+    "inspection_id": "INS-CONTROL-20261126-091954-648D1A6C",
+    "stage": "INTERRUPTED_FOR_CALIBRATION",
+    "landed": true,
+    "termination_reason": "CALIBRATION_REQUESTED",
+    "departures": 1,
+    "detail": "Inspection interrupted for calibration; physical dock confirmed",
+    "motion_owned": false,
+    "visited": [
+      "A-01-01"
+    ],
+    "observations": {
+      "A-01-01": "OBS-0604AC580FFB41F9AC1036B1007ED916"
+    },
+    "quality_bundles": 0,
+    "report": {
+      "url": "/reports/INS-CONTROL-20261126-091954-648D1A6C",
+      "events": 1,
+      "rows": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-0604AC580FFB41F9AC1036B1007ED916",
+          "outcome": "unreadable_label"
+        },
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ],
+      "discrepancies": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-0604AC580FFB41F9AC1036B1007ED916",
+          "outcome": "unreadable_label"
+        }
+      ]
+    },
+    "safety": "RELEASED",
+    "zones_retained": [],
+    "dock": {
+      "contact_source": "gazebo_dock_switch",
+      "contact": true,
+      "switch_engaged": true,
+      "percent": 48.61,
+      "charging": true
+    },
+    "first_request_sample_to_ready_s": 121.63,
+    "observations_equal": true,
+    "draft": {
+      "calibration_id": "CAL-5D66E0392805432FB78B006549F297E2",
+      "started_at": "2026-11-26T09:22:01.464113+00:00",
+      "status": "CALIBRATION_READY",
+      "warehouse_name": null,
+      "map_source": "FUTURE_SENSOR_MEASUREMENT",
+      "locations": [],
+      "waypoints": [],
+      "map_reference": null
+    },
+    "state_changes": [
+      {
+        "time": "2026-11-26T09:22:01.475Z",
+        "stage": "TRANSIT",
+        "phase": "TRANSIT",
+        "detail": "Flying to the inspection viewpoint",
+        "mode": "CALIBRATION_REQUESTED",
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "position": [
+          5.499,
+          0.449,
+          0.785,
+          1.569
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      },
+      {
+        "time": "2026-11-26T09:22:01.861Z",
+        "stage": "TRANSIT",
+        "phase": "TRANSIT",
+        "detail": "Flying to the inspection viewpoint",
+        "mode": "STOPPING_INSPECTION",
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "position": [
+          5.59,
+          0.45,
+          0.776,
+          1.571
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      },
+      {
+        "time": "2026-11-26T09:22:02.201Z",
+        "stage": "RETURN_TO_DOCK",
+        "phase": "RETURN_TRANSIT",
+        "detail": "CALIBRATION_REQUESTED",
+        "mode": "RETURNING_TO_DOCK",
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "position": [
+          5.692,
+          0.45,
+          0.769,
+          1.55
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      },
+      {
+        "time": "2026-11-26T09:23:36.581Z",
+        "stage": "DOCKING",
+        "phase": "DOCKING",
+        "detail": "Aligning and landing on the dock",
+        "mode": "WAITING_FOR_DOCK",
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "position": [
+          -4.698,
+          10.301,
+          6.702,
+          0
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      },
+      {
+        "time": "2026-11-26T09:24:02.084Z",
+        "stage": "INTERRUPTED_FOR_CALIBRATION",
+        "phase": "INTERRUPTED_FOR_CALIBRATION",
+        "detail": "Inspection interrupted for calibration; physical dock confirmed",
+        "mode": "WAITING_FOR_DOCK",
+        "safety": "RELEASED",
+        "zones": [],
+        "position": [
+          -4.699,
+          10.298,
+          0.029,
+          -0.001
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      },
+      {
+        "time": "2026-11-26T09:24:03.107Z",
+        "stage": "INTERRUPTED_FOR_CALIBRATION",
+        "phase": "INTERRUPTED_FOR_CALIBRATION",
+        "detail": "Inspection interrupted for calibration; physical dock confirmed",
+        "mode": "CALIBRATION_READY",
+        "safety": "RELEASED",
+        "zones": [],
+        "position": [
+          -4.699,
+          10.299,
+          0.043,
+          -0.001
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "observed": [
+          "A-01-01"
+        ]
+      }
+    ]
+  },
+  "D": {
+    "inspection_id": "INS-CONTROL-20261126-092925-1AB9DA3E",
+    "stage": "ABORTED",
+    "landed": false,
+    "termination_reason": "CALIBRATION_REQUESTED",
+    "departures": 1,
+    "detail": "Route blocked; no measured, reserved bypass or verified return path",
+    "motion_owned": false,
+    "visited": [],
+    "observations": {},
+    "quality_bundles": 0,
+    "report": null,
+    "safety": "RECOVERY",
+    "zones_retained": [
+      "D",
+      "A"
+    ],
+    "dock": {
+      "contact_source": "gazebo_dock_switch",
+      "contact": false,
+      "switch_engaged": false,
+      "percent": 91.628,
+      "charging": false
+    },
+    "gazebo_prop": "shaft_block",
+    "avoidance_events": [
+      {
+        "detected": 9898.741218777,
+        "blocked_at": [
+          -4.699,
+          10.301,
+          3.759
+        ],
+        "sim_detected": 20.252,
+        "receipt_to_brake_ms": 239,
+        "previous_speed": 0.229,
+        "stage": "DOCKING",
+        "reason": "measured obstacle",
+        "stopped_at": [
+          -4.698,
+          10.3,
+          3.709
+        ],
+        "reaction_s": 0.5,
+        "stopping_distance": 0.051
+      }
+    ],
+    "state_changes": [
+      {
+        "time": "2026-11-26T09:29:25.591672+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.699,
+          10.3,
+          0.043,
+          -0.0
+        ],
+        "safety": "AVAILABLE",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:25.894845+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.698,
+          10.3,
+          0.041,
+          0.0
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:26.197754+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.699,
+          10.301,
+          0.041,
+          -0.0
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:28.620136+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.697,
+          10.301,
+          0.042,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:29.226158+00:00",
+        "mode": "PRODUCTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:46.282748+00:00",
+        "mode": "CALIBRATION_REQUESTED",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.699,
+          10.301,
+          5.22,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:46.587553+00:00",
+        "mode": "STOPPING_INSPECTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.698,
+          10.302,
+          5.32,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:47.196856+00:00",
+        "mode": "WAITING_FOR_DOCK",
+        "stage": "DOCKING",
+        "flight_phase": "DOCKING",
+        "detail": "Landing in the technical dock",
+        "position": [
+          -4.702,
+          10.3,
+          5.483,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:30:03.988389+00:00",
+        "mode": "RECOVERY_REQUIRED",
+        "stage": "ABORTED",
+        "flight_phase": "ABORTED",
+        "detail": "Route blocked; no measured, reserved bypass or verified return path",
+        "position": [
+          -4.701,
+          10.301,
+          3.701,
+          0.0
+        ],
+        "safety": "RECOVERY",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "RECOVERY_REQUIRED",
+        "avoidance_reason": "Route blocked; no measured, reserved bypass or verified return path",
+        "clearance": 0.47
+      }
+    ]
+  },
+  "E": {
+    "inspection_id": "INS-CONTROL-20261126-093058-D807B2DE",
+    "stage": "ABORTED",
+    "landed": false,
+    "termination_reason": "CALIBRATION_REQUESTED",
+    "departures": 1,
+    "detail": "Calibration return lost its Safety reservation",
+    "motion_owned": false,
+    "visited": [],
+    "observations": {},
+    "quality_bundles": 0,
+    "report": null,
+    "safety": "RECOVERY",
+    "zones_retained": [
+      "D",
+      "A"
+    ],
+    "dock": {
+      "contact_source": "gazebo_dock_switch",
+      "contact": false,
+      "switch_engaged": false,
+      "percent": 94.646,
+      "charging": false
+    },
+    "gazebo_worker_destination": "A",
+    "safety_events": [
+      {
+        "time": "2026-11-26T09:31:19.856+00:00",
+        "monotonic_ns": 9981785786273,
+        "inspection_id": "INS-CONTROL-20261126-093058-D807B2DE",
+        "event": "intrusion",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A.",
+        "presence_sample_ns": 9981773927560
+      },
+      {
+        "time": "2026-11-26T09:31:19.906+00:00",
+        "monotonic_ns": 9981836280498,
+        "inspection_id": "INS-CONTROL-20261126-093058-D807B2DE",
+        "event": "abort_dispatched",
+        "zones": [
+          "A"
+        ],
+        "message": "Called the existing mission Abort service.",
+        "triggering_event_ns": 9981785786273
+      },
+      {
+        "time": "2026-11-26T09:31:20.105+00:00",
+        "monotonic_ns": 9982035649713,
+        "inspection_id": "INS-CONTROL-20261126-093058-D807B2DE",
+        "event": "abort_confirmed",
+        "zones": [
+          "A"
+        ],
+        "message": "Mission Manager confirmed Abort.",
+        "triggering_event_ns": 9981785786273
+      }
+    ],
+    "state_changes": [
+      {
+        "time": "2026-11-26T09:30:58.125512+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.698,
+          10.3,
+          0.042,
+          -0.0
+        ],
+        "safety": "AVAILABLE",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:30:58.428981+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.699,
+          10.299,
+          0.045,
+          -0.0
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:30:58.731572+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0.0
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:01.458224+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.696,
+          10.3,
+          0.042,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:02.064987+00:00",
+        "mode": "PRODUCTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.699,
+          10.3,
+          0.068,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:17.915914+00:00",
+        "mode": "CALIBRATION_REQUESTED",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.699,
+          10.301,
+          4.646,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:18.220239+00:00",
+        "mode": "STOPPING_INSPECTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.7,
+          10.301,
+          4.712,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:18.830386+00:00",
+        "mode": "WAITING_FOR_DOCK",
+        "stage": "DOCKING",
+        "flight_phase": "DOCKING",
+        "detail": "Landing in the technical dock",
+        "position": [
+          -4.701,
+          10.3,
+          4.918,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:20.060444+00:00",
+        "mode": "RECOVERY_REQUIRED",
+        "stage": "DOCKING",
+        "flight_phase": "DOCKING",
+        "detail": "Landing in the technical dock",
+        "position": [
+          -4.7,
+          10.301,
+          4.832,
+          0.001
+        ],
+        "safety": "RECOVERY",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:31:20.365198+00:00",
+        "mode": "RECOVERY_REQUIRED",
+        "stage": "ABORTED",
+        "flight_phase": "ABORTED",
+        "detail": "Calibration return lost its Safety reservation",
+        "position": [
+          -4.699,
+          10.3,
+          4.801,
+          0.001
+        ],
+        "safety": "RECOVERY",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "ABORTED",
+        "avoidance_reason": "Calibration return lost its Safety reservation",
+        "clearance": null
+      }
+    ]
+  },
+  "F": {
+    "inspection_id": "INS-CONTROL-20261126-092448-06C67C75",
+    "stage": "INTERRUPTED_FOR_CALIBRATION",
+    "landed": true,
+    "termination_reason": "CALIBRATION_REQUESTED",
+    "departures": 1,
+    "detail": "Inspection interrupted for calibration; physical dock confirmed",
+    "motion_owned": false,
+    "visited": [],
+    "observations": {},
+    "quality_bundles": 0,
+    "report": {
+      "url": "/reports/INS-CONTROL-20261126-092448-06C67C75",
+      "events": 0,
+      "rows": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected"
+        }
+      ],
+      "discrepancies": []
+    },
+    "safety": "RELEASED",
+    "zones_retained": [],
+    "dock": {
+      "contact_source": "gazebo_dock_switch",
+      "contact": true,
+      "switch_engaged": true,
+      "percent": 99.515,
+      "charging": true
+    },
+    "final_mode": "PRODUCTION",
+    "state_changes": [
+      {
+        "time": "2026-11-26T09:24:48.047645+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.698,
+          10.299,
+          0.042,
+          -0.001
+        ],
+        "safety": "RELEASED",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:48.353039+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.699,
+          10.299,
+          0.042,
+          -0.001
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:48.658218+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.699,
+          10.299,
+          0.043,
+          -0.001
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:51.099679+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.698,
+          10.299,
+          0.042,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:52.929010+00:00",
+        "mode": "PRODUCTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.698,
+          10.298,
+          0.043,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:58.129756+00:00",
+        "mode": "CALIBRATION_REQUESTED",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.701,
+          10.301,
+          1.504,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:58.435126+00:00",
+        "mode": "STOPPING_INSPECTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.699,
+          10.3,
+          1.593,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:24:58.740521+00:00",
+        "mode": "WAITING_FOR_DOCK",
+        "stage": "DOCKING",
+        "flight_phase": "DOCKING",
+        "detail": "Landing in the technical dock",
+        "position": [
+          -4.699,
+          10.298,
+          1.683,
+          0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:08.826893+00:00",
+        "mode": "WAITING_FOR_DOCK",
+        "stage": "INTERRUPTED_FOR_CALIBRATION",
+        "flight_phase": "INTERRUPTED_FOR_CALIBRATION",
+        "detail": "Inspection interrupted for calibration; physical dock confirmed",
+        "position": [
+          -4.7,
+          10.3,
+          0.027,
+          -0.001
+        ],
+        "safety": "RELEASED",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:09.437621+00:00",
+        "mode": "PRODUCTION",
+        "stage": "INTERRUPTED_FOR_CALIBRATION",
+        "flight_phase": "INTERRUPTED_FOR_CALIBRATION",
+        "detail": "Inspection interrupted for calibration; physical dock confirmed",
+        "position": [
+          -4.7,
+          10.3,
+          0.027,
+          -0.001
+        ],
+        "safety": "RELEASED",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      }
+    ]
+  },
+  "G": {
+    "inspection_id": "INS-CONTROL-20261126-092509-F263176B",
+    "stage": "COMPLETE",
+    "landed": true,
+    "termination_reason": null,
+    "departures": 1,
+    "detail": "Landed on the launch pad",
+    "motion_owned": false,
+    "visited": [
+      "A-01-01"
+    ],
+    "observations": {
+      "A-01-01": "OBS-0E43E921448E4FB3A97B6B4E003D13CB"
+    },
+    "quality_bundles": 0,
+    "report": {
+      "url": "/reports/INS-CONTROL-20261126-092509-F263176B",
+      "events": 1,
+      "rows": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-0E43E921448E4FB3A97B6B4E003D13CB",
+          "outcome": "unreadable_label"
+        }
+      ],
+      "discrepancies": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-0E43E921448E4FB3A97B6B4E003D13CB",
+          "outcome": "unreadable_label"
+        }
+      ]
+    },
+    "safety": "RELEASED",
+    "zones_retained": [],
+    "dock": {
+      "contact_source": "gazebo_dock_switch",
+      "contact": true,
+      "switch_engaged": true,
+      "percent": 48.613,
+      "charging": true
+    },
+    "mock_sap": {
+      "inspection_id": "INS-CONTROL-20261126-092509-F263176B",
+      "source": "mock_sap",
+      "synthetic_product_master": true,
+      "metrics": {
+        "observed": 1,
+        "total": 11,
+        "matches": 0,
+        "decisive": 0,
+        "accuracy": null,
+        "inventory_discrepancies": 0,
+        "inventory_attention": 1,
+        "damaged_packages": 0,
+        "discontinued_products": 0,
+        "manual_review_locations": 1
+      },
+      "issues": [
+        {
+          "issue_id": "ISS-2DB90F62641D7C03D81F",
+          "revision": "EFF84B6C43D1D79618C9",
+          "type": "UNREADABLE_LABEL",
+          "priority": "MEDIUM",
+          "slot_id": "A-01-01",
+          "hu_id": null,
+          "description": "The location is occupied and the label could not be read.",
+          "action": "Verify the handling unit identity and replace or reprint the unreadable label.",
+          "reason": "The location is occupied and the label could not be read.",
+          "evidence": [
+            {
+              "schema_version": "1.0",
+              "inspection_id": "INS-CONTROL-20261126-092509-F263176B",
+              "observation_id": "OBS-0E43E921448E4FB3A97B6B4E003D13CB",
+              "slot_id": "A-01-01",
+              "pallet_id": null,
+              "occupancy": "occupied",
+              "label_status": "unreadable",
+              "timestamp": "2026-11-26T09:27:15.794Z"
+            }
+          ],
+          "quality": [],
+          "related_issue_ids": [],
+          "status": "OPEN",
+          "verified_at": null
+        }
+      ],
+      "slots": [
+        {
+          "slot_id": "A-01-01",
+          "expected_pallet_id": "P001",
+          "observed_pallet_id": null,
+          "observation_id": "OBS-0E43E921448E4FB3A97B6B4E003D13CB",
+          "outcome": "unreadable_label",
+          "expected_product": {
+            "hu_id": "P001",
+            "sku": "EL-440",
+            "product_name": "Series 440 control relay",
+            "batch": "EL-2408",
+            "lifecycle_status": "DISCONTINUED",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-01"
+          },
+          "observed_product": null,
+          "readings": [
+            {
+              "schema_version": "1.0",
+              "inspection_id": "INS-CONTROL-20261126-092509-F263176B",
+              "observation_id": "OBS-0E43E921448E4FB3A97B6B4E003D13CB",
+              "slot_id": "A-01-01",
+              "pallet_id": null,
+              "occupancy": "occupied",
+              "label_status": "unreadable",
+              "timestamp": "2026-11-26T09:27:15.794Z"
+            }
+          ],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-02",
+          "expected_pallet_id": "P002",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P002",
+            "sku": "MT-125",
+            "product_name": "Mounting bracket kit",
+            "batch": "MT-2611",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-02"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-03",
+          "expected_pallet_id": "P003",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P003",
+            "sku": "EL-812",
+            "product_name": "Industrial junction box",
+            "batch": "EL-2606",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-03"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-04",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": null,
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-05",
+          "expected_pallet_id": "P005",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P005",
+            "sku": "PK-140",
+            "product_name": "Protective packaging inserts",
+            "batch": "PK-2610",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-05"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-06",
+          "expected_pallet_id": "P006",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P006",
+            "sku": "MT-620",
+            "product_name": "Bearing assembly",
+            "batch": "MT-2605",
+            "lifecycle_status": "BLOCKED",
+            "quality_status": "ON_HOLD",
+            "stock_status": "RESTRICTED",
+            "expected_slot": "A-01-06"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-07",
+          "expected_pallet_id": "P007",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P007",
+            "sku": "EL-224",
+            "product_name": "Cable routing module",
+            "batch": "EL-2611",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-07"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "A-01-08",
+          "expected_pallet_id": "P008",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P008",
+            "sku": "HY-310",
+            "product_name": "Hydraulic fitting set",
+            "batch": "HY-2609",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "A-01-08"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "B-01-01",
+          "expected_pallet_id": "P021",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P021",
+            "sku": "EL-590",
+            "product_name": "Modular sensor housing",
+            "batch": "EL-2610",
+            "lifecycle_status": "ACTIVE",
+            "quality_status": "RELEASED",
+            "stock_status": "ON_HAND",
+            "expected_slot": "B-01-01"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "B-01-02",
+          "expected_pallet_id": "P022",
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": {
+            "hu_id": "P022",
+            "sku": "MT-271",
+            "product_name": "Precision mounting rail",
+            "batch": "MT-2609",
+            "lifecycle_status": "UNKNOWN",
+            "quality_status": "PENDING",
+            "stock_status": "ON_HAND",
+            "expected_slot": "B-01-02"
+          },
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        },
+        {
+          "slot_id": "B-02-01",
+          "expected_pallet_id": null,
+          "observed_pallet_id": null,
+          "observation_id": null,
+          "outcome": "uninspected",
+          "expected_product": null,
+          "observed_product": null,
+          "readings": [],
+          "quality_history": [],
+          "active_quality": null
+        }
+      ]
+    },
+    "state_changes": [
+      {
+        "time": "2026-11-26T09:25:09.988187+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.7,
+          10.3,
+          0.027,
+          -0.001
+        ],
+        "safety": "RELEASED",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:10.293311+00:00",
+        "mode": "PRODUCTION",
+        "stage": "STARTING",
+        "flight_phase": null,
+        "detail": null,
+        "position": [
+          -4.699,
+          10.3,
+          0.027,
+          -0.001
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": null,
+        "avoidance_reason": null,
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:11.512764+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.699,
+          10.299,
+          0.028,
+          -0.001
+        ],
+        "safety": "PREPARING",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:13.036265+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "detail": "Waiting for a mission start",
+        "position": [
+          -4.7,
+          10.299,
+          0.027,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "UNKNOWN",
+        "avoidance_reason": "Waiting for live onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:14.255888+00:00",
+        "mode": "PRODUCTION",
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "detail": "Climbing above the launch pad",
+        "position": [
+          -4.699,
+          10.299,
+          0.028,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:25:37.483419+00:00",
+        "mode": "PRODUCTION",
+        "stage": "ENTERING_CORRIDOR",
+        "flight_phase": "ENTERING_CORRIDOR",
+        "detail": "Following the reserved aerial corridor",
+        "position": [
+          -4.7,
+          10.3,
+          6.695,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:26:00.421267+00:00",
+        "mode": "PRODUCTION",
+        "stage": "OVERHEAD_TRANSIT",
+        "flight_phase": "OVERHEAD_TRANSIT",
+        "detail": "Following the reserved aerial corridor",
+        "position": [
+          2.099,
+          10.299,
+          6.703,
+          0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:26:44.207682+00:00",
+        "mode": "PRODUCTION",
+        "stage": "WAITING_FOR_AISLE_CLEARANCE",
+        "flight_phase": "WAITING_FOR_AISLE_CLEARANCE",
+        "detail": "Holding over descent A for fresh Safety clearance",
+        "position": [
+          5.108,
+          0.447,
+          6.703,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:26:44.513861+00:00",
+        "mode": "PRODUCTION",
+        "stage": "AISLE_DESCENT",
+        "flight_phase": "AISLE_DESCENT",
+        "detail": "Descending through reserved gate A",
+        "position": [
+          5.106,
+          0.448,
+          6.7,
+          -0.0
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:05.340724+00:00",
+        "mode": "PRODUCTION",
+        "stage": "TRANSIT",
+        "flight_phase": "TRANSIT",
+        "detail": "Flying to the inspection viewpoint",
+        "position": [
+          5.095,
+          0.449,
+          0.795,
+          -0.002
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:08.403846+00:00",
+        "mode": "PRODUCTION",
+        "stage": "ALIGN",
+        "flight_phase": "ALIGN",
+        "detail": "Turning toward the rack and settling",
+        "position": [
+          5.461,
+          0.45,
+          0.788,
+          0.011
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:15.451211+00:00",
+        "mode": "PRODUCTION",
+        "stage": "INSPECT",
+        "flight_phase": "INSPECTION",
+        "detail": "Waiting for a fresh camera observation in the API",
+        "position": [
+          5.464,
+          0.451,
+          0.792,
+          1.566
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:16.675923+00:00",
+        "mode": "PRODUCTION",
+        "stage": "AISLE_APPROACH",
+        "flight_phase": "AISLE_APPROACH",
+        "detail": "Following the reserved aerial corridor",
+        "position": [
+          5.463,
+          0.449,
+          0.79,
+          1.545
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:23.122491+00:00",
+        "mode": "PRODUCTION",
+        "stage": "AISLE_ASCENT",
+        "flight_phase": "AISLE_ASCENT",
+        "detail": "Following the reserved aerial corridor",
+        "position": [
+          5.105,
+          0.449,
+          0.793,
+          0.014
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:27:44.275669+00:00",
+        "mode": "PRODUCTION",
+        "stage": "RETURN_TRANSIT",
+        "flight_phase": "RETURN_TRANSIT",
+        "detail": "Following the reserved aerial corridor",
+        "position": [
+          5.102,
+          0.452,
+          6.702,
+          -0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:28:49.967994+00:00",
+        "mode": "PRODUCTION",
+        "stage": "LAND",
+        "flight_phase": "DOCKING",
+        "detail": "Descending vertically into the technical dock",
+        "position": [
+          -4.701,
+          10.298,
+          6.69,
+          0.001
+        ],
+        "safety": "RESERVED",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "contact": false,
+        "switch": false,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Swept path verified by onboard lidar",
+        "clearance": null
+      },
+      {
+        "time": "2026-11-26T09:29:15.167599+00:00",
+        "mode": "PRODUCTION",
+        "stage": "COMPLETE",
+        "flight_phase": "COMPLETE",
+        "detail": "Landed on the launch pad",
+        "position": [
+          -4.698,
+          10.299,
+          0.045,
+          -0.0
+        ],
+        "safety": "RELEASED",
+        "zones": [],
+        "contact": true,
+        "switch": true,
+        "avoidance": "CLEAR",
+        "avoidance_reason": "Holding the reached waypoint",
+        "clearance": null
+      }
+    ]
+  }
+}

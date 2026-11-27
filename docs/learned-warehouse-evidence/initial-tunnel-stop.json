@@ -1,0 +1,39 @@
+{
+  "id": "INS-CONTROL-20261126-150426-13353E74",
+  "configuration": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+  "waypoint": "W0033",
+  "stage": "ABORTED",
+  "position": [
+    2.086,
+    0.772,
+    6.651,
+    0.001
+  ],
+  "motion_owned": false,
+  "sensor_event": {
+    "detected": 30071.768668023,
+    "blocked_at": [
+      2.086,
+      0.797,
+      6.648
+    ],
+    "sim_detected": 62.748,
+    "receipt_to_brake_ms": 304,
+    "previous_speed": 0.076,
+    "stage": "LEARNED_TRANSIT",
+    "reason": "unobserved space",
+    "stopped_at": [
+      2.086,
+      0.788,
+      6.649
+    ],
+    "reaction_s": 0.3,
+    "stopping_distance": 0.009
+  },
+  "reserved_zones": [
+    "D",
+    "A"
+  ],
+  "safety_phase": "RECOVERY",
+  "verified_distance_m": 0.244
+}

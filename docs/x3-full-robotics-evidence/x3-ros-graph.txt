@@ -1,0 +1,48 @@
+
+/clock
+Publisher count: 1
+Node name: ros_gz_bridge
+Node namespace: /
+Topic type: rosgraph_msgs/msg/Clock
+Subscription count: 2
+Node name: rackonaut_mission
+Node namespace: /
+Topic type: rosgraph_msgs/msg/Clock
+Node name: _NODE_NAME_UNKNOWN_
+Node namespace: _NODE_NAMESPACE_UNKNOWN_
+Topic type: rosgraph_msgs/msg/Clock
+
+/rackonaut/drone/cmd_vel
+
+/rackonaut/drone/odom
+Publisher count: 0
+Subscription count: 3
+Node name: _NODE_NAME_UNKNOWN_
+Node namespace: _NODE_NAMESPACE_UNKNOWN_
+Topic type: nav_msgs/msg/Odometry
+Node name: rackonaut_mission
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Node name: _NODE_NAME_UNKNOWN_
+Node namespace: _NODE_NAMESPACE_UNKNOWN_
+Topic type: nav_msgs/msg/Odometry
+
+/tf
+Publisher count: 1
+Node name: rackonaut_localization
+Node namespace: /
+Topic type: tf2_msgs/msg/TFMessage
+Subscription count: 1
+Node name: rackonaut_control
+Node namespace: /
+Topic type: tf2_msgs/msg/TFMessage
+
+/rackonaut/validation/ground_truth
+Publisher count: 1
+Node name: rackonaut_validation_bridge
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Subscription count: 1
+Node name: goal25_slam_shadow_validator
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry

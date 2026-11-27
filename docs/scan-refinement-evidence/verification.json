@@ -1,0 +1,154 @@
+{
+  "base": "de4677e",
+  "environment": "Windows Chrome headless, WSL2 Ubuntu 22.04.5, Gazebo Fortress 6.16.0 and ROS 2 Humble",
+  "offline_comparison": {
+    "source": {
+      "sha256_xyz": "08eb67d0bceff4379ba2e86cdf0813b19fce9063328e3e3c8f6f0c3b0dfdfa44",
+      "points": 54301
+    },
+    "interior_points": 15992,
+    "custom_0_8_to_2_5": 4552,
+    "bench": [
+      {
+        "variant": "before",
+        "width": 510.671875,
+        "height": 553,
+        "displayed": 54301,
+        "fps": 15.257048092868988,
+        "chrome_cpu_percent": 21.860530679933664
+      },
+      {
+        "variant": "after",
+        "width": 928.8125,
+        "height": 735,
+        "displayed": 54301,
+        "fps": 15.205650186954715,
+        "chrome_cpu_percent": 15.033851267137509
+      }
+    ]
+  },
+  "final_ui_checks": {
+    "no_2d_map_in_scan_fullscreen": true,
+    "no_horizontal_overflow_in_scan_controls_at_390px": true,
+    "fullscreen_canvas_min_height_px_at_1540x1100": 650
+  },
+  "live": {
+    "first_points": 1129,
+    "displayed_interior": 845,
+    "live_map_growth": 2519,
+    "trace": [
+      {
+        "id": "INS-CONTROL-20261126-101948-7EAD523C",
+        "stage": "VERTICAL_TAKEOFF",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0
+        ],
+        "localization": "TRACKING",
+        "registered": 1129,
+        "contact": true,
+        "departures": 1,
+        "safety": "RESERVED",
+        "required": [
+          "D",
+          "A"
+        ],
+        "avoidance": "CLEAR",
+        "hazard_points": 0,
+        "detail": "Climbing above the launch pad"
+      },
+      {
+        "id": "INS-CONTROL-20261126-101948-7EAD523C",
+        "stage": "VERTICAL_TAKEOFF",
+        "position": [
+          -4.698,
+          10.301,
+          0.063,
+          0
+        ],
+        "localization": "TRACKING",
+        "registered": 1129,
+        "contact": false,
+        "departures": 1,
+        "safety": "RESERVED",
+        "required": [
+          "D",
+          "A"
+        ],
+        "avoidance": "CLEAR",
+        "hazard_points": 0,
+        "detail": "Climbing above the launch pad"
+      },
+      {
+        "id": "INS-CONTROL-20261126-101948-7EAD523C",
+        "stage": "VERTICAL_TAKEOFF",
+        "position": [
+          -4.701,
+          10.3,
+          0.74,
+          0
+        ],
+        "localization": "TRACKING",
+        "registered": 2519,
+        "contact": false,
+        "departures": 1,
+        "safety": "RESERVED",
+        "required": [
+          "D",
+          "A"
+        ],
+        "avoidance": "CLEAR",
+        "hazard_points": 0,
+        "detail": "Climbing above the launch pad"
+      },
+      {
+        "id": "INS-CONTROL-20261126-101948-7EAD523C",
+        "stage": "VERTICAL_TAKEOFF",
+        "position": [
+          -4.7,
+          10.301,
+          1.333,
+          0
+        ],
+        "localization": "TRACKING",
+        "registered": 3913,
+        "contact": false,
+        "departures": 1,
+        "safety": "RESERVED",
+        "required": [
+          "D",
+          "A"
+        ],
+        "avoidance": "CLEAR",
+        "hazard_points": 58,
+        "detail": "Climbing above the launch pad"
+      },
+      {
+        "id": "INS-CONTROL-20261126-101948-7EAD523C",
+        "stage": "ABORTED",
+        "position": [
+          -4.701,
+          10.301,
+          1.465,
+          0
+        ],
+        "localization": "TRACKING",
+        "registered": 4356,
+        "contact": false,
+        "departures": 1,
+        "safety": "RECOVERY",
+        "required": [
+          "D",
+          "A"
+        ],
+        "avoidance": "ABORTED",
+        "hazard_points": 60,
+        "detail": "Stopped by the operator"
+      }
+    ],
+    "filtered_map_points_at_hazard": 0,
+    "emergency_stop": "fullscreen"
+  }
+}

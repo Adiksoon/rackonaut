@@ -1,0 +1,12 @@
+start · Ready at the physical dock and tracking the GOAL 24 learned map.
+Repeated start · Same Gazebo, Control Center, archive server and browser session.
+GOTOWE    Gazebo
+GOTOWE    Mock SAP
+GOTOWE    Dron przy doku i mapa z kalibracji
+GOTOWE    Serwer archiwum
+GOTOWE    Control Center
+GOTOWE    Enhanced Digital Twin
+GOTOWE    Wyniki biznesowe
+GOTOWE    Wyniki techniczne
+GOTOWE    Nagrania
+Pozycja [-4.7, 10.3, 0.05, -0.001]. Źródło lokalizacji learned_map.

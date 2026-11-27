@@ -1,0 +1,761 @@
+[
+  {
+    "slot": "A-01-01",
+    "sortie": 1,
+    "record_id": "LOC-6C246BA863B9446C845F5FEB79A730EE",
+    "position": [
+      5.097784129742853,
+      0.45066634699948005,
+      0.8325090123254324
+    ],
+    "orientation_xyzw": [
+      0.0002752283369835771,
+      0.0008459833206844242,
+      0.6930538929605593,
+      0.7208852266580286
+    ],
+    "yaw_deg": 87.74476085928629,
+    "camera_stamp": {
+      "sec": 126,
+      "nanosec": 200000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      60.0,
+      136.0,
+      263.94879150390625,
+      179.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0159,
+      "overlap": 0.877,
+      "weakest": 0.06442,
+      "sigma": [
+        0.0116,
+        0.01,
+        0.0054
+      ],
+      "scan_age_ms": 289,
+      "imu_age_ms": 79
+    },
+    "capture": "locations/CAP-BC06CBDEA0B74D0499CCDAA941B16AD9/reference.jpg",
+    "published_photo": "photos/A-01-01.jpg",
+    "sha256": "c4b3c61cb1120c70271cbd332273bf94f12e30bdd1aab52112127693ea31663f",
+    "rack_id": "R02",
+    "level": 1,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-01",
+      "status": "projected",
+      "level": 1,
+      "correct_row": true,
+      "error_to_aruco_m": 0.024905270583049966
+    },
+    "bound_node": "S01-W0043",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.011748109339800757,
+      0.01012971591461625,
+      0.00538989894578505
+    ],
+    "sync": {
+      "before_ms": 20.0,
+      "after_ms": 20.0
+    }
+  },
+  {
+    "slot": "A-01-02",
+    "sortie": 2,
+    "record_id": "LOC-959BF4E1AFA9407F85752CAA15EA5311",
+    "position": [
+      5.098923186214009,
+      0.4484802965040253,
+      2.6211888087942334
+    ],
+    "orientation_xyzw": [
+      2.6112179137321394e-05,
+      0.0007839675080652814,
+      0.69568598700258,
+      0.7183455938483556
+    ],
+    "yaw_deg": 88.16388285766516,
+    "camera_stamp": {
+      "sec": 398,
+      "nanosec": 500000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      64.0,
+      85.0,
+      288.3627624511719,
+      127.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0157,
+      "overlap": 0.87,
+      "weakest": 0.0757,
+      "sigma": [
+        0.0108,
+        0.0089,
+        0.0052
+      ],
+      "scan_age_ms": 335,
+      "imu_age_ms": 137
+    },
+    "capture": "locations/CAP-F09CA360082D4388B8BFBA1418A4FB6F/reference.jpg",
+    "published_photo": "photos/A-01-02.jpg",
+    "sha256": "a35b0601c1c182fdd72c949101fd79731655f85dddb3d0eedaf4013808eeff8d",
+    "rack_id": "R02",
+    "level": 2,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-02",
+      "status": "projected",
+      "level": 2,
+      "correct_row": true,
+      "error_to_aruco_m": 0.01436521904043974
+    },
+    "bound_node": "S02-W0045",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.010764903658531062,
+      0.008929420640580646,
+      0.0051694537748085065
+    ],
+    "sync": {
+      "before_ms": 40.0,
+      "after_ms": 0.0
+    }
+  },
+  {
+    "slot": "A-01-03",
+    "sortie": 1,
+    "record_id": "LOC-32328B5AE7324C7284D1D6AFD0D83490",
+    "position": [
+      7.961227949482187,
+      0.449075271202804,
+      0.8025733446222832
+    ],
+    "orientation_xyzw": [
+      -0.000566847233317024,
+      0.0001574376558133273,
+      0.6934806512950642,
+      0.7204750100988738
+    ],
+    "yaw_deg": 87.81253785736874,
+    "camera_stamp": {
+      "sec": 144,
+      "nanosec": 500000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      52.0,
+      131.0,
+      279.0400085449219,
+      174.0
+    ],
+    "occupancy": "empty",
+    "label_status": "not_applicable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0158,
+      "overlap": 0.873,
+      "weakest": 0.04593,
+      "sigma": [
+        0.0138,
+        0.0097,
+        0.0053
+      ],
+      "scan_age_ms": 197,
+      "imu_age_ms": 99
+    },
+    "capture": "locations/CAP-48797864341A4343B0FFE43D64F53270/reference.jpg",
+    "published_photo": "photos/A-01-03.jpg",
+    "sha256": "6e91de295d39998abf290ec646ff0a8a4b8e5b8d4292fb2fdc4d709c63c82e8e",
+    "rack_id": "R02",
+    "level": 1,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-03",
+      "status": "projected",
+      "level": 1,
+      "correct_row": true,
+      "error_to_aruco_m": 0.017695732060869076
+    },
+    "bound_node": "S01-W0055",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.013712073095189672,
+      0.009688830449112503,
+      0.0052353266181151825
+    ],
+    "sync": {
+      "before_ms": 60.0,
+      "after_ms": 0.0
+    }
+  },
+  {
+    "slot": "A-01-04",
+    "sortie": 2,
+    "record_id": "LOC-3C3009D676D8425CB04029D54B588851",
+    "position": [
+      7.9627208861822805,
+      0.4494208997031107,
+      2.622916724485041
+    ],
+    "orientation_xyzw": [
+      2.7570536228286802e-06,
+      0.0006493183747403608,
+      0.6946833161612849,
+      0.7193154166464163
+    ],
+    "yaw_deg": 88.00402142090418,
+    "camera_stamp": {
+      "sec": 416,
+      "nanosec": 800000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      54.0,
+      86.0,
+      281.0400085449219,
+      128.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0148,
+      "overlap": 0.854,
+      "weakest": 0.05772,
+      "sigma": [
+        0.0123,
+        0.0086,
+        0.005
+      ],
+      "scan_age_ms": 237,
+      "imu_age_ms": 7
+    },
+    "capture": "locations/CAP-88AB5B45CC8147BFA136AA6BA37CF08D/reference.jpg",
+    "published_photo": "photos/A-01-04.jpg",
+    "sha256": "d8846c5b2f16b1a6c71a5e82cba78fdf3d3eba35c3b23ac287997beae9c16fbe",
+    "rack_id": "R02",
+    "level": 2,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-04",
+      "status": "projected",
+      "level": 2,
+      "correct_row": true,
+      "error_to_aruco_m": 0.01670253531707764
+    },
+    "bound_node": "S02-W0053",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.012322610995852568,
+      0.008636701629484182,
+      0.005004360462090648
+    ],
+    "sync": {
+      "before_ms": 20.0,
+      "after_ms": 20.0
+    }
+  },
+  {
+    "slot": "A-01-05",
+    "sortie": 1,
+    "record_id": "LOC-C9F204A0155A4DCE8BCAA412163A0FFD",
+    "position": [
+      10.837803894827765,
+      0.4492518318779845,
+      0.7621749818782799
+    ],
+    "orientation_xyzw": [
+      0.0007258957024040416,
+      0.001554503732983666,
+      0.6937863320127972,
+      0.7201788542478891
+    ],
+    "yaw_deg": 87.8614400547498,
+    "camera_stamp": {
+      "sec": 163,
+      "nanosec": 200000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      40.0,
+      125.0,
+      261.760009765625,
+      168.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "unreadable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0156,
+      "overlap": 0.864,
+      "weakest": 0.02077,
+      "sigma": [
+        0.0201,
+        0.0098,
+        0.0052
+      ],
+      "scan_age_ms": 160,
+      "imu_age_ms": 2
+    },
+    "capture": "locations/CAP-C593BDCD1CF046E886E808A429B0E760/reference.jpg",
+    "published_photo": "photos/A-01-05.jpg",
+    "sha256": "3cbe0a6e2e59bd11a1ff50da48f6b11838aeade6d4661953e2ce172519c6d33a",
+    "rack_id": "R02",
+    "level": 1,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-05",
+      "status": "projected",
+      "level": 1,
+      "correct_row": true,
+      "error_to_aruco_m": 0.027998638766455152
+    },
+    "bound_node": "S01-W0067",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.01922368129153506,
+      0.00968959333565761,
+      0.005235877065813879
+    ],
+    "sync": {
+      "before_ms": 40.0,
+      "after_ms": 0.0
+    }
+  },
+  {
+    "slot": "A-01-06",
+    "sortie": 2,
+    "record_id": "LOC-EEDCF632D9A64944B92B0D6EFB757AA3",
+    "position": [
+      10.838694620548981,
+      0.4490635693073526,
+      2.6238398169826547
+    ],
+    "orientation_xyzw": [
+      0.00023661256102530646,
+      0.0006924920300399946,
+      0.6934265138774208,
+      0.7205269837563972
+    ],
+    "yaw_deg": 87.80398039469637,
+    "camera_stamp": {
+      "sec": 435,
+      "nanosec": 300000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      41.0,
+      86.0,
+      267.8779602050781,
+      128.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0149,
+      "overlap": 0.852,
+      "weakest": 0.02412,
+      "sigma": [
+        0.0187,
+        0.0083,
+        0.005
+      ],
+      "scan_age_ms": 94,
+      "imu_age_ms": 17
+    },
+    "capture": "locations/CAP-F86774E9309A4382844477A5B44A7F72/reference.jpg",
+    "published_photo": "photos/A-01-06.jpg",
+    "sha256": "d8254e74788ab939130ca0d0c2063ca41d8dda9a313a681d35c4ee59c9073fd7",
+    "rack_id": "R02",
+    "level": 2,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-06",
+      "status": "projected",
+      "level": 2,
+      "correct_row": true,
+      "error_to_aruco_m": 0.015942732654106048
+    },
+    "bound_node": "S02-W0062",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.018740011310792774,
+      0.008315972515571422,
+      0.005003899279813574
+    ],
+    "sync": {
+      "before_ms": 20.0,
+      "after_ms": 20.0
+    }
+  },
+  {
+    "slot": "A-01-07",
+    "sortie": 1,
+    "record_id": "LOC-12F8A8AFCD974AF2BCF0544D7EA21AB1",
+    "position": [
+      13.357592714099027,
+      0.4481744743981286,
+      0.8612189688068684
+    ],
+    "orientation_xyzw": [
+      0.000371577302302575,
+      0.0007342471646014354,
+      0.6927717191226457,
+      0.7211564795488312
+    ],
+    "yaw_deg": 87.69989531994393,
+    "camera_stamp": {
+      "sec": 181,
+      "nanosec": 200000000
+    },
+    "tag_size_px": 41.0,
+    "image_bounds_px": [
+      83.0,
+      142.0,
+      301.4565124511719,
+      184.0
+    ],
+    "occupancy": "uncertain",
+    "label_status": "unknown",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.016,
+      "overlap": 0.866,
+      "weakest": 0.02453,
+      "sigma": [
+        0.0186,
+        0.0095,
+        0.0052
+      ],
+      "scan_age_ms": 275,
+      "imu_age_ms": 53
+    },
+    "capture": "locations/CAP-66180F862CBB485F852A48F643F4F38D/reference.jpg",
+    "published_photo": "photos/A-01-07.jpg",
+    "sha256": "8be661eb641e416d5d2aa602ca5758d975f56d15d14a0c2e7d336fdc1882bbd3",
+    "rack_id": "R02",
+    "level": null,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-07",
+      "status": "projected",
+      "level": null,
+      "correct_row": true,
+      "error_to_aruco_m": 0.041092729040216165
+    },
+    "bound_node": "S01-W0081",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.0185875113482471,
+      0.009526562148632777,
+      0.005205106984853725
+    ],
+    "sync": {
+      "before_ms": 60.0,
+      "after_ms": 0.0
+    }
+  },
+  {
+    "slot": "A-01-08",
+    "sortie": 4,
+    "record_id": "LOC-BA67C6C0508848A3BCA099A003AD7987",
+    "position": [
+      13.479447189305782,
+      0.45037480399560637,
+      2.6218879032382607
+    ],
+    "orientation_xyzw": [
+      0.0006748491043454593,
+      0.0009055001576536323,
+      0.6942681622747544,
+      0.7197155295669159
+    ],
+    "yaw_deg": 87.93794959001357,
+    "camera_stamp": {
+      "sec": 939,
+      "nanosec": 400000000
+    },
+    "tag_size_px": 41.0,
+    "image_bounds_px": [
+      66.0,
+      87.0,
+      313.60784912109375,
+      132.48855590820312
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.015,
+      "overlap": 0.846,
+      "weakest": 0.0288,
+      "sigma": [
+        0.0172,
+        0.0084,
+        0.005
+      ],
+      "scan_age_ms": 167,
+      "imu_age_ms": 9
+    },
+    "capture": "locations/CAP-9798336907364F98AF49D8526B74398F/reference.jpg",
+    "published_photo": "photos/A-01-08.jpg",
+    "sha256": "5d68429b1397b7df47c6f6076c1da8337a54e43069c6b8d764ea7150ee623d15",
+    "rack_id": "R02",
+    "level": 2,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "A-01-08",
+      "status": "projected",
+      "level": 2,
+      "correct_row": true,
+      "error_to_aruco_m": 0.03032935737418599
+    },
+    "bound_node": "S04-W0055",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.017832881553234033,
+      0.008423452268485709,
+      0.004922510215685531
+    ],
+    "sync": {
+      "before_ms": 40.0,
+      "after_ms": 0.0
+    }
+  },
+  {
+    "slot": "B-01-01",
+    "sortie": 3,
+    "record_id": "LOC-A67D639C428A4CBEA62A57F2ED775887",
+    "position": [
+      5.1000876445703724,
+      -5.550508117372898,
+      0.8430873170677813
+    ],
+    "orientation_xyzw": [
+      0.0001796392706127437,
+      0.0005588023364109164,
+      0.6949790718837455,
+      0.7190297247772786
+    ],
+    "yaw_deg": 88.05113456981258,
+    "camera_stamp": {
+      "sec": 680,
+      "nanosec": 200000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      66.0,
+      137.0,
+      287.760009765625,
+      179.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0151,
+      "overlap": 0.809,
+      "weakest": 0.05586,
+      "sigma": [
+        0.0125,
+        0.0091,
+        0.0053
+      ],
+      "scan_age_ms": 161,
+      "imu_age_ms": 39
+    },
+    "capture": "locations/CAP-90867EA0724B4F4AB26D7AE03130BB67/reference.jpg",
+    "published_photo": "photos/B-01-01.jpg",
+    "sha256": "6cf148b7e280b65b5a07c42ae3e6d38eaf8881f77b56deb4cd0aa9a4f6edd2e2",
+    "rack_id": "R01",
+    "level": 1,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "B-01-01",
+      "status": "projected",
+      "level": 1,
+      "correct_row": true,
+      "error_to_aruco_m": 0.09751028906791585
+    },
+    "bound_node": "S03-W0053",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.0124564459020618,
+      0.009103960641122517,
+      0.005305522184314506
+    ],
+    "sync": {
+      "before_ms": 20.0,
+      "after_ms": 20.0
+    }
+  },
+  {
+    "slot": "B-01-02",
+    "sortie": 3,
+    "record_id": "LOC-45AA9B08EC654C4D934893224B17D037",
+    "position": [
+      5.339604028913119,
+      -5.549654804488782,
+      2.7267332342291812
+    ],
+    "orientation_xyzw": [
+      -0.0005738892403722503,
+      0.0008674086035457289,
+      0.7072973585918325,
+      0.7069153872865345
+    ],
+    "yaw_deg": 90.03097483675164,
+    "camera_stamp": {
+      "sec": 690,
+      "nanosec": 0
+    },
+    "tag_size_px": 41.0,
+    "image_bounds_px": [
+      39.0,
+      101.0,
+      240.25152587890625,
+      143.0
+    ],
+    "occupancy": "occupied",
+    "label_status": "readable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.0164,
+      "overlap": 0.815,
+      "weakest": 0.04473,
+      "sigma": [
+        0.0139,
+        0.0095,
+        0.0056
+      ],
+      "scan_age_ms": 69,
+      "imu_age_ms": 12
+    },
+    "capture": "locations/CAP-8C283C535C024B708241FE3839EA3A49/reference.jpg",
+    "published_photo": "photos/B-01-02.jpg",
+    "sha256": "05865dafa877ff13cb80097fa0af110839d3bd0b078eab8f356997a7c8533183",
+    "rack_id": "R01",
+    "level": 2,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "B-01-02",
+      "status": "projected",
+      "level": 2,
+      "correct_row": true,
+      "error_to_aruco_m": 0.07808543294897491
+    },
+    "bound_node": "S03-W0057",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.013866274181786925,
+      0.009456774258916825,
+      0.005631294222738012
+    ],
+    "sync": {
+      "before_ms": 20.0,
+      "after_ms": 20.0
+    }
+  },
+  {
+    "slot": "B-02-01",
+    "sortie": 3,
+    "record_id": "LOC-544D89AF12DB44019EB787B6BDC22B0A",
+    "position": [
+      8.192205314135359,
+      -5.549700314959848,
+      1.0409814932384078
+    ],
+    "orientation_xyzw": [
+      -0.0012792221144628019,
+      -0.00021495032148972944,
+      0.6932694088050458,
+      0.7206773509707681
+    ],
+    "yaw_deg": 87.77894568526426,
+    "camera_stamp": {
+      "sec": 709,
+      "nanosec": 400000000
+    },
+    "tag_size_px": 42.0,
+    "image_bounds_px": [
+      14.0,
+      169.0,
+      220.48731994628906,
+      212.0
+    ],
+    "occupancy": "empty",
+    "label_status": "not_applicable",
+    "localization": {
+      "source": "slam",
+      "state": "TRACKING",
+      "rms": 0.015,
+      "overlap": 0.792,
+      "weakest": 0.02388,
+      "sigma": [
+        0.0188,
+        0.0092,
+        0.0053
+      ],
+      "scan_age_ms": 148,
+      "imu_age_ms": 47
+    },
+    "capture": "locations/CAP-08379ED162D140AB922E22509C893CE7/reference.jpg",
+    "published_photo": "photos/B-02-01.jpg",
+    "sha256": "b197779f5a6284776b1dcb887d9839749d1e5c001a817162c715d27afa5b24d1",
+    "rack_id": "R01",
+    "level": 1,
+    "rack_placement": "projected",
+    "marker_world_validation": {
+      "id": "B-02-01",
+      "status": "projected",
+      "level": 1,
+      "correct_row": true,
+      "error_to_aruco_m": 0.06886562366309289
+    },
+    "bound_node": "S03-W0069",
+    "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+    "ready": true,
+    "position_sigma_m": [
+      0.017537658224479214,
+      0.009065108994187818,
+      0.005207362040045411
+    ],
+    "sync": {
+      "before_ms": 40.0,
+      "after_ms": 0.0
+    }
+  }
+]

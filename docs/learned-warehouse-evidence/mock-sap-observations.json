@@ -1,0 +1,35 @@
+{
+  "calibration_observations": [
+    {
+      "id": "INS-CONTROL-20261126-143644-9AA16432",
+      "count": 0
+    },
+    {
+      "id": "INS-CONTROL-20261126-145742-5AE6393E",
+      "count": 0
+    }
+  ],
+  "main_mission": "INS-CONTROL-20261126-150930-DE9D9F63",
+  "production_observations": [
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-150930-DE9D9F63",
+      "observation_id": "OBS-DB4EBCF464064D7B9F43C9922E02C30F",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-26T15:12:06.468Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-150930-DE9D9F63",
+      "observation_id": "OBS-FD828E3DA76E4E1DB1AC038C5D278C3D",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-26T15:12:24.624Z"
+    }
+  ]
+}

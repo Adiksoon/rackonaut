@@ -17,6 +17,7 @@ from cv_bridge import CvBridge
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
+from rclpy.time import Time
 from sensor_msgs.msg import CameraInfo, Image
 from std_msgs.msg import String
 from std_srvs.srv import Trigger
@@ -68,6 +69,8 @@ class Perception(Node):
             qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
             self.create_subscription(String, "/rackonaut/mission/status", self.on_mission_status, qos)
         self.quality = QualityEvidence(parameters["quality_dir"], run_id, self.adaptive) if parameters["quality_enabled"] else None
+        self.evidence = (self.quality or QualityEvidence(parameters["quality_dir"], run_id)
+                         if self.mission_scoped else None)
         self.quality_events = None
         if self.adaptive and self.quality:
             self.quality_events = self.create_publisher(String, "/rackonaut/perception/quality_evidence", 10)
@@ -163,6 +166,9 @@ class Perception(Node):
             self.get_logger().warning(f"Cannot convert camera frame: {error}", throttle_duration_sec=3.0)
             return
         result = self.inspector.inspect(native)
+        frame_stamp = Time.from_msg(image.header.stamp).nanoseconds
+        frame_age = (self.get_clock().now().nanoseconds - frame_stamp) / 1e9
+        observations = []
         eligible = result.readings
         if self.mission_scoped:
             eligible = [reading for reading in eligible if reading.slot.name == self.scan_slot]
@@ -171,6 +177,8 @@ class Perception(Node):
             if self.backend and len(self.pending) >= 8:
                 break
             payload = observation(self.state.inspection_id, reading, captured)
+            if self.evidence and frame_stamp > 0 and -.1 <= frame_age <= .65:
+                observations.append(payload)
             self.gate.record(reading)
             self.inspected.add(payload["slot_id"])
             if self.quality is not None:
@@ -209,6 +217,11 @@ class Perception(Node):
                     })))
                 self.get_logger().info(f"Quality {verdict.status} {key[0]} / {key[1] or '-'} "
                                        f"{path.name} linked to {observation_event['observation_id']}")
+        for event in observations:
+            try:
+                self.evidence.save_observation(event, native, panel, captured, image.header)
+            except (OSError, cv2.error) as error:
+                self.get_logger().warning(f"Cannot save camera frame for {event['observation_id']}: {error}")
         annotated = self.bridge.cv2_to_imgmsg(panel, "bgr8")
         annotated.header = image.header
         self.output.publish(annotated)

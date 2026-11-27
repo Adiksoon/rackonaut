@@ -110,8 +110,9 @@ def build(store, products, db, inspection):
                 if lifecycle == "UNKNOWN":
                     manual.add(slot)
         if event["occupancy"] == "occupied":
-            relevant = [item for item in by_evidence[slot] if item["observation_id"] == event["observation_id"]
-                        or (hu is not None and item["pallet_id"] == hu)]
+            relevant = [item for item in by_evidence[slot] if item["status"] != "CAPTURED"
+                        and (item["observation_id"] == event["observation_id"]
+                             or (hu is not None and item["pallet_id"] == hu))]
             if relevant:
                 quality = relevant[-1]
                 row["active_quality"] = quality

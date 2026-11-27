@@ -1,0 +1,31 @@
+{
+  "activated": {
+    "id": "WH-FCF24BB703AA3198A71098E8AC100C03",
+    "tracking": "TRACKING",
+    "physicalDock": true
+  },
+  "history": {
+    "run": "INS-CONTROL-20261126-173342-61439CAF",
+    "active": "WH-FCF24BB703AA3198A71098E8AC100C03",
+    "archive": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    }
+  },
+  "restored": {
+    "id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "tracking": "TRACKING",
+    "physicalDock": true
+  },
+  "calibration": {
+    "openedControlsWithoutMotion": true,
+    "atPad": true,
+    "physicalDock": true,
+    "active": "WH-E83B9581352A5C6DBC06694FE5E70FFA"
+  },
+  "browserErrors": []
+}

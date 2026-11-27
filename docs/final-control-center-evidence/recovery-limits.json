@@ -1,0 +1,102 @@
+[
+  {
+    "run": "INS-CONTROL-20261126-213703-F98CBCB7",
+    "record": "recovery-dock-timeout.json",
+    "position": [
+      -4.7,
+      10.298,
+      0.051,
+      0.097
+    ],
+    "at_pad": true,
+    "physical_dock": false,
+    "safety": "RECOVERY",
+    "reserved": [
+      "D",
+      "A"
+    ],
+    "recovery": {
+      "phase": "RECOVERY_FAILED",
+      "detail": "Recovery leg timed out",
+      "cause": "OPERATOR_ABORT",
+      "conditions": {
+        "stable_tracking": true,
+        "onboard_lidar": true,
+        "safety_heartbeat_and_zones": true,
+        "stationary": true,
+        "zone_sensors": true,
+        "fields_clear": true,
+        "red_signals": false,
+        "in_flight_envelope": true,
+        "connected_return": false,
+        "first_leg_observed": false,
+        "energy_telemetry": true,
+        "return_budget": false,
+        "flight_enable_bridge": true,
+        "command_ownership": true
+      },
+      "stopped": {
+        "at": "2026-11-26T21:38:42.485+00:00",
+        "mission_stage": "MANUAL_FLIGHT",
+        "detail": "Stopped by the operator",
+        "energy": 82.146,
+        "position": [
+          -4.6807169047578885,
+          10.300857056725802,
+          0.7590547803761212,
+          0.9335808887427618
+        ]
+      }
+    }
+  },
+  {
+    "run": "INS-CONTROL-20261126-214125-012E1823",
+    "record": "recovery-first-leg-blocked.json",
+    "position": [
+      -4.427,
+      10.301,
+      0.58,
+      -0.001
+    ],
+    "at_pad": false,
+    "physical_dock": false,
+    "safety": "RECOVERY",
+    "reserved": [
+      "D",
+      "A"
+    ],
+    "recovery": {
+      "phase": "RECOVERY_BLOCKED",
+      "detail": null,
+      "cause": "OPERATOR_ABORT",
+      "conditions": {
+        "stable_tracking": true,
+        "onboard_lidar": true,
+        "safety_heartbeat_and_zones": true,
+        "stationary": true,
+        "zone_sensors": true,
+        "fields_clear": true,
+        "red_signals": true,
+        "in_flight_envelope": true,
+        "connected_return": true,
+        "first_leg_observed": false,
+        "energy_telemetry": true,
+        "return_budget": true,
+        "flight_enable_bridge": true,
+        "command_ownership": true
+      },
+      "stopped": {
+        "at": "2026-11-26T21:41:43.067+00:00",
+        "mission_stage": "MANUAL_FLIGHT",
+        "detail": "Stopped by the operator",
+        "energy": 97.452,
+        "position": [
+          -4.427406884632556,
+          10.300890490254925,
+          0.5758544124865344,
+          -0.0008387516195705948
+        ]
+      }
+    }
+  }
+]

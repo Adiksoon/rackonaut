@@ -73,39 +73,42 @@ class Fit:
     inliers: int
 
 
-class StaticMap:
-    def __init__(self, boxes, triangles=()):
-        self.points, self.normals = box_surfaces(boxes)
-        if triangles:
-            faces, normals = triangle_surfaces(triangles)
-            self.points = np.vstack((self.points, faces))
-            self.normals = np.vstack((self.normals, normals))
-        self.tree = cKDTree(self.points)
+class SurfaceRegistration:
+    iterations = 7
+    regularization = (.009, .009, .008, .012, .012, .018)
+
+    def __init__(self, points, normals):
+        self.points, self.normals = points, normals
+        self.tree = cKDTree(points)
 
     def features(self, sensor_points):
         distance = np.linalg.norm(sensor_points, axis=1)
         return voxel_sample(sensor_points[(distance >= .098) & (distance <= 5.8)], .11, MAX_POINTS)
 
+    def support(self, distance, residual, normals, mapped, beam_range):
+        close = distance < MAX_RESIDUAL
+        weights = np.minimum(1., .022 / np.maximum(np.abs(residual[close]), 1.e-6))
+        weights *= np.maximum(.15, 1. - distance[close] / MAX_RESIDUAL)
+        return close, weights
+
     def match(self, points, origin, orientation):
         if len(points) < 65:
             return None
         position, attitude = np.copy(origin), orientation
-        regularization = np.diag([.009, .009, .008, .012, .012, .018])
-        for _ in range(7):
+        regularization = np.diag(self.regularization)
+        beam_range = np.linalg.norm(points, axis=1)
+        for _ in range(self.iterations):
             mapped = attitude.apply(points)
             world = mapped + position
             distance, indices = self.tree.query(world)
-            close = distance < MAX_RESIDUAL
+            support, normals = self.points[indices], self.normals[indices]
+            residual = np.sum((world - support) * normals, axis=1)
+            close, weights = self.support(distance, residual, normals, mapped, beam_range)
             count = np.count_nonzero(close)
             if count < 55:
                 return None
-            support = self.points[indices[close]]
-            normals = self.normals[indices[close]]
-            residual = np.sum((world[close] - support) * normals, axis=1)
+            residual, normals = residual[close], normals[close]
             jacobian = np.column_stack((normals, np.cross(mapped[close], normals)))
-            # Trim far surfaces from fixtures that were never part of this map.
-            weights = np.minimum(1., .022 / np.maximum(np.abs(residual), 1.e-6))
-            weights *= np.maximum(.15, 1. - distance[close] / MAX_RESIDUAL)
             weighted = jacobian.T * weights
             information = weighted @ jacobian / count
             rhs = weighted @ residual / count
@@ -127,3 +130,12 @@ class StaticMap:
         covariance = np.linalg.inv(information + np.eye(6)*.0015)
         sigma = np.sqrt(np.diag(covariance))[:3] * max(.003, rms / np.sqrt(38.))
         return Fit(position, attitude, count / len(points), rms, sigma, weakest, int(count))
+
+
+class StaticMap(SurfaceRegistration):
+    def __init__(self, boxes, triangles=()):
+        points, normals = box_surfaces(boxes)
+        if triangles:
+            faces, face_normals = triangle_surfaces(triangles)
+            points, normals = np.vstack((points, faces)), np.vstack((normals, face_normals))
+        super().__init__(points, normals)

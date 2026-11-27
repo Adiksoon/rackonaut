@@ -1,0 +1,126 @@
+[
+  {
+    "number": 1,
+    "inspection_id": "INS-CONTROL-20261127-092418-B4C41948",
+    "trajectory": "trajectory-01.jsonl",
+    "samples": 1182,
+    "start": {
+      "contact": true,
+      "switch_engaged": true,
+      "contact_source": "gazebo_dock_switch",
+      "percent": 99.782,
+      "sim_time": 15.14
+    },
+    "end": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.753,
+          "start_sim_time": 17.08,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 17.42,
+          "end_sim_time": 266.24,
+          "completed_after": []
+        }
+      ],
+      "landing_percent": 18.134,
+      "landing_sim_time": 266.78,
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "status": "DOCKED"
+  },
+  {
+    "number": 2,
+    "inspection_id": "INS-CONTROL-20261127-093219-B282D224",
+    "trajectory": "trajectory-02.jsonl",
+    "samples": 1213,
+    "start": {
+      "contact": true,
+      "switch_engaged": true,
+      "contact_source": "gazebo_dock_switch",
+      "percent": 99.734,
+      "sim_time": 280.38
+    },
+    "end": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.985,
+          "start_sim_time": 281.88,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 15.605,
+          "end_sim_time": 537.58,
+          "completed_after": []
+        }
+      ],
+      "landing_percent": 16.077,
+      "landing_sim_time": 538.22,
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "status": "DOCKED"
+  },
+  {
+    "number": 3,
+    "inspection_id": "INS-CONTROL-20261127-094026-BF6D6928",
+    "trajectory": "trajectory-03.jsonl",
+    "samples": 1157,
+    "start": {
+      "contact": true,
+      "switch_engaged": true,
+      "contact_source": "gazebo_dock_switch",
+      "percent": 99.597,
+      "sim_time": 552.14
+    },
+    "end": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.978,
+          "start_sim_time": 553.98,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 18.529,
+          "end_sim_time": 797.0,
+          "completed_after": []
+        }
+      ],
+      "landing_percent": 19.482,
+      "landing_sim_time": 797.62,
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "status": "DOCKED"
+  },
+  {
+    "number": 4,
+    "inspection_id": "INS-CONTROL-20261127-094810-BF73CE09",
+    "trajectory": "trajectory-04.jsonl",
+    "samples": 1005,
+    "start": {
+      "contact": true,
+      "switch_engaged": true,
+      "contact_source": "gazebo_dock_switch",
+      "percent": 99.642,
+      "sim_time": 810.98
+    },
+    "end": {
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.973,
+          "start_sim_time": 813.18,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 28.006,
+          "end_sim_time": 1024.86,
+          "completed_after": []
+        }
+      ],
+      "landing_percent": 27.999,
+      "landing_sim_time": 1025.32,
+      "dock_contact_source": "gazebo_dock_switch"
+    },
+    "status": "DOCKED"
+  }
+]

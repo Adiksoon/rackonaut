@@ -1,0 +1,10 @@
+{
+  "simulator_count": 1,
+  "telemetry_samples": 674,
+  "states": [
+    "TRACKING"
+  ],
+  "sampled_duration_sim_s": 180.52,
+  "sampled_duration_wall_s": 313.891,
+  "mean_realtime_factor": 0.575
+}

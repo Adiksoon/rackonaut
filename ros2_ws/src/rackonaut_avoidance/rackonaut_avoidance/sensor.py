@@ -14,6 +14,7 @@ FRAME = "rackonaut_reference_drone/base_link/local_lidar"
 OFFSET = np.array([0., 0., .09])
 WIDTH, HEIGHT = 192, 37
 MIN_RANGE, MAX_RANGE = .10, 8.
+FULL_ROUTE_RANGE = 16.
 MAX_ELEVATION = 88 * pi / 180
 STALE_SECONDS = .65
 
@@ -41,7 +42,7 @@ def stamp(message):
     return message.header.stamp.sec + message.header.stamp.nanosec * 1.e-9
 
 
-def unpack(message):
+def unpack(message, *, sensor_range=MAX_RANGE):
     fields = {field.name: (field.offset, field.datatype, field.count) for field in message.fields}
     if (message.header.frame_id != FRAME or (message.width, message.height) != (WIDTH, HEIGHT)
             or any(fields.get(name) != (index * 4, PointField.FLOAT32, 1)
@@ -54,12 +55,12 @@ def unpack(message):
     # A negative range reverses the signs of the Cartesian components. Recover
     # REP 117's signed infinities using the strongest axis of the calibrated ray.
     ranges = np.take_along_axis(xyz, AXIS, axis=2)[..., 0] / COMPONENT
-    finite = np.isfinite(xyz).all(axis=2) & (ranges >= MIN_RANGE - .001) & (ranges <= MAX_RANGE + .001)
+    finite = np.isfinite(xyz).all(axis=2) & (ranges >= MIN_RANGE - .001) & (ranges <= sensor_range + .001)
     far = np.isposinf(ranges) & ~np.isnan(xyz).any(axis=2)
     near = np.isneginf(ranges) & ~np.isnan(xyz).any(axis=2)
     if np.count_nonzero(finite | far | near) < .85 * WIDTH * HEIGHT:
         raise ValueError("Lidar scan has insufficient valid beams")
-    ranges = np.where(finite, ranges, np.where(far, MAX_RANGE, np.nan))
+    ranges = np.where(finite, ranges, np.where(far, sensor_range, np.nan))
     return ranges, xyz[finite], BEAMS[near]
 
 
@@ -90,12 +91,14 @@ class Cloud:
 
 
 class Scanner:
-    def __init__(self, node, exact_pose=False):
+    def __init__(self, node, exact_pose=False, *, sensor_range=MAX_RANGE):
         self.poses = deque(maxlen=16)
+        self.exact_scans = deque(maxlen=8)
         self.pending = None
         self.cloud = None
         self.latest_stamp = -1.
         self.exact_pose = exact_pose
+        self.sensor_range = sensor_range
         self.subscription = node.create_subscription(PointCloud2, TOPIC, self.receive, qos_profile_sensor_data)
 
     def odometry(self, message):
@@ -109,9 +112,22 @@ class Scanner:
         time = stamp(message)
         if time > self.latest_stamp:
             self.latest_stamp = time
-            self.pending = message, monotonic()
+            received = monotonic()
+            if self.exact_pose:
+                self.exact_scans.append((time, message, received))
+            else:
+                self.pending = message, received
 
     def current(self, now):
+        if self.exact_pose:
+            self.pending = None
+            previous = self.cloud.time if self.cloud else -1.
+            for stamp_time, message, received in reversed(self.exact_scans):
+                if stamp_time <= previous or now - received > STALE_SECONDS:
+                    break
+                if any(abs(stamp_time - pose[0]) <= .001 for pose in self.poses):
+                    self.pending = message, received
+                    break
         if self.pending and self.poses:
             message, received = self.pending
             time = stamp(message)
@@ -122,11 +138,15 @@ class Scanner:
                 pose_time, center, matrix = min(self.poses, key=lambda pose: abs(time - pose[0]))
                 if abs(pose_time - time) <= (.001 if self.exact_pose else .085):
                     try:
-                        ranges, finite, near = unpack(message)
+                        ranges, finite, near = unpack(message, sensor_range=self.sensor_range)
                     except ValueError:
                         pass
                     else:
                         origin = center + matrix @ OFFSET
+                        # The motion guard retains its original observation horizon.
+                        if self.sensor_range > MAX_RANGE:
+                            ranges = np.minimum(ranges, MAX_RANGE)
+                            finite = finite[np.linalg.norm(finite, axis=1) <= MAX_RANGE + .001]
                         self.cloud = Cloud(time, received, origin, matrix, ranges,
                                            finite @ matrix.T + origin, near @ matrix.T)
         return self.cloud if self.cloud and now - self.cloud.received <= STALE_SECONDS else None

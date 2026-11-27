@@ -1,0 +1,62 @@
+Type: nav_msgs/msg/Odometry
+
+Publisher count: 1
+
+Node name: rackonaut_validation_bridge
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: PUBLISHER
+GID: 01.0f.b3.f7.b8.f4.9f.b0.00.00.00.00.00.00.12.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: rackonaut_localization_validation
+Node namespace: /
+Topic type: nav_msgs/msg/Odometry
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.b3.f7.4a.f3.c9.6c.00.00.00.00.00.00.11.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+/rackonaut_localization
+  Subscribers:
+    /rackonaut/drone/imu: sensor_msgs/msg/Imu
+    /rackonaut/drone/lidar/points: sensor_msgs/msg/PointCloud2
+    /rackonaut/energy/state: std_msgs/msg/String
+    /rackonaut/localization/mapping_command: std_msgs/msg/String
+  Publishers:
+    /parameter_events: rcl_interfaces/msg/ParameterEvent
+    /rackonaut/drone/odom: nav_msgs/msg/Odometry
+    /rackonaut/localization/estimate: nav_msgs/msg/Odometry
+    /rackonaut/localization/measured_map: sensor_msgs/msg/PointCloud2
+    /rackonaut/localization/slam_map: sensor_msgs/msg/PointCloud2
+    /rackonaut/localization/state: std_msgs/msg/String
+    /rosout: rcl_interfaces/msg/Log
+    /tf: tf2_msgs/msg/TFMessage
+  Service Servers:
+    /rackonaut/localization/export_map: std_srvs/srv/Trigger
+    /rackonaut_localization/describe_parameters: rcl_interfaces/srv/DescribeParameters
+    /rackonaut_localization/get_parameter_types: rcl_interfaces/srv/GetParameterTypes
+    /rackonaut_localization/get_parameters: rcl_interfaces/srv/GetParameters
+    /rackonaut_localization/list_parameters: rcl_interfaces/srv/ListParameters
+    /rackonaut_localization/set_parameters: rcl_interfaces/srv/SetParameters
+    /rackonaut_localization/set_parameters_atomically: rcl_interfaces/srv/SetParametersAtomically
+  Service Clients:
+
+  Action Servers:
+
+  Action Clients:

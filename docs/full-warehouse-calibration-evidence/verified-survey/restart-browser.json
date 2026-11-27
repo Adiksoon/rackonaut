@@ -1,0 +1,14 @@
+{
+  "chrome": "158.0.8127.88",
+  "configuration": "WH-D11FA03D45502B0ECE140FB6C611E072",
+  "mode": "PRODUCTION",
+  "physical_dock": true,
+  "localization": "TRACKING",
+  "source": "learned_map",
+  "source_sha256": "3569c9a25b244256823d1d23c09f03ddf0b4066f21d77b24aa975708f3450525",
+  "points": 80000,
+  "routes": 496,
+  "rows": 3,
+  "locations": 11,
+  "errors": []
+}

@@ -1,0 +1,29 @@
+{
+  "outcomes": [
+    {
+      "name": "fullscreen Emergency Stop",
+      "mission": "INS-CONTROL-20261126-160730-8A2AD8ED",
+      "status": "Stopped by the operator",
+      "held": [
+        "D",
+        "A"
+      ],
+      "recovered": "RECOVERY_COMPLETE",
+      "contact": "gazebo_dock_switch",
+      "link": "LINK_LOST",
+      "fullscreenOffline": true
+    },
+    {
+      "name": "Safety intrusion",
+      "mission": "INS-CONTROL-20261126-160752-E95132D2",
+      "status": "Zone occupied: Aisle A.",
+      "held": [
+        "D",
+        "A"
+      ],
+      "recovered": "RECOVERY_COMPLETE",
+      "contact": "gazebo_dock_switch"
+    }
+  ],
+  "errors": []
+}

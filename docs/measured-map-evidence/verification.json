@@ -1,0 +1,600 @@
+{
+  "base": "de61082",
+  "environment": "WSL2 Ubuntu 22.04.5, ROS 2 Humble, Gazebo Fortress 6.16.0, local Windows Chrome",
+  "A_C": {
+    "initialPoints": 1120,
+    "sameCanvas": true,
+    "quietOutsideScan": true,
+    "beforeMap": 11766,
+    "afterMap": 12247,
+    "run": "INS-CONTROL-20261126-094748-0F176DB6"
+  },
+  "B": {
+    "id": "INS-CONTROL-20261126-094748-0F176DB6",
+    "stage": "COMPLETE",
+    "elapsed_seconds": 263.1,
+    "confirmed": {
+      "A-01-01": "OBS-4CA4A69CC01441F49BCDEE688D0A71CA",
+      "A-01-03": "OBS-2FD290876CD049E6A55711FAB292DE12"
+    },
+    "landed": true,
+    "safety": "RELEASED",
+    "registered": 54283,
+    "samples": [
+      {
+        "time": 1795686468588,
+        "stage": "STARTING",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0
+        ],
+        "map_voxels": 1120,
+        "localization": "TRACKING",
+        "safety": "PREPARING",
+        "confirmed": [],
+        "contact": true
+      },
+      {
+        "time": 1795686469458,
+        "stage": "WAITING",
+        "flight_phase": "WAITING",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0
+        ],
+        "map_voxels": 1120,
+        "localization": "TRACKING",
+        "departures": 0,
+        "safety": "PREPARING",
+        "confirmed": [],
+        "contact": true
+      },
+      {
+        "time": 1795686472076,
+        "stage": "VERTICAL_TAKEOFF",
+        "flight_phase": "VERTICAL_TAKEOFF",
+        "position": [
+          -4.697,
+          10.3,
+          0.042,
+          0
+        ],
+        "map_voxels": 1120,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": true
+      },
+      {
+        "time": 1795686496229,
+        "stage": "ENTERING_CORRIDOR",
+        "flight_phase": "ENTERING_CORRIDOR",
+        "position": [
+          -4.698,
+          10.301,
+          6.701,
+          0
+        ],
+        "map_voxels": 11766,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686520369,
+        "stage": "OVERHEAD_TRANSIT",
+        "flight_phase": "OVERHEAD_TRANSIT",
+        "position": [
+          2.103,
+          10.298,
+          6.705,
+          0
+        ],
+        "map_voxels": 20067,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686564101,
+        "stage": "WAITING_FOR_AISLE_CLEARANCE",
+        "flight_phase": "WAITING_FOR_AISLE_CLEARANCE",
+        "position": [
+          5.098,
+          0.451,
+          6.702,
+          0.001
+        ],
+        "map_voxels": 36635,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686564690,
+        "stage": "AISLE_DESCENT",
+        "flight_phase": "AISLE_DESCENT",
+        "position": [
+          5.094,
+          0.449,
+          6.688,
+          -0.001
+        ],
+        "map_voxels": 37018,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686585807,
+        "stage": "TRANSIT",
+        "flight_phase": "TRANSIT",
+        "position": [
+          5.122,
+          0.449,
+          0.793,
+          0.001
+        ],
+        "map_voxels": 44665,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686589007,
+        "stage": "ALIGN",
+        "flight_phase": "ALIGN",
+        "position": [
+          5.453,
+          0.451,
+          0.789,
+          0.003
+        ],
+        "map_voxels": 45542,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686596016,
+        "stage": "INSPECT",
+        "flight_phase": "INSPECTION",
+        "position": [
+          5.477,
+          0.451,
+          0.792,
+          1.562
+        ],
+        "map_voxels": 46140,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [],
+        "contact": false
+      },
+      {
+        "time": 1795686597332,
+        "stage": "TRANSIT",
+        "flight_phase": "TRANSIT",
+        "position": [
+          5.449,
+          0.45,
+          0.792,
+          1.566
+        ],
+        "map_voxels": 46158,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686607595,
+        "stage": "ALIGN",
+        "flight_phase": "ALIGN",
+        "position": [
+          8.258,
+          0.455,
+          0.792,
+          1.569
+        ],
+        "map_voxels": 48990,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686608472,
+        "stage": "INSPECT",
+        "flight_phase": "INSPECTION",
+        "position": [
+          8.252,
+          0.453,
+          0.791,
+          1.569
+        ],
+        "map_voxels": 49361,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686609945,
+        "stage": "AISLE_APPROACH",
+        "flight_phase": "AISLE_APPROACH",
+        "position": [
+          8.256,
+          0.448,
+          0.789,
+          1.554
+        ],
+        "map_voxels": 49703,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686621484,
+        "stage": "AISLE_ASCENT",
+        "flight_phase": "AISLE_ASCENT",
+        "position": [
+          5.097,
+          0.451,
+          0.792,
+          0
+        ],
+        "map_voxels": 50812,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686643254,
+        "stage": "RETURN_TRANSIT",
+        "flight_phase": "RETURN_TRANSIT",
+        "position": [
+          5.092,
+          0.451,
+          6.703,
+          0.003
+        ],
+        "map_voxels": 51537,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686709892,
+        "stage": "LAND",
+        "flight_phase": "DOCKING",
+        "position": [
+          -4.701,
+          10.3,
+          6.681,
+          0
+        ],
+        "map_voxels": 53843,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RESERVED",
+        "confirmed": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "contact": false
+      },
+      {
+        "time": 1795686735019,
+        "stage": "COMPLETE",
+        "flight_phase": "COMPLETE",
+        "position": [
+          -4.697,
+          10.3,
+          0.043,
+          0.001
+        ],
+        "map_voxels": 54283,
+        "localization": "TRACKING",
+        "departures": 1,
+        "safety": "RELEASED",
+        "confirmed": [
+          "A-01-01",
+          "A-01-03"
+        ],
+        "contact": true
+      }
+    ]
+  },
+  "D": {
+    "carton_center": [
+      -3.85,
+      9.56,
+      0.58
+    ],
+    "raw_before": [
+      30,
+      30,
+      30,
+      30,
+      30
+    ],
+    "raw_after": [
+      103,
+      103,
+      103,
+      103,
+      103
+    ],
+    "accumulated_before": 11,
+    "accumulated_after": [
+      29,
+      29
+    ],
+    "raw_points_per_frame": [
+      6381,
+      6381,
+      6381,
+      6381,
+      6381
+    ]
+  },
+  "E": {
+    "same_etag_304": true,
+    "sample_age_ms": 4095,
+    "retained_points": 54301
+  },
+  "E_F": {
+    "historicalPoints": 54301,
+    "mapBeforeService": 54301,
+    "quietOutsideScan": true,
+    "draft": {
+      "calibration_id": "CAL-B9C4B50F65D44C249151047443CDA65E",
+      "started_at": "2026-11-26T09:54:15.278432+00:00",
+      "status": "CALIBRATION_READY",
+      "warehouse_name": null,
+      "map_source": "FUTURE_SENSOR_MEASUREMENT",
+      "locations": [],
+      "waypoints": [],
+      "map_reference": null
+    }
+  },
+  "G": {
+    "mock_sap": "mock_sap",
+    "report": "/reports/INS-CONTROL-20261126-094748-0F176DB6"
+  },
+  "H": {
+    "showsUnavailable": true,
+    "mapRequests": 0,
+    "endpointStatus": 404,
+    "modelWorks": true
+  },
+  "timed_idle_windows": [
+    {
+      "mode": "2D Map",
+      "start": 1795686737008,
+      "end": 1795686751521,
+      "draw_fps": null,
+      "chrome_cpu_pct": 13.562137394060374,
+      "chrome_process_working_set_mib": 854.890625,
+      "tab_js_heap_mib": 9.527839660644531,
+      "requests": 0,
+      "bytes": 0,
+      "registered": null,
+      "displayed": null,
+      "sample_count": 32,
+      "wall_s": 14.18,
+      "rtf": 0.608,
+      "state_http_p95_ms": 18.67,
+      "state_bytes_median": 82612.0,
+      "lidar_match_age_p95_ms": 291,
+      "imu_age_p95_ms": 98,
+      "localization_median_hz": 3.67,
+      "localization_states": [
+        "TRACKING"
+      ],
+      "process": {
+        "gazebo": {
+          "cpu_cores": 1.956,
+          "rss_mib": 875.5
+        },
+        "localizer": {
+          "cpu_cores": 0.123,
+          "rss_mib": 222.1
+        },
+        "control": {
+          "cpu_cores": 0.2,
+          "rss_mib": 192.8
+        }
+      }
+    },
+    {
+      "mode": "low",
+      "start": 1795686753381,
+      "end": 1795686767939,
+      "draw_fps": 15.524110454732794,
+      "chrome_cpu_pct": 17.18317076521499,
+      "chrome_process_working_set_mib": 890.11328125,
+      "tab_js_heap_mib": 11.16647720336914,
+      "requests": 13,
+      "bytes": 237600,
+      "registered": 54283,
+      "displayed": 2200,
+      "sample_count": 32,
+      "wall_s": 14.2,
+      "rtf": 0.606,
+      "state_http_p95_ms": 13.54,
+      "state_bytes_median": 82609.0,
+      "lidar_match_age_p95_ms": 297,
+      "imu_age_p95_ms": 101,
+      "localization_median_hz": 3.64,
+      "localization_states": [
+        "TRACKING"
+      ],
+      "process": {
+        "gazebo": {
+          "cpu_cores": 1.963,
+          "rss_mib": 875.5
+        },
+        "localizer": {
+          "cpu_cores": 0.126,
+          "rss_mib": 222.3
+        },
+        "control": {
+          "cpu_cores": 0.218,
+          "rss_mib": 195.8
+        }
+      }
+    },
+    {
+      "mode": "balanced",
+      "start": 1795686769589,
+      "end": 1795686784161,
+      "draw_fps": 16.058193796321714,
+      "chrome_cpu_pct": 16.358811419159984,
+      "chrome_process_working_set_mib": 898.81640625,
+      "tab_js_heap_mib": 18.927978515625,
+      "requests": 12,
+      "bytes": 1728000,
+      "registered": 54283,
+      "displayed": 16000,
+      "sample_count": 32,
+      "wall_s": 14.21,
+      "rtf": 0.601,
+      "state_http_p95_ms": 19.27,
+      "state_bytes_median": 82609.0,
+      "lidar_match_age_p95_ms": 311,
+      "imu_age_p95_ms": 89,
+      "localization_median_hz": 3.61,
+      "localization_states": [
+        "TRACKING"
+      ],
+      "process": {
+        "gazebo": {
+          "cpu_cores": 1.968,
+          "rss_mib": 875.5
+        },
+        "localizer": {
+          "cpu_cores": 0.128,
+          "rss_mib": 223.1
+        },
+        "control": {
+          "cpu_cores": 0.222,
+          "rss_mib": 195.8
+        }
+      }
+    },
+    {
+      "mode": "high",
+      "start": 1795686785842,
+      "end": 1795686800378,
+      "draw_fps": 15.203632361034673,
+      "chrome_cpu_pct": 16.996395156852053,
+      "chrome_process_working_set_mib": 913.1640625,
+      "tab_js_heap_mib": 10.874702453613281,
+      "requests": 6,
+      "bytes": 3256980,
+      "registered": 54283,
+      "displayed": 54283,
+      "sample_count": 31,
+      "wall_s": 13.79,
+      "rtf": 0.603,
+      "state_http_p95_ms": 22.66,
+      "state_bytes_median": 82608,
+      "lidar_match_age_p95_ms": 250,
+      "imu_age_p95_ms": 112,
+      "localization_median_hz": 3.62,
+      "localization_states": [
+        "TRACKING"
+      ],
+      "process": {
+        "gazebo": {
+          "cpu_cores": 1.962,
+          "rss_mib": 875.5
+        },
+        "localizer": {
+          "cpu_cores": 0.127,
+          "rss_mib": 223.8
+        },
+        "control": {
+          "cpu_cores": 0.205,
+          "rss_mib": 195.8
+        }
+      }
+    }
+  ],
+  "pre_change_idle_reference_at_dock_without_chrome": {
+    "sample_count": 34,
+    "wall_s": 14.96,
+    "rtf": 0.614,
+    "state_http_p95_ms": 3.41,
+    "state_bytes_median": 27004.0,
+    "lidar_match_age_p95_ms": 284,
+    "imu_age_p95_ms": 85,
+    "localization_median_hz": 3.71,
+    "localization_states": [
+      "TRACKING"
+    ],
+    "process": {
+      "gazebo": {
+        "cpu_cores": 1.926,
+        "rss_mib": 853.5
+      },
+      "localizer": {
+        "cpu_cores": 0.09,
+        "rss_mib": 196.3
+      },
+      "control": {
+        "cpu_cores": 0.068,
+        "rss_mib": 166.3
+      }
+    }
+  },
+  "ply_export": {
+    "vertices": 54301,
+    "bytes": 651612,
+    "encoding": "binary_little_endian xyz float32"
+  }
+}

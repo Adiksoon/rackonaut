@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+  "frame": "rackonaut_odom",
+  "name": "Rackonaut \u00b7 Open Aisle",
+  "revision": 11,
+  "dock": [
+    -4.7,
+    10.3,
+    0.05
+  ],
+  "route_sha256": "14f21929d2b8297352824c03c759fa802cb9dcd75c39a2ee35c7c3de46c9fc13",
+  "files": {
+    "digital-twin.json": "35d71e2391decb883958726b1ab82089827733af01305f3bc1a0f5fae9a92c26",
+    "localization.npz": "d00e27aa838a0575b01a84886603a45fac04a7165c0f76952be0ee70c8abc686",
+    "locations/CAP-08379ED162D140AB922E22509C893CE7/reference.jpg": "b197779f5a6284776b1dcb887d9839749d1e5c001a817162c715d27afa5b24d1",
+    "locations/CAP-48797864341A4343B0FFE43D64F53270/reference.jpg": "6e91de295d39998abf290ec646ff0a8a4b8e5b8d4292fb2fdc4d709c63c82e8e",
+    "locations/CAP-66180F862CBB485F852A48F643F4F38D/reference.jpg": "8be661eb641e416d5d2aa602ca5758d975f56d15d14a0c2e7d336fdc1882bbd3",
+    "locations/CAP-88AB5B45CC8147BFA136AA6BA37CF08D/reference.jpg": "d8846c5b2f16b1a6c71a5e82cba78fdf3d3eba35c3b23ac287997beae9c16fbe",
+    "locations/CAP-8C283C535C024B708241FE3839EA3A49/reference.jpg": "05865dafa877ff13cb80097fa0af110839d3bd0b078eab8f356997a7c8533183",
+    "locations/CAP-90867EA0724B4F4AB26D7AE03130BB67/reference.jpg": "6cf148b7e280b65b5a07c42ae3e6d38eaf8881f77b56deb4cd0aa9a4f6edd2e2",
+    "locations/CAP-9798336907364F98AF49D8526B74398F/reference.jpg": "5d68429b1397b7df47c6f6076c1da8337a54e43069c6b8d764ea7150ee623d15",
+    "locations/CAP-BC06CBDEA0B74D0499CCDAA941B16AD9/reference.jpg": "c4b3c61cb1120c70271cbd332273bf94f12e30bdd1aab52112127693ea31663f",
+    "locations/CAP-C593BDCD1CF046E886E808A429B0E760/reference.jpg": "3cbe0a6e2e59bd11a1ff50da48f6b11838aeade6d4661953e2ce172519c6d33a",
+    "locations/CAP-F09CA360082D4388B8BFBA1418A4FB6F/reference.jpg": "a35b0601c1c182fdd72c949101fd79731655f85dddb3d0eedaf4013808eeff8d",
+    "locations/CAP-F86774E9309A4382844477A5B44A7F72/reference.jpg": "d8254e74788ab939130ca0d0c2063ca41d8dda9a313a681d35c4ee59c9073fd7",
+    "locations.json": "c1437d89b0314df52d93ec111bf3239a7e544f6a845d3dea6505b594192816e7",
+    "map.ply": "072f26385a70d81623d0a4ad9867a83ba15e3b681753306fb2747caf9e864840",
+    "result.json": "16afbba7214a262e8bcb4438da67f945d88383e4ef0b7b272da11a48be40af58",
+    "route-validation.json": "52fc0d7704d7cfccad11a502abe9dcf124aad8b72e7f36a32e5e51cbf74af4f4",
+    "route.json": "68001c48b6883bffac783b59cebad514aa5650043dafc4650a0f5808b9a6b6bd",
+    "safety.json": "3c82c5aa4026e3a82492d410bc5306fb93eef6c1110774015ea5ca032f4e1ebe",
+    "sensors.json": "5dcf65a546d5bd9455ca9cac2bb17e7469100284fd5b312bc6709093d62e4464",
+    "sorties.json": "b6ecff35628593d3f8ac9fc542f01aaba99bfc59a8bed32f8b76b1c6d14a1d97",
+    "trajectory-01.jsonl": "34357ca4173eb1568434a6c1b6131a13899fc92d8193b0a18bafc097cf70b05e",
+    "trajectory-02.jsonl": "1490b127316361e8f972d9ed27b196627f9a9357a8aab66fede8223be987426d",
+    "trajectory-03.jsonl": "bc0769924f762a64decf2f4db6ec3993543d9717cd96e9c3aecf0a8e06eb27e2",
+    "trajectory-04.jsonl": "634ceb9f8081a81f7a8f262b25b83a647875cdafeb75b0580f08c89ba2c83605"
+  },
+  "configuration_id": "WH-D11FA03D45502B0ECE140FB6C611E072"
+}

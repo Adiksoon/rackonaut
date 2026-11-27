@@ -1,0 +1,8 @@
+{
+  "frame": "rackonaut_camera_optical_frame",
+  "size_px": [320, 240],
+  "intrinsics": [276.2335205078125, 276.2335395812988, 160.0, 120.0],
+  "position_in_body_m": [0.23, 0.0, 0.0],
+  "orientation_in_body_xyzw": [-0.5, 0.5, -0.5, 0.5],
+  "source": "ROS CameraInfo and static optical transform from the Fortress reference drone"
+}

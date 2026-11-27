@@ -1,0 +1,68 @@
+{
+  "plan": {
+    "selected": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "battery": "100%",
+    "required": "80% min.",
+    "status": "Ready for simulated takeoff."
+  },
+  "run": "INS-CONTROL-20261126-214430-08FAE03A",
+  "manualDuringAutonomy": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "calibrationConfirmation": {
+    "run": "INS-CONTROL-20261126-214430-08FAE03A",
+    "cancelRetainedInspection": true,
+    "text": "Interrupt inspection and start calibration?\n\nInspection INS-CONTROL-20261126-214430-08FAE03A · A-01-01 → A-01-03\n\nRecorded observations are retained under this inspection.\nThe drone will return and wait for verified physical docking.\nNew inspections stay locked until calibration is closed.\nEmergency stop\nKeep inspecting\nInterrupt and return to dock"
+  },
+  "live": {
+    "target": "A-01-01",
+    "phase": "Approaching inspection location",
+    "battery": "71%",
+    "projected": "34%",
+    "reserve": "8%",
+    "margin": "+26.0 pp"
+  },
+  "finish": {
+    "stage": "COMPLETE",
+    "detail": "Learned route ended at the verified physical dock",
+    "docked": true,
+    "safety": "RELEASED",
+    "remainingBattery": 40.13,
+    "wallSeconds": 318.117,
+    "observed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "visited": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "poses": 672,
+    "archive": "/reports/INS-CONTROL-20261126-214430-08FAE03A",
+    "videoFrames": 193
+  },
+  "performance": {
+    "chrome": "158.0.8127.88",
+    "webglCanvases": 1,
+    "metrics": [
+      {
+        "view": "Plan with Digital Twin",
+        "elapsedMs": 3004,
+        "taskMs": 33,
+        "scriptMs": 9,
+        "layouts": 8
+      },
+      {
+        "view": "Diagnostics with hidden Digital Twin",
+        "elapsedMs": 3004,
+        "taskMs": 52,
+        "scriptMs": 3,
+        "layouts": 9
+      }
+    ]
+  },
+  "browserErrors": []
+}

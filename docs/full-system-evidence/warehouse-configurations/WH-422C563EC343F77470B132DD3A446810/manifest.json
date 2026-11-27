@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+  "frame": "rackonaut_odom",
+  "name": "X3 Integration \u2013 two taught locations",
+  "revision": 2,
+  "dock": [
+    -4.7,
+    10.3,
+    0.059
+  ],
+  "route_sha256": "b44528340da1eef327ffdcd8dabad89814937aae8096c4a79453a3d27d967c9e",
+  "files": {
+    "localization.npz": "c8a4afd868a85d74de2d6aaf324ba2a8bd630d1536e27be9ff4f935a746051c8",
+    "locations/CAP-21A5CC975F5A426B9EB00A0EB429FB4F/reference.jpg": "799342d57f5b026d3220c702131374648378a96e009796b40ffb322c3066036e",
+    "locations/CAP-B8DA0BF3461C4ED7A814C3671BC62571/reference.jpg": "ccdd26fa4cc1f898201dba6cc524a6bc32d7ef69145c36f81717a65999935887",
+    "locations.json": "65b93b8c848dcdecf407e3d15f4e512e9c17682f1708666cd40abd15a2ad8664",
+    "map.ply": "855ffc1c8abef66ac8516e9d60b0d683e43c90bb94a8f3ffc8699f68e66cc798",
+    "result.json": "239c25f91677fa491467401ceaf61791a742165566daf16f2048709baac72847",
+    "route-validation.json": "06bcb540591bd62f2bcf8d64ce8f0e20372e58897fd7d50c7c66803d765421a5",
+    "route.json": "f64940a7d2bd5606bfedd6a0180e22e8f1421b9aac1c22f6fdc922d0e0c71f44",
+    "safety.json": "6f29993edcb67aa653a63789cefdf0a97738e6f5dad30768690a3f0ce4feace3",
+    "sensors.json": "12242b98e813ed719b73c480e9e9afdb94b8d324e14f3ad13fee5367c9aa20a6",
+    "trajectory.jsonl": "6dc424644105900c27dad9db2a340bc2a300795bdf014ad70944e69f955b9ebf"
+  },
+  "configuration_id": "WH-422C563EC343F77470B132DD3A446810"
+}

@@ -1,0 +1,34 @@
+{
+  "fixture": "Real archived GOAL 24 data with an offline active file changed on a scratch copy",
+  "before": {
+    "format": 1,
+    "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+    "revision": 2,
+    "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+    "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+  },
+  "alternate": {
+    "format": 1,
+    "configuration_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+    "mapping_id": "CAL-07BBB71CDCDD4BF9AB2B52F0A917BA5A",
+    "revision": 2,
+    "source_sha256": "3e5a1315dbb3c0f082f5d03348839714ddd8129823fcdb3abef8d94e709847c6",
+    "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+  },
+  "historic": {
+    "format": 1,
+    "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+    "revision": 2,
+    "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+    "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+  },
+  "historic_run": "INS-CONTROL-20261126-161131-4C2582B8",
+  "original_configuration_files_unchanged": true,
+  "etag": "\"b2f6fdf584b0627030752374440a65a5e1f4ced3a4729185dc5e9e27e7c05cdb\"",
+  "artifact_mtime_ns": 1795713999927378306,
+  "artifact_sha256": "c61c06235d8da24ee25fc2a9a82c4b8c1167ccd147227b5bba1e68afa3e52764",
+  "still_served_after_control_center_restart": true,
+  "exact_artifact_reused": true
+}

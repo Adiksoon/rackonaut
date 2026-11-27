@@ -1,0 +1,347 @@
+{
+  "axes": [
+    {
+      "key": "w",
+      "method": "pointer",
+      "requested": [
+        0.24,
+        0,
+        0,
+        0
+      ],
+      "permitted": [
+        0.24,
+        0,
+        0,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.702,
+        10.3,
+        0.72,
+        0
+      ],
+      "poseAfter": [
+        -4.66,
+        10.299,
+        0.724,
+        0
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "s",
+      "method": "pointer",
+      "requested": [
+        -0.24,
+        0,
+        0,
+        0
+      ],
+      "permitted": [
+        -0.24,
+        0,
+        0,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.66,
+        10.299,
+        0.724,
+        0
+      ],
+      "poseAfter": [
+        -4.648,
+        10.299,
+        0.721,
+        -0.001
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "a",
+      "method": "pointer",
+      "requested": [
+        0,
+        0.24,
+        0,
+        0
+      ],
+      "permitted": [
+        0,
+        0.24,
+        0,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.648,
+        10.299,
+        0.721,
+        -0.001
+      ],
+      "poseAfter": [
+        -4.709,
+        10.327,
+        0.716,
+        -0.001
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "d",
+      "method": "pointer",
+      "requested": [
+        0,
+        -0.24,
+        0,
+        0
+      ],
+      "permitted": [
+        0,
+        -0.24,
+        0,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.709,
+        10.327,
+        0.716,
+        -0.001
+      ],
+      "poseAfter": [
+        -4.708,
+        10.384,
+        0.712,
+        -0.002
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "r",
+      "method": "keyboard",
+      "requested": [
+        0,
+        0,
+        0.168,
+        0
+      ],
+      "permitted": [
+        0,
+        0,
+        0.168,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.708,
+        10.384,
+        0.712,
+        -0.002
+      ],
+      "poseAfter": [
+        -4.708,
+        10.342,
+        0.748,
+        -0.002
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "f",
+      "method": "keyboard",
+      "requested": [
+        0,
+        0,
+        -0.168,
+        0
+      ],
+      "permitted": [
+        0,
+        0,
+        -0.168,
+        0
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.708,
+        10.342,
+        0.748,
+        -0.002
+      ],
+      "poseAfter": [
+        -4.706,
+        10.341,
+        0.714,
+        -0.002
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "q",
+      "method": "keyboard",
+      "requested": [
+        0,
+        0,
+        0,
+        0.24
+      ],
+      "permitted": [
+        0,
+        0,
+        0,
+        0.24
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.706,
+        10.341,
+        0.714,
+        -0.002
+      ],
+      "poseAfter": [
+        -4.707,
+        10.343,
+        0.706,
+        0.076
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "key": "e",
+      "method": "keyboard",
+      "requested": [
+        0,
+        0,
+        0,
+        -0.24
+      ],
+      "permitted": [
+        0,
+        0,
+        0,
+        -0.24
+      ],
+      "accepted": true,
+      "reason": "Motion permitted",
+      "poseBefore": [
+        -4.707,
+        10.343,
+        0.706,
+        0.076
+      ],
+      "poseAfter": [
+        -4.708,
+        10.343,
+        0.705,
+        0.013
+      ],
+      "stopped": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "checks": {
+    "started": {
+      "id": "INS-CONTROL-20261126-173906-26DB6EF1",
+      "position": [
+        -4.7,
+        10.3,
+        0.718,
+        0
+      ],
+      "safety": "RESERVED"
+    },
+    "space": "HOLD",
+    "watchdog": {
+      "state": "LINK_LOST",
+      "permitted": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "safety": "RESERVED",
+      "detail": "Operator heartbeat expired; holding position"
+    },
+    "emergency": {
+      "mission": "INS-CONTROL-20261126-173906-26DB6EF1",
+      "detail": "Stopped by the operator",
+      "zones": [
+        "D",
+        "A"
+      ]
+    },
+    "recovery": {
+      "phase": "RECOVERY_COMPLETE",
+      "position": [
+        -4.701,
+        10.299,
+        0.05,
+        0.001
+      ],
+      "contact": "gazebo_dock_switch",
+      "safety": "RELEASED"
+    },
+    "returned": {
+      "state": "COMPLETE",
+      "position": [
+        -4.7,
+        10.3,
+        0.05,
+        0.001
+      ],
+      "contact": "gazebo_dock_switch",
+      "detail": "Manual flight ended at the verified physical dock"
+    }
+  },
+  "errors": []
+}

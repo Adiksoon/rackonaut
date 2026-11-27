@@ -1,0 +1,148 @@
+{
+  "A-01-08": {
+    "all": {
+      "count": 1229,
+      "rmse_mm": 13.084,
+      "p95_mm": 26.12,
+      "max_mm": 35.998,
+      "angle_rmse_deg": 0.13886,
+      "angle_p95_deg": 0.20818,
+      "angle_max_deg": 0.3765,
+      "estimate_rate_wall_hz": 3.3031,
+      "rtf": 0.5483,
+      "max_gap_sim_s": 0.168,
+      "passed": true,
+      "dock_drift_mm": 0.21400934559032714
+    },
+    "zones": {
+      "D": {
+        "count": 220,
+        "rmse_mm": 5.257,
+        "p95_mm": 6.544,
+        "max_mm": 7.339,
+        "angle_rmse_deg": 0.08912,
+        "angle_p95_deg": 0.1164,
+        "angle_max_deg": 0.1253,
+        "estimate_rate_wall_hz": 3.272,
+        "rtf": 0.5431,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "tunnel": {
+        "count": 586,
+        "rmse_mm": 11.654,
+        "p95_mm": 16.224,
+        "max_mm": 17.917,
+        "angle_rmse_deg": 0.13303,
+        "angle_p95_deg": 0.16872,
+        "angle_max_deg": 0.2712,
+        "estimate_rate_wall_hz": 3.3135,
+        "rtf": 0.55,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "gate_A": {
+        "count": 83,
+        "rmse_mm": 9.333,
+        "p95_mm": 11.077,
+        "max_mm": 11.555,
+        "angle_rmse_deg": 0.13831,
+        "angle_p95_deg": 0.16002,
+        "angle_max_deg": 0.1692,
+        "estimate_rate_wall_hz": 3.3377,
+        "rtf": 0.5541,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "A": {
+        "count": 340,
+        "rmse_mm": 18.591,
+        "p95_mm": 28.237,
+        "max_mm": 35.998,
+        "angle_rmse_deg": 0.17143,
+        "angle_p95_deg": 0.25022,
+        "angle_max_deg": 0.3765,
+        "estimate_rate_wall_hz": 3.2947,
+        "rtf": 0.5469,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      }
+    },
+    "observed_tracking_states": [
+      "TRACKING"
+    ]
+  },
+  "B-02-01": {
+    "all": {
+      "count": 1310,
+      "rmse_mm": 16.558,
+      "p95_mm": 33.509,
+      "max_mm": 41.382,
+      "angle_rmse_deg": 0.16049,
+      "angle_p95_deg": 0.25533,
+      "angle_max_deg": 0.3215,
+      "estimate_rate_wall_hz": 3.2805,
+      "rtf": 0.5446,
+      "max_gap_sim_s": 0.168,
+      "passed": true,
+      "dock_drift_mm": 0.20639767440550297
+    },
+    "zones": {
+      "D": {
+        "count": 208,
+        "rmse_mm": 5.309,
+        "p95_mm": 6.43,
+        "max_mm": 7.181,
+        "angle_rmse_deg": 0.08921,
+        "angle_p95_deg": 0.11511,
+        "angle_max_deg": 0.1272,
+        "estimate_rate_wall_hz": 3.3135,
+        "rtf": 0.55,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "tunnel": {
+        "count": 738,
+        "rmse_mm": 18.108,
+        "p95_mm": 36.358,
+        "max_mm": 41.382,
+        "angle_rmse_deg": 0.16751,
+        "angle_p95_deg": 0.25844,
+        "angle_max_deg": 0.3215,
+        "estimate_rate_wall_hz": 3.2494,
+        "rtf": 0.5394,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "gate_B": {
+        "count": 86,
+        "rmse_mm": 27.112,
+        "p95_mm": 38.283,
+        "max_mm": 39.994,
+        "angle_rmse_deg": 0.22264,
+        "angle_p95_deg": 0.27025,
+        "angle_max_deg": 0.291,
+        "estimate_rate_wall_hz": 3.3074,
+        "rtf": 0.5492,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      },
+      "B": {
+        "count": 278,
+        "rmse_mm": 13.152,
+        "p95_mm": 18.946,
+        "max_mm": 21.116,
+        "angle_rmse_deg": 0.15997,
+        "angle_p95_deg": 0.22662,
+        "angle_max_deg": 0.2877,
+        "estimate_rate_wall_hz": 3.3412,
+        "rtf": 0.5547,
+        "max_gap_sim_s": 0.168,
+        "passed": true
+      }
+    },
+    "observed_tracking_states": [
+      "TRACKING"
+    ]
+  }
+}

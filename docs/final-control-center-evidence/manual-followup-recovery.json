@@ -1,0 +1,72 @@
+{
+  "layouts": [
+    {
+      "width": 1366,
+      "height": 768,
+      "holdBottom": 755,
+      "stopRight": 1342,
+      "overflow": false
+    },
+    {
+      "width": 1600,
+      "height": 900,
+      "holdBottom": 753,
+      "stopRight": 1566,
+      "overflow": false
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "holdBottom": 753,
+      "stopRight": 1726,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "height": 720,
+      "holdBottom": 833,
+      "stopRight": 1000,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "holdBottom": 1413,
+      "stopRight": 379,
+      "overflow": false
+    }
+  ],
+  "takeoff": {
+    "run": "INS-CONTROL-20261126-215110-78FFD9B4",
+    "pose": [
+      -4.7,
+      10.3,
+      0.716,
+      0
+    ],
+    "state": "Manual flight · holding position"
+  },
+  "autoDuringManual": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "emergency": {
+    "detail": "Stopped by the operator",
+    "zones": [
+      "D",
+      "A"
+    ],
+    "recovery": "RECOVERY_REQUIRED"
+  },
+  "recovery": {
+    "phase": "RECOVERY_COMPLETE",
+    "dock": true,
+    "safety": "RELEASED",
+    "pose": [
+      -4.7,
+      10.297,
+      0.05,
+      0.001
+    ]
+  },
+  "errors": []
+}

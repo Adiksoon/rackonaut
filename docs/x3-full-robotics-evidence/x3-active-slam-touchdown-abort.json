@@ -1,0 +1,129 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-162056-98D326AD",
+  "calibration_id": "CAL-587A2CE6E201456AB950E6AD1BD23CD4",
+  "stop": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+  "last_matched": {
+    "sim_time": 219.62,
+    "estimate": [
+      -4.70086,
+      10.30035,
+      0.10461
+    ],
+    "reference": [
+      -4.7013,
+      10.29995,
+      0.10389
+    ],
+    "error_xyz": [
+      0.00044,
+      0.00041,
+      0.00073
+    ],
+    "angle_deg": 0.066
+  },
+  "matched_samples": 1287,
+  "partial_rmse_mm": 14.344,
+  "last_localizer_states": [
+    {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "scan_age_ms": 109,
+      "imu_age_ms": 11,
+      "position": [
+        -4.7,
+        10.301,
+        0.236
+      ]
+    },
+    {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "scan_age_ms": 284,
+      "imu_age_ms": 46,
+      "position": [
+        -4.7,
+        10.301,
+        0.236
+      ]
+    },
+    {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "scan_age_ms": 113,
+      "imu_age_ms": 95,
+      "position": [
+        -4.7,
+        10.301,
+        0.169
+      ]
+    },
+    {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "scan_age_ms": 295,
+      "imu_age_ms": 26,
+      "position": [
+        -4.7,
+        10.301,
+        0.169
+      ]
+    },
+    {
+      "state": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "scan_age_ms": 125,
+      "imu_age_ms": 27,
+      "position": [
+        -4.701,
+        10.3,
+        0.105
+      ]
+    },
+    {
+      "state": "DEGRADED",
+      "reason": "Inertial prediction and scan position diverged",
+      "scan_age_ms": 300,
+      "imu_age_ms": 14,
+      "position": [
+        -4.701,
+        10.3,
+        0.105
+      ]
+    },
+    {
+      "state": "DEGRADED",
+      "reason": "Inertial prediction and scan position diverged",
+      "scan_age_ms": 475,
+      "imu_age_ms": 48,
+      "position": [
+        -4.701,
+        10.3,
+        0.105
+      ]
+    }
+  ],
+  "camera_records": [
+    {
+      "name": "A-01-01",
+      "clock": 126.08,
+      "xyz": [
+        5.458,
+        0.454,
+        0.805,
+        1.839
+      ],
+      "suggested_id": "A-01-01"
+    },
+    {
+      "name": "A-01-03",
+      "clock": 136.64,
+      "xyz": [
+        8.484,
+        0.471,
+        0.871,
+        1.849
+      ],
+      "suggested_id": "A-01-03"
+    }
+  ]
+}

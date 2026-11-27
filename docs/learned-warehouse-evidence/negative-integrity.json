@@ -1,0 +1,42 @@
+{
+  "kind": "integrity",
+  "configuration_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "revision": 2,
+  "checks": [
+    {
+      "endpoint": "service/warehouses/activate",
+      "status": 400,
+      "detail": "Warehouse file integrity check failed for map.ply."
+    },
+    {
+      "endpoint": "start",
+      "status": 400,
+      "detail": "Warehouse file integrity check failed for map.ply."
+    },
+    {
+      "endpoint": "service/warehouses/activate",
+      "status": 400,
+      "detail": "Warehouse file integrity check failed for localization.npz."
+    },
+    {
+      "endpoint": "service/warehouses/activate",
+      "status": 400,
+      "detail": "Warehouse manifest integrity check failed."
+    },
+    {
+      "endpoint": "service/warehouses/activate",
+      "status": 409,
+      "detail": "The approved calibration route or its map has changed."
+    },
+    {
+      "endpoint": "service/warehouses/activate",
+      "status": 409,
+      "detail": "The approved calibration route or its map has changed."
+    },
+    {
+      "endpoint": "start",
+      "status": 409,
+      "detail": "Reload the active warehouse and choose locations at its current revision."
+    }
+  ]
+}

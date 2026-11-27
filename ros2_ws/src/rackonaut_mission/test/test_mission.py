@@ -1,14 +1,120 @@
+import json
 from datetime import datetime, timezone
 from math import hypot, pi, radians
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import TestCase
+from unittest.mock import Mock, call, patch
 
 from rackonaut_mission.adaptive import next_issue
 from rackonaut_mission.confirmation import current_observation
+from rackonaut_mission.manual import ManualFlight
+from rackonaut_mission.node import Mission
 from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def test_x3_caps_translation_near_the_dock_and_still_sends_zero(self):
+        command = Mock()
+        target = Target(1., 1., .1, 0.)
+        mission = SimpleNamespace(
+            x3=True, stage="DOCKING", target=target, command=command,
+            route=SimpleNamespace(pad=Target(0., 0., .1, 0.)),
+            pose=Target(0., 0., .8, 0.),
+        )
+        with patch("rackonaut_mission.node.velocity", return_value=(.3, -.2, -.25, .2)):
+            Mission.send_velocity(mission)
+            slow = command.publish.call_args.args[0]
+            Mission.send_velocity(mission, scale=0.)
+            stopped = command.publish.call_args.args[0]
+            mission.stage = "RESUMING"
+            Mission.send_velocity(mission)
+            normal = command.publish.call_args.args[0]
+        for actual, expected in zip(
+            (slow.linear.x, slow.linear.y, slow.linear.z, slow.angular.z), (.12, -.08, -.10, .2),
+        ):
+            self.assertAlmostEqual(actual, expected)
+        self.assertEqual((stopped.linear.x, stopped.linear.y, stopped.linear.z, stopped.angular.z),
+                         (0., 0., 0., 0.))
+        self.assertEqual((normal.linear.x, normal.linear.y, normal.linear.z), (.3, -.2, -.25))
+
+    def test_x3_resume_waits_for_fresh_safety_clearance_and_ready_charge(self):
+        pad = Target(0., 0., .1, 0.)
+        mission = Mock(
+            calibration_id=None, energy_enabled=True, stage="READY_TO_RESUME",
+            safety_interlock=True, safety_permit=True, safety_at=99., safety_zones={"D", "A"},
+            permit_departure=2, departures=1, pose=pad, odom_at=100., speed=0.,
+            route=SimpleNamespace(zones=["D", "A"], pad=pad, takeoff=Target(0., 0., 2., 0.)),
+            battery={"percent": 70., "contact": True, "dock": "CHARGING", "sim_time": 101.},
+            learned=None, manual=None, aerial=None, sensor_localization=False, scanner=None,
+            command_topic="/drone/cmd_vel", started=98., completed=["A-01-01"], sorties=[],
+        )
+        mission.readiness = lambda now: Mission.readiness(mission, now)
+        mission.required_departure.return_value = 50.
+        mission.count_publishers.return_value = 0
+        mission.count_subscribers.return_value = 1
+
+        self.assertIn("safety interlock", Mission.start(mission, 100.))
+        mission.safety_at = 100.
+        self.assertIn("charge readiness", Mission.start(mission, 100.))
+        mission.set_flight_enabled.assert_not_called()
+        mission.create_publisher.assert_not_called()
+
+        mission.battery["dock"] = "READY"
+        self.assertEqual(Mission.start(mission, 100.), "")
+        mission.set_flight_enabled.assert_called_once_with(True)
+        self.assertEqual(mission.transition.call_args.args[0], "RESUMING")
+        self.assertEqual(mission.sorties[-1]["completed_before"], ["A-01-01"])
+
+    def test_x3_cuts_power_only_after_confirmed_docking(self):
+        for model, contact in ((True, False), (False, True), (True, True)):
+            mission = Mock(stage="DOCKING", manual=None, calibration_id=None,
+                           battery={"contact": contact, "percent": 17.},
+                           x3=model, obstacle_retreat=False, resume_index=2)
+            Mission.advance_energy_motion(mission, 100.)
+            calls = []
+            if contact:
+                calls.append(call.stop_motion())
+                if model:
+                    calls.append(call.set_flight_enabled(False))
+                calls.extend((call.close_sortie("DOCKED_FOR_CHARGE"),
+                              call.transition("CHARGING", mission.route.pad, 100.,
+                                              "Docking confirmed — charging")))
+            self.assertEqual(mission.method_calls, calls)
+
+    def test_manual_rejects_expired_reordered_and_cross_mission_requests(self):
+        flight = ManualFlight(SimpleNamespace(inspection_id="INS-CURRENT"))
+        request = {"inspection_id": "INS-CURRENT", "sequence": 5, "sent": 12.8,
+                   "action": "movement", "axes": [1, 0, 0, 0], "speed": .5}
+        with patch("rackonaut_mission.manual.monotonic", return_value=13.):
+            for stale in (dict(request, sent=12.4), dict(request, inspection_id="INS-OTHER"),
+                          dict(request, axes=[1, 0, True, 0])):
+                flight.receive(SimpleNamespace(data=json.dumps(stale)))
+                self.assertEqual(flight.sequence, -1)
+            flight.receive(SimpleNamespace(data=json.dumps(request)))
+            self.assertEqual(flight.requested, (.2, 0., 0., 0.))
+            for replay in (request, dict(request, sequence=4)):
+                flight.receive(SimpleNamespace(data=json.dumps(dict(replay, action="return"))))
+                self.assertFalse(flight.return_requested)
+            flight.receive(SimpleNamespace(data=json.dumps(dict(request, action="return", sequence=6))))
+            self.assertTrue(flight.return_requested)
+            flight.receive(SimpleNamespace(data=json.dumps(dict(request, sequence=7))))
+            self.assertEqual(flight.requested, (0., 0., 0., 0.))
+
+    def test_manual_distinguishes_safety_from_emergency_stop(self):
+        mission = SimpleNamespace(stage="ABORTED", detail="Stopped by the operator", safety_alarm=None)
+        flight = ManualFlight(mission)
+        self.assertEqual(flight.snapshot()["state"], "EMERGENCY_STOP")
+        mission.safety_alarm = {"event": "mission_aborted"}
+        self.assertEqual(flight.snapshot()["state"], "EMERGENCY_STOP")
+        mission.safety_alarm = {"event": "intrusion", "message": "Zone occupied: Aisle A."}
+        self.assertEqual(flight.snapshot()["state"], "SAFETY")
+        self.assertIn("Aisle A", flight.snapshot()["detail"])
+
+    def test_calibration_energy_status_has_no_resume_leg(self):
+        motion = SimpleNamespace(stage="RETURN_TO_DOCK", calibration_id="CAL-TEST", resume_index=None)
+        self.assertEqual(Mission.aerial_remaining_cost(motion, ["A-01-03"], 11.7), 11.7)
+
     def test_adaptive_request_depends_on_observation_and_linked_photo(self):
         readable = {"occupancy": "occupied", "label_status": "readable", "pallet_id": "P999"}
         damaged = {"status": "DAMAGED"}

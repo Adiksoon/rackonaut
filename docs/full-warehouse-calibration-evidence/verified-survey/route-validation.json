@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+  "frame": "rackonaut_odom",
+  "location_revision": 11,
+  "route_sha256": "14f21929d2b8297352824c03c759fa802cb9dcd75c39a2ee35c7c3de46c9fc13",
+  "scope": "historical_envelope",
+  "live_clearance": "required",
+  "valid": true,
+  "validated_segments": 496,
+  "issues": [],
+  "sorties": [
+    {
+      "number": 1,
+      "edges": 130,
+      "forecast": {
+        "seconds": 279.47477454082826,
+        "percent": 90.66355937132543,
+        "climb_m": 14.102071998401124,
+        "distance_m": 83.65432325666367,
+        "return_percent": 37.846497253980765,
+        "reserve_percent": 8.0,
+        "required_percent": 98.66355937132543,
+        "duration_sim_s": 279.47477454082826,
+        "mission_percent": 90.66355937132543,
+        "within_capacity": true
+      }
+    },
+    {
+      "number": 2,
+      "edges": 129,
+      "forecast": {
+        "seconds": 280.77707940590136,
+        "percent": 91.22626633079668,
+        "climb_m": 14.62155362722041,
+        "distance_m": 83.53013298307825,
+        "return_percent": 43.38413612007832,
+        "reserve_percent": 8.0,
+        "required_percent": 99.22626633079668,
+        "duration_sim_s": 280.77707940590136,
+        "mission_percent": 91.22626633079668,
+        "within_capacity": true
+      }
+    },
+    {
+      "number": 3,
+      "edges": 119,
+      "forecast": {
+        "seconds": 263.2015511823527,
+        "percent": 87.08862911812284,
+        "climb_m": 14.76306087752054,
+        "distance_m": 86.36986804438465,
+        "return_percent": 38.521456508338865,
+        "reserve_percent": 8.0,
+        "required_percent": 95.08862911812284,
+        "duration_sim_s": 263.2015511823527,
+        "mission_percent": 87.08862911812284,
+        "within_capacity": true
+      }
+    },
+    {
+      "number": 4,
+      "edges": 118,
+      "forecast": {
+        "seconds": 231.2567025762323,
+        "percent": 77.45462149953345,
+        "climb_m": 12.805106868892466,
+        "distance_m": 80.16479037170882,
+        "return_percent": 38.57591848311166,
+        "reserve_percent": 8.0,
+        "required_percent": 85.45462149953345,
+        "duration_sim_s": 231.2567025762323,
+        "mission_percent": 77.45462149953345,
+        "within_capacity": true
+      }
+    }
+  ]
+}

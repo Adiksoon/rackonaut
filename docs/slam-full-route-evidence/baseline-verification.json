@@ -1,0 +1,51 @@
+{
+  "stage": "COMPLETE",
+  "inspection_id": "INS-CONTROL-20261126-112510-2D7DB5EC",
+  "route": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "contact": true,
+  "safety": "RELEASED",
+  "wall_s": 267.4,
+  "sim_s": 157.26,
+  "rtf": 0.5881,
+  "energy_points": 55.697,
+  "length_m": 70.779,
+  "max_horizontal_m": 16.284,
+  "max_distance_m": 16.302,
+  "height_m": [
+    0.0538,
+    6.70473
+  ],
+  "reference_samples": 945,
+  "samples": 308,
+  "rmse": 0.10565272069962878,
+  "p95": 0.053703064476300105,
+  "max": 1.6198415334223284,
+  "peak_angle_deg": 2.6122,
+  "max_gap_sim_s": 72.04399999999998,
+  "zone": {
+    "shaft": {
+      "shadow_count": 78,
+      "reference_count": 166,
+      "rmse": 0.003516278444970492,
+      "p95": 0.00614398547431765,
+      "max": 0.006506927078122207
+    },
+    "tunnel": {
+      "shadow_count": 230,
+      "reference_count": 511,
+      "rmse": 0.12224502813398287,
+      "p95": 0.06416533297428094,
+      "max": 1.6198415334223284
+    },
+    "aisle": {
+      "shadow_count": 0,
+      "reference_count": 268,
+      "rmse": null,
+      "p95": null,
+      "max": null
+    }
+  }
+}

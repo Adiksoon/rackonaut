@@ -1,0 +1,1357 @@
+{
+  "gate-b-x3-estop-recovery.jsonl": [
+    {
+      "event": "before_emergency_stop",
+      "id": "INS-CONTROL-20261126-153709-F0B5FF71",
+      "stage": "MANUAL_FLIGHT",
+      "recovery": null,
+      "position": [
+        -4.7,
+        10.299,
+        1.278,
+        0.393
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 92.154,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 82.2,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RESERVED",
+      "alarm": null,
+      "manual": {
+        "state": "LINK_LOST",
+        "detail": "Operator heartbeat expired; holding position",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Protected manual flight ready",
+      "motion_owned": true
+    },
+    {
+      "event": "emergency_stop",
+      "id": "INS-CONTROL-20261126-153709-F0B5FF71",
+      "stage": "ABORTED",
+      "recovery": null,
+      "position": [
+        -4.7,
+        10.299,
+        1.278,
+        0.394
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 92.097,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 82.42,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:38:02.592+00:00",
+        "monotonic_ns": 31984522398930,
+        "inspection_id": "INS-CONTROL-20261126-153709-F0B5FF71",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "EMERGENCY_STOP",
+        "detail": "Stopped by the operator",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Stopped by the operator",
+      "motion_owned": false,
+      "time_to_abort_safety_wall_s": 0.4147878080002556
+    },
+    {
+      "event": "evaluated",
+      "id": "INS-CONTROL-20261126-153709-F0B5FF71",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-B88E253D5D5B",
+        "phase": "WAITING_FOR_OPERATOR_APPROVAL",
+        "cause": "OPERATOR_ABORT",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        }
+      },
+      "position": [
+        -4.7,
+        10.3,
+        1.278,
+        0.394
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 88.452,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 96.4,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:38:02.592+00:00",
+        "monotonic_ns": 31984522398930,
+        "inspection_id": "INS-CONTROL-20261126-153709-F0B5FF71",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "EMERGENCY_STOP",
+        "detail": "Stopped by the operator",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Stopped by the operator",
+      "motion_owned": false
+    },
+    {
+      "event": "terminal",
+      "id": "INS-CONTROL-20261126-153709-F0B5FF71",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-B88E253D5D5B",
+        "phase": "RECOVERY_COMPLETE",
+        "cause": "OPERATOR_ABORT",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": true,
+        "energy_used": 0.839
+      },
+      "position": [
+        -4.701,
+        10.299,
+        0.045,
+        -0.012
+      ],
+      "at_pad": true,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 88.401,
+        "dock": "READY",
+        "contact": true,
+        "charging": true,
+        "cycles": 1,
+        "sim_time": 102.46,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:38:02.592+00:00",
+        "monotonic_ns": 31984522398930,
+        "inspection_id": "INS-CONTROL-20261126-153709-F0B5FF71",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "EMERGENCY_STOP",
+        "detail": "Stopped by the operator",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Stopped by the operator",
+      "motion_owned": false
+    },
+    {
+      "event": "physical_dock_and_release",
+      "id": "INS-CONTROL-20261126-153709-F0B5FF71",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-B88E253D5D5B",
+        "phase": "RECOVERY_COMPLETE",
+        "cause": "OPERATOR_ABORT",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": true,
+        "energy_used": 0.839
+      },
+      "position": [
+        -4.701,
+        10.299,
+        0.045,
+        -0.012
+      ],
+      "at_pad": true,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 88.401,
+        "dock": "READY",
+        "contact": true,
+        "charging": true,
+        "cycles": 1,
+        "sim_time": 102.46,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "localization": "TRACKING",
+      "safety": "RELEASED",
+      "alarm": {
+        "time": "2026-11-26T15:38:02.592+00:00",
+        "monotonic_ns": 31984522398930,
+        "inspection_id": "INS-CONTROL-20261126-153709-F0B5FF71",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "EMERGENCY_STOP",
+        "detail": "Stopped by the operator",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Stopped by the operator",
+      "motion_owned": false
+    }
+  ],
+  "goal25-b-faults.jsonl": [
+    {
+      "event": "lidar_only_before",
+      "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "MANUAL_FLIGHT",
+      "pose": [
+        -4.7,
+        10.3,
+        0.761,
+        -0.0
+      ],
+      "detail": "Protected manual flight ready",
+      "motion_owned": true,
+      "localizer": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "imu_age_ms": 94,
+      "scan_age_ms": 192,
+      "safety": "RESERVED",
+      "alarm": null,
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.0,
+      "energy_verified": true,
+      "physical_dock": false
+    },
+    {
+      "event": "lidar_only_abort",
+      "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "pose": [
+        -4.7,
+        10.298,
+        0.743,
+        -0.0
+      ],
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false,
+      "localizer": "LOST",
+      "reason": "Matched scans stopped advancing",
+      "imu_age_ms": 18,
+      "scan_age_ms": 892,
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.0,
+      "energy_verified": true,
+      "physical_dock": false,
+      "time_to_abort_wall_s": 0.7397420490015065
+    },
+    {
+      "event": "lidar_only_gap",
+      "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "pose": [
+        -4.7,
+        10.298,
+        0.743,
+        -0.0
+      ],
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false,
+      "localizer": "LOST",
+      "reason": "Matched scans stopped advancing",
+      "imu_age_ms": 69,
+      "scan_age_ms": 1417,
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.334,
+      "energy_verified": true,
+      "physical_dock": false
+    },
+    {
+      "event": "evaluated",
+      "id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-D8B5D6B38652",
+        "phase": "WAITING_FOR_OPERATOR_APPROVAL",
+        "cause": "ONBOARD_LIDAR_LOST",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        }
+      },
+      "position": [
+        -4.701,
+        10.3,
+        0.716,
+        -0.0
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 98.02,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 45.8,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.415,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false
+    },
+    {
+      "event": "terminal",
+      "id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-D8B5D6B38652",
+        "phase": "RECOVERY_FAILED",
+        "cause": "ONBOARD_LIDAR_LOST",
+        "result": "RECOVERY_FAILED",
+        "detail": "in_flight_envelope, stable_tracking",
+        "conditions": {
+          "stable_tracking": false,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": false,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": false,
+        "energy_used": 0.0
+      },
+      "position": [
+        -4.701,
+        10.299,
+        0.716,
+        -0.001
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 97.921,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 46.18,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.415,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false
+    }
+  ],
+  "goal25-b-lidar-recovery-recheck.jsonl": [
+    {
+      "event": "evaluated",
+      "id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-4101F9D9A0CF",
+        "phase": "WAITING_FOR_OPERATOR_APPROVAL",
+        "cause": "ONBOARD_LIDAR_LOST",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        }
+      },
+      "position": [
+        -4.699,
+        10.301,
+        0.714,
+        -0.0
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 86.397,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 90.4,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.415,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false
+    },
+    {
+      "event": "terminal",
+      "id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-4101F9D9A0CF",
+        "phase": "RECOVERY_COMPLETE",
+        "cause": "ONBOARD_LIDAR_LOST",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": true,
+        "energy_used": 0.091
+      },
+      "position": [
+        -4.699,
+        10.299,
+        0.047,
+        0.001
+      ],
+      "at_pad": true,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 86.509,
+        "dock": "CHARGING",
+        "contact": true,
+        "charging": true,
+        "cycles": 0,
+        "sim_time": 95.3,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.415,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "localization": "TRACKING",
+      "safety": "RELEASED",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false
+    },
+    {
+      "event": "physical_dock_and_release",
+      "id": "INS-CONTROL-20261126-154120-27C0B17D",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-4101F9D9A0CF",
+        "phase": "RECOVERY_COMPLETE",
+        "cause": "ONBOARD_LIDAR_LOST",
+        "result": "RECOVERY_COMPLETE",
+        "detail": "Stable physical dock contact after disabling thrust",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": true,
+        "energy_used": 0.091
+      },
+      "position": [
+        -4.699,
+        10.299,
+        0.047,
+        0.001
+      ],
+      "at_pad": true,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 87.589,
+        "dock": "CHARGING",
+        "contact": true,
+        "charging": true,
+        "cycles": 0,
+        "sim_time": 95.48,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.415,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "localization": "TRACKING",
+      "safety": "RELEASED",
+      "alarm": {
+        "time": "2026-11-26T15:41:31.515+00:00",
+        "monotonic_ns": 32193444950380,
+        "inspection_id": "INS-CONTROL-20261126-154120-27C0B17D",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "FAULT",
+        "detail": "Onboard LiDAR stopped advancing",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "Onboard LiDAR stopped advancing",
+      "motion_owned": false
+    }
+  ],
+  "goal25-b-extra-faults-rerun.jsonl": [
+    {
+      "event": "localization_only_before",
+      "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+      "stage": "MANUAL_FLIGHT",
+      "pose": [
+        -4.7,
+        10.3,
+        0.707,
+        0.0
+      ],
+      "detail": "Protected manual flight ready",
+      "motion_owned": true,
+      "localizer": "TRACKING",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "imu_age_ms": 1,
+      "scan_age_ms": 59,
+      "safety": "RESERVED",
+      "alarm": null,
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.415,
+      "energy_verified": true,
+      "physical_dock": false
+    },
+    {
+      "event": "localization_only_abort",
+      "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+      "stage": "ABORTED",
+      "pose": [
+        -4.7,
+        10.3,
+        0.707,
+        0.0
+      ],
+      "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "motion_owned": false,
+      "localizer": "LOST",
+      "reason": "Localization heartbeat stopped advancing",
+      "imu_age_ms": 1,
+      "scan_age_ms": 59,
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:43:49.915+00:00",
+        "monotonic_ns": 32331844881841,
+        "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.415,
+      "energy_verified": true,
+      "physical_dock": false,
+      "time_to_abort_wall_s": 0.5909895180011517
+    },
+    {
+      "event": "localization_only_gap",
+      "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+      "stage": "ABORTED",
+      "pose": [
+        -4.7,
+        10.3,
+        0.707,
+        0.0
+      ],
+      "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "motion_owned": false,
+      "localizer": "LOST",
+      "reason": "Localization heartbeat stopped advancing",
+      "imu_age_ms": 1,
+      "scan_age_ms": 59,
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:43:49.915+00:00",
+        "monotonic_ns": 32331844881841,
+        "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "reservation": [
+        "D",
+        "A"
+      ],
+      "energy_gap_pp": 0.901,
+      "energy_verified": true,
+      "physical_dock": false
+    },
+    {
+      "event": "evaluated",
+      "id": "INS-CONTROL-20261126-154308-B77F0218",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-1DC7ABDB2FF1",
+        "phase": "WAITING_FOR_OPERATOR_APPROVAL",
+        "cause": "LOCALIZATION_LOST",
+        "conditions": {
+          "stable_tracking": true,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": true,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": true,
+          "connected_return": true,
+          "first_leg_observed": true,
+          "energy_telemetry": true,
+          "return_budget": true,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        }
+      },
+      "position": [
+        -4.7,
+        10.301,
+        0.707,
+        0.0
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 92.881,
+        "dock": "AVAILABLE",
+        "contact": false,
+        "charging": false,
+        "cycles": 1,
+        "sim_time": 122.56,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.935,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": false
+      },
+      "localization": "TRACKING",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:43:49.915+00:00",
+        "monotonic_ns": 32331844881841,
+        "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "LOCALIZATION_LOST",
+        "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "motion_owned": false
+    },
+    {
+      "event": "terminal",
+      "id": "INS-CONTROL-20261126-154308-B77F0218",
+      "stage": "ABORTED",
+      "recovery": {
+        "recovery_id": "REC-1DC7ABDB2FF1",
+        "phase": "RECOVERY_FAILED",
+        "cause": "LOCALIZATION_LOST",
+        "result": "RECOVERY_FAILED",
+        "detail": "in_flight_envelope, stable_tracking",
+        "conditions": {
+          "stable_tracking": false,
+          "onboard_lidar": true,
+          "safety_heartbeat_and_zones": true,
+          "stationary": false,
+          "zone_sensors": true,
+          "fields_clear": true,
+          "red_signals": true,
+          "in_flight_envelope": false,
+          "connected_return": false,
+          "first_leg_observed": false,
+          "energy_telemetry": true,
+          "return_budget": false,
+          "flight_enable_bridge": true,
+          "command_ownership": true
+        },
+        "dock_confirmed": false,
+        "energy_used": 0.56
+      },
+      "position": [
+        -4.702,
+        10.3,
+        0.122,
+        0.002
+      ],
+      "at_pad": false,
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 92.29,
+        "dock": "APPROACHING",
+        "contact": false,
+        "charging": false,
+        "cycles": 1,
+        "sim_time": 124.88,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.935,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "localization": "LOST",
+      "safety": "RECOVERY",
+      "alarm": {
+        "time": "2026-11-26T15:43:49.915+00:00",
+        "monotonic_ns": 32331844881841,
+        "inspection_id": "INS-CONTROL-20261126-154308-B77F0218",
+        "event": "mission_aborted",
+        "zones": [
+          "D",
+          "A"
+        ],
+        "message": "Mission aborted. Verify and recover the drone."
+      },
+      "manual": {
+        "state": "LOCALIZATION_LOST",
+        "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+        "requested": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": null
+      },
+      "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+      "motion_owned": false
+    }
+  ],
+  "goal25-b-energy-check.jsonl": [
+    {
+      "event": "energy",
+      "plan": {
+        "flight_seconds": 178.3,
+        "inspection_seconds": 4.0,
+        "adaptive_seconds": 0.0,
+        "adaptive_percent": 0.0,
+        "estimated_percent": 62.6,
+        "return_percent": 29.91,
+        "reserve_percent": 8.0,
+        "minimum_percent": 67.4,
+        "can_start": false,
+        "single_cycle": false
+      },
+      "response": {
+        "http": 409,
+        "error": "Insufficient energy for manual takeoff and verified return (12.5% required)."
+      },
+      "energy": {
+        "simulated": true,
+        "fresh": true,
+        "percent": 6.703,
+        "dock": "AVAILABLE",
+        "contact": true,
+        "charging": false,
+        "cycles": 0,
+        "sim_time": 20.4,
+        "model": {
+          "hover": 0.26,
+          "movement": 0.19,
+          "climb": 0.52,
+          "ground": 0.015,
+          "charge": 6.0,
+          "reserve": 8.0,
+          "ready": 88.0
+        },
+        "profile": "protected_aerial_demo",
+        "budget_verified": true,
+        "gap_debit_percent": 0.0,
+        "gap_draw_percent_per_sim_s": 0.696,
+        "contact_source": "gazebo_dock_switch",
+        "switch_engaged": true
+      },
+      "dock": true
+    }
+  ],
+  "goal25-b-intrusion-check.jsonl": [
+    {
+      "event": "before",
+      "mission": "INS-CONTROL-20261126-155120-40475670",
+      "position": [
+        -4.699,
+        10.301,
+        0.754,
+        -0.0
+      ],
+      "safety": "RESERVED",
+      "required": [
+        "D",
+        "A"
+      ]
+    },
+    {
+      "event": "intrusion",
+      "mission": "INS-CONTROL-20261126-155120-40475670",
+      "position": [
+        -4.699,
+        10.299,
+        0.725,
+        0.001
+      ],
+      "safety": "RECOVERY",
+      "required": [
+        "D",
+        "A"
+      ],
+      "alarm": {
+        "time": "2026-11-26T15:51:31.858+00:00",
+        "monotonic_ns": 32793788171694,
+        "inspection_id": "INS-CONTROL-20261126-155120-40475670",
+        "event": "intrusion",
+        "zones": [
+          "A"
+        ],
+        "message": "Zone occupied: Aisle A.",
+        "presence_sample_ns": 32793744693785
+      },
+      "stage": "ABORTED",
+      "detail": "Safety clearance lost; automatic restart disabled",
+      "motion_owned": false,
+      "time_to_abort_wall_s": 1.413357763995009
+    }
+  ]
+}

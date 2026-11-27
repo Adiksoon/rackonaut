@@ -1,0 +1,56 @@
+{
+  "slot": "A-01-08",
+  "inspection_id": "INS-CONTROL-20261127-101643-E76C3855",
+  "configuration_id": "WH-D11FA03D45502B0ECE140FB6C611E072",
+  "forecast": {
+    "seconds": 231.25925801483075,
+    "percent": 77.45543264101617,
+    "climb_m": 12.8050275885658,
+    "distance_m": 80.1657778259522,
+    "return_percent": 38.57591848311166,
+    "reserve_percent": 8.0,
+    "required_percent": 85.45543264101617,
+    "minimum_percent": 85.45543264101617,
+    "can_start": true
+  },
+  "observation_http_gap_s": 85.726,
+  "terminal": {
+    "recorded_wall": 15558.39832972,
+    "clock_s": 493.5,
+    "stage": "COMPLETE",
+    "flight_phase": "COMPLETE",
+    "details": "Learned route ended at the verified physical dock",
+    "position": [
+      -4.7,
+      10.298,
+      0.049,
+      0.001
+    ],
+    "physical_dock": true,
+    "safety": "RELEASED",
+    "energy": 32.674,
+    "localization": {
+      "state": "TRACKING",
+      "source": "learned_map",
+      "reason": "Synchronized LiDAR fit and inertial prediction",
+      "update_hz": 3.31,
+      "imu_age_ms": 119
+    },
+    "visited": [
+      "A-01-08"
+    ],
+    "confirmed": {
+      "A-01-08": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261127-101643-E76C3855",
+        "observation_id": "OBS-C6EFFF621ABF46FA9674479C4A260064",
+        "slot_id": "A-01-08",
+        "pallet_id": "P008",
+        "occupancy": "occupied",
+        "label_status": "readable",
+        "timestamp": "2026-11-27T10:19:45.354Z"
+      }
+    },
+    "missed": []
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "scope": "Fortress warehouse, sensor-based fixed map, Full Robotics 16 m, Mock SAP, A-01-01 and A-01-03",
+  "x3": {
+    "inspection_id": "INS-CONTROL-20261126-160615-2FAFCDA1",
+    "stage": "COMPLETE",
+    "physical_dock": true,
+    "safety": "RELEASED",
+    "slots": [
+      {
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable"
+      },
+      {
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable"
+      }
+    ],
+    "flight_sim_s": 174.16,
+    "modelled_energy_pp": 60.642,
+    "localization_samples": 1049,
+    "localization_rmse_mm": 7.394,
+    "waypoints_from_independent_pose": [
+      {
+        "slot": "A-01-01",
+        "target_m": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "gazebo_position_m": [
+          5.46194,
+          0.45004,
+          0.80588
+        ],
+        "offset_mm": 16.0
+      },
+      {
+        "slot": "A-01-03",
+        "target_m": [
+          8.26,
+          0.45,
+          0.79
+        ],
+        "gazebo_position_m": [
+          8.26066,
+          0.45177,
+          0.79717
+        ],
+        "offset_mm": 7.41
+      }
+    ],
+    "flight_path_m": 72.422,
+    "protected_hover": {
+      "samples": 43,
+      "max_position_change_m": 0.0012762590158860952
+    },
+    "vertical_braking": {
+      "axis": "up",
+      "speed_before_mps": 0.26604360607530014,
+      "speed_at_zero_mps": 0.27294041949416803,
+      "zero_after_operator_loss_wall_s": 0.5652911569995922,
+      "zero_to_settle_sim_s": 1.0,
+      "zero_to_settle_distance_m": 0.1312835262174263
+    },
+    "protected_dock": true
+  },
+  "reference": {
+    "inspection_id": "INS-CONTROL-20261126-162848-63B27BB1",
+    "stage": "COMPLETE",
+    "physical_dock": true,
+    "safety": "RELEASED",
+    "slots": [
+      {
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable"
+      },
+      {
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable"
+      }
+    ],
+    "flight_sim_s": 156.96,
+    "modelled_energy_pp": 55.711,
+    "localization_samples": 946,
+    "localization_rmse_mm": 7.813,
+    "waypoints_from_independent_pose": [
+      {
+        "slot": "A-01-01",
+        "target_m": [
+          5.46,
+          0.45,
+          0.79
+        ],
+        "gazebo_position_m": [
+          5.46854,
+          0.44956,
+          0.80361
+        ],
+        "offset_mm": 16.07
+      },
+      {
+        "slot": "A-01-03",
+        "target_m": [
+          8.26,
+          0.45,
+          0.79
+        ],
+        "gazebo_position_m": [
+          8.26604,
+          0.45028,
+          0.79889
+        ],
+        "offset_mm": 10.75
+      }
+    ],
+    "flight_path_m": 70.798,
+    "protected_hover": {
+      "samples": 41,
+      "max_position_change_m": 1.797840106499906e-06
+    },
+    "vertical_braking": {
+      "axis": "up",
+      "speed_before_mps": 0.27994893783709895,
+      "speed_at_zero_mps": 0.2799886089705883,
+      "zero_after_operator_loss_wall_s": 0.5846699719986646,
+      "zero_to_settle_sim_s": 0.40000000000000213,
+      "zero_to_settle_distance_m": 0.05385368795272094
+    },
+    "protected_dock": true
+  }
+}

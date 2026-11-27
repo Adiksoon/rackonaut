@@ -1,0 +1,1592 @@
+{
+  "environment": {
+    "simulator": "Gazebo Fortress",
+    "ros": "ROS 2 Humble",
+    "gazebo_diagnostics": "/rackonaut/validation/ground_truth",
+    "flight_input": "/rackonaut/manual/request",
+    "default_ground_presence": "virtual"
+  },
+  "manual_browser_run": {
+    "airborne": {
+      "wall": 1795690138.078,
+      "name": "airborne",
+      "pose": [
+        -4.7,
+        10.301,
+        0.719,
+        0
+      ],
+      "stage": "MANUAL_FLIGHT",
+      "status": {
+        "state": "HOLD",
+        "detail": "Hold position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "map": 3630,
+      "safety": "RESERVED",
+      "energy": 98.903
+    },
+    "axes": {
+      "q": {
+        "before": {
+          "wall": 1795690138.0687208,
+          "kind": "truth",
+          "sim": 13.84,
+          "xyz": [
+            -4.700334787212059,
+            10.299183947142298,
+            0.7355479781523404
+          ],
+          "qz": 0.00031798282323325524,
+          "qw": 0.9999999460228051,
+          "v": [
+            8.459756594120729e-05,
+            -0.00036026328304460657,
+            0.003342953396198138,
+            2.420321205676146e-05
+          ]
+        },
+        "held": {
+          "wall": 1795690139.2189598,
+          "kind": "truth",
+          "sim": 14.6,
+          "xyz": [
+            -4.700287064962153,
+            10.299156007086477,
+            0.7340805813247794
+          ],
+          "qz": 0.08546273604998869,
+          "qw": 0.9963413675606085,
+          "v": [
+            -4.5259593994071985e-06,
+            2.4510796979176116e-05,
+            0.001674661663111958,
+            0.378659856505692
+          ]
+        },
+        "after_release": {
+          "wall": 1795690139.727446,
+          "kind": "truth",
+          "sim": 14.88,
+          "xyz": [
+            -4.700289790372765,
+            10.299158486125233,
+            0.7327969873241208
+          ],
+          "qz": 0.10517170372148538,
+          "qw": 0.9944540777387876,
+          "v": [
+            -7.44290043908551e-06,
+            2.66593719441276e-06,
+            0.0006287379051741411,
+            0.05381465489335824
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0,
+            0,
+            0,
+            0.4
+          ],
+          "permitted": [
+            0,
+            0,
+            0,
+            0.4
+          ],
+          "clearance": null
+        }
+      },
+      "e": {
+        "before": {
+          "wall": 1795690139.727446,
+          "kind": "truth",
+          "sim": 14.88,
+          "xyz": [
+            -4.700289790372765,
+            10.299158486125233,
+            0.7327969873241208
+          ],
+          "qz": 0.10517170372148538,
+          "qw": 0.9944540777387876,
+          "v": [
+            -7.44290043908551e-06,
+            2.66593719441276e-06,
+            0.0006287379051741411,
+            0.05381465489335824
+          ]
+        },
+        "held": {
+          "wall": 1795690140.7481394,
+          "kind": "truth",
+          "sim": 15.52,
+          "xyz": [
+            -4.700290762107907,
+            10.299157309709265,
+            0.7312432117936851
+          ],
+          "qz": 0.02969510667229715,
+          "qw": 0.999559003080692,
+          "v": [
+            5.71091400711509e-07,
+            -6.393965975571389e-07,
+            0.0019564852410053875,
+            -0.37572126602753997
+          ]
+        },
+        "after_release": {
+          "wall": 1795690141.145229,
+          "kind": "truth",
+          "sim": 15.8,
+          "xyz": [
+            -4.700290647874276,
+            10.29915728664591,
+            0.7300591982374337
+          ],
+          "qz": 0.010057630175800136,
+          "qw": 0.9999494207584908,
+          "v": [
+            2.2627244628135968e-07,
+            1.3450603133841092e-07,
+            0.0008093396257248375,
+            -0.05333495828381274
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0,
+            0,
+            0,
+            -0.4
+          ],
+          "permitted": [
+            0,
+            0,
+            0,
+            -0.4
+          ],
+          "clearance": null
+        }
+      },
+      "r": {
+        "before": {
+          "wall": 1795690141.145229,
+          "kind": "truth",
+          "sim": 15.8,
+          "xyz": [
+            -4.700290647874276,
+            10.29915728664591,
+            0.7300591982374337
+          ],
+          "qz": 0.010057630175800136,
+          "qw": 0.9999494207584908,
+          "v": [
+            2.2627244628135968e-07,
+            1.3450603133841092e-07,
+            0.0008093396257248375,
+            -0.05333495828381274
+          ]
+        },
+        "held": {
+          "wall": 1795690142.2464979,
+          "kind": "truth",
+          "sim": 16.48,
+          "xyz": [
+            -4.700290651295533,
+            10.29915734285237,
+            0.8331544447143313
+          ],
+          "qz": 0.006519379078783211,
+          "qw": 0.999978748622403,
+          "v": [
+            -3.344403097564906e-08,
+            -8.274542845893282e-09,
+            0.2628004746922815,
+            -0.0005909621791033715
+          ]
+        },
+        "after_release": {
+          "wall": 1795690142.888146,
+          "kind": "truth",
+          "sim": 16.84,
+          "xyz": [
+            -4.700290653699325,
+            10.299157337300189,
+            0.9115079793531989
+          ],
+          "qz": 0.006483868086383942,
+          "qw": 0.9999789795063886,
+          "v": [
+            3.222179652403698e-09,
+            -1.1324795194031008e-08,
+            0.11344939432546548,
+            -5.765329653684148e-05
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0,
+            0,
+            0.28,
+            0
+          ],
+          "permitted": [
+            0,
+            0,
+            0.28,
+            0
+          ],
+          "clearance": 1.5
+        }
+      },
+      "w": {
+        "before": {
+          "wall": 1795690142.888146,
+          "kind": "truth",
+          "sim": 16.84,
+          "xyz": [
+            -4.700290653699325,
+            10.299157337300189,
+            0.9115079793531989
+          ],
+          "qz": 0.006483868086383942,
+          "qw": 0.9999789795063886,
+          "v": [
+            3.222179652403698e-09,
+            -1.1324795194031008e-08,
+            0.11344939432546548,
+            -5.765329653684148e-05
+          ]
+        },
+        "held": {
+          "wall": 1795690144.1870453,
+          "kind": "truth",
+          "sim": 17.64,
+          "xyz": [
+            -4.559085306793877,
+            10.30128189005602,
+            0.9202176399115993
+          ],
+          "qz": 0.006459773498829788,
+          "qw": 0.9998327137422466,
+          "v": [
+            0.37574578962749305,
+            0.00047311176957351545,
+            -0.022864706844623488,
+            -0.00015269689583874424
+          ]
+        },
+        "after_release": {
+          "wall": 1795690144.6536996,
+          "kind": "truth",
+          "sim": 18.0,
+          "xyz": [
+            -4.475731701869438,
+            10.302409607838507,
+            0.9186422636611029
+          ],
+          "qz": 0.006446250609078468,
+          "qw": 0.9994053407347574,
+          "v": [
+            0.09595371166687236,
+            4.134105175996286e-05,
+            -0.010092997756418542,
+            -8.830890330102648e-06
+          ]
+        },
+        "manual": {
+          "state": "BRAKING",
+          "detail": "Reserved flight boundary or descent clearance",
+          "requested": [
+            0.4,
+            0,
+            0,
+            0
+          ],
+          "permitted": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "clearance": 0.223
+        }
+      },
+      "s": {
+        "before": {
+          "wall": 1795690144.6536996,
+          "kind": "truth",
+          "sim": 18.0,
+          "xyz": [
+            -4.475731701869438,
+            10.302409607838507,
+            0.9186422636611029
+          ],
+          "qz": 0.006446250609078468,
+          "qw": 0.9994053407347574,
+          "v": [
+            0.09595371166687236,
+            4.134105175996286e-05,
+            -0.010092997756418542,
+            -8.830890330102648e-06
+          ]
+        },
+        "held": {
+          "wall": 1795690146.0026908,
+          "kind": "truth",
+          "sim": 18.8,
+          "xyz": [
+            -4.6285342521207875,
+            10.30012768292927,
+            0.9034573701536733
+          ],
+          "qz": 0.0064388687845785214,
+          "qw": 0.9999519052212523,
+          "v": [
+            -0.3995476782081656,
+            -0.0005337087864316964,
+            -0.015167353012088408,
+            -4.225727012752145e-06
+          ]
+        },
+        "after_release": {
+          "wall": 1795690146.4498367,
+          "kind": "truth",
+          "sim": 19.08,
+          "xyz": [
+            -4.730877501537932,
+            10.298703174977424,
+            0.901153341038721
+          ],
+          "qz": 0.006424356311554329,
+          "qw": 0.9989922860845278,
+          "v": [
+            -0.2891895852751768,
+            -0.00010083132147073072,
+            -0.026066847041965907,
+            -5.480700941973282e-05
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            -0.4,
+            0,
+            0,
+            0
+          ],
+          "permitted": [
+            -0.398,
+            0,
+            0,
+            0
+          ],
+          "clearance": 0.475
+        }
+      },
+      "a": {
+        "before": {
+          "wall": 1795690146.4498367,
+          "kind": "truth",
+          "sim": 19.08,
+          "xyz": [
+            -4.730877501537932,
+            10.298703174977424,
+            0.901153341038721
+          ],
+          "qz": 0.006424356311554329,
+          "qw": 0.9989922860845278,
+          "v": [
+            -0.2891895852751768,
+            -0.00010083132147073072,
+            -0.026066847041965907,
+            -5.480700941973282e-05
+          ]
+        },
+        "held": {
+          "wall": 1795690147.5430505,
+          "kind": "truth",
+          "sim": 19.68,
+          "xyz": [
+            -4.772141078682426,
+            10.358781850774974,
+            0.8959459936375119
+          ],
+          "qz": 0.009458473455918572,
+          "qw": 0.999891168891697,
+          "v": [
+            0.02382981421085834,
+            0.26307919007699676,
+            -0.011208172180685882,
+            0.0017493533391643723
+          ]
+        },
+        "after_release": {
+          "wall": 1795690147.9677854,
+          "kind": "truth",
+          "sim": 20.0,
+          "xyz": [
+            -4.768188674992353,
+            10.434734848325881,
+            0.8938050158689465
+          ],
+          "qz": 0.009528035128457228,
+          "qw": 0.9993098691497007,
+          "v": [
+            0.008653272594997343,
+            0.1600154980169392,
+            -0.012627235288584424,
+            0.0007318439656955888
+          ]
+        },
+        "manual": {
+          "state": "LIMITED",
+          "detail": "Reduced command within verified clearance",
+          "requested": [
+            0,
+            0.4,
+            0,
+            0
+          ],
+          "permitted": [
+            0,
+            0.217,
+            0,
+            0
+          ],
+          "clearance": 0.311
+        }
+      },
+      "d": {
+        "before": {
+          "wall": 1795690147.9677854,
+          "kind": "truth",
+          "sim": 20.0,
+          "xyz": [
+            -4.768188674992353,
+            10.434734848325881,
+            0.8938050158689465
+          ],
+          "qz": 0.009528035128457228,
+          "qw": 0.9993098691497007,
+          "v": [
+            0.008653272594997343,
+            0.1600154980169392,
+            -0.012627235288584424,
+            0.0007318439656955888
+          ]
+        },
+        "held": {
+          "wall": 1795690148.9905872,
+          "kind": "truth",
+          "sim": 20.6,
+          "xyz": [
+            -4.766921335643383,
+            10.394652553717185,
+            0.8858833629257339
+          ],
+          "qz": 0.009618536798727657,
+          "qw": 0.9993305457672601,
+          "v": [
+            -0.00013244921437463602,
+            -0.2971620302878689,
+            -0.009881554836439684,
+            1.113931418217362e-05
+          ]
+        },
+        "after_release": {
+          "wall": 1795690149.4778135,
+          "kind": "truth",
+          "sim": 20.88,
+          "xyz": [
+            -4.765135867051562,
+            10.303713677827153,
+            0.880472675706432
+          ],
+          "qz": 0.009629891261932515,
+          "qw": 0.9991031368270409,
+          "v": [
+            0.00014048049513080068,
+            -0.27113909879012943,
+            -0.028803004649575054,
+            1.4831368932988198e-05
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0,
+            -0.4,
+            0,
+            0
+          ],
+          "permitted": [
+            0,
+            -0.398,
+            0,
+            0
+          ],
+          "clearance": 0.469
+        }
+      },
+      "f": {
+        "before": {
+          "wall": 1795690149.4778135,
+          "kind": "truth",
+          "sim": 20.88,
+          "xyz": [
+            -4.765135867051562,
+            10.303713677827153,
+            0.880472675706432
+          ],
+          "qz": 0.009629891261932515,
+          "qw": 0.9991031368270409,
+          "v": [
+            0.00014048049513080068,
+            -0.27113909879012943,
+            -0.028803004649575054,
+            1.4831368932988198e-05
+          ]
+        },
+        "held": {
+          "wall": 1795690150.450989,
+          "kind": "truth",
+          "sim": 21.48,
+          "xyz": [
+            -4.764279512736934,
+            10.263236421873145,
+            0.8240845239967967
+          ],
+          "qz": 0.009637938802912503,
+          "qw": 0.999953266752578,
+          "v": [
+            7.309495741710792e-05,
+            0.013347135734170035,
+            -0.23171091835751825,
+            -6.759664841760049e-08
+          ]
+        },
+        "after_release": {
+          "wall": 1795690150.9422555,
+          "kind": "truth",
+          "sim": 21.8,
+          "xyz": [
+            -4.764334680873109,
+            10.26644400318171,
+            0.7695468517060686
+          ],
+          "qz": 0.009637995042402496,
+          "qw": 0.9999525440237227,
+          "v": [
+            -1.4729595194292531e-05,
+            0.0054642634283596945,
+            -0.08146148355848329,
+            2.899235296283109e-07
+          ]
+        },
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0,
+            0,
+            -0.28,
+            0
+          ],
+          "permitted": [
+            0,
+            0,
+            -0.28,
+            0
+          ],
+          "clearance": 0.662
+        }
+      }
+    },
+    "exclusive_dispatch_http": 409,
+    "after_watchdog": {
+      "wall": 1795690152.814,
+      "name": "link-drop",
+      "pose": [
+        -4.764,
+        10.266,
+        0.911,
+        0.019
+      ],
+      "stage": "MANUAL_FLIGHT",
+      "status": {
+        "state": "LINK_LOST",
+        "detail": "Operator heartbeat expired; holding position",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "map": 6396,
+      "safety": "RESERVED",
+      "energy": 96.197
+    },
+    "completed": {
+      "wall": 1795690161.373,
+      "name": "complete",
+      "pose": [
+        -4.698,
+        10.301,
+        0.044,
+        0
+      ],
+      "stage": "COMPLETE",
+      "status": {
+        "state": "DOCKED",
+        "detail": "Manual flight ended at the verified physical dock",
+        "requested": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "permitted": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "clearance": null
+      },
+      "map": 6599,
+      "safety": "RELEASED",
+      "energy": 95.295
+    }
+  },
+  "release": {
+    "first_zero_after_key_up_wall_s": 0.102,
+    "below_0_055_after_zero_wall_s": 0.589,
+    "truth_stopped": {
+      "wall": 1795690143.0496142,
+      "kind": "truth",
+      "sim": 17.0,
+      "xyz": [
+        -4.700263364639895,
+        10.299157807103482,
+        0.9227337322395303
+      ],
+      "qz": 0.006479641060091901,
+      "qw": 0.9999136165585281,
+      "v": [
+        0.0002711306342041746,
+        1.1417794884013006e-06,
+        0.05154893432975162,
+        -8.639274895472226e-05
+      ]
+    }
+  },
+  "browser_network_cut": {
+    "first_zero_wall_s": 0.513,
+    "below_0_055_after_zero_wall_s": 0.611,
+    "truth_stopped": {
+      "wall": 1795690152.6704257,
+      "kind": "truth",
+      "sim": 22.84,
+      "xyz": [
+        -4.764343117438712,
+        10.266463236814477,
+        0.9228968961615028
+      ],
+      "qz": 0.00963801209090005,
+      "qw": 0.9999535526950749,
+      "v": [
+        2.615047929145721e-06,
+        2.6127899256927e-05,
+        0.049628343630545343,
+        -2.435872684114493e-11
+      ]
+    }
+  },
+  "map_voxels": {
+    "manual_ready": 3630,
+    "last_airborne": 6396,
+    "after_verified_dock": 6599
+  },
+  "static_obstacles": {
+    "front-wall": {
+      "wall": 1795689901.9582498,
+      "label": "front-wall",
+      "run": "INS-CONTROL-20261126-104452-E19F4506",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "BLOCKED",
+        "detail": "Obstacle in swept volume",
+        "requested": [
+          0.4,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.159
+      },
+      "tracking": "TRACKING",
+      "map": 54824,
+      "contact": false,
+      "battery": 48.622,
+      "safety": "RESERVED",
+      "recovery": null,
+      "truth": {
+        "wall": 1795689901.8963466,
+        "kind": "truth",
+        "sim": 298.48,
+        "xyz": [
+          -4.700703418183939,
+          10.298100763745268,
+          0.735355701727005
+        ],
+        "qz": 0.0002325099975372147,
+        "qw": 0.9999999729577903,
+        "v": [
+          -3.4855853323452933e-06,
+          -5.38658225967427e-06,
+          5.275674742511245e-05,
+          -1.677403771438435e-07
+        ]
+      },
+      "envelope_clearance_m": 0.141
+    },
+    "side-wall": {
+      "wall": 1795689904.6462965,
+      "label": "side-wall",
+      "run": "INS-CONTROL-20261126-104452-E19F4506",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "BLOCKED",
+        "detail": "Obstacle in swept volume",
+        "requested": [
+          0.0,
+          0.4,
+          0.0,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.159
+      },
+      "tracking": "TRACKING",
+      "map": 55020,
+      "contact": false,
+      "battery": 48.204,
+      "safety": "RESERVED",
+      "recovery": null,
+      "truth": {
+        "wall": 1795689904.692152,
+        "kind": "truth",
+        "sim": 300.04,
+        "xyz": [
+          -4.700700558051066,
+          10.29809795520114,
+          0.7353623539831551
+        ],
+        "qz": 0.00023249459487252602,
+        "qw": 0.9999999729720597,
+        "v": [
+          -6.621424846936295e-07,
+          -1.9154727334605934e-06,
+          9.102241225419912e-07,
+          -7.822847369887143e-08
+        ]
+      },
+      "envelope_clearance_m": 0.142
+    },
+    "overhead": {
+      "wall": 1795689907.337611,
+      "label": "overhead",
+      "run": "INS-CONTROL-20261126-104452-E19F4506",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "BLOCKED",
+        "detail": "Obstacle in swept volume",
+        "requested": [
+          0.0,
+          0.0,
+          0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.243
+      },
+      "tracking": "TRACKING",
+      "map": 55087,
+      "contact": false,
+      "battery": 47.814,
+      "safety": "RESERVED",
+      "recovery": null,
+      "truth": {
+        "wall": 1795689907.3158066,
+        "kind": "truth",
+        "sim": 301.6,
+        "xyz": [
+          -4.7007007448204785,
+          10.298097349649563,
+          0.7353649911656571
+        ],
+        "qz": 0.00023243499047653234,
+        "qw": 0.9999999729838335,
+        "v": [
+          -1.6550640603767381e-06,
+          -5.139573428398628e-06,
+          1.8188548812177266e-06,
+          -1.459974252604468e-07
+        ]
+      },
+      "envelope_clearance_m": 0.195
+    },
+    "below": {
+      "wall": 1795689910.025824,
+      "label": "below",
+      "run": "INS-CONTROL-20261126-104452-E19F4506",
+      "stage": "MANUAL_FLIGHT",
+      "manual": {
+        "state": "BLOCKED",
+        "detail": "Obstacle in swept volume",
+        "requested": [
+          0.0,
+          0.0,
+          -0.28,
+          0.0
+        ],
+        "permitted": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "clearance": 0.243
+      },
+      "tracking": "TRACKING",
+      "map": 55156,
+      "contact": false,
+      "battery": 47.4,
+      "safety": "RESERVED",
+      "recovery": null,
+      "truth": {
+        "wall": 1795689910.0414977,
+        "kind": "truth",
+        "sim": 303.12,
+        "xyz": [
+          -4.700700716736928,
+          10.298097425584508,
+          0.7353678971934232
+        ],
+        "qz": 0.00023237083628293545,
+        "qw": 0.999999973001731,
+        "v": [
+          -2.7437092260175542e-06,
+          -8.648883840496663e-06,
+          3.6575924804384244e-06,
+          -1.278017913719509e-07
+        ]
+      },
+      "envelope_clearance_m": 0.185
+    }
+  },
+  "dynamic": {
+    "run": "INS-CONTROL-20261126-104452-E19F4506",
+    "object_set_pose": {
+      "wall": 1795689912.2873197,
+      "label": "transport-ack",
+      "model": "shaft_block",
+      "xyz": [
+        -4.7,
+        10.3,
+        1.4169999999999998
+      ],
+      "yaw": 0,
+      "output": "data: true"
+    },
+    "reaction_min_wall_s": 0.421,
+    "reaction_max_wall_s": 0.714,
+    "velocity_before_zero_mps": 0.277,
+    "distance_to_below_0_055_m": 0.054,
+    "maximum_post_command_advance_m": 0.061,
+    "time_to_below_0_055_wall_s": 0.648,
+    "time_to_below_0_055_sim_s": 0.4,
+    "minimum_envelope_clearance_m": 0.105
+  },
+  "fault_tests": {
+    "lidar": {
+      "before-cut": {
+        "wall": 1795689944.8194993,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-104536-846FE242",
+        "stage": "MANUAL_FLIGHT",
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55262,
+        "contact": false,
+        "battery": 93.474,
+        "safety": "RESERVED",
+        "recovery": null
+      },
+      "aborted": {
+        "wall": 1795689945.5802443,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-104536-846FE242",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "FAULT",
+          "detail": "Onboard LiDAR stopped advancing",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "LOST",
+        "map": 55262,
+        "contact": false,
+        "battery": 93.365,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "stopped-airborne": {
+        "wall": 1795689946.686788,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-104536-846FE242",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "FAULT",
+          "detail": "Onboard LiDAR stopped advancing",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "LOST",
+        "map": 55262,
+        "contact": false,
+        "battery": 92.795,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "recovery-complete": {
+        "wall": 1795689957.2307513,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-104536-846FE242",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "FAULT",
+          "detail": "Onboard LiDAR stopped advancing",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55379,
+        "contact": true,
+        "battery": 94.366,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE"
+      },
+      "truth_stopped": {
+        "wall": 1795689946.6706285,
+        "kind": "truth",
+        "sim": 325.16,
+        "xyz": [
+          -4.7005442394170664,
+          10.29851365357594,
+          0.930804930838331
+        ],
+        "qz": 0.00019477302820216752,
+        "qw": 0.999999981031121,
+        "v": [
+          -3.082395340775018e-06,
+          -1.174268468921631e-06,
+          0.0055366442730861954,
+          3.6486151990325344e-09
+        ]
+      },
+      "trigger_to_abort_observed_wall_s": 0.761
+    },
+    "localization": {
+      "before-cut": {
+        "wall": 1795689965.7488155,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-104557-70678A39",
+        "stage": "MANUAL_FLIGHT",
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55384,
+        "contact": false,
+        "battery": 98.978,
+        "safety": "RESERVED",
+        "recovery": null
+      },
+      "aborted": {
+        "wall": 1795689966.3590186,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-104557-70678A39",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "LOST",
+        "map": 55384,
+        "contact": false,
+        "battery": 98.949,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "stopped-airborne": {
+        "wall": 1795689967.4660053,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-104557-70678A39",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "LOST",
+        "map": 55384,
+        "contact": false,
+        "battery": 98.231,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "recovery-complete": {
+        "wall": 1795689977.8537529,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-104557-70678A39",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "LOCALIZATION_LOST",
+          "detail": "LOCALIZATION_LOST: Sensor position is no longer reliable",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55410,
+        "contact": true,
+        "battery": 99.577,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE"
+      },
+      "truth_stopped": {
+        "wall": 1795689967.4764917,
+        "kind": "truth",
+        "sim": 337.88,
+        "xyz": [
+          -4.700445926643417,
+          10.298037068390633,
+          0.87703664440348
+        ],
+        "qz": 0.0001479532743218582,
+        "qw": 0.9999999890545628,
+        "v": [
+          -1.6263514108059482e-06,
+          -4.4815519456415005e-06,
+          0.00365161232534895,
+          1.2797923831797675e-08
+        ]
+      },
+      "trigger_to_abort_observed_wall_s": 0.61
+    },
+    "safety": {
+      "before-cut": {
+        "wall": 1795690170.4129152,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-104921-A529792E",
+        "stage": "MANUAL_FLIGHT",
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 6666,
+        "contact": false,
+        "battery": 98.967,
+        "safety": "RESERVED",
+        "recovery": null
+      },
+      "aborted": {
+        "wall": 1795690171.6192386,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-104921-A529792E",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "SAFETY",
+          "detail": "Safety: Zone occupied: Aisle A.",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 6694,
+        "contact": false,
+        "battery": 98.659,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "stopped-airborne": {
+        "wall": 1795690172.724614,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-104921-A529792E",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "SAFETY",
+          "detail": "Safety: Zone occupied: Aisle A.",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 6750,
+        "contact": false,
+        "battery": 98.453,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "recovery-complete": {
+        "wall": 1795690183.681016,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-104921-A529792E",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "SAFETY",
+          "detail": "Safety: Zone occupied: Aisle A.",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 6894,
+        "contact": true,
+        "battery": 99.544,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE"
+      },
+      "truth_stopped": {
+        "wall": 1795690172.7338116,
+        "kind": "truth",
+        "sim": 35.16,
+        "xyz": [
+          -4.7003574776768104,
+          10.298983677498272,
+          1.006780506715024
+        ],
+        "qz": 4.5106164523252455e-05,
+        "qw": 0.9999999989826112,
+        "v": [
+          1.917846730117026e-06,
+          -6.498752055343415e-08,
+          0.006002471990986962,
+          2.6765003516456e-10
+        ]
+      },
+      "trigger_to_abort_observed_wall_s": 1.205
+    },
+    "emergency": {
+      "before-cut": {
+        "wall": 1795690009.6115966,
+        "label": "before-cut",
+        "run": "INS-CONTROL-20261126-104640-AFE36CB1",
+        "stage": "MANUAL_FLIGHT",
+        "manual": {
+          "state": "MOVING",
+          "detail": "Motion permitted",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55422,
+        "contact": false,
+        "battery": 98.943,
+        "safety": "RESERVED",
+        "recovery": null
+      },
+      "aborted": {
+        "wall": 1795690010.2236867,
+        "label": "aborted",
+        "run": "INS-CONTROL-20261126-104640-AFE36CB1",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55422,
+        "contact": false,
+        "battery": 98.783,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "stopped-airborne": {
+        "wall": 1795690011.3299162,
+        "label": "stopped-airborne",
+        "run": "INS-CONTROL-20261126-104640-AFE36CB1",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55422,
+        "contact": false,
+        "battery": 98.617,
+        "safety": "RECOVERY",
+        "recovery": "RECOVERY_REQUIRED"
+      },
+      "recovery-complete": {
+        "wall": 1795690021.7203786,
+        "label": "recovery-complete",
+        "run": "INS-CONTROL-20261126-104640-AFE36CB1",
+        "stage": "ABORTED",
+        "manual": {
+          "state": "EMERGENCY_STOP",
+          "detail": "Stopped by the operator",
+          "requested": [
+            0.0,
+            0.0,
+            0.28,
+            0.0
+          ],
+          "permitted": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clearance": 1.5
+        },
+        "tracking": "TRACKING",
+        "map": 55429,
+        "contact": true,
+        "battery": 99.568,
+        "safety": "RELEASED",
+        "recovery": "RECOVERY_COMPLETE"
+      },
+      "truth_stopped": {
+        "wall": 1795690011.3618236,
+        "kind": "truth",
+        "sim": 364.44,
+        "xyz": [
+          -4.700662749859403,
+          10.29838917897683,
+          0.8894948821939618
+        ],
+        "qz": 0.00022599644975755385,
+        "qw": 0.9999999744599518,
+        "v": [
+          -1.3207499836818176e-05,
+          -6.54120269497113e-08,
+          0.004550158107144432,
+          1.2498612995265335e-08
+        ]
+      },
+      "trigger_to_abort_observed_wall_s": 0.611
+    }
+  },
+  "safety_intrusion_to_confirmed_abort_ms": 250,
+  "low_energy": [
+    {
+      "wall": 1795690109.5514698,
+      "label": "before-rejection",
+      "run": null,
+      "stage": null,
+      "pose": [
+        -4.697,
+        10.3,
+        0.042,
+        0.0
+      ],
+      "manual": null,
+      "clearance": null,
+      "tracking": "TRACKING",
+      "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+      "map": 1143,
+      "contact": true,
+      "battery": 4.819,
+      "at_pad": true,
+      "safety": "AVAILABLE",
+      "recovery": null
+    },
+    {
+      "wall": 1795690109.5539901,
+      "label": "rejected",
+      "code": 409,
+      "response": {
+        "error": "Insufficient energy for manual takeoff and verified return (12.5% required)."
+      }
+    },
+    {
+      "wall": 1795690109.5568824,
+      "label": "after-rejection",
+      "run": null,
+      "stage": null,
+      "pose": [
+        -4.697,
+        10.3,
+        0.042,
+        0.0
+      ],
+      "manual": null,
+      "clearance": null,
+      "tracking": "TRACKING",
+      "tracking_detail": "Synchronized LiDAR fit and inertial prediction",
+      "map": 1143,
+      "contact": true,
+      "battery": 4.819,
+      "at_pad": true,
+      "safety": "AVAILABLE",
+      "recovery": null
+    }
+  ],
+  "autonomous_reference_run": {
+    "id": "INS-CONTROL-20261126-104028-58EE27F9",
+    "stage": "COMPLETE",
+    "landed": true,
+    "physical_contact": true,
+    "confirmed": {
+      "A-01-01": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261126-104028-58EE27F9",
+        "observation_id": "OBS-CAAF37A7841D46279D4B945748F67E0E",
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-26T10:42:34.053Z"
+      },
+      "A-01-03": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261126-104028-58EE27F9",
+        "observation_id": "OBS-6B14AD17DDE44311BE5A38A6B82C7CF6",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-26T10:42:46.437Z"
+      }
+    },
+    "events": 2,
+    "safety": "RELEASED"
+  }
+}

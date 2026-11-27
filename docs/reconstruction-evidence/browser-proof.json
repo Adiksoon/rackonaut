@@ -1,0 +1,25 @@
+{
+  "errors": [],
+  "recordedFrames": 14,
+  "compared": [
+    "cloud",
+    "model",
+    "overlay"
+  ],
+  "camera": [
+    "isometric",
+    "top",
+    "orbit",
+    "zoom"
+  ],
+  "archivePoints": [
+    56059,
+    55775
+  ],
+  "cameraEvidence": true,
+  "unplacedInLocalFile": true,
+  "laptop": [
+    1366,
+    768
+  ]
+}

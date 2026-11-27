@@ -61,3 +61,37 @@ The estimator uses the IMU rates and specific force. In sensor mode the avoidanc
 The `recovery` field of `/rackonaut/mission/status` carries the recovery procedure ID, parent inspection, proposed path, result and permit request. `/rackonaut/safety/state` reports the separately verified recovery permit for that ID. The original mission stage and result remain terminal throughout the procedure. Safety releases the reservation after the permitted recovery completes with stable position and physical dock contact. `/rackonaut/energy/state` reports whether the budget has been accounted for and the energy charged for odometry gaps in this profile. [Recovery profile](../docs/AUTONOMOUS_RECOVERY.md)
 
 In this profile, Mission Manager owns the `std_msgs/msg/Bool` command on `/rackonaut/drone/flight_enabled`. A profile-local bridge forwards it to the existing simulated flight controller. At touchdown Recovery disables thrust, then checks physical dock contact before completion.
+
+## Warehouse calibration initialization
+
+In Full Robotics, Control Center sends a volatile, reliable `std_msgs/msg/String` on `/rackonaut/calibration/request` with `inspection_id` and `calibration_id`. Mission Manager accepts only the request for its current inspection and latches the ID. Control Center retries until the same ID appears in `/rackonaut/mission/status`. Delivery and motion supervision continue independently of the browser session.
+
+The status includes `motion_owned` and, after accepting a calibration request, `calibration_id` and `termination_reason: CALIBRATION_REQUESTED`. A successful interruption ends at `INTERRUPTED_FOR_CALIBRATION` with `landed: true`, the publisher released, and measurements retained. Safety independently verifies physical dock contact and position before releasing the reservation. Energy allows charging at the dock while the inspection stays terminal. Faults and manual Abort retain the existing `ABORTED` result and operator-approved Recovery. The public Start and Abort service types stay the same. [Service Center](../ros2_ws/src/rackonaut_control/README.md#service-center)
+
+## Protected manual flight
+
+In Full Robotics, Control Center publishes `std_msgs/msg/String` on `/rackonaut/manual/request` with reliable, volatile, keep-last depth 1. The payload includes `inspection_id`, an increasing integer `sequence`, `sent` in host monotonic seconds, and `action` (`movement` or `return`). Movement includes four normalized `axes` in body forward, left, up and positive yaw order plus a normalized `speed` of 0.20–1.00. Control Center and Mission Manager run on the same host and check freshness independently. Mission Manager discards expired, repeated and unrelated requests. Its 0.55 s operator watchdog commands zero and retains the flight reservation when input expires airborne.
+
+Mission Manager is the sole `/rackonaut/drone/cmd_vel` publisher in this profile. Its optional `manual` status includes `state`, `detail`, `requested`, `permitted` (body m/s and yaw rad/s), and `clearance` (m or null). Movement progresses through `MANUAL_FLIGHT`. A verified physical dock return finishes at `COMPLETE` with `manual.state` equal to `DOCKED`. Faults use the existing `ABORTED` and Recovery workflow. [Protected manual flight](../docs/PROTECTED_MANUAL_FLIGHT.md)
+
+## Warehouse mapping session
+
+Control Center sends `begin`, `arm`, `finish` and `close` with `mapping_id` on the reliable, volatile `std_msgs/msg/String` topic `/rackonaut/localization/mapping_command`. Localization reports `source`, `mapping_id`, `mapping_phase` and its beginning timestamp on the existing `/rackonaut/localization/state`. The ID binds the manual Mission Manager to its active SLAM session. The localizer verifies physical dock contact and absence of a motion publisher for session changes at the dock.
+
+The map of a mapping session is a packed XYZ `sensor_msgs/msg/PointCloud2` on `/rackonaut/localization/slam_map`, sensor QoS, in the same dock-anchored `rackonaut_odom` frame as the existing estimator. The frame and types of the estimate, live odometry and TF stay the same. The protected flight envelope remains a separate Mission and Safety configuration. [Warehouse mapping](../docs/UNKNOWN_WAREHOUSE_MAPPING.md)
+
+The opt-in `full_route_slam:=true` profile uses the same organized onboard LiDAR topic, frame and cadence with a simulated 16 m maximum range. The SLAM submap can use the extended measured range. Collision Prevention and Recovery retain the original 8 m observation horizon and their existing swept-volume thresholds. Localization status also reports the total and currently retained SLAM keyframes. [Full-route validation](../docs/SLAM_FULL_ROUTE_VALIDATION.md)
+
+Full warehouse calibration keeps the same mapping ID and frame across operator-requested sorties. The mapping status reports `PAUSED` and the saved checkpoint number at verified docking. The next departure uses the existing physical dock, charge readiness and Safety gates. `RECORDING` resumes on explicit operator dispatch. [Full warehouse calibration](../docs/FULL_WAREHOUSE_CALIBRATION.md)
+
+## Learned warehouse replay
+
+The `learned_warehouse:=true` profile uses the existing sensor, estimate, odometry, TF and motion interfaces. At the physical switch the localizer reads a verified archive and matches live LiDAR to frozen keyframes in `rackonaut_odom`. Its status reports `source: learned_map`, `warehouse_id`, `warehouse_revision`, `warehouse_ready` and `warehouse_error`. A new localization target needs three successful scans and the existing registration quality checks before dispatch. Mission Manager checks the selected revision independently on departure and throughout execution.
+
+Mission status carries `learned` with the configuration, approval digest, active directed waypoint and reached poses. The existing path outputs publish the approved replay sequence and actual odometry samples. Perception still activates on `INSPECT` and uses fresh images on the existing camera topics. Safety, Energy and Recovery retain their existing topics and authority. [Learned warehouse](../docs/LEARNED_WAREHOUSE_AUTONOMY.md)
+
+The aerial localization launcher selects `warehouse_variant:=historical` by default or `warehouse_variant:=open-aisle`. The open-aisle world has its own reference geometry. Mapping-only starts use measured keyframes in either world. A saved calibration tagged `warehouse_variant: open-aisle` can be reviewed and loaded only in that variant. Archives without the field belong to the historical variant. Both variants use the same frames, approved corridors and reserved zones. [World variants](../docs/OPEN_AISLE_DESCENT.md)
+
+## Full Robotics drone profiles
+
+The launcher selects `drone_model:=reference` by default or `drone_model:=x3`. Both use the same control, motion and camera topics and the same optical frame. X3's bridge normalizes its native sensor frame names to the shared interface. The RGB camera is 320 × 240 in both, with a base-to-optical translation of `[0.23, 0, 0]` metres for reference and `[0.27, 0, 0.04]` for X3. The optical rotation is identical. The localizer reads the signed model and dock profile before loading a learned archive. Archived manifests without a drone model are legacy reference profiles. The Digital Twin uses the model recorded with the archive. [X3 details](../docs/X3_FULL_ROBOTICS_INTEGRATION.md) · [Integration](../docs/FULL_SYSTEM_INTEGRATION.md)

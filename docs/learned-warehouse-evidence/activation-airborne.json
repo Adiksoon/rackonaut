@@ -1,0 +1,14 @@
+{
+  "stage": "LEARNED_TRANSIT",
+  "id": "INS-CONTROL-20261126-150930-DE9D9F63",
+  "position": [
+    5.091,
+    0.441,
+    0.851,
+    0.01
+  ],
+  "activation_http_status": 409,
+  "detail": "Confirm physical docking and finish the active mission before changing the warehouse.",
+  "attempted_configuration": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "loaded_configuration": "WH-E83B9581352A5C6DBC06694FE5E70FFA"
+}

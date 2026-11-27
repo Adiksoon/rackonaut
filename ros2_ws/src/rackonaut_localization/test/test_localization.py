@@ -1,13 +1,80 @@
+from collections import deque
+from threading import Lock
+from types import SimpleNamespace
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from sensor_msgs.msg import Imu
 
 from rackonaut_localization.inertial import GRAVITY, State, propagate
+from rackonaut_localization.node import IMU_FRAME, MAX_IMU_AGE, Localization
 from rackonaut_localization.registration import StaticMap
+from rackonaut_localization.slam import MeasuredRegistration, group_voxels, planar_voxel_support
 
 
 class LocalizationTests(TestCase):
+    def test_x3_imu_queue_checks_frame_order_and_original_receipt(self):
+        localizer = SimpleNamespace(
+            imu_lock=Lock(), imu_inbox=deque(maxlen=32), samples=deque(maxlen=100),
+            imu_at=float("-inf"), match_at=100., calibrated=True, accepted=1,
+            failures=0, quality="TRACKING", reason="Matched scans",
+        )
+        localizer.on_imu = lambda message: Localization.on_imu(localizer, message)
+        for stamp, frame, receipt in (
+            (20, IMU_FRAME, 99.75), (19, IMU_FRAME, 99.8),
+            (21, IMU_FRAME, 99.9), (22, "wrong_frame", 99.95), (21, IMU_FRAME, 100.),
+        ):
+            message = Imu()
+            message.header.frame_id, message.header.stamp.sec = frame, stamp
+            with patch("rackonaut_localization.node.monotonic", return_value=receipt):
+                Localization.enqueue_imu(localizer, message)
+        with patch("rackonaut_localization.node.monotonic", return_value=100.):
+            Localization.drain_imu(localizer)
+
+        self.assertFalse(localizer.imu_inbox)
+        self.assertEqual([sample[0] for sample in localizer.samples], [20, 21])
+        self.assertEqual(localizer.imu_at, 99.9)
+        self.assertEqual(Localization.status(localizer, 100.)[0], "TRACKING")
+        stale = localizer.imu_at + MAX_IMU_AGE + .01
+        self.assertEqual(Localization.status(localizer, stale), ("LOST", "IMU data stopped advancing"))
+
+    def test_group_voxels_retains_the_first_index_and_sorted_group_order(self):
+        voxels = np.array([[2, -1, 1], [-1, 3, 0], [2, -1, 1], [2, -1, -1], [-1, 3, 0]])
+        first, membership = group_voxels(voxels)
+        np.testing.assert_array_equal(first, [1, 3, 0])
+        np.testing.assert_array_equal(membership, [2, 0, 2, 1, 0])
+
+    def test_voxel_support_preserves_oldest_plane_at_a_shelf_edge(self):
+        points = np.array([[.01, .02, .01], [.07, .02, .03], [.09, .09, .07], [.09, .09, .08]])
+        normals = np.array([[0., 0., 1.], [0., 0., -1.], [1., 0., 0.], [0., 0., 1.]])
+        support = planar_voxel_support(points, normals, np.array([0]), np.zeros(4, dtype=int), .18)
+        # The second observation shares the plane despite the sign of its normal.
+        # The crossing face and the separate parallel plane cannot shift the support.
+        np.testing.assert_allclose(support, [[.0154, .02, .01]])
+
+    def test_measured_registration_uses_its_own_keyframes(self):
+        x, y = np.meshgrid(np.linspace(-1.5, 1.5, 43), np.linspace(-1.5, 1.5, 43))
+        planes = np.column_stack((x.ravel(), y.ravel(), np.zeros(x.size)))
+        observed = np.vstack((planes - [0, 0, .75], planes[:, [2, 0, 1]] + [1.4, 0, .3],
+                              planes[:, [1, 2, 0]] + [0, -1.4, .3]))
+        odometry = MeasuredRegistration()
+        seed = np.array([-4.7, 10.3, .05])
+        yaw = Rotation.from_euler("z", .16)
+        moved = seed + [.13, .1, .25]
+        second_scan = yaw.inv().apply(observed + seed - moved)
+        self.assertIsNone(odometry.match(second_scan, np.zeros(3), seed, yaw))
+        self.assertTrue(odometry.consider(observed, np.zeros(3), seed, Rotation.identity()))
+        fit = odometry.match(second_scan, np.zeros(3), moved + [.045, -.03, .02], yaw)
+        self.assertIsNotNone(fit)
+        np.testing.assert_allclose(fit.xyz, moved, atol=.012)
+        self.assertGreater(fit.weakest, .011)
+        self.assertTrue(odometry.consider(second_scan, np.zeros(3), fit.xyz, fit.attitude))
+        self.assertEqual(len(odometry.keyframes), 2)
+        self.assertEqual(odometry.keyframe_count, 2)
+        self.assertIsNone(MeasuredRegistration().target)
+
     def test_registration_resolves_translation_and_rotation_in_three_planes(self):
         static = StaticMap([[0., 0., -.05, 5., 5., .1],
                             [-1.5, 0., 1.3, .1, 4., 2.6],

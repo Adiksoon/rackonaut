@@ -1,0 +1,32 @@
+{
+  "full_stock_plan_identical": true,
+  "full_plan_location_count": 11,
+  "expected_business_zones": [
+    "D",
+    "A"
+  ],
+  "business_final_high_descent": [
+    {
+      "x": 8.26,
+      "y": 0.45,
+      "z": 2.89,
+      "yaw_deg": 90.0,
+      "slot_id": "A-01-04"
+    },
+    {
+      "x": 8.26,
+      "y": 0.45,
+      "z": 0.79,
+      "yaw_deg": 90.0,
+      "phase": "AISLE_APPROACH"
+    },
+    {
+      "x": 5.1,
+      "y": 0.45,
+      "z": 0.79,
+      "yaw_deg": 0.0,
+      "phase": "AISLE_APPROACH",
+      "gate": "A"
+    }
+  ]
+}

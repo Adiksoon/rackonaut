@@ -1,0 +1,352 @@
+{
+  "long-range": {
+    "inspection_id": "INS-CONTROL-20261126-114455-331EFE8B",
+    "elapsed_seconds": 283.5,
+    "sim_seconds": 156.56,
+    "energy_points": 55.63,
+    "physical_dock": true,
+    "safety": "RELEASED",
+    "results": [
+      {
+        "name": "densemesh",
+        "regions": {
+          "all": {
+            "count": 944,
+            "rmse": 17.522,
+            "p95": 32.573,
+            "max": 43.145
+          },
+          "shaft": {
+            "count": 167,
+            "rmse": 6.199,
+            "p95": 7.313,
+            "max": 8.423
+          },
+          "tunnel": {
+            "count": 510,
+            "rmse": 13.993,
+            "p95": 18.353,
+            "max": 22.089
+          },
+          "aisle": {
+            "count": 267,
+            "rmse": 26.221,
+            "p95": 35.092,
+            "max": 43.145
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 1.254,
+        "angle_max_deg": 0.2334
+      },
+      {
+        "name": "integrated",
+        "regions": {
+          "all": {
+            "count": 944,
+            "rmse": 18.567,
+            "p95": 25.56,
+            "max": 31.838
+          },
+          "shaft": {
+            "count": 167,
+            "rmse": 6.859,
+            "p95": 10.897,
+            "max": 11.997
+          },
+          "tunnel": {
+            "count": 510,
+            "rmse": 18.947,
+            "p95": 22.9,
+            "max": 25.829
+          },
+          "aisle": {
+            "count": 267,
+            "rmse": 22.443,
+            "p95": 28.096,
+            "max": 31.838
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 1.608,
+        "angle_max_deg": 0.2188
+      },
+      {
+        "name": "stablefine",
+        "regions": {
+          "all": {
+            "count": 944,
+            "rmse": 14.667,
+            "p95": 22.932,
+            "max": 34.376
+          },
+          "shaft": {
+            "count": 167,
+            "rmse": 5.811,
+            "p95": 9.214,
+            "max": 9.835
+          },
+          "tunnel": {
+            "count": 510,
+            "rmse": 14.338,
+            "p95": 17.895,
+            "max": 19.982
+          },
+          "aisle": {
+            "count": 267,
+            "rmse": 18.62,
+            "p95": 26.99,
+            "max": 34.376
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 0.659,
+        "angle_max_deg": 0.2785
+      },
+      {
+        "name": "strict-integrated",
+        "regions": {
+          "all": {
+            "count": 944,
+            "rmse": 15.42,
+            "p95": 25.256,
+            "max": 32.592
+          },
+          "shaft": {
+            "count": 167,
+            "rmse": 3.885,
+            "p95": 4.931,
+            "max": 7.052
+          },
+          "tunnel": {
+            "count": 510,
+            "rmse": 13.844,
+            "p95": 20.939,
+            "max": 23.542
+          },
+          "aisle": {
+            "count": 267,
+            "rmse": 21.567,
+            "p95": 30.054,
+            "max": 32.592
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 0.996,
+        "angle_max_deg": 0.3704
+      }
+    ]
+  },
+  "full-manual-separated": {
+    "inspection_id": "INS-CONTROL-20261126-121630-A9D8A349",
+    "elapsed_seconds": 365.0,
+    "sim_seconds": 193.88,
+    "energy_points": 65.268,
+    "physical_dock": true,
+    "safety": "RELEASED",
+    "results": [
+      {
+        "name": "densemesh",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 21.255,
+            "p95": 32.161,
+            "max": 40.778
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 8.313,
+            "p95": 10.286,
+            "max": 12.324
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 20.043,
+            "p95": 27.646,
+            "max": 32.153
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 28.637,
+            "p95": 35.59,
+            "max": 40.778
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 1.609,
+        "angle_max_deg": 0.3244
+      },
+      {
+        "name": "mean",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 27.412,
+            "p95": 41.39,
+            "max": 53.795
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 5.644,
+            "p95": 9.182,
+            "max": 10.189
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 25.298,
+            "p95": 35.062,
+            "max": 41.456
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 38.437,
+            "p95": 44.838,
+            "max": 53.795
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 1.656,
+        "angle_max_deg": 0.2907
+      },
+      {
+        "name": "older",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 25.701,
+            "p95": 37.068,
+            "max": 46.96
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 5.676,
+            "p95": 9.327,
+            "max": 10.442
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 25.442,
+            "p95": 32.217,
+            "max": 35.0
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 33.652,
+            "p95": 39.523,
+            "max": 46.96
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 0.925,
+        "angle_max_deg": 0.2036
+      },
+      {
+        "name": "stablefine",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 19.579,
+            "p95": 29.839,
+            "max": 36.662
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 4.691,
+            "p95": 5.863,
+            "max": 7.95
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 18.7,
+            "p95": 28.801,
+            "max": 31.403
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 26.548,
+            "p95": 33.602,
+            "max": 36.662
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 0.536,
+        "angle_max_deg": 0.4142
+      },
+      {
+        "name": "stock",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 32.289,
+            "p95": 49.38,
+            "max": 60.796
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 6.847,
+            "p95": 11.163,
+            "max": 12.26
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 29.039,
+            "p95": 43.764,
+            "max": 49.754
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 46.196,
+            "p95": 54.104,
+            "max": 60.796
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 1.242,
+        "angle_max_deg": 0.39
+      },
+      {
+        "name": "strict-integrated",
+        "regions": {
+          "all": {
+            "count": 1168,
+            "rmse": 18.385,
+            "p95": 30.438,
+            "max": 40.866
+          },
+          "shaft": {
+            "count": 228,
+            "rmse": 5.255,
+            "p95": 6.342,
+            "max": 8.28
+          },
+          "tunnel": {
+            "count": 619,
+            "rmse": 17.105,
+            "p95": 20.998,
+            "max": 22.044
+          },
+          "aisle": {
+            "count": 321,
+            "rmse": 25.417,
+            "p95": 35.41,
+            "max": 40.866
+          }
+        },
+        "bad": 0,
+        "max_gap_sim_s": 0.168,
+        "dock_drift_mm": 0.631,
+        "angle_max_deg": 0.2964
+      }
+    ]
+  }
+}

@@ -1,0 +1,509 @@
+{
+  "kind": "business",
+  "testedStages": [
+    {
+      "stage": "STARTING",
+      "completed": 0,
+      "battery": 99.985
+    },
+    {
+      "stage": "WAITING",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 99.982
+    },
+    {
+      "stage": "VERTICAL_TAKEOFF",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 99.954
+    },
+    {
+      "stage": "ENTERING_CORRIDOR",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 92.478
+    },
+    {
+      "stage": "OVERHEAD_TRANSIT",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 87.066
+    },
+    {
+      "stage": "WAITING_FOR_AISLE_CLEARANCE",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 76.941
+    },
+    {
+      "stage": "AISLE_DESCENT",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 76.855
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 73.043
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 72.374
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 71.178
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 70.551
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 69.546
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 68.959
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 68.033
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 64.915
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 64.835
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 64.692
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 64.203
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 63.038
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 62.584
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 61.829
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 61.132
+    },
+    {
+      "stage": "AISLE_APPROACH",
+      "target": "PAD",
+      "completed": 2,
+      "battery": 60.523
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 58.51
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 55.979
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 55.903
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 55.647
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 52.809
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 52.635
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 52.361
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 51.911
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 50.71
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 50.286
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 49.539
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 48.961
+    },
+    {
+      "stage": "AISLE_APPROACH",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 48.294
+    },
+    {
+      "stage": "AISLE_ASCENT",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 43.534
+    },
+    {
+      "stage": "RETURN_TRANSIT",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 36.708
+    },
+    {
+      "stage": "LAND",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 21.179
+    },
+    {
+      "stage": "COMPLETE",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 17.097
+    }
+  ],
+  "errors": [],
+  "run": "INS-CONTROL-20261127-072816-DF71B22B",
+  "finish": {
+    "stage": "COMPLETE",
+    "detail": "Landed on the launch pad",
+    "landed": true,
+    "elapsed": 449.473,
+    "safety": "RELEASED",
+    "dock": true,
+    "energy": {
+      "departures": 1,
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.958,
+          "start_sim_time": 3.44,
+          "completed_before": [],
+          "result": "COMPLETE",
+          "end_percent": 17.101,
+          "end_sim_time": 250.2,
+          "completed_after": [
+            "A-01-01",
+            "A-01-02",
+            "A-01-03",
+            "A-01-04"
+          ]
+        }
+      ],
+      "completed": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04"
+      ],
+      "remaining": [],
+      "interrupted": [],
+      "return_reason": "",
+      "return_percent": 0,
+      "required_percent": 0,
+      "reserve_percent": 8,
+      "return_path": []
+    }
+  },
+  "observations": [
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-39A356D5F06E4BDDAF890E388E35A154",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-27T07:30:50.239Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-BF7AFC1A9D464911B055F33858E9129C",
+      "slot_id": "A-01-01",
+      "pallet_id": "P001",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T07:31:01.745Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-C96EBE214886465A9493FD1106D4F7EE",
+      "slot_id": "A-01-02",
+      "pallet_id": "P003",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T07:31:23.701Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-0585BFB0C11B46A1A2C8B59B7D1CA8D0",
+      "slot_id": "A-01-02",
+      "pallet_id": "P003",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T07:31:42.818Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-75FD5BA34D054F4DA215CB609EF8923B",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-27T07:32:17.962Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-E40C32CC6FBB454293DFBF4253834C2F",
+      "slot_id": "A-01-04",
+      "pallet_id": "P999",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T07:32:32.175Z"
+    },
+    {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-072816-DF71B22B",
+      "observation_id": "OBS-BA2E120F0B544A7C8BAEA66D4D791742",
+      "slot_id": "A-01-04",
+      "pallet_id": "P999",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T07:32:51.587Z"
+    }
+  ],
+  "issues": [
+    {
+      "type": "DISCONTINUED_PRODUCT",
+      "slot": "A-01-01",
+      "reason": "Read P001. Product EL-440 has lifecycle DISCONTINUED in Mock SAP.",
+      "action": "Confirm the lifecycle record and follow the withdrawal or return procedure."
+    },
+    {
+      "type": "DAMAGED_PACKAGE",
+      "slot": "A-01-02",
+      "reason": "Dark surface break",
+      "action": "Refer to quality control and assess repacking or isolation of the goods."
+    },
+    {
+      "type": "MISPLACED_PALLET",
+      "slot": "A-01-02",
+      "reason": "A-01-03 was observed empty. The label P003 was read at A-01-02.",
+      "action": "Check both observations and warehouse movements before approving relocation."
+    },
+    {
+      "type": "WRONG_PALLET",
+      "slot": "A-01-02",
+      "reason": "Mock SAP assigns the observed handling unit P003 to A-01-03.",
+      "action": "Verify both labels and move the handling unit only after confirming its destination."
+    },
+    {
+      "type": "MISSING_PALLET",
+      "slot": "A-01-03",
+      "reason": "The inspected location is empty and Mock SAP expects a handling unit.",
+      "action": "Review the last warehouse movements and check the assigned handling unit."
+    },
+    {
+      "type": "DAMAGED_PACKAGE",
+      "slot": "A-01-04",
+      "reason": "Collapsed upper contour",
+      "action": "Refer to quality control and assess repacking or isolation of the goods."
+    },
+    {
+      "type": "UNEXPECTED_PALLET",
+      "slot": "A-01-04",
+      "reason": "A handling unit was read at a location recorded as empty.",
+      "action": "Verify the goods receipt and the handling unit's storage assignment."
+    },
+    {
+      "type": "UNKNOWN_PRODUCT_STATUS",
+      "slot": "A-01-04",
+      "reason": "The readable handling unit P999 has no product master record in this dataset.",
+      "action": "Check the product master and handling-unit record before making a stock decision."
+    }
+  ],
+  "photos": [
+    {
+      "slot": "A-01-01",
+      "id": "OBS-39A356D5F06E4BDDAF890E388E35A154",
+      "bytes": 36685,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 85,
+          "nanosec": 600000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-01",
+      "id": "OBS-BF7AFC1A9D464911B055F33858E9129C",
+      "bytes": 38006,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 92,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-02",
+      "id": "OBS-C96EBE214886465A9493FD1106D4F7EE",
+      "bytes": 42819,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 104,
+          "nanosec": 300000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-02",
+      "id": "OBS-0585BFB0C11B46A1A2C8B59B7D1CA8D0",
+      "bytes": 46163,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 115,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-03",
+      "id": "OBS-75FD5BA34D054F4DA215CB609EF8923B",
+      "bytes": 37528,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 135,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-04",
+      "id": "OBS-E40C32CC6FBB454293DFBF4253834C2F",
+      "bytes": 42304,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 143,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    {
+      "slot": "A-01-04",
+      "id": "OBS-BA2E120F0B544A7C8BAEA66D4D791742",
+      "bytes": 44262,
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 154,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    }
+  ]
+}

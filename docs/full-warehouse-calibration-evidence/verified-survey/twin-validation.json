@@ -1,0 +1,1420 @@
+{
+  "cases": {
+    "GOAL28": {
+      "measured_model": {
+        "archive": {
+          "mapping_id": "CAL-40F4227CCAB2440CA0B9D91802A51805",
+          "frame": "rackonaut_odom",
+          "lidar": {
+            "topic": "/rackonaut/drone/lidar/points",
+            "frame": "rackonaut_reference_drone/base_link/local_lidar",
+            "width": 192,
+            "height": 37,
+            "range_m": [
+              0.1,
+              16.0
+            ],
+            "position_m": [
+              0.0,
+              0.0,
+              0.09
+            ],
+            "collision_range_m": 8.0
+          },
+          "keyframes": 480,
+          "keyframe_returns": 1265346,
+          "route_waypoints": 500
+        },
+        "points": 80000,
+        "map_sha256": "072f26385a70d81623d0a4ad9867a83ba15e3b681753306fb2747caf9e864840",
+        "detected": 3,
+        "world_rows": 4,
+        "matched": [
+          {
+            "row": "R01",
+            "world_row": "rack_row_2",
+            "centre_error_xy_m": [
+              -2.1055142320282165,
+              0.04930152625792772
+            ],
+            "yaw_error_deg": 0.035428109598999016,
+            "dimensions_observed_m": [
+              15.097703747548097,
+              1.177447789570636,
+              5.305290794074534
+            ],
+            "dimensions_reference_m": [
+              19.72,
+              1.3200000000000003,
+              5.7
+            ],
+            "length_fraction": 0.7656036383137981,
+            "level_z_errors_m": [
+              -0.005378011345863354,
+              -0.11218532371520995,
+              -0.11555498886108406
+            ],
+            "patch_centre_to_cloud_p50_m": 0.059373641265997236,
+            "patch_centre_to_cloud_p95_m": 0.1356138070404324
+          },
+          {
+            "row": "R02",
+            "world_row": "rack_row_3",
+            "centre_error_xy_m": [
+              -1.8414552533264352,
+              -0.02207395948774904
+            ],
+            "yaw_error_deg": 0.035428109598999016,
+            "dimensions_observed_m": [
+              15.644524095464156,
+              1.1737342522988037,
+              5.2842428106069566
+            ],
+            "dimensions_reference_m": [
+              19.72,
+              1.3200000000000003,
+              5.7
+            ],
+            "length_fraction": 0.7933328648815495,
+            "level_z_errors_m": [
+              -0.011471468687057507,
+              -0.1221426372528076,
+              -0.12028187561035164
+            ],
+            "patch_centre_to_cloud_p50_m": 0.06532597557619703,
+            "patch_centre_to_cloud_p95_m": 0.12278143166144288
+          },
+          {
+            "row": "R03",
+            "world_row": "rack_row_1",
+            "centre_error_xy_m": [
+              -4.276849576566619,
+              0.07109926883835449
+            ],
+            "yaw_error_deg": 0.035428109598999016,
+            "dimensions_observed_m": [
+              10.118371912001134,
+              1.196769084000863,
+              3.4786702346801763
+            ],
+            "dimensions_reference_m": [
+              19.72,
+              1.3200000000000003,
+              5.7
+            ],
+            "length_fraction": 0.5131020239351488,
+            "level_z_errors_m": [
+              -0.09702953147888183,
+              -0.10552614974975594
+            ],
+            "patch_centre_to_cloud_p50_m": 0.07038840876076854,
+            "patch_centre_to_cloud_p95_m": 0.12676545268218548
+          }
+        ],
+        "false_positives": 0,
+        "coverage": {
+          "rack_row_1": {
+            "returns_in_expanded_envelope": 4119,
+            "reconstructed": true
+          },
+          "rack_row_2": {
+            "returns_in_expanded_envelope": 7319,
+            "reconstructed": true
+          },
+          "rack_row_3": {
+            "returns_in_expanded_envelope": 6169,
+            "reconstructed": true
+          },
+          "rack_row_4": {
+            "returns_in_expanded_envelope": 914,
+            "reconstructed": false
+          }
+        },
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 1,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.024905270583049966,
+            "error_to_placard_centre_m": 0.14499413766530206
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 1,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.017695732060869076,
+            "error_to_placard_centre_m": 0.13444895708080815
+          },
+          {
+            "id": "A-01-05",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 1,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.027998638766455152,
+            "error_to_placard_centre_m": 0.14003707132116314
+          },
+          {
+            "id": "A-01-07",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": null,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.041092729040216165,
+            "error_to_placard_centre_m": 0.1550644921914167
+          },
+          {
+            "id": "A-01-02",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 2,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.01436521904043974,
+            "error_to_placard_centre_m": 0.13393500166854175
+          },
+          {
+            "id": "A-01-04",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 2,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.01670253531707764,
+            "error_to_placard_centre_m": 0.1286752779077753
+          },
+          {
+            "id": "A-01-06",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 2,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.015942732654106048,
+            "error_to_placard_centre_m": 0.12598386653548238
+          },
+          {
+            "id": "B-01-01",
+            "status": "projected",
+            "rack_id": "R01",
+            "level": 1,
+            "world_row": "rack_row_2",
+            "correct_row": true,
+            "error_to_marker_m": 0.09751028906791585,
+            "error_to_placard_centre_m": 0.17050452437850375
+          },
+          {
+            "id": "B-01-02",
+            "status": "projected",
+            "rack_id": "R01",
+            "level": 2,
+            "world_row": "rack_row_2",
+            "correct_row": true,
+            "error_to_marker_m": 0.07808543294897491,
+            "error_to_placard_centre_m": 0.1613554353577121
+          },
+          {
+            "id": "B-02-01",
+            "status": "projected",
+            "rack_id": "R01",
+            "level": 1,
+            "world_row": "rack_row_2",
+            "correct_row": true,
+            "error_to_marker_m": 0.06886562366309289,
+            "error_to_placard_centre_m": 0.16246957623769787
+          },
+          {
+            "id": "A-01-08",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 2,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.03032935737418599,
+            "error_to_placard_centre_m": 0.14232537520110622
+          }
+        ],
+        "export_seconds": 0.5849383559998387,
+        "byte_equivalent_in_template_bundle": true
+      },
+      "ply": {
+        "source": "ply",
+        "rows": [
+          {
+            "id": "R01",
+            "reference_row": "rack_row_2",
+            "position_m": [
+              11.794485767971782,
+              -2.9506984737420723,
+              0.0053491126745939255
+            ],
+            "dimensions_m": [
+              15.097703747548097,
+              1.177447789570636,
+              5.5493419731408355
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              0.4278823807835592,
+              2.4727938920259485,
+              4.517705403268337
+            ],
+            "pitch_m": 2.779834897817704,
+            "post_stations": 7,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 6,
+              "post_residual_m": 0.027828577413147978,
+              "deck_area_support_fraction": [
+                0.4556468388623796,
+                0.6944769766848129,
+                0.7208933093789954
+              ],
+              "npz_level_voxels": [
+                0,
+                0,
+                0
+              ],
+              "support_points": 1512,
+              "regular_levels": true
+            },
+            "length_fraction": 0.7656036383137981,
+            "across_centre_error_m": 0.04930152625792772,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -4.622296252451902,
+              -0.1425522104293644,
+              -0.15065802685916463
+            ],
+            "pitch_error_m": -0.020165102182296835,
+            "level_top_errors_m": [
+              -0.022617619216440787,
+              -0.07770610797405153,
+              -0.13279459673166283
+            ],
+            "level_nearest_face_errors_m": [
+              -0.022617619216440787,
+              0.027293892025948452,
+              -0.027794596731662402
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.005378011345863354,
+              -0.007185323715209968,
+              -0.010554988861083636
+            ]
+          },
+          {
+            "id": "R02",
+            "reference_row": "rack_row_3",
+            "position_m": [
+              12.058544746673563,
+              2.977926040512251,
+              0.0053491126745939255
+            ],
+            "dimensions_m": [
+              15.644524095464156,
+              1.1737342522988037,
+              5.536894874408841
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              0.4202732096115768,
+              2.4658680061499294,
+              4.511462802688282
+            ],
+            "pitch_m": 2.773646182996669,
+            "post_stations": 7,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 6,
+              "post_residual_m": 0.013882306844420444,
+              "deck_area_support_fraction": [
+                0.3182133650323204,
+                0.8165640699973808,
+                0.8777135485159762
+              ],
+              "npz_level_voxels": [
+                0,
+                0,
+                0
+              ],
+              "support_points": 1812,
+              "regular_levels": true
+            },
+            "length_fraction": 0.7933328648815495,
+            "across_centre_error_m": 0.02207395948774904,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -4.075475904535843,
+              -0.1462657477011966,
+              -0.16310512559115953
+            ],
+            "pitch_error_m": -0.026353817003331503,
+            "level_top_errors_m": [
+              -0.030226790388423186,
+              -0.08463199385007059,
+              -0.13903719731171815
+            ],
+            "level_nearest_face_errors_m": [
+              -0.030226790388423186,
+              0.020368006149929396,
+              -0.034037197311717726
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.011471468687057507,
+              -0.017142637252807624,
+              -0.015281875610351214
+            ]
+          },
+          {
+            "id": "R03",
+            "reference_row": "rack_row_1",
+            "position_m": [
+              9.62315042343338,
+              -8.928900731161646,
+              2.1729424667358397
+            ],
+            "dimensions_m": [
+              10.118371912001134,
+              1.196769084000863,
+              3.4612479209899907
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              2.4534704685211173,
+              4.544973850250242
+            ],
+            "pitch_m": 2.783871064205532,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 3,
+              "post_residual_m": 0.010273094880074954,
+              "deck_area_support_fraction": [
+                0.6812662476312289,
+                0.597430625744857
+              ],
+              "npz_level_voxels": [
+                0,
+                0
+              ],
+              "support_points": 650,
+              "regular_levels": true
+            },
+            "length_fraction": 0.5131020239351488,
+            "across_centre_error_m": 0.07109926883835449,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -9.601628087998865,
+              -0.12323091599913738,
+              -2.2387520790100095
+            ],
+            "pitch_error_m": -0.016128935794468724,
+            "level_top_errors_m": [
+              -0.09702953147888271,
+              -0.10552614974975771
+            ],
+            "level_nearest_face_errors_m": [
+              0.007970468521117269,
+              -0.0005261497497572876
+            ],
+            "measured_level_nearest_face_errors_m": [
+              0.007970468521118157,
+              -0.0005261497497555112
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.024905270583049966
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.017695732060869076
+          },
+          {
+            "id": "A-01-05",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.027998638766455152
+          },
+          {
+            "id": "A-01-07",
+            "status": "projected",
+            "level": null,
+            "correct_row": true,
+            "error_to_aruco_m": 0.041092729040216165
+          },
+          {
+            "id": "A-01-02",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.01436521904043974
+          },
+          {
+            "id": "A-01-04",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.01670253531707764
+          },
+          {
+            "id": "A-01-06",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.015942732654106048
+          },
+          {
+            "id": "B-01-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.09751028906791585
+          },
+          {
+            "id": "B-01-02",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.07808543294897491
+          },
+          {
+            "id": "B-02-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.06886562366309289
+          },
+          {
+            "id": "A-01-08",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.03032935737418599
+          }
+        ],
+        "keyframes": null,
+        "floor": {
+          "yaw_rad": 3.140974316429533,
+          "bounds_uv": [
+            [
+              -18.983685200844608,
+              -11.607204341961143
+            ],
+            [
+              2.9577265400061195,
+              10.697045970396449
+            ]
+          ],
+          "z_m": 0.0053491126745939255,
+          "support_points": 26549
+        },
+        "walls": 1,
+        "aisles": 2,
+        "dock": true,
+        "route_edges": 496,
+        "route_source": "archived_graph",
+        "export_seconds": 0.9860079120007867,
+        "bundle_sha256": "66e7a7ef302b01974cc8d1c94e0a4c591cbe96a8fabc7ac984e9ca8272e3afaf"
+      },
+      "combined": {
+        "source": "ply+npz",
+        "rows": [
+          {
+            "id": "R01",
+            "reference_row": "rack_row_2",
+            "position_m": [
+              11.747257167868282,
+              -2.9506692705398794,
+              0.0053491126745939255
+            ],
+            "dimensions_m": [
+              15.192160965812521,
+              1.177447789570636,
+              5.5493419731408355
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              0.42926214554469583,
+              2.474677080043942,
+              4.520092014543188
+            ],
+            "pitch_m": 2.779834897817704,
+            "post_stations": 7,
+            "end_extension_m": [
+              0.0,
+              0.09445721826442366
+            ],
+            "quality": {
+              "post_evidence": 6,
+              "post_residual_m": 0.027828577413147978,
+              "deck_area_support_fraction": [
+                0.45281385591763784,
+                0.6901590680269233,
+                0.7164111572465498
+              ],
+              "npz_level_voxels": [
+                274,
+                257,
+                955
+              ],
+              "support_points": 1512,
+              "regular_levels": true
+            },
+            "length_fraction": 0.7703935581040833,
+            "across_centre_error_m": 0.049330729460120626,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -4.527839034187478,
+              -0.1425522104293644,
+              -0.15065802685916463
+            ],
+            "pitch_error_m": -0.020165102182296835,
+            "level_top_errors_m": [
+              -0.021237854455304184,
+              -0.07582291995605805,
+              -0.1304079854568121
+            ],
+            "level_nearest_face_errors_m": [
+              -0.021237854455304184,
+              0.029177080043941928,
+              -0.025407985456811666
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.005378011345863354,
+              -0.007185323715209968,
+              -0.010554988861083636
+            ]
+          },
+          {
+            "id": "R02",
+            "reference_row": "rack_row_3",
+            "position_m": [
+              12.016415071046763,
+              2.977952090859561,
+              0.0053491126745939255
+            ],
+            "dimensions_m": [
+              15.728783462825655,
+              1.1737342522988037,
+              5.536894874408841
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              0.4204486175311423,
+              2.467390922827055,
+              4.514333228122968
+            ],
+            "pitch_m": 2.773646182996669,
+            "post_stations": 7,
+            "end_extension_m": [
+              0.0,
+              0.08425936736149886
+            ],
+            "quality": {
+              "post_evidence": 6,
+              "post_residual_m": 0.013882306844420444,
+              "deck_area_support_fraction": [
+                0.3165086904853685,
+                0.8121897220313908,
+                0.8730116217269551
+              ],
+              "npz_level_voxels": [
+                405,
+                823,
+                1333
+              ],
+              "support_points": 1812,
+              "regular_levels": true
+            },
+            "length_fraction": 0.7976056522731063,
+            "across_centre_error_m": 0.02204790914043908,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -3.9912165371743438,
+              -0.1462657477011966,
+              -0.16310512559115953
+            ],
+            "pitch_error_m": -0.026353817003331503,
+            "level_top_errors_m": [
+              -0.03005138246885769,
+              -0.0831090771729448,
+              -0.13616677187703186
+            ],
+            "level_nearest_face_errors_m": [
+              -0.03005138246885769,
+              0.02189092282705518,
+              -0.03116677187703143
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.011471468687057507,
+              -0.017142637252807624,
+              -0.015281875610351214
+            ]
+          },
+          {
+            "id": "R03",
+            "reference_row": "rack_row_1",
+            "position_m": [
+              9.62315042343338,
+              -8.928900731161646,
+              2.1729424667358397
+            ],
+            "dimensions_m": [
+              10.118371912001134,
+              1.196769084000863,
+              3.4612479209899907
+            ],
+            "yaw_rad": 3.140974316429533,
+            "levels_m": [
+              2.4534704685211173,
+              4.544973850250242
+            ],
+            "pitch_m": 2.783871064205532,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 3,
+              "post_residual_m": 0.010273094880074954,
+              "deck_area_support_fraction": [
+                0.6812662476312289,
+                0.597430625744857
+              ],
+              "npz_level_voxels": [
+                0,
+                0
+              ],
+              "support_points": 650,
+              "regular_levels": true
+            },
+            "length_fraction": 0.5131020239351488,
+            "across_centre_error_m": 0.07109926883835449,
+            "yaw_error_deg": 0.035428109598999016,
+            "dimension_errors_m": [
+              -9.601628087998865,
+              -0.12323091599913738,
+              -2.2387520790100095
+            ],
+            "pitch_error_m": -0.016128935794468724,
+            "level_top_errors_m": [
+              -0.09702953147888271,
+              -0.10552614974975771
+            ],
+            "level_nearest_face_errors_m": [
+              0.007970468521117269,
+              -0.0005261497497572876
+            ],
+            "measured_level_nearest_face_errors_m": [
+              0.007970468521118157,
+              -0.0005261497497555112
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.024905270583049966
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.017695732060869076
+          },
+          {
+            "id": "A-01-05",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.027998638766455152
+          },
+          {
+            "id": "A-01-07",
+            "status": "projected",
+            "level": null,
+            "correct_row": true,
+            "error_to_aruco_m": 0.041092729040216165
+          },
+          {
+            "id": "A-01-02",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.01436521904043974
+          },
+          {
+            "id": "A-01-04",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.01670253531707764
+          },
+          {
+            "id": "A-01-06",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.015942732654106048
+          },
+          {
+            "id": "B-01-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.09751028906791585
+          },
+          {
+            "id": "B-01-02",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.07808543294897491
+          },
+          {
+            "id": "B-02-01",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.06886562366309289
+          },
+          {
+            "id": "A-01-08",
+            "status": "projected",
+            "level": 2,
+            "correct_row": true,
+            "error_to_aruco_m": 0.03032935737418599
+          }
+        ],
+        "keyframes": {
+          "raw_returns": 1265346,
+          "keyframes": 480,
+          "pose_groups": 111,
+          "occupied_voxels": 130751,
+          "retained_voxels": 112695,
+          "multi_view_voxels": 86065,
+          "retained_beyond_ply_18cm": 19369
+        },
+        "floor": {
+          "yaw_rad": 3.140974316429533,
+          "bounds_uv": [
+            [
+              -18.983685200844608,
+              -11.607204341961143
+            ],
+            [
+              2.9577265400061195,
+              10.697045970396449
+            ]
+          ],
+          "z_m": 0.0053491126745939255,
+          "support_points": 26549
+        },
+        "walls": 1,
+        "aisles": 2,
+        "dock": true,
+        "route_edges": 496,
+        "route_source": "archived_graph",
+        "export_seconds": 2.144606952000686,
+        "bundle_sha256": "03e6a6c6b752195d2d7e73033b86fac1b4e00058f8f481123e7da3afaf9ca627"
+      }
+    },
+    "GOAL26B": {
+      "measured_model": {
+        "archive": {
+          "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+          "frame": "rackonaut_odom",
+          "lidar": {
+            "topic": "/rackonaut/drone/lidar/points",
+            "frame": "rackonaut_reference_drone/base_link/local_lidar",
+            "width": 192,
+            "height": 37,
+            "range_m": [
+              0.1,
+              16.0
+            ],
+            "position_m": [
+              0.0,
+              0.0,
+              0.09
+            ],
+            "collision_range_m": 8.0
+          },
+          "keyframes": 183,
+          "keyframe_returns": 488727,
+          "route_waypoints": 107
+        },
+        "points": 56059,
+        "map_sha256": "2cf90f4052a258d332672b447fb574c2cb7b3fab832ecb6f9651dae4de056409",
+        "detected": 2,
+        "world_rows": 4,
+        "matched": [
+          {
+            "row": "R01",
+            "world_row": "rack_row_2",
+            "centre_error_xy_m": [
+              -4.90159782427571,
+              0.046304714239375766
+            ],
+            "yaw_error_deg": 0.039644789575106226,
+            "dimensions_observed_m": [
+              9.555887680610933,
+              1.2050255456716124,
+              5.364221213757992
+            ],
+            "dimensions_reference_m": [
+              19.72,
+              1.3200000000000003,
+              5.7
+            ],
+            "length_fraction": 0.4845784827896011,
+            "level_z_errors_m": [
+              -0.013400483608245861,
+              -0.11800106811523436,
+              -0.12008446502685555
+            ],
+            "patch_centre_to_cloud_p50_m": 0.06644675881432457,
+            "patch_centre_to_cloud_p95_m": 0.10744835695734356
+          },
+          {
+            "row": "R02",
+            "world_row": "rack_row_3",
+            "centre_error_xy_m": [
+              -4.711642478083158,
+              -0.046468592353959615
+            ],
+            "yaw_error_deg": 0.039644789575106226,
+            "dimensions_observed_m": [
+              9.9205731036523,
+              1.1893032277879132,
+              5.42011598199606
+            ],
+            "dimensions_reference_m": [
+              19.72,
+              1.3200000000000003,
+              5.7
+            ],
+            "length_fraction": 0.5030716584002181,
+            "level_z_errors_m": [
+              -0.021506253361701977,
+              -0.12709566402435302,
+              -0.12711924362182625
+            ],
+            "patch_centre_to_cloud_p50_m": 0.054227873675906736,
+            "patch_centre_to_cloud_p95_m": 0.09907500905885407
+          }
+        ],
+        "false_positives": 0,
+        "coverage": {
+          "rack_row_1": {
+            "returns_in_expanded_envelope": 0,
+            "reconstructed": false
+          },
+          "rack_row_2": {
+            "returns_in_expanded_envelope": 4126,
+            "reconstructed": true
+          },
+          "rack_row_3": {
+            "returns_in_expanded_envelope": 3893,
+            "reconstructed": true
+          },
+          "rack_row_4": {
+            "returns_in_expanded_envelope": 883,
+            "reconstructed": false
+          }
+        },
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": null,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.022923873022612326,
+            "error_to_placard_centre_m": 0.14296046566188028
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "rack_id": "R02",
+            "level": 1,
+            "world_row": "rack_row_3",
+            "correct_row": true,
+            "error_to_marker_m": 0.025261823378201702,
+            "error_to_placard_centre_m": 0.14334613033510313
+          }
+        ],
+        "export_seconds": 0.2741965830009576,
+        "byte_equivalent_in_template_bundle": true
+      },
+      "ply": {
+        "source": "ply",
+        "rows": [
+          {
+            "id": "R01",
+            "reference_row": "rack_row_2",
+            "position_m": [
+              8.998402175724289,
+              -2.9536952857606242,
+              0.00156049634097144
+            ],
+            "dimensions_m": [
+              9.555887680610933,
+              1.2050255456716124,
+              5.5915517816436475
+            ],
+            "yaw_rad": 3.140900721480447,
+            "levels_m": [
+              0.4200133184591944,
+              2.4666713277498893,
+              4.513329337040584
+            ],
+            "pitch_m": 2.7642509765389964,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 4,
+              "post_residual_m": 0.013541093895751146,
+              "deck_area_support_fraction": [
+                0.47572642223282224,
+                0.7194174038621984,
+                0.800500915383882
+              ],
+              "npz_level_voxels": [
+                0,
+                0,
+                0
+              ],
+              "support_points": 1010,
+              "regular_levels": true
+            },
+            "length_fraction": 0.4845784827896011,
+            "across_centre_error_m": 0.046304714239375766,
+            "yaw_error_deg": 0.039644789575106226,
+            "dimension_errors_m": [
+              -10.164112319389066,
+              -0.11497445432838793,
+              -0.10844821835635265
+            ],
+            "pitch_error_m": -0.03574902346100428,
+            "level_top_errors_m": [
+              -0.030486681540805638,
+              -0.0838286722501107,
+              -0.1371706629594165
+            ],
+            "level_nearest_face_errors_m": [
+              -0.030486681540805638,
+              0.02117132774988928,
+              -0.03217066295941606
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.013400483608245861,
+              -0.013001068115234382,
+              -0.01508446502685512
+            ]
+          },
+          {
+            "id": "R02",
+            "reference_row": "rack_row_3",
+            "position_m": [
+              9.18835752191684,
+              2.9535314076460404,
+              0.00156049634097144
+            ],
+            "dimensions_m": [
+              9.9205731036523,
+              1.1893032277879132,
+              5.6006441936385825
+            ],
+            "yaw_rad": 3.140900721480447,
+            "levels_m": [
+              0.41139944146076957,
+              2.458592946330707,
+              4.5057864512006445
+            ],
+            "pitch_m": 2.7680104683558313,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 4,
+              "post_residual_m": 0.016868566138262774,
+              "deck_area_support_fraction": [
+                0.39046048550717377,
+                0.8409962963966027,
+                0.8586156419030381
+              ],
+              "npz_level_voxels": [
+                0,
+                0,
+                0
+              ],
+              "support_points": 1185,
+              "regular_levels": true
+            },
+            "length_fraction": 0.5030716584002181,
+            "across_centre_error_m": 0.046468592353959615,
+            "yaw_error_deg": 0.039644789575106226,
+            "dimension_errors_m": [
+              -9.799426896347699,
+              -0.1306967722120871,
+              -0.09935580636141772
+            ],
+            "pitch_error_m": -0.0319895316441694,
+            "level_top_errors_m": [
+              -0.039100558539230446,
+              -0.09190705366929297,
+              -0.1447135487993556
+            ],
+            "level_nearest_face_errors_m": [
+              -0.039100558539230446,
+              0.013092946330707012,
+              -0.03971354879935518
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.021506253361701977,
+              -0.022095664024353034,
+              -0.022119243621825824
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "level": null,
+            "correct_row": true,
+            "error_to_aruco_m": 0.022923873022612326
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.025261823378201702
+          }
+        ],
+        "keyframes": null,
+        "floor": {
+          "yaw_rad": 3.140900721480447,
+          "bounds_uv": [
+            [
+              -13.650264499224992,
+              -11.91484544694236
+            ],
+            [
+              5.228763826898364,
+              4.102985367804361
+            ]
+          ],
+          "z_m": 0.00156049634097144,
+          "support_points": 12182
+        },
+        "walls": 1,
+        "aisles": 1,
+        "dock": true,
+        "route_edges": 106,
+        "route_source": "archived_graph",
+        "export_seconds": 0.4470809909998934,
+        "bundle_sha256": "3a6f20b64ff340e5ba8f04c63bf28060eb5f4aa5272757c650d311b2d0354ae1"
+      },
+      "combined": {
+        "source": "ply+npz",
+        "rows": [
+          {
+            "id": "R01",
+            "reference_row": "rack_row_2",
+            "position_m": [
+              8.998402175724289,
+              -2.9536952857606242,
+              0.00156049634097144
+            ],
+            "dimensions_m": [
+              9.555887680610933,
+              1.2050255456716124,
+              5.5915517816436475
+            ],
+            "yaw_rad": 3.140900721480447,
+            "levels_m": [
+              0.4203095767233122,
+              2.46882638666365,
+              4.517343196603988
+            ],
+            "pitch_m": 2.7642509765389964,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 4,
+              "post_residual_m": 0.013541093895751146,
+              "deck_area_support_fraction": [
+                0.47572642223282224,
+                0.7194174038621984,
+                0.800500915383882
+              ],
+              "npz_level_voxels": [
+                15,
+                79,
+                468
+              ],
+              "support_points": 1010,
+              "regular_levels": true
+            },
+            "length_fraction": 0.4845784827896011,
+            "across_centre_error_m": 0.046304714239375766,
+            "yaw_error_deg": 0.039644789575106226,
+            "dimension_errors_m": [
+              -10.164112319389066,
+              -0.11497445432838793,
+              -0.10844821835635265
+            ],
+            "pitch_error_m": -0.03574902346100428,
+            "level_top_errors_m": [
+              -0.030190423276687806,
+              -0.08167361333635004,
+              -0.13315680339601244
+            ],
+            "level_nearest_face_errors_m": [
+              -0.030190423276687806,
+              0.023326386663649945,
+              -0.02815680339601201
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.013400483608245861,
+              -0.013001068115234382,
+              -0.01508446502685512
+            ]
+          },
+          {
+            "id": "R02",
+            "reference_row": "rack_row_3",
+            "position_m": [
+              9.18835752191684,
+              2.9535314076460404,
+              0.00156049634097144
+            ],
+            "dimensions_m": [
+              9.9205731036523,
+              1.1893032277879132,
+              5.6006441936385825
+            ],
+            "yaw_rad": 3.140900721480447,
+            "levels_m": [
+              0.4087572776609011,
+              2.457707865370646,
+              4.506658453080391
+            ],
+            "pitch_m": 2.7680104683558313,
+            "post_stations": 5,
+            "end_extension_m": [
+              0.0,
+              0.0
+            ],
+            "quality": {
+              "post_evidence": 4,
+              "post_residual_m": 0.016868566138262774,
+              "deck_area_support_fraction": [
+                0.39046048550717377,
+                0.8409962963966027,
+                0.8586156419030381
+              ],
+              "npz_level_voxels": [
+                42,
+                318,
+                635
+              ],
+              "support_points": 1185,
+              "regular_levels": true
+            },
+            "length_fraction": 0.5030716584002181,
+            "across_centre_error_m": 0.046468592353959615,
+            "yaw_error_deg": 0.039644789575106226,
+            "dimension_errors_m": [
+              -9.799426896347699,
+              -0.1306967722120871,
+              -0.09935580636141772
+            ],
+            "pitch_error_m": -0.0319895316441694,
+            "level_top_errors_m": [
+              -0.041742722339098925,
+              -0.0927921346293541,
+              -0.14384154691960926
+            ],
+            "level_nearest_face_errors_m": [
+              -0.041742722339098925,
+              0.012207865370645887,
+              -0.03884154691960884
+            ],
+            "measured_level_nearest_face_errors_m": [
+              -0.021506253361701977,
+              -0.022095664024353034,
+              -0.022119243621825824
+            ]
+          }
+        ],
+        "locations": [
+          {
+            "id": "A-01-01",
+            "status": "projected",
+            "level": null,
+            "correct_row": true,
+            "error_to_aruco_m": 0.022923873022612326
+          },
+          {
+            "id": "A-01-03",
+            "status": "projected",
+            "level": 1,
+            "correct_row": true,
+            "error_to_aruco_m": 0.025261823378201702
+          }
+        ],
+        "keyframes": {
+          "raw_returns": 488727,
+          "keyframes": 183,
+          "pose_groups": 64,
+          "occupied_voxels": 83873,
+          "retained_voxels": 70885,
+          "multi_view_voxels": 51553,
+          "retained_beyond_ply_18cm": 6241
+        },
+        "floor": {
+          "yaw_rad": 3.140900721480447,
+          "bounds_uv": [
+            [
+              -13.650264499224992,
+              -11.91484544694236
+            ],
+            [
+              5.228763826898364,
+              4.102985367804361
+            ]
+          ],
+          "z_m": 0.00156049634097144,
+          "support_points": 12182
+        },
+        "walls": 1,
+        "aisles": 1,
+        "dock": true,
+        "route_edges": 106,
+        "route_source": "archived_graph",
+        "export_seconds": 0.883732370000871,
+        "bundle_sha256": "caae4c76f6cd5d30d2214daad88a895ac75f96b39fea39486c9ef2c2ef108052"
+      }
+    }
+  },
+  "modified_ply": [
+    {
+      "case": "central strip removed",
+      "points": 79685,
+      "rows": 2,
+      "yaw_deg_mod_180": [
+        179.99820264532133,
+        179.99820264532133
+      ],
+      "lengths_m": [
+        15.638621141998854,
+        8.428966433450192
+      ],
+      "levels": [
+        3,
+        3
+      ],
+      "pitches_m": [
+        2.775854097295865,
+        2.7903691475019117
+      ],
+      "minimum_deck_support_fraction": 0.3973400493072432
+    },
+    {
+      "case": "one row removed",
+      "points": 71493,
+      "rows": 1,
+      "yaw_deg_mod_180": [
+        179.9827868077575
+      ],
+      "lengths_m": [
+        15.638682925338214
+      ],
+      "levels": [
+        3
+      ],
+      "pitches_m": [
+        2.775842781186857
+      ],
+      "minimum_deck_support_fraction": 0.39862302236575814
+    },
+    {
+      "case": "low-only map",
+      "points": 29269,
+      "rows": 0,
+      "yaw_deg_mod_180": [],
+      "lengths_m": [],
+      "levels": [],
+      "pitches_m": [],
+      "minimum_deck_support_fraction": null
+    },
+    {
+      "case": "rotation 27 degrees with translation",
+      "points": 80000,
+      "rows": 2,
+      "yaw_deg_mod_180": [
+        26.998706772944885,
+        26.998706772944885
+      ],
+      "lengths_m": [
+        15.638619102448075,
+        15.104367797098538
+      ],
+      "levels": [
+        3,
+        3
+      ],
+      "pitches_m": [
+        2.7795052157696465,
+        2.781473659078682
+      ],
+      "minimum_deck_support_fraction": 0.3983281232765666
+    }
+  ]
+}

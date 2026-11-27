@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "calibration_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+  "mapping_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+  "frame": "rackonaut_odom",
+  "revision": 4,
+  "trajectory": "result.json",
+  "map": "map.ply",
+  "locations": [
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 119,
+        "nanosec": 200000000
+      },
+      "received_at_utc": "2026-11-26T13:56:30.172943+00:00",
+      "position_m": [
+        5.459234763262235,
+        0.4497982436219589,
+        0.7925781302634274
+      ],
+      "orientation_xyzw": [
+        0.0009286009894499553,
+        0.0006474087458500178,
+        0.6948048555176245,
+        0.7191974216522548
+      ],
+      "camera_direction": [
+        0.0344915872220975,
+        0.9994049236482898,
+        0.00035916355107569323
+      ],
+      "sync": {
+        "before_ms": 40.0,
+        "after_ms": 0.0
+      },
+      "position_sigma_m": [
+        0.011275781077290188,
+        0.008261830077331826,
+        0.005785799074557907
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0136,
+        "overlap": 0.851,
+        "weakest": 0.06972,
+        "sigma": [
+          0.0112,
+          0.0083,
+          0.0058
+        ],
+        "scan_age_ms": 30,
+        "imu_age_ms": 9
+      },
+      "record_id": "LOC-E065774CBEEA42AF9E7C6DD2332824D7",
+      "storage_location_id": "A-01-01",
+      "calibration_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+      "mapping_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+      "id_source": "operator",
+      "suggested_id": null,
+      "description": "Camera reference during measured route teaching",
+      "status": "approved",
+      "reference_image": "locations/CAP-81303FDDFE734502B524B9C93D8C6E38/reference.jpg"
+    },
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 129,
+        "nanosec": 400000000
+      },
+      "received_at_utc": "2026-11-26T13:56:47.888519+00:00",
+      "position_m": [
+        8.254795403613123,
+        0.45139392686525004,
+        0.7938012830864587
+      ],
+      "orientation_xyzw": [
+        0.0007291205858714573,
+        0.0011815043108714923,
+        0.707215698991594,
+        0.7069964833933519
+      ],
+      "camera_direction": [
+        -0.00031088170521070824,
+        0.9999997472934872,
+        -0.0006393477362279748
+      ],
+      "sync": {
+        "before_ms": 20.0,
+        "after_ms": 40.0
+      },
+      "position_sigma_m": [
+        0.01614043004918964,
+        0.010639242756100996,
+        0.0053409730601205055
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0159,
+        "overlap": 0.81,
+        "weakest": 0.03411,
+        "sigma": [
+          0.0159,
+          0.0106,
+          0.0053
+        ],
+        "scan_age_ms": 67,
+        "imu_age_ms": 9
+      },
+      "record_id": "LOC-58F20C0733BF4CBB859537FECAAD7935",
+      "storage_location_id": "A-01-03",
+      "calibration_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+      "mapping_id": "CAL-00A08DD8FA134C0FA1D55254421E12FF",
+      "id_source": "aruco",
+      "suggested_id": "A-01-03",
+      "description": "Camera reference during measured route teaching",
+      "status": "approved",
+      "reference_image": "locations/CAP-FF3F2567B612480E87FAFC1A08AFC651/reference.jpg"
+    }
+  ]
+}

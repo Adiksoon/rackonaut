@@ -9,6 +9,7 @@ import numpy as np
 RADIUS = .48
 HALF_HEIGHT = .17
 LOOKAHEAD = 1.50
+STOP_MARGIN = .28
 HOLD_LIMIT = 7.
 MANEUVER_LIMIT = 48.
 CAUTION_SCALE = .48
@@ -39,6 +40,11 @@ def obstacle_groups(points):
                     cells.remove(neighbor)
                     pending.append(neighbor)
     return groups
+
+
+def current_airframe(offsets):
+    return ((offsets[..., 0] ** 2 + offsets[..., 1] ** 2 < .36 ** 2)
+            & (np.abs(offsets[..., 2]) < .16))
 
 
 @dataclass
@@ -84,14 +90,15 @@ def sweep(cloud, start, target, extent, pad=False):
         # A ray with a return inside the near limit cannot establish clearance.
         first_hit = 0.
     samples = centers[:, None, :] + STENCIL[None, :, :]
-    already_here = samples - start
-    occupied_by_drone = ((already_here[..., 0] ** 2 + already_here[..., 1] ** 2 < .36 ** 2)
-                         & (np.abs(already_here[..., 2]) < .16))
-    covered = cloud.observed(samples.reshape(-1, 3)).reshape(samples.shape[:2]) | occupied_by_drone
+    covered = cloud.observed(samples.reshape(-1, 3)).reshape(samples.shape[:2]) | current_airframe(samples - start)
     if pad:
         covered |= samples[:, :, 2] <= .085
     unknown = np.flatnonzero(~covered.all(axis=1))
     return Sweep(first_hit, float(stations[unknown[0]]) if len(unknown) else None, hit_points)
+
+
+def braking_distance(speed, scan_age):
+    return STOP_MARGIN + max(.28, .12 + scan_age) * speed + speed**2 / (2 * .80)
 
 
 @dataclass(frozen=True)
@@ -149,8 +156,7 @@ class Navigator:
         self.checked_distance = min(float(length), LOOKAHEAD)
         self.direction = xyz(delta / length) if length > .025 else (0., 0., 0.)
         self.sweep = sweep(cloud, p, target, LOOKAHEAD, pad)
-        scan_delay = max(.28, .12 + now - cloud.received)
-        stop_distance = .28 + scan_delay * speed + speed**2 / (2 * .80)
+        stop_distance = braking_distance(speed, now - cloud.received)
         if self.attempt and self.attempt.get("start") is not None:
             return self.follow(p, speed, now, stop_distance, allowed, budget)
         if self.sweep.limit > stop_distance and (

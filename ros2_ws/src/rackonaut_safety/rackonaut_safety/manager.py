@@ -24,13 +24,19 @@ from .geometry import overlaps, route_zones
 from .laser import LaserPresence
 
 SAFETY = "/rackonaut/safety"
-TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED"}
+CALIBRATION_INTERRUPTED = "INTERRUPTED_FOR_CALIBRATION"
+TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", CALIBRATION_INTERRUPTED}
 LABELS = {"A": "Aisle A", "B": "Aisle B", "T": "Transfer corridor & pad", "D": "Technical dock and shaft"}
 PREPARE_SECONDS = 3.
 CLEAR_SECONDS = .8
 PRESENCE_TIMEOUT = .75
 SIGNAL_TIMEOUT = 1.1
 ODOM_TIMEOUT = .65
+
+
+def physical_dock(energy, age):
+    return (age <= .65 and energy.get("fresh") is True and energy.get("contact_source") == "gazebo_dock_switch"
+            and energy.get("switch_engaged") is True and energy.get("contact") is True)
 
 
 class Manager(Node):
@@ -76,6 +82,7 @@ class Manager(Node):
         self.alarm = None
         self.reserved_at = self.prepared_at = self.next_abort = 0.
         self.permit_issued = self.airborne = self.abort_logged = False
+        self.calibration_terminal_at = None
         self.energy_permits = set()
         self.abort_future = None
         self.occupied_since = {}
@@ -207,6 +214,7 @@ class Manager(Node):
         self.mission, self.mission_at = {}, -1e6
         self.alarm, self.abort_future = None, None
         self.permit_issued = self.airborne = self.abort_logged = False
+        self.calibration_terminal_at = None
         self.energy_permits.clear()
         now = monotonic()
         reason, zones, _ = self.blockers(now)
@@ -255,6 +263,18 @@ class Manager(Node):
                     self.release("Preparation cancelled on the launch pad.")
                 else:
                     self.recover("Mission aborted. Verify and recover the drone.", self.required, "mission_aborted")
+                return
+            manual_docked = stage == "COMPLETE" and self.mission.get("manual", {}).get("state") == "DOCKED"
+            if stage == CALIBRATION_INTERRUPTED or manual_docked:
+                if self.calibration_terminal_at is None:
+                    self.calibration_terminal_at = now
+                if (now-self.mission_at <= .65 and self.mission.get("landed") is True
+                        and self.mission.get("motion_owned") is False and self.at_pad(now)
+                        and physical_dock(self.energy, now - self.energy_at)):
+                    self.release("Manual flight ended at the physical dock." if manual_docked else
+                                 "Inspection interrupted for calibration and physical dock contact confirmed.")
+                elif now - self.calibration_terminal_at > 1.:
+                    self.recover("Physical dock contact could not be independently verified.", self.required, "touchdown_unknown")
                 return
             if stage in {"COMPLETE", "COMPLETE_WITH_MISSES"}:
                 if self.mission.get("landed") and self.at_pad(now):
@@ -320,9 +340,7 @@ class Manager(Node):
         phase = proposal.get("phase")
         if (match and phase == "RECOVERY_COMPLETE" and requested == self.recovery_id
                 and not self.recovery_revocation and fresh and self.at_pad(now)
-                and now-self.energy_at <= .65 and self.energy.get("fresh") is True
-                and self.energy.get("contact_source") == "gazebo_dock_switch"
-                and self.energy.get("switch_engaged") is True and self.energy.get("contact") is True):
+                and physical_dock(self.energy, now - self.energy_at)):
             self.release("Recovery completed and physical dock contact confirmed.")
             return state
         problem, _, _ = self.blockers(now)

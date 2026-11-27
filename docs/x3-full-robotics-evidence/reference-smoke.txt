@@ -1,0 +1,7 @@
+ROS-02 PASS  synthetic publisher/subscriber paired: 640x360 rgb8, frame rackonaut_camera_optical_frame, stamp 1795710447.067188246; BGR shape (360, 640, 3), grayscale standard deviation 42.0
+SIM-01 PASS  sim clock (1, 80000000) -> (1, 112000000)
+SIM-02 PASS  odometry rackonaut_odom -> rackonaut_base_link
+SIM-03 PASS  command +0.25 m/s, measured z 0.048 -> 0.239 m
+CAM-01 PASS  Gazebo RGB/CameraInfo: 320x240 rgb8, frame rackonaut_camera_optical_frame, stamp 1.104000000
+CV-01 PASS  BGR shape (240, 320, 3), grayscale standard deviation 49.0
+CLEAN-01 PASS  owned smoke process groups exited

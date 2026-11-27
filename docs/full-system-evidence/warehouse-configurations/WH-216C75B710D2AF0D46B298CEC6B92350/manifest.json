@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "mapping_id": "CAL-5437DA50D82A4E07A24D488AE0145A90",
+  "frame": "rackonaut_odom",
+  "name": "GOAL 25 X3",
+  "revision": 2,
+  "dock": [
+    -4.7,
+    10.3,
+    0.059
+  ],
+  "route_sha256": "56b5ebedca81234a12d9aa4436812b480b80180c1b8f79a32ad184c3a2bf2717",
+  "files": {
+    "localization.npz": "8551c162b58fd6437416ce53893285be9fb90b547ee7822507197edfbe4332c5",
+    "locations/CAP-45A76A6C469E48E387CB49A51A7665D7/reference.jpg": "0f20dc0cb69ee7de764ffd2d8a811d8113d300d2cbab4bbbbfb2c3228b918d59",
+    "locations/CAP-D341BB876FC64EFCBA55E8A1344751FB/reference.jpg": "c98cc3e81e2439cf8fc8bbfa113218ef91f1925f767d0a43036f7a22a2008df8",
+    "locations.json": "4ce203aa2b58977a728939f7c2f84332b9510894114e6c690498a6896a67bdab",
+    "map.ply": "3a71b078d5c758f6f617da0bc1a9ea9b6ada42418f30033d9d2cc8ad501ba034",
+    "result.json": "c6add39c76b662b32df97ddf4a2dc2c510ecf8f6390703d275e3d01a30a35b51",
+    "route-validation.json": "c7540230cc82d8a823a01862eb4be97072e655cb4c57463436f17b1d52ce0c37",
+    "route.json": "065548af2813eed00f3e2907e32c6ba2a2340fe494440b96bbf9520a16945a23",
+    "safety.json": "6f29993edcb67aa653a63789cefdf0a97738e6f5dad30768690a3f0ce4feace3",
+    "sensors.json": "12242b98e813ed719b73c480e9e9afdb94b8d324e14f3ad13fee5367c9aa20a6",
+    "trajectory.jsonl": "ba4a15c3c95f0c5e6386e4bbe28630ae110a1ea636b26de1164aebc727d73a3d"
+  },
+  "configuration_id": "WH-216C75B710D2AF0D46B298CEC6B92350"
+}

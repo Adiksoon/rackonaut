@@ -1,0 +1,15 @@
+Type: sensor_msgs/msg/Imu
+Publisher count: 1
+Node name: rackonaut_localization_sensors_bridge
+Subscription count: 1
+Node name: rackonaut_localization_imu_receiver
+Type: nav_msgs/msg/Odometry
+Publisher count: 1
+Node name: rackonaut_validation_bridge
+Subscription count: 1
+Node name: rackonaut_localization_validation
+Type: geometry_msgs/msg/Twist
+Publisher count: 1
+Node name: rackonaut_mission
+Subscription count: 1
+Node name: ros_gz_bridge

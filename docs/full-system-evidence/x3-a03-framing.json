@@ -1,0 +1,471 @@
+{
+  "inspection_id": "INS-CONTROL-20261127-064212-5DE7E03B",
+  "slot": "A-01-03",
+  "source": "Actual Control Center camera JPEG stream during INSPECT. Offline diagnostic; the original perception results are unchanged.",
+  "observed": {
+    "Frame the whole slot": 15,
+    "Shelf edge unclear": 1,
+    "Clear shelf surface": 1
+  },
+  "frames": [
+    {
+      "wall_ms": 1795761931246,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          343.66,
+          207.78
+        ],
+        "clear_shelf": [
+          205.16,
+          196.15
+        ],
+        "base_beam": [
+          353.01,
+          236.77
+        ],
+        "pallet_label": [
+          319.29,
+          157.51
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761931716,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          343.72,
+          214.71
+        ],
+        "clear_shelf": [
+          208.53,
+          199.05
+        ],
+        "base_beam": [
+          343.72,
+          241.04
+        ],
+        "pallet_label": [
+          334.86,
+          163.09
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761932197,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          453.13,
+          235.53
+        ],
+        "clear_shelf": [
+          221.23,
+          202.26
+        ],
+        "base_beam": [
+          463.35,
+          278.11
+        ],
+        "pallet_label": [
+          417.11,
+          159.77
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761932667,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          450.13,
+          235.53
+        ],
+        "clear_shelf": [
+          218.23,
+          202.26
+        ],
+        "base_beam": [
+          460.35,
+          278.11
+        ],
+        "pallet_label": [
+          414.11,
+          159.77
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761933146,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          339.55,
+          208.09
+        ],
+        "clear_shelf": [
+          202.77,
+          196.26
+        ],
+        "base_beam": [
+          339.55,
+          233.96
+        ],
+        "pallet_label": [
+          330.55,
+          157.6
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761933630,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Shelf edge unclear",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          300.36,
+          205.53
+        ],
+        "clear_shelf": [
+          193.57,
+          195.92
+        ],
+        "base_beam": [
+          300.36,
+          227.95
+        ],
+        "pallet_label": [
+          293.93,
+          161.64
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761934104,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          324.91,
+          208.05
+        ],
+        "clear_shelf": [
+          190.62,
+          196.26
+        ],
+        "base_beam": [
+          320.61,
+          232.87
+        ],
+        "pallet_label": [
+          333.13,
+          156.58
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761934592,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          365.93,
+          218.51
+        ],
+        "clear_shelf": [
+          192.58,
+          198.57
+        ],
+        "base_beam": [
+          365.93,
+          249.75
+        ],
+        "pallet_label": [
+          353.23,
+          157.51
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761935076,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          328.42,
+          207.09
+        ],
+        "clear_shelf": [
+          187.62,
+          195.26
+        ],
+        "base_beam": [
+          328.42,
+          232.96
+        ],
+        "pallet_label": [
+          319.15,
+          156.6
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761935550,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          362.93,
+          218.51
+        ],
+        "clear_shelf": [
+          189.58,
+          198.57
+        ],
+        "base_beam": [
+          362.93,
+          249.75
+        ],
+        "pallet_label": [
+          350.23,
+          157.51
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761936018,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          362.93,
+          218.51
+        ],
+        "clear_shelf": [
+          189.58,
+          198.57
+        ],
+        "base_beam": [
+          362.93,
+          249.75
+        ],
+        "pallet_label": [
+          350.23,
+          157.51
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761936499,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          322.55,
+          207.09
+        ],
+        "clear_shelf": [
+          185.77,
+          195.26
+        ],
+        "base_beam": [
+          322.55,
+          232.96
+        ],
+        "pallet_label": [
+          313.55,
+          156.6
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761936996,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Clear shelf surface",
+      "occupancy": "empty",
+      "bounds_max_px": {
+        "shelf": [
+          292.31,
+          199.58
+        ],
+        "clear_shelf": [
+          182.29,
+          193.21
+        ],
+        "base_beam": [
+          292.31,
+          222.0
+        ],
+        "pallet_label": [
+          285.69,
+          155.88
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761937465,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          324.55,
+          207.09
+        ],
+        "clear_shelf": [
+          187.77,
+          195.26
+        ],
+        "base_beam": [
+          324.55,
+          232.96
+        ],
+        "pallet_label": [
+          315.55,
+          156.6
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761937932,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          329.67,
+          207.24
+        ],
+        "clear_shelf": [
+          189.71,
+          195.31
+        ],
+        "base_beam": [
+          325.28,
+          231.66
+        ],
+        "pallet_label": [
+          337.74,
+          156.65
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761938399,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          324.74,
+          207.9
+        ],
+        "clear_shelf": [
+          189.51,
+          196.21
+        ],
+        "base_beam": [
+          325.2,
+          234.16
+        ],
+        "pallet_label": [
+          314.99,
+          156.53
+        ]
+      }
+    },
+    {
+      "wall_ms": 1795761938865,
+      "size_px": [
+        320,
+        240
+      ],
+      "reason": "Frame the whole slot",
+      "occupancy": "uncertain",
+      "bounds_max_px": {
+        "shelf": [
+          324.74,
+          207.9
+        ],
+        "clear_shelf": [
+          189.51,
+          196.21
+        ],
+        "base_beam": [
+          325.2,
+          234.16
+        ],
+        "pallet_label": [
+          314.99,
+          156.53
+        ]
+      }
+    }
+  ]
+}

@@ -63,4 +63,77 @@ Bind development API and dashboard services to loopback. For a browser dashboard
 
 ## Functional Mock SAP profile
 
-Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. Its additional business, photo and verification routes are documented separately. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)
+Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. An observation photo uses the existing Mock SAP evidence endpoint with status `CAPTURED`. It binds to the inspection, observation ID, location, occupancy and capture time. The v1 observation payload stays the same. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)
+
+## Local storage location teaching
+
+The loopback Control Center exposes the session below through its existing authenticated Service cookie. Camera timestamps are ROS time. Recorded poses use the measured `rackonaut_odom` frame, with XYZ in metres and orientation quaternion in XYZW order.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/teaching` | Returns the current mapping manifest, whether the draft is editable, and capture readiness. |
+| `POST /api/service/teaching/capture` | Accepts `calibration_id` and returns a pending synchronized capture, its reference JPEG URL, and an unambiguous location-marker ID when available. |
+| `POST /api/service/teaching/save` | Accepts `calibration_id`, `capture_id`, `revision`, `storage_location_id`, and optional `description`. Replacement also requires the existing `record_id` and `confirm: true`. |
+| `POST /api/service/teaching/rename` | Accepts `calibration_id`, `record_id`, `revision`, and `storage_location_id`. Preserves the pose and photo. |
+| `POST /api/service/teaching/delete` | Accepts `calibration_id`, `record_id`, `revision`, and `confirm: true`. Changes the active draft manifest. |
+| `GET /api/service/mapping/{calibration_id}/locations.json` | Downloads the approved location list for a completed map. The manifest names its PLY and result files and links the individual reference images. |
+
+Authentication failures return `401`. Ineligible flight state, a changed draft, or a conflicting location ID can return `409`. The pending photo is bound to the Service session that requested it. Client requests provide identifiers and confirmation only. The Mock SAP observation routes keep their existing payload and behavior.
+
+## Local route review
+
+On `open-aisle` with sensor-only, full-range mapping, `POST /api/service/calibration/start` accepts `multi_sortie: true`. The normal return command ends only the current sortie. At a verified dock the map checkpoint and sortie journal are committed before `CALIBRATION_CHARGING`. After charge readiness and fresh localization, the existing `POST /api/service/mapping/start` requests the next flight. `POST /api/service/mapping/finish` requires the calibration ID, completed sortie evidence, a physical dock and a camera-confirmed record for every functional location.
+
+Route operations use the same authenticated Service cookie. Read archived routes by mapping ID. Review, validation, planning, and approval require the current completed session and verified physical docking. Requests submit a calibration ID and, after review, the exact `route_sha256` of the proposal.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/route/{calibration_id}` | Returns the recorded positions, location records, route status, and matching validation if available. A changed source manifest yields `stale`. |
+| `POST /api/service/route/review` | Generates the directed graph from the timestamped captures and returns the proposal with its hash. |
+| `POST /api/service/route/validate` | Checks the proposal against the measured source, the approved flight envelope, and the simulated energy budget. The response specifies `historical_envelope` and `live_clearance: required`. |
+| `POST /api/service/route/plan` | Accepts nonempty `record_ids` from the proposal and returns the measured sequence of directed waypoints and the forecast for the selected stops. |
+| `POST /api/service/route/approve` | Requires `confirm: true` and the current validated proposal. Records approval in the calibration archive. |
+| `GET /api/service/mapping/{calibration_id}/{filename}` | Downloads `trajectory.jsonl`, `route.json`, or `route-validation.json` once available. |
+
+The calibration journal uses ROS time, recorded XYZ in metres, and XYZW orientation in `rackonaut_odom`. Approval applies to the exact archive revision. Runtime clearance and flight dispatch remain separate operations.
+
+Multi-sortie proposals and approved configurations expose `sorties` with individually validated dock-to-dock graphs and energy budgets. A request containing locations from more than one graph returns a plan with `requires_multiple_sorties: true`. Dispatch accepts a selection on a single approved graph. Graphs are kept separate across charging.
+
+## Learned warehouse activation and dispatch
+
+Service authentication is required for configuration management. Route sealing and activation require an idle aircraft at the verified physical dock. The existing local dispatch endpoint checks the selected active configuration, its integrity and the matching learned-map localization state.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/service/warehouses` | Lists saved configurations and the localizer's active and loaded IDs. |
+| `POST /api/service/warehouses/seal` | Takes `calibration_id` for the current completed calibration and snapshots the approved route, measured maps and evidence. |
+| `POST /api/service/warehouses/verify` | Takes `configuration_id` and verifies the archive, approved sources and current sensor and Safety profile. |
+| `POST /api/service/warehouses/activate` | Takes `configuration_id` and `confirm: true`. Saves a selection after verification. Localization readiness follows from a separate dock match. |
+| `POST /api/plan` and `POST /api/start` | In `mode: learned` accept the active `configuration_id`, `revision` and nonempty `record_ids`. Use the original sequence of approved directed edges and stop only at the selected learned locations. |
+
+The launcher publishes the active `warehouse_variant` in read-only `GET /api/layout`. Route review, verification, activation and the active Digital Twin require a matching calibration world. Results can still display the measured archive for a past inspection. [World variants](../docs/OPEN_AISLE_DESCENT.md)
+
+The existing Mock SAP API receives current camera observations and the existing report exporter reads those observations by inspection ID. Calibration references remain in the warehouse archive.
+
+The Control Center client may include `expected_inspection_id` in `POST /api/service/calibration/start`. The value is the active inspection ID shown during confirmation or JSON `null` when the operator started from an idle view. A changed active inspection returns HTTP 409 and requires review of the current state. The existing operation still enforces the flight mode, dock and Safety conditions on the server.
+
+The Control Center's read-only `/api/state` adds measured pose freshness, speed, physical docking evidence, and timestamped-ID inspection history with the archived mission scope. For older history entries with incomplete metadata, the client displays unavailable fields. The learned plan's `display_points` is the selected route for display. Flight dispatch and reservation still use their existing inputs.
+
+The local business summary and evidence photo GET routes can read the corresponding saved report when Mock SAP is unavailable. A fallback summary includes `archived: true`. Evidence review writes still require Mock SAP.
+
+## Control Center warehouse visualization
+
+Read-only JSON for Warehouse Digital Twin in the existing loopback Control Center.
+
+| Method and path | Behavior |
+| --- | --- |
+| `GET /api/visualization/active` | Returns the visualization for the selected learned configuration. |
+| `GET /api/visualization/run/{inspection_id}` | Resolves the learned configuration and revision recorded for that inspection. Uses the dispatch record or archived mission evidence. |
+| `GET /api/service/visualization/warehouse/{configuration_id}` | Previews any verified saved configuration with the existing Service session. |
+| `GET /api/service/visualization/calibration/{calibration_id}` | Previews a completed measured calibration with the existing Service session. |
+
+A ready response contains `binding` (configuration ID, calibration ID, revision, and input hashes), `name`, the original Float32 little-endian XYZ payload in `points_f32le`, `point_count`, and `enhanced` (template parameters, layout and location projections). The public responses omit calibration photographs and archived route edges. The protected previews include them. Live approved route and flown positions continue to use the existing mission telemetry.
+
+Requests return `202` with `status: preparing` and `Retry-After: 2` during background work, `304` with a matching `If-None-Match`, and `404` for a missing model association or input. Service follows the existing origin and authentication checks. Visualization failure reports a read error and leaves the archive and dispatch permissions independent.
+
+The exporter writes `visualization.json` beside the calibration or sealed configuration with an atomic replacement. Its binding tracks source hashes and revision. The verified localization manifest, approved routes, stored inspection poses and robot commands use their existing paths and formats.

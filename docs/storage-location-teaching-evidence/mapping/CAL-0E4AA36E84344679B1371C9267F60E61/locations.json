@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "calibration_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+  "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+  "frame": "rackonaut_odom",
+  "revision": 6,
+  "trajectory": "result.json",
+  "map": "map.ply",
+  "locations": [
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 127,
+        "nanosec": 500000000
+      },
+      "received_at_utc": "2026-11-26T13:14:26.621255+00:00",
+      "position_m": [
+        5.462668406378948,
+        0.4503853553372726,
+        0.7933518348490867
+      ],
+      "orientation_xyzw": [
+        0.0007541190458688718,
+        0.0007206512762024506,
+        0.6927420321833183,
+        0.7211847119932101
+      ],
+      "camera_direction": [
+        0.04021591501652927,
+        0.9991910128451406,
+        5.374554535487455e-06
+      ],
+      "sync": {
+        "before_ms": 40.0,
+        "after_ms": 0.0
+      },
+      "position_sigma_m": [
+        0.011497421906866043,
+        0.008314636630408231,
+        0.00582115446680339
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0143,
+        "overlap": 0.866,
+        "weakest": 0.06355,
+        "sigma": [
+          0.0117,
+          0.0083,
+          0.0059
+        ],
+        "scan_age_ms": 9,
+        "imu_age_ms": 162
+      },
+      "record_id": "LOC-6F8F93FFC154491882B0C460E8FF81E8",
+      "storage_location_id": "A-01-01",
+      "calibration_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+      "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+      "id_source": "operator",
+      "suggested_id": null,
+      "description": "Refreshed reference from the first rack",
+      "status": "approved",
+      "reference_image": "locations/CAP-F31A39A79B3C44D188A46BC5793D0FBB/reference.jpg"
+    },
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 143,
+        "nanosec": 400000000
+      },
+      "received_at_utc": "2026-11-26T13:14:54.933334+00:00",
+      "position_m": [
+        8.259327583789991,
+        0.4533288532104129,
+        0.7939846753519866
+      ],
+      "orientation_xyzw": [
+        0.0005315605669857777,
+        0.0012806479463620113,
+        0.6934150269000865,
+        0.7205370759741331
+      ],
+      "camera_direction": [
+        0.03834792081997984,
+        0.9992638333221233,
+        -0.0011083244835369875
+      ],
+      "sync": {
+        "before_ms": 60.0,
+        "after_ms": 0.0
+      },
+      "position_sigma_m": [
+        0.015283053800907135,
+        0.010908450385902274,
+        0.005376721684073124
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.016,
+        "overlap": 0.824,
+        "weakest": 0.03698,
+        "sigma": [
+          0.0153,
+          0.0109,
+          0.0054
+        ],
+        "scan_age_ms": 228,
+        "imu_age_ms": 5
+      },
+      "record_id": "LOC-D9DE32BA288644E79E5DDA80B6975D87",
+      "storage_location_id": "A-01-03",
+      "calibration_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+      "mapping_id": "CAL-0E4AA36E84344679B1371C9267F60E61",
+      "id_source": "operator",
+      "suggested_id": null,
+      "description": "Reference from the second rack",
+      "status": "approved",
+      "reference_image": "locations/CAP-96AB259B9F114788A3A5C4A87993D7C2/reference.jpg"
+    }
+  ]
+}

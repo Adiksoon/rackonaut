@@ -1,0 +1,2 @@
+Reference map was absent before launching the survey.
+Reference map remained absent through verified physical docking.

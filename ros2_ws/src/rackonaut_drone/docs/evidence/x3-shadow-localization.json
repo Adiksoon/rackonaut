@@ -1,0 +1,169 @@
+{
+  "run": "x3-shadow.GByNAxD2",
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12",
+    "stack_base": "6e04fcf",
+    "drone_before_change": "708c865"
+  },
+  "world": "localization_showcase.sdf",
+  "mode": "shadow",
+  "navigation_odometry_publisher": "x3_bridge",
+  "reference_alignment": "Gazebo odometry interpolated by scan timestamp",
+  "valid_time_aligned_samples": 723,
+  "phases": {
+    "takeoff": {
+      "window_sim_s": [
+        1.72,
+        5.08
+      ],
+      "samples": 20,
+      "states": {
+        "TRACKING": 28
+      },
+      "end_position": [
+        -4.7,
+        10.3,
+        0.894
+      ],
+      "end_yaw_rad": 0.0,
+      "rmse_3d_cm": 1.32,
+      "p95_3d_cm": 1.5,
+      "max_3d_cm": 1.83,
+      "rmse_orientation_deg": 0.061
+    },
+    "hover": {
+      "window_sim_s": [
+        5.08,
+        9.08
+      ],
+      "samples": 24,
+      "states": {
+        "TRACKING": 33
+      },
+      "end_position": [
+        -4.7,
+        10.3,
+        0.847
+      ],
+      "end_yaw_rad": 0.0,
+      "rmse_3d_cm": 1.24,
+      "p95_3d_cm": 1.38,
+      "max_3d_cm": 1.4,
+      "rmse_orientation_deg": 0.075
+    },
+    "yaw": {
+      "window_sim_s": [
+        9.08,
+        16.0
+      ],
+      "samples": 42,
+      "states": {
+        "TRACKING": 57
+      },
+      "end_position": [
+        -4.7,
+        10.3,
+        0.854
+      ],
+      "end_yaw_rad": 1.597,
+      "rmse_3d_cm": 1.34,
+      "p95_3d_cm": 1.53,
+      "max_3d_cm": 1.53,
+      "rmse_orientation_deg": 0.067
+    },
+    "shaft_and_approach_A": {
+      "window_sim_s": [
+        21.96,
+        85.04
+      ],
+      "samples": 380,
+      "states": {
+        "TRACKING": 508
+      },
+      "end_position": [
+        5.108,
+        0.452,
+        6.704
+      ],
+      "end_yaw_rad": 0.0,
+      "rmse_3d_cm": 0.49,
+      "p95_3d_cm": 1.12,
+      "max_3d_cm": 1.52,
+      "rmse_orientation_deg": 0.058
+    },
+    "transfer_A_B": {
+      "window_sim_s": [
+        85.04,
+        117.12
+      ],
+      "samples": 193,
+      "states": {
+        "TRACKING": 264
+      },
+      "end_position": [
+        5.106,
+        -5.548,
+        6.704
+      ],
+      "end_yaw_rad": 0.0,
+      "rmse_3d_cm": 0.37,
+      "p95_3d_cm": 0.73,
+      "max_3d_cm": 1.1,
+      "rmse_orientation_deg": 0.077
+    },
+    "hover_at_B": {
+      "window_sim_s": [
+        117.12,
+        120.12
+      ],
+      "samples": 18,
+      "states": {
+        "TRACKING": 25
+      },
+      "end_position": [
+        5.101,
+        -5.55,
+        6.7
+      ],
+      "end_yaw_rad": -0.0,
+      "rmse_3d_cm": 0.5,
+      "p95_3d_cm": 0.85,
+      "max_3d_cm": 0.85,
+      "rmse_orientation_deg": 0.103
+    }
+  },
+  "ros_streams": {
+    "/rackonaut/drone/lidar/points": {
+      "count": 724,
+      "first_s": 0.012,
+      "frame": "rackonaut_reference_drone/base_link/local_lidar",
+      "last_s": 120.02,
+      "dimensions": [
+        192,
+        37
+      ],
+      "received_sim_hz": 6.02
+    },
+    "/rackonaut/drone/imu": {
+      "count": 6005,
+      "first_s": 0.02,
+      "frame": "rackonaut_reference_drone/base_link/local_imu",
+      "last_s": 120.1,
+      "received_sim_hz": 50.0
+    },
+    "/rackonaut/localization/estimate": {
+      "count": 720,
+      "first_s": 0.5,
+      "frame": "rackonaut_odom",
+      "last_s": 119.852,
+      "received_sim_hz": 6.02
+    }
+  },
+  "regression": {
+    "contract_and_mock_sap_tests": 7,
+    "localization_and_avoidance_tests": 7
+  }
+}

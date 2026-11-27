@@ -75,7 +75,7 @@ Wszystkie poniższe ścieżki dotyczą profilu `mock_sap`. `/openapi.json` w obu
 | --- | --- |
 | GET `/api/business/products` | Syntetyczny katalog HU wraz z oczekiwaną lokalizacją. |
 | GET `/api/business/summary?inspection_id=INS-…` | Metryki, rekomendacje, statusy i źródła dowodów per lokalizacja. |
-| POST `/api/business/quality` | JSON `{report,images:{original,annotated}}`, obie klatki PNG jako Base64. Raport jakości 0.1 wiąże się z przyjętą obserwacją. 201 dla zapisu, 200 dla powtórki, 409 dla konfliktu lub braku odniesienia. |
+| POST `/api/business/quality` | JSON `{report,images:{original,annotated}}`, obie klatki PNG jako Base64. Raport 0.1 wiąże się z przyjętą obserwacją. `OK` i `DAMAGED` opisują ocenę kartonu. `CAPTURED` zawiera `occupancy` i dokumentuje klatkę wykorzystaną w obserwacji. Oba znaczniki UTC muszą być wtedy równe. 201 dla zapisu, 200 dla powtórki, 409 dla konfliktu lub braku odniesienia. |
 | GET `/api/business/quality/{inspection}/{quality}/{kind}.png` | Oryginał lub oznaczona klatka, odpowiednio `original` albo `annotated`. |
 | POST `/api/business/issues/{issue_id}/verify` | JSON `{inspection_id,revision}`. Zwraca status `VERIFIED`. Nieaktualna wersja zwraca 409. |
 

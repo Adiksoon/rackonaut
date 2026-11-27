@@ -1,0 +1,80 @@
+{
+  "layouts": [
+    {
+      "width": 1366,
+      "height": 768,
+      "holdBottom": 755,
+      "stopRight": 1342,
+      "overflow": false
+    },
+    {
+      "width": 1600,
+      "height": 900,
+      "holdBottom": 753,
+      "stopRight": 1566,
+      "overflow": false
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "holdBottom": 753,
+      "stopRight": 1726,
+      "overflow": false
+    },
+    {
+      "width": 1024,
+      "height": 720,
+      "holdBottom": 833,
+      "stopRight": 1000,
+      "overflow": false
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "holdBottom": 1413,
+      "stopRight": 379,
+      "overflow": false
+    }
+  ],
+  "takeoff": {
+    "run": "INS-CONTROL-20261127-074315-4871E7F8",
+    "pose": [
+      -4.7,
+      10.301,
+      0.718,
+      0
+    ],
+    "state": "Manual flight · holding position"
+  },
+  "autoDuringManual": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "watchdog": {
+    "manual": {
+      "state": "LINK_LOST",
+      "detail": "Operator heartbeat expired; holding position",
+      "requested": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "permitted": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "clearance": null
+    },
+    "reservation": "RESERVED"
+  },
+  "return": {
+    "run": "INS-CONTROL-20261127-074315-4871E7F8",
+    "stage": "COMPLETE",
+    "manual": "DOCKED",
+    "contact": true,
+    "safety": "RELEASED"
+  },
+  "errors": []
+}

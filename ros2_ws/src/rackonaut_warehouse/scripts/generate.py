@@ -528,7 +528,7 @@ def charging_station(world, offset=(0., 0.)):
             "locator": [-1.16 + ox, .86 + oy, 1.72]}
 
 
-def aerial_infrastructure(world, aisles, rack_height):
+def aerial_infrastructure(world, aisles, rack_height, open_descent=False, hall_source="tevy"):
     height, deck, trunk, drop_x = 6.70, .79, 2.1, 5.1
     dx, dy = -4.7, 10.3
     if height - .62 <= rack_height or height + .64 >= 7.9:
@@ -560,26 +560,60 @@ def aerial_infrastructure(world, aisles, rack_height):
             frame.find(f"visual[@name='{name}']/transparency").text = ".80"
         (mesh if screen else parts).append([*point, *size, *color])
 
-    for zone, x, y, lower in (("D", dx, dy, .06), *[(n, drop_x, nodes[f"entry_{n}"][1], 1.18) for n in ("A", "B")]):
-        for a in (-1, 1):
-            for b in (-1, 1):
-                part((x + a*.91, y + b*.91, (height + .59 + lower) / 2),
-                     (.10, .10, height + .59 - lower), edge, collision=True)
-        for z in (lower + .06, 2.30, 4.28, height - .6, height + .59):
+    roof = hall_triangles({"structure-mesh", "shell-mesh"}) if open_descent and hall_source == "tevy" else []
+
+    def suspend(x, y, axis):
+        top = height + .60
+        crossbar = (2.02, .12, .10) if axis == 0 else (.12, 2.02, .10)
+        part((x, y, top + .05), crossbar, steel)
+        for side in (-.91, .91):
+            px, py = (x + side, y) if axis == 0 else (x, y + side)
+            landing = roof_soffit(roof, px, py) if roof else 8.81
+            span = landing - top - .10
+            part((px, py, (landing + top + .10) / 2), (.065, .065, span), steel)
+            part((px, py, landing - .022), (.22, .18, .045), steel)
+
+    def open_gate(x, y):
+        # A 1.72 m square opening, with its lower rim flush with the tunnel bottom.
+        for z in (height - .56, height + .58):
             for side in (-1, 1):
-                part((x, y + side*.91, z), (1.84, .08, .08), steel)
-                # Leave the +X exit open on the launch tower and the −X entry on a descent.
-                if z < height - 1.:
-                    part((x + side*.91, y, z), (.08, 1.84, .08), steel)
+                part((x, y + side*.91, z), (1.92, .10, .08), steel, collision=True)
+                part((x + side*.91, y, z), (.10, 1.72, .08), steel, collision=True)
+        for x_side in (-1, 1):
+            for y_side in (-1, 1):
+                part((x + x_side*.91, y + y_side*.91, height + .01),
+                     (.10, .10, 1.06), edge, collision=True)
         for side in (-1, 1):
-            part((x, y + side*.91, (lower + height - .68) / 2),
-                 (1.78, .035, height - .68 - lower), wire, collision=True, screen=True)
+            part((x, y + side*.91, height + .01), (1.72, .032, 1.06), wire, collision=True, screen=True)
+            part((x, y + side*.91, height - .575), (1.60, .022, .016), cyan)
+        # Open to the −X tunnel and to the aisle below. Protect the far end.
+        part((x + .91, y, height + .01), (.032, 1.72, 1.06), wire, collision=True, screen=True)
+        part((x, y, height + .58), (1.72, 1.72, .035), wire, collision=True, screen=True)
+        suspend(x + .76, y, 1)
+
+    for zone, x, y, lower in (("D", dx, dy, .06), *[(n, drop_x, nodes[f"entry_{n}"][1], 1.18) for n in ("A", "B")]):
+        if open_descent and zone != "D":
+            open_gate(x, y)
+        else:
+            for a in (-1, 1):
+                for b in (-1, 1):
+                    part((x + a*.91, y + b*.91, (height + .59 + lower) / 2),
+                         (.10, .10, height + .59 - lower), edge, collision=True)
+            for z in (lower + .06, 2.30, 4.28, height - .6, height + .59):
+                for side in (-1, 1):
+                    part((x, y + side*.91, z), (1.84, .08, .08), steel)
+                    if z < height - 1.:
+                        part((x + side*.91, y, z), (.08, 1.84, .08), steel)
+            for side in (-1, 1):
+                part((x, y + side*.91, (lower + height - .68) / 2),
+                     (1.78, .035, height - .68 - lower), wire, collision=True, screen=True)
         # Floor marks show the base of the monitored descent without obstructing the scans.
         for side in (-1, 1):
             part((x, y + .95 * side, .025), (1.8, .07, .015), cyan)
             part((x + .95 * side, y, .025), (.07, 1.8, .015), cyan)
-        plane_label(frame, f"aerial_notice_{zone}", (x - .86, y - .98, 2.20),
-                    .78, .32, texture="safety_notice")
+        if not open_descent or zone == "D":
+            plane_label(frame, f"aerial_notice_{zone}", (x - .86, y - .98, 2.20),
+                        .78, .32, texture="safety_notice")
 
     for first, last, kind in edges:
         if kind != "tunnel":
@@ -611,6 +645,11 @@ def aerial_infrastructure(world, aisles, rack_height):
             part(position(span, 0, height - .60), sizes(.067, 1.90, .064), wire)
             part(position(span, 0, height + .59), sizes(.067, 1.90, .064), steel)
         part(position(0, -.88, height + .61), sizes(length, .034, .028), cyan)
+        if open_descent and length >= 2.:
+            offsets = (-length / 3, length / 3) if length >= 4. else (0.,)
+            for span in offsets:
+                x, y, _ = position(span, 0, 0)
+                suspend(x, y, axis)
         for center in ((-length / 4, length / 4) if length > 3. else (0.,)):
             direction = 1 if along > 0 else -1
             for index in range(-3, 4):
@@ -658,12 +697,13 @@ def localization_infrastructure(world, dock):
     add(add(sensor, "contact"), "collision", "dock_contact_surface_collision")
 
 
-def hall_triangles():
+def hall_triangles(selected=None):
     """Read the installed hall's static COLLADA surfaces in world coordinates."""
     mesh = ET.parse(ROOT / "meshes/steel_warehouse_lod1.dae").getroot()
     ns = {"c": mesh.tag.split("}")[0][1:]}
     geometry = {g.get("id"): g.find("c:mesh", ns) for g in mesh.findall(".//c:geometry", ns)}
-    selected = {"structure-mesh", "shell-mesh", "lights-mesh", "shutter_frames-mesh", "door_frames-mesh"}
+    if selected is None:
+        selected = {"structure-mesh", "shell-mesh", "lights-mesh", "shutter_frames-mesh", "door_frames-mesh"}
     triangles = []
     for node in mesh.findall(".//c:visual_scene//c:node", ns):
         instance = node.find("c:instance_geometry", ns)
@@ -688,6 +728,27 @@ def hall_triangles():
             indices = iter(list(map(int, shape.findtext("c:p", namespaces=ns).split()))[vertex::stride])
             triangles.extend([*points[a], *points[b], *points[c]] for a, b, c in zip(indices, indices, indices))
     return triangles
+
+
+def roof_soffit(triangles, x, y):
+    """Find the first load-bearing hall surface above a suspension point."""
+    levels = []
+    for triangle in triangles:
+        a, b, c = triangle[:3], triangle[3:6], triangle[6:]
+        ux, uy, uz = (end - start for start, end in zip(a, b))
+        vx, vy, vz = (end - start for start, end in zip(a, c))
+        determinant = ux*vy - uy*vx
+        if abs(determinant) < 1e-8:
+            continue
+        dx, dy = x - a[0], y - a[1]
+        s, t = (dx*vy - dy*vx) / determinant, (ux*dy - uy*dx) / determinant
+        if s >= -1e-8 and t >= -1e-8 and s + t <= 1 + 1e-8:
+            z = a[2] + s*uz + t*vz
+            if z > 7.5:
+                levels.append(z)
+    if not levels:
+        raise ValueError("A tunnel suspension point misses the hall roof.")
+    return min(levels)
 
 
 def localization_map(world):
@@ -726,7 +787,8 @@ def generate(args):
     if 5.5 + (args.bays - .5) * args.bay_pitch >= 32 or args.rack_height >= 8.2:
         raise SystemExit("The selected rack size exceeds the hall envelope.")
     inspection = count // 2 + 1
-    aerial = aerial_infrastructure(world, aisles, args.rack_height) if args.aerial else None
+    aerial = (aerial_infrastructure(world, aisles, args.rack_height, args.open_descent, args.hall)
+              if args.aerial else None)
     offset = tuple(aerial["nodes"]["dock"][:2]) if aerial else (0., 0.)
     paint(world, aisles, args.aisle_width, offset)
     if args.energy:
@@ -883,6 +945,7 @@ def main():
     parser.add_argument("--dock-layout", type=Path)
     parser.add_argument("--aerial", action="store_true")
     parser.add_argument("--aerial-layout", type=Path)
+    parser.add_argument("--open-descent", action="store_true", help="leave open-bottom portals into aisles A and B")
     parser.add_argument("--avoidance", action="store_true")
     parser.add_argument("--avoidance-layout", type=Path)
     parser.add_argument("--localization", action="store_true")
@@ -904,6 +967,8 @@ def main():
         parser.error("Dock layout requires an energy showcase with safety.")
     if (args.aerial and not args.energy) or (args.aerial_layout and not args.aerial):
         parser.error("Aerial infrastructure requires an energy showcase.")
+    if args.open_descent and not args.aerial:
+        parser.error("--open-descent requires --aerial.")
     if (args.avoidance and not args.aerial) or (args.avoidance_layout and not args.avoidance):
         parser.error("Obstacle avoidance fixtures require an aerial showcase.")
     if (args.localization and not args.avoidance) or (args.localization_map and not args.localization):

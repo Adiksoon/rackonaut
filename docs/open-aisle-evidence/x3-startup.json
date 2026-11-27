@@ -1,0 +1,15 @@
+{
+  "drone_model": "x3",
+  "warehouse_variant": "open-aisle",
+  "physical_dock": true,
+  "at_pad": true,
+  "localization": "TRACKING",
+  "safety": "AVAILABLE",
+  "laser_zones": [
+    "A",
+    "B",
+    "T"
+  ],
+  "camera_jpeg": true,
+  "mission_dispatched": false
+}

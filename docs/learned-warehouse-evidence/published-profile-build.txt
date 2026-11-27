@@ -1,0 +1,6 @@
+Starting >>> rackonaut_mission
+Finished <<< rackonaut_mission [0.88s]
+Starting >>> rackonaut_control
+Finished <<< rackonaut_control [0.85s]
+
+Summary: 2 packages finished [2.01s]

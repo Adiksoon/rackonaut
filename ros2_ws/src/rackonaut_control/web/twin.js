@@ -1,6 +1,9 @@
 import * as T from "three";
 import { OrbitControls } from "./vendor/OrbitControls.js";
 import { accessColors, at, makeAircraft, makeWarehouse, slotColors, tint } from "./twin-scene.js";
+import { createMeasuredScene } from "./scan.js";
+import { measuredCloud, warehouseTemplate } from "./rack-templates.js";
+import { activeSafetyAlarm } from "./operator.js";
 
 const byId = (id) => document.getElementById(id);
 const stages = new Set(["INSPECT", "REPOSITION", "REINSPECT", "QUALITY_CLOSEUP", "RECENTER"]);
@@ -150,6 +153,7 @@ export function createTwin(layout, callbacks) {
     callbacks.onError("WebGL context lost. The 2D map is available.");
   });
   const camera = new T.PerspectiveCamera(42, 1, .1, 155);
+  const overhead = new T.OrthographicCamera(-1, 1, 1, -1, .1, 155);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.minDistance = 5;
   controls.maxDistance = 96;
@@ -168,13 +172,22 @@ export function createTwin(layout, callbacks) {
   scene.add(rim);
   scene.fog = new T.Fog(scene.background, 79, 140);
   const warehouseModel = new T.Group();
-  scene.add(warehouseModel);
+  const fittedLayer = new T.Group();
+  scene.add(warehouseModel, fittedLayer);
   const warehouse = makeWarehouse(layout, warehouseModel);
   const { drone, body, edge } = makeAircraft(scene, layout.avoidance);
+  const scanHeading = new T.ArrowHelper(new T.Vector3(1, 0, 0), new T.Vector3(0, .26, 0), .96, 0x9bdbff, .24, .16);
+  scanHeading.visible = false;
+  for (const tip of scanHeading.children) {
+    tip.material.depthTest = false;
+    tip.material.depthWrite = false;
+    tip.renderOrder = 6;
+  }
+  drone.add(scanHeading);
   const corridor = warehouse.aerial ? path(scene, 0x8a5cb8, true, true) : null;
   if (corridor) setPath(corridor, layout.aerial.edges.flatMap(([a, b]) =>
     [layout.aerial.nodes[a], layout.aerial.nodes[b]]));
-  const planLine = path(scene, 0x4b78a8, true);
+  const planLine = path(scene, 0x4381cb, true);
   const recoveryPlan = layout.recovery ? path(scene, 0xa85b14, true) : null;
   const recoveryFlown = layout.recovery ? path(scene, 0xa23287) : null;
   const stopped = layout.recovery ? samples(scene, 1, 0xbd3e57, .48, .95) : null;
@@ -183,7 +196,7 @@ export function createTwin(layout, callbacks) {
     recoveryFlown.renderOrder = 8;
     for (const id of ["twin-recovery-key", "twin-recovery-flown", "twin-recovery-stop"]) byId(id).hidden = false;
   }
-  const flownLine = path(scene, 0x214b80);
+  const flownLine = path(scene, 0x06786f);
   const extraLine = path(scene, 0xa85b14, false, true);
   const pendingLine = path(scene, 0xa85b14, true, true);
   const beams = path(scene, 0x4e94bf, false, true);
@@ -214,12 +227,64 @@ export function createTwin(layout, callbacks) {
   let renderData = null;
   let preset = "iso";
   let following = false;
+  let scanMode = false, viewMode = "model", archiveScan = false, fitted = false;
+  let fittedPacket = null, fittedScene = null, fittedCloud = null, pendingFittedFocus = null;
+  const fittedBounds = new T.Box3(), rackBounds = new T.Box3(), fittedLabels = new Map();
+  let autoFrameScan = true, framedSpan = 0;
+  let modelPreset = "iso", scanPreset = "iso";
+  const framedCenter = new T.Vector3();
+  const scanOffset = new T.Vector3();
+  const scan = layout.localization?.mode === "sensor_based"
+    ? createMeasuredScene(byId("twin-panel"), queue, frameMeasuredCloud)
+    : null;
   const projected = new T.Vector3();
-  const followAnchor = new T.Vector3(), followDelta = new T.Vector3();
+  const followDelta = new T.Vector3();
   const startPosition = new T.Vector3(), endPosition = new T.Vector3();
   const startRotation = new T.Quaternion(), endRotation = new T.Quaternion();
 
   const labels = [];
+  const taughtLabels = new Map();
+  let taughtSignature = "";
+  function drawTaughtLocations(records, selected) {
+    const signature = JSON.stringify([selected, records]);
+    if (signature === taughtSignature) return;
+    taughtSignature = signature;
+    const present = new Set(records.map(record => record.record_id));
+    for (const [id, item] of taughtLabels) {
+      if (present.has(id)) continue;
+      item.element.remove();
+      item.arrow.removeFromParent();
+      item.arrow.line.material.dispose();
+      item.arrow.cone.material.dispose();
+      labels.splice(labels.indexOf(item), 1);
+      taughtLabels.delete(id);
+    }
+    for (const record of records) {
+      const id = record.record_id;
+      let item = taughtLabels.get(id);
+      if (!item) {
+        const element = addMarker(record.storage_location_id, "taught-marker", record.position_m, () => callbacks.onTaughtLocation(id));
+        item = labels[labels.length - 1];
+        item.arrow = new T.ArrowHelper(new T.Vector3(1, 0, 0), item.anchor, .8, 0x7edcff, .18, .15);
+        for (const child of item.arrow.children) {
+          child.material.depthTest = false;
+          child.renderOrder = 9;
+        }
+        scan.scene.add(item.arrow);
+        taughtLabels.set(id, item);
+      }
+      const status = record.status === "approved" ? "Approved" : record.status;
+      const focused = id === selected;
+      item.element.textContent = record.storage_location_id;
+      item.element.title = `${record.storage_location_id} · ${status} · camera viewpoint`;
+      item.element.setAttribute("aria-label", `View taught location ${record.storage_location_id}`);
+      item.element.setAttribute("aria-pressed", String(focused));
+      item.arrow.position.copy(at(record.position_m));
+      item.arrow.setDirection(at(record.camera_direction).normalize());
+      item.arrow.setColor(focused ? 0xffffff : 0x7edcff);
+      item.anchor.copy(item.arrow.position).add(new T.Vector3(0, .32, 0));
+    }
+  }
   function addMarker(value, kind, coords, action) {
     const element = node(action ? "button" : "span", "twin-marker " + kind, value);
     if (action) {
@@ -230,6 +295,57 @@ export function createTwin(layout, callbacks) {
     const anchor = at(coords);
     labels.push({ element, anchor, kind });
     return element;
+  }
+  function dispose(object) {
+    object?.removeFromParent();
+    object?.traverse(item => {
+      if (item.isInstancedMesh) item.dispose();
+      item.geometry?.dispose();
+      item.material?.dispose();
+    });
+  }
+  function useArtifact(packet) {
+    if (packet === fittedPacket) return false;
+    fittedPacket = packet;
+    if (fittedScene) for (const object of Object.values(fittedScene)) dispose(object);
+    dispose(fittedCloud);
+    fittedScene = fittedCloud = null;
+    fittedBounds.makeEmpty();
+    rackBounds.makeEmpty();
+    for (const item of fittedLabels.values()) {
+      if (item.face) dispose(item.face);
+      item.element.remove();
+      labels.splice(labels.indexOf(item), 1);
+    }
+    fittedLabels.clear();
+    if (!packet) return true;
+    fittedScene = warehouseTemplate(packet.enhanced);
+    fittedLayer.add(...Object.values(fittedScene));
+    fittedCloud = measuredCloud(packet);
+    fittedCloud.material.opacity = .88;
+    fittedLayer.add(fittedCloud);
+    rackBounds.setFromObject(fittedScene.model);
+    fittedBounds.copy(rackBounds).union(new T.Box3().setFromObject(fittedScene.context));
+    for (const location of packet.enhanced.locations) {
+      if (!location.position_m || location.status === "unplaced") continue;
+      addMarker(location.id, "fitted-marker", location.position_m, () => callbacks.onFittedLocation(location.id));
+      const item = labels.at(-1);
+      item.element.dataset.location = location.id;
+      item.element.dataset.placement = location.status;
+      const rack = packet.enhanced.rows.find(row => row.id === location.rack_id);
+      if (rack && location.status === "projected") {
+        const face = new T.Mesh(new T.PlaneGeometry(.74, .45),
+          new T.MeshBasicMaterial({color: 0x276fcb, transparent:true, opacity:.46, depthWrite:false,
+            side:T.DoubleSide, polygonOffset:true, polygonOffsetFactor:-3, polygonOffsetUnits:-3}));
+        face.position.copy(at(location.position_m));
+        face.rotation.y = rack.yaw_rad;
+        face.visible = false;
+        item.face = face;
+        fittedLayer.add(face);
+      }
+      fittedLabels.set(location.id, item);
+    }
+    return true;
   }
   const markerForSlot = {};
   const markerForAisle = {};
@@ -305,7 +421,7 @@ export function createTwin(layout, callbacks) {
     if (time - lastDraw < (eco ? 64 : 40)) { queue(); return; }
     lastDraw = time;
     if (transition) {
-      const ratio = Math.min(1, (time - transition.time) / 440);
+      const ratio = Math.min(1, (time - transition.time) / (scanMode ? 620 : 440));
       const eased = 1 - (1 - ratio) ** 3;
       camera.position.lerpVectors(transition.from, transition.to, eased);
       controls.target.lerpVectors(transition.start, transition.end, eased);
@@ -318,31 +434,51 @@ export function createTwin(layout, callbacks) {
       moving = ratio < 1;
     }
     if (following && !transition && sourceSnapshot) {
-      followDelta.subVectors(drone.position, followAnchor);
-      camera.position.add(followDelta);
-      controls.target.add(followDelta);
-      followAnchor.copy(drone.position);
+      followDelta.copy(drone.position);
+      const target = fittedLabels.get(renderData?.visualization?.target)?.anchor;
+      if (!scanMode && target && target.distanceTo(drone.position) < 8) followDelta.lerp(target, .27);
+      followDelta.sub(controls.target);
+      camera.position.addScaledVector(followDelta, .28);
+      controls.target.addScaledVector(followDelta, .28);
     }
     const orbiting = controls.update();
-    renderer.render(scene, camera);
+    if (scanMode) scan.scalePoints(camera.position.distanceTo(controls.target));
+    const top = preset === "top" && fitted && !scanMode;
+    if (top) {
+      const halfHeight = camera.position.distanceTo(controls.target) * Math.tan(T.MathUtils.degToRad(camera.fov / 2));
+      overhead.top = halfHeight;
+      overhead.bottom = -halfHeight;
+      overhead.left = -halfHeight * camera.aspect;
+      overhead.right = -overhead.left;
+      overhead.up.set(0, 0, -1);
+      overhead.position.copy(controls.target).add(new T.Vector3(0, 44, 0));
+      overhead.lookAt(controls.target);
+      overhead.updateProjectionMatrix();
+    }
+    const displayCamera = top ? overhead : camera;
+    renderer.render(scanMode ? scan.scene : scene, displayCamera);
     flightAnchor.copy(drone.position);
-    flightAnchor.y += 1.10;
+    flightAnchor.y += scanMode ? .87 : 1.10;
     const used = [];
     const denseOffsets = [0, -17, 17, -34, 34, -51, 51, -68, 68];
     for (const { element, anchor, kind } of labels) {
-      projected.copy(anchor).project(camera);
+      projected.copy(anchor).project(displayCamera);
       const within = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < .97 && Math.abs(projected.y) < .97;
-      const show = within && (element === flightLabel ? drone.visible : warehouseModel.visible)
+      const show = within && (element === flightLabel ? drone.visible
+        : kind === "taught-marker" ? scanMode : kind === "fitted-marker" ? fitted && !scanMode
+          : !scanMode && !fitted && warehouseModel.visible)
         && (kind !== "aerial-marker" || warehouse.aerial.infrastructure.visible);
       element.style.visibility = show ? "visible" : "hidden";
       if (!show) continue;
       const x = (projected.x + 1) * width / 2;
       const y = (1 - projected.y) * height / 2;
-      const shift = kind === "slot-marker" && (preset === "top" || width < 1000)
+      const dense = ["taught-marker", "fitted-marker"].includes(kind) || fitted && element === flightLabel
+        || kind === "slot-marker" && (preset === "top" || width < 1000);
+      const shift = dense
         ? denseOffsets.find((delta) => y + delta > 19 && y + delta < height - 18
-            && used.every(([cx, cy]) => Math.abs(cx - x) > 58 || Math.abs(cy - (y + delta)) >= 17)) || 0
+            && used.every(([cx, cy]) => Math.abs(cx - x) > 95 || Math.abs(cy - (y + delta)) >= 19)) || 0
         : 0;
-      if (kind === "slot-marker") used.push([x, y + shift]);
+      if (dense) used.push([x, y + shift]);
       element.style.transform = `translate(${x}px,${y + shift}px) translate(-50%,-50%)`;
     }
     if (transition || moving || orbiting) queue();
@@ -352,33 +488,91 @@ export function createTwin(layout, callbacks) {
     width = viewport.clientWidth;
     height = viewport.clientHeight;
     const dpr = window.devicePixelRatio || 1;
-    renderer.setPixelRatio(eco ? Math.min(dpr, .85) : Math.min(dpr, 1.2));
+    renderer.setPixelRatio(Math.min(dpr, eco ? .85 : scanMode ? 1 : 1.2));
     renderer.setSize(width, height, false);
+    const previousAspect = camera.aspect;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
+    if (scanMode && autoFrameScan && !following && Math.abs(previousAspect - camera.aspect) > .06) {
+      fitScan(scanDirection(preset), false);
+    }
     queue();
   }
   function cameraTo(position, aim, animate = true) {
+    animate &&= !matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (animate) transition = { from: camera.position.clone(), start: controls.target.clone(),
       to: position, end: aim, time: performance.now() };
     else {
+      transition = null;
       camera.position.copy(position);
       controls.target.copy(aim);
       controls.update();
     }
     queue();
   }
+
+  function scanDirection(view) {
+    if (view === "top") return new T.Vector3(0, 1, .004);
+    if (view === "side") return new T.Vector3(.99, .055, .17);
+    return new T.Vector3(-.62, .53, .74);
+  }
+
+  function fitScan(direction, animate, bounds = scan.bounds) {
+    const empty = bounds.isEmpty();
+    const target = empty ? drone.position.clone() : bounds.getCenter(new T.Vector3());
+    framedCenter.copy(target);
+    framedSpan = empty ? 8 : bounds.getSize(new T.Vector3()).length();
+    direction.normalize();
+    const right = new T.Vector3(0, 1, 0).cross(direction).normalize();
+    const up = direction.clone().cross(right);
+    const tanV = Math.tan(T.MathUtils.degToRad(camera.fov) / 2);
+    const tanH = tanV * camera.aspect;
+    let distance = empty ? 13 : 6;
+    if (!empty) {
+      const { min, max } = bounds;
+      for (const x of [min.x, max.x]) for (const y of [min.y, max.y]) for (const z of [min.z, max.z]) {
+        scanOffset.set(x, y, z).sub(target);
+        const projected = Math.max(Math.abs(scanOffset.dot(right)) / tanH, Math.abs(scanOffset.dot(up)) / tanV);
+        distance = Math.max(distance, scanOffset.dot(direction) + projected * 1.13);
+      }
+    }
+    cameraTo(target.clone().addScaledVector(direction, distance), target, animate);
+  }
+
   function choosePreset(next, animate = true) {
     setFollow(false);
     preset = next;
+    const canOrbit = !fitted || scanMode || next !== "top";
+    controls.enableRotate = canOrbit;
+    controls.mouseButtons.LEFT = canOrbit ? T.MOUSE.ROTATE : T.MOUSE.PAN;
+    controls.touches.ONE = canOrbit ? T.TOUCH.ROTATE : T.TOUCH.PAN;
     byId("twin-iso").setAttribute("aria-pressed", String(next === "iso"));
     byId("twin-top").setAttribute("aria-pressed", String(next === "top"));
+    byId("scan-side").setAttribute("aria-pressed", String(next === "side"));
+    if (scanMode) {
+      fitScan(scanDirection(next), animate);
+      return;
+    }
+    if (fitted) {
+      const racksFirst = ["plan", "results"].includes(renderData?.view) && !rackBounds.isEmpty();
+      const direction = next === "iso" ? new T.Vector3(.66, .68, .94) : scanDirection(next);
+      const bounds = archiveScan && fittedCloud ? fittedCloud.geometry.boundingBox
+        : racksFirst ? rackBounds : fittedBounds;
+      fitScan(direction, animate, bounds);
+      return;
+    }
     const f = layout.floor;
     const target = at([f.x + f.width * .47, f.y + f.height / 2, 0]);
     const offset = next === "iso" ? new T.Vector3(-26, 32, 33) : new T.Vector3(0, 43, .12);
     // Keep the whole floor in view on narrow cards as well.
     offset.multiplyScalar(Math.max(1, 1.31 / camera.aspect));
     cameraTo(target.clone().add(offset), target, animate);
+  }
+  function frameMeasuredCloud(first) {
+    if (following || !autoFrameScan || scan.bounds.isEmpty()) return;
+    const span = scan.bounds.getSize(new T.Vector3()).length();
+    const center = scan.bounds.getCenter(new T.Vector3());
+    if (first || span > framedSpan * 1.20 || center.distanceTo(framedCenter) > 2.8) fitScan(scanDirection(preset), !first);
   }
   function focusRack() {
     if (!focus) return;
@@ -391,9 +585,9 @@ export function createTwin(layout, callbacks) {
     following = enabled;
     byId("twin-follow").setAttribute("aria-pressed", String(enabled));
     if (enabled) {
-      followAnchor.copy(drone.position);
       const target = drone.position.clone();
-      cameraTo(target.clone().add(new T.Vector3(-6.4, 6.0, 9.5)), target);
+      const offset = scanMode ? scanDirection(preset).normalize().multiplyScalar(10) : new T.Vector3(-6.4, 6.0, 9.5);
+      cameraTo(target.clone().add(offset), target);
     }
   }
   function selectSlot(id) {
@@ -408,6 +602,7 @@ export function createTwin(layout, callbacks) {
     if (!event.isPrimary || event.button !== 0 || !down) return;
     const [x, y] = down;
     down = null;
+    if (scanMode || fitted) return;
     if (Math.hypot(event.clientX - x, event.clientY - y) > 5) return;
     const bounds = renderer.domElement.getBoundingClientRect();
     pointer.set((x - bounds.left) / bounds.width * 2 - 1, 1 - (y - bounds.top) / bounds.height * 2);
@@ -418,13 +613,22 @@ export function createTwin(layout, callbacks) {
   });
   renderer.domElement.addEventListener("pointercancel", () => { down = null; });
   controls.addEventListener("change", queue);
-  controls.addEventListener("start", () => { transition = null; });
+  controls.addEventListener("start", () => { transition = null; if (scanMode) autoFrameScan = false; });
   new ResizeObserver(resize).observe(viewport);
   document.addEventListener("visibilitychange", queue);
-  byId("twin-iso").addEventListener("click", () => choosePreset("iso"));
-  byId("twin-top").addEventListener("click", () => choosePreset("top"));
+  byId("twin-iso").addEventListener("click", () => { autoFrameScan = true; choosePreset("iso"); });
+  byId("twin-top").addEventListener("click", () => { autoFrameScan = true; choosePreset("top"); });
+  byId("scan-side").addEventListener("click", () => { autoFrameScan = true; choosePreset("side"); });
+  byId("scan-fit").addEventListener("click", () => {
+    setFollow(false);
+    fitScan(camera.position.clone().sub(controls.target), true);
+  });
   byId("twin-follow").addEventListener("click", () => setFollow(!following));
-  byId("twin-reset").addEventListener("click", () => choosePreset(preset));
+  byId("twin-reset").addEventListener("click", () => { autoFrameScan = true; choosePreset(scanMode ? "iso" : preset); });
+  byId("twin-survey").addEventListener("click", () => {
+    setFollow(false);
+    fitScan(scanDirection(preset), true, archiveScan && fittedCloud ? fittedCloud.geometry.boundingBox : fittedBounds);
+  });
   byId("twin-focus").addEventListener("click", focusRack);
   byId("twin-reinspect").addEventListener("click", () => { if (focus) callbacks.onReinspect(focus); });
   byId("twin-economy").addEventListener("click", () => {
@@ -447,13 +651,15 @@ export function createTwin(layout, callbacks) {
     }
   }
 
-  function updateDrone(state) {
-    const fresh = Boolean(state?.robot && state.position);
+  function updateDrone(state, lastPose) {
+    const fresh = Boolean(state?.robot && state.position_fresh && state.position
+      && (!layout.localization || state.localization?.state === "TRACKING"));
     byId("twin-follow").disabled = !fresh;
-    const position = state?.position;
+    const sample = fresh ? state : lastPose;
+    const position = sample?.position;
     if (position) {
       const [, , z, yaw] = position;
-      const rot = state.orientation || [0, 0, Math.sin(yaw / 2), Math.cos(yaw / 2)];
+      const rot = sample.orientation || [0, 0, Math.sin(yaw / 2), Math.cos(yaw / 2)];
       endPosition.copy(at(position));
       endRotation.set(rot[0], rot[2], -rot[1], rot[3]).normalize();
       if (!drone.visible || !fresh || sourceSnapshot === null) {
@@ -464,13 +670,16 @@ export function createTwin(layout, callbacks) {
         startPosition.copy(drone.position);
         startRotation.copy(drone.quaternion);
         startedAt = performance.now();
-        moving = true;
+        moving = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (!moving) {
+          drone.position.copy(endPosition);
+          drone.quaternion.copy(endRotation);
+        }
       }
       sourceSnapshot = fresh ? JSON.stringify([position, rot]) : null;
       drone.visible = true;
-      flightLabel.textContent = fresh ? `UAV · ${z.toFixed(2)} m` : "UAV · Last pose";
-      if (fresh && state.energy?.fresh) flightLabel.textContent += ` · ${Math.round(state.energy.percent)}%`;
-      fill("twin-odom", fresh ? `Live odometry · Z ${z.toFixed(2)} m` : "Odometry stale · Last pose");
+      flightLabel.textContent = fresh ? `UAV · ${z.toFixed(2)} m` : "UAV · Last known position";
+      fill("twin-odom", fresh ? `Live position · ${z.toFixed(2)} m altitude` : "Position data stale");
     } else {
       if (moving) {
         drone.position.copy(endPosition);
@@ -478,11 +687,12 @@ export function createTwin(layout, callbacks) {
         moving = false;
       }
       sourceSnapshot = null;
-      fill("twin-odom", drone.visible ? "Connection lost · Last pose" : "Waiting for odometry");
-      flightLabel.textContent = "UAV · Last pose";
+      fill("twin-odom", drone.visible ? "Connection lost · Last known position" : "Position unavailable");
+      flightLabel.textContent = "UAV · Last known position";
     }
-    body.color.setHex(fresh ? 0x3974ba : 0x9d7844);
-    edge.color.setHex(fresh ? 0x214b80 : 0xa46522);
+    body.color.setHex(fresh ? scanMode ? 0x58a4ee : 0x3974ba : 0x9d7844);
+    edge.color.setHex(fresh ? scanMode ? 0x76c5ff : 0x214b80 : 0xa46522);
+    scanHeading.visible = scanMode && fresh;
     flightLabel.classList.toggle("stale", !fresh);
     byId("twin-odom").classList.toggle("stale", !fresh);
   }
@@ -505,7 +715,8 @@ export function createTwin(layout, callbacks) {
     }
     if (!layout.safety_fields) { fill("twin-source", "Safety disabled"); return; }
     if (safety?.sensor_mode === "virtual" || !layout.laser_fields) {
-      fill("twin-source", `Virtual presence · ${safety?.alarm ? statusText(safety.alarm.event) : safety?.phase || "Unavailable"}`);
+      const alarm = activeSafetyAlarm(safety);
+      fill("twin-source", `Virtual presence · ${alarm ? statusText(alarm.event) : safety?.phase || "Unavailable"}`);
       return;
     }
     const scans = Object.entries(safety?.scans || {}).filter(([id]) => safety.zones[id]?.sensor === "FRESH");
@@ -527,18 +738,123 @@ export function createTwin(layout, callbacks) {
     setPath(beams, rays);
     const age = scans.length ? ` · Max age ${Math.max(...scans.map(([, scan]) => scan.age_ms))} ms` : "";
     const scanHealth = scans.length === Object.keys(warehouse.lasers).length ? "live scan" : scans.length ? "partial feed" : "scan unavailable";
-    fill("twin-source", safety?.alarm ? `LiDAR · ${statusText(safety.alarm.event)} · ${scanHealth} · ${hits.length} returns`
+    const alarm = activeSafetyAlarm(safety);
+    fill("twin-source", alarm ? `LiDAR · ${statusText(alarm.event)} · ${scanHealth} · ${hits.length} returns`
       : `LiDAR · ${scanHealth} · ${hits.length} returns${age}`);
   }
   function statusText(value) { return value.replaceAll("_", " "); }
+  function drawFitted(data) {
+    const {visualization: visual, state, view, preview, job} = data;
+    const showFlight = visual.showFlight && !!visual.packet;
+    if (fittedScene) {
+      fittedScene.model.visible = !archiveScan;
+      fittedScene.context.visible = !archiveScan;
+      fittedScene.route.visible = view === "route" || view === "configuration";
+      fittedCloud.visible = archiveScan;
+    }
+    for (const [id, item] of fittedLabels) {
+      const placement = item.element.dataset.placement === "estimated" ? "Estimated rack face" : "Measured rack face";
+      const selected = !!visual.selected?.has(id);
+      const result = visual.outcomes?.[id];
+      const status = view === "results" ? result?.state || "uninspected"
+        : showFlight && visual.target === id ? "target"
+        : showFlight && job?.status?.visited?.includes(id) ? "visited" : selected ? "selected" : "available";
+      item.element.dataset.status = view === "results" && !item.face ? "uninspected" : status;
+      item.element.setAttribute("aria-pressed", String(view === "plan" ? selected : visual.focus === id));
+      item.element.disabled = view === "plan" && !visual.interactive;
+      item.element.title = [id, result?.label, placement].filter(Boolean).join(" · ");
+      item.element.setAttribute("aria-label", item.element.title);
+      if (item.face) {
+        item.face.visible = !archiveScan && (status === "target" || selected && view === "plan"
+          || view === "results" && visual.focus === id);
+        item.face.material.color.setHex(status === "discrepancy" ? 0xb42835 : status === "manual" ? 0xbd6800
+          : status === "match" ? 0x16764a : 0x276fcb);
+      }
+    }
+    const recovery = showFlight ? state?.recovery : null;
+    setPath(planLine, view === "plan" && visual.packet ? preview?.points || [] : showFlight ? job?.planned || [] : []);
+    setPath(flownLine, showFlight ? job?.flown || [] : [], .047);
+    setPath(extraLine, []);
+    setPath(pendingLine, []);
+    if (recoveryPlan) {
+      setPath(recoveryPlan, recovery?.planned || [], .045);
+      setPath(recoveryFlown, recovery?.flown || [], .065);
+      const stop = recovery?.stopped?.position;
+      stopped(stop ? [[stop[0], stop[2], -stop[1]]] : []);
+    }
+    if (showFlight) updateDrone(state, data.lastPose);
+    else {
+      drone.visible = false;
+      moving = false;
+      sourceSnapshot = null;
+    }
+    scanHeading.visible = showFlight && !!sourceSnapshot;
+    if (view === "results" && pendingFittedFocus && fittedLabels.has(pendingFittedFocus))
+      frameFittedLocation(pendingFittedFocus);
+    queue();
+  }
+  function frameFittedLocation(id) {
+    const item = fittedLabels.get(id);
+    if (!item) { pendingFittedFocus = id; return; }
+    pendingFittedFocus = null;
+    setFollow(false);
+    const target = item.anchor.clone();
+    const offset = scanDirection(preset).normalize().multiplyScalar(6.4);
+    cameraTo(target.clone().add(offset), target);
+  }
   function update(data) {
+    const contextChanged = renderData?.view !== data?.view;
     renderData = data;
     if (!visible || !data) return;
     const { state, view, preview, job, selection } = data;
+    const before = fitted, beforeArchiveScan = archiveScan;
+    fitted = !!data.visualization?.required;
+    archiveScan = fitted && viewMode === "scan" && !!data.visualization?.archiveScan;
+    const liveScan = viewMode === "scan" && !!scan && !archiveScan;
+    const changed = useArtifact(fitted ? data.visualization.packet : null);
+    fittedLayer.visible = fitted;
+    warehouseModel.visible = !fitted && byId("twin-warehouse-model").getAttribute("aria-pressed") === "true";
+    if (fitted && !before) {
+      onboard.visible = false;
+      mapLayer.visible = false;
+      if (estimatedPath) estimatedPath.visible = false;
+      if (referencePath) referencePath.visible = false;
+      if (corridor) corridor.visible = false;
+      setPath(beams, []);
+      lidarReturns([]);
+      lidarHits([]);
+    } else if (before && !fitted) {
+      onboard.visible = byId("twin-onboard").getAttribute("aria-pressed") === "true";
+      mapLayer.visible = byId("twin-measured-map").getAttribute("aria-pressed") === "true";
+    }
+    if (scanMode !== liveScan) {
+      if (scanMode) scanPreset = preset;
+      else modelPreset = preset;
+      scanMode = liveScan;
+      autoFrameScan = true;
+      controls.maxPolarAngle = Math.PI / 2 - (scanMode ? .045 : .12);
+      (scanMode ? scan.scene : scene).add(drone);
+      scan?.setVisible(visible && scanMode);
+      choosePreset(scanMode ? scanPreset : modelPreset, false);
+    } else if (!scanMode && (before !== fitted || beforeArchiveScan !== archiveScan || changed || fitted && contextChanged)) {
+      choosePreset(preset, false);
+    }
+    const sceneMode = scanMode ? "scan" : archiveScan ? "archived-scan" : "model";
+    byId("twin-survey").hidden = !fittedPacket || scanMode;
+    byId("twin-panel").dataset.mapMode = sceneMode;
+    renderer.domElement.setAttribute("aria-label", scanMode || archiveScan ? "Measured LiDAR point cloud"
+      : fitted ? "Enhanced Digital Twin" : "3D warehouse scene");
+    if (scanMode) {
+      drawTaughtLocations(data.taught, data.taughtSelection);
+      updateDrone(state, data.lastPose);
+      scan.update(state, data.activeFlight, data.review);
+      return;
+    }
+    if (fitted) { drawFitted(data); return; }
     const planning = view === "plan";
     const current = planning ? null : job;
     const scope = planning ? (selection.size ? selection : null) : job ? new Set(job.slots) : null;
-    const selectedAisles = new Set(Array.from(scope || []).map((id) => layout.slots[id].aisle));
+    const selectedAisles = new Set(Array.from(scope || []).map((id) => layout.slots[id]?.aisle).filter(Boolean));
     for (const [id, area] of Object.entries(warehouse.aisles)) {
       const selected = selectedAisles.has(id);
       area.group.visible = selected;
@@ -546,6 +862,8 @@ export function createTwin(layout, callbacks) {
     }
     for (const [id, meshes] of Object.entries(warehouse.slots)) {
       const record = slotRecord(id, scope, current);
+      const business = view === "results" ? data.visualization?.outcomes?.[id] : null;
+      if (business) record.state = business.state;
       const marker = markerForSlot[id];
       const color = slotColors[record.state];
       const active = record.state === "inspecting";
@@ -612,7 +930,8 @@ export function createTwin(layout, callbacks) {
       setPath(estimatedPath, localization?.trajectory || [], .021);
       if (referencePath) setPath(referencePath, state?.localization_validation?.trajectory || [], .035);
     }
-    updateDrone(state);
+    if (["live", "manual"].includes(view)) updateDrone(state, data.lastPose);
+    else { drone.visible = false; moving = false; sourceSnapshot = null; }
     if (recovery?.cause && recovery.phase !== "RECOVERY_COMPLETE")
       flightLabel.textContent += ` · ${recovery.cause.replaceAll("_", " ")}`;
     if (warehouse.aerial) {
@@ -636,16 +955,29 @@ export function createTwin(layout, callbacks) {
   }
   return {
     update,
-    focusDock() {
-      if (!dockLabel) return;
+    setMode(mode) {
+      viewMode = mode;
+    },
+    focusTaughtLocation(position) {
+      if (!scanMode) return;
       setFollow(false);
-      const target = at([layout.pad.x, layout.pad.y, .22]);
+      autoFrameScan = false;
+      const target = at(position);
+      cameraTo(target.clone().add(scanDirection(preset).normalize().multiplyScalar(6.8)), target);
+    },
+    focusDock() {
+      const dock = fitted ? fittedPacket?.enhanced.dock?.position_m : [layout.pad.x, layout.pad.y, .22];
+      if (!dock) return;
+      setFollow(false);
+      const target = at(dock);
       cameraTo(target.clone().add(new T.Vector3(-4.2, 3.3, 3.9)), target);
     },
     focusSlot(id) { focus = id; if (renderData) update(renderData); },
+    focusFittedLocation: frameFittedLocation,
     setVisible(enabled) {
       const first = !visible && enabled && lastDraw === 0;
       visible = enabled;
+      scan?.setVisible(visible && scanMode);
       if (!visible) { cancelAnimationFrame(raf); raf = 0; return; }
       resize();
       if (first) choosePreset("iso", false);

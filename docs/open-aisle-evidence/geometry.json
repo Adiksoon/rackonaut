@@ -1,0 +1,54 @@
+{
+  "assets_sha256": {
+    "localization_showcase.sdf": "8dfc2626259d80f1e587f236ca801db11e0a18f9776ccdc0efc40f9de46fb085",
+    "localization_laser_showcase.sdf": "b65c32e9bf0b008f42e14eecf1401408c4ef9052822b62755ed0152dca648e43",
+    "localization_map.json": "85dcdbd7ab67cdae7e9821bb059abf6b6c7b24e892c63c87d0d09625f0f24b23",
+    "aerial_layout.json": "ac742f1dc37b0250d9f6b6c6f79de66f6e645f4731ed55ae4cb91d453208ee23",
+    "open_aisle_localization_showcase.sdf": "bbfd7b7db8033f53e22e120a8a6462760d2ec83cb398a5aa6410f46cc5f8439a",
+    "open_aisle_localization_laser_showcase.sdf": "0c05a5ad761201621cd87370ecefb13bd3a7e62e06d4c66a017f73398ae12e29",
+    "open_aisle_localization_map.json": "2c9bec8900e592e76b39fa0ff339e60deb3f3fa2de6d469368a72e3c24cd1263",
+    "open_aisle_aerial_layout.json": "c60232ee4747ee1c268384ecad50f06082bccbbabc36003030e0531b690e63d6"
+  },
+  "variant": "open-aisle",
+  "level_m": 6.7,
+  "opening_m": [
+    1.72,
+    1.72
+  ],
+  "portal_level_clearance_z_m": [
+    6.18,
+    7.24
+  ],
+  "protective_radius_m": 0.48,
+  "protective_half_height_m": 0.17,
+  "localization_showcase.sdf": {
+    "visuals": 313,
+    "collisions": 33,
+    "collisions_under_portal": {
+      "A": [
+        "steel_24_collision",
+        "steel_25_collision",
+        "steel_26_collision",
+        "steel_27_collision",
+        "screen_2_collision",
+        "screen_3_collision"
+      ],
+      "B": [
+        "steel_48_collision",
+        "steel_49_collision",
+        "steel_50_collision",
+        "steel_51_collision",
+        "screen_4_collision",
+        "screen_5_collision"
+      ]
+    }
+  },
+  "open_aisle_localization_showcase.sdf": {
+    "visuals": 343,
+    "collisions": 53,
+    "collisions_under_portal": {
+      "A": [],
+      "B": []
+    }
+  }
+}

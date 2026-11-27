@@ -88,9 +88,10 @@ class SapStore(InventoryStore):
             if not row:
                 raise error(409, "unlinked_quality", "Submit the linked inventory observation first.")
             event = json.loads(row[0])
+            occupancy = report["occupancy"] if report["status"] == "CAPTURED" else "occupied"
             if (event["slot_id"], event["pallet_id"], capture_time(event), event["occupancy"]) != (
                     report["slot_id"], report["pallet_id"], capture_time({"timestamp": report["observation_timestamp"]}),
-                    "occupied"):
+                    occupancy):
                 raise error(422, "quality_link_mismatch", "Quality evidence differs from the referenced observation.")
             db.execute("INSERT INTO quality VALUES (?,?,?,?,?,?)",
                        (*key, report["observation_id"], json.dumps(report), original, annotated))

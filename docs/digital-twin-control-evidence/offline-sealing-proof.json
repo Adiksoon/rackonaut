@@ -1,0 +1,19 @@
+{
+  "case": "Verified actual approved GOAL 24 data, dock and ownership inputs supplied by the test",
+  "request": "Control.warehouse_action seal",
+  "configurationId": "WH-7846B7693F9D3FDBAB0767BEEB917861",
+  "binding": {
+    "format": 1,
+    "configuration_id": "WH-7846B7693F9D3FDBAB0767BEEB917861",
+    "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+    "revision": 2,
+    "source_sha256": "da4fecf45468a3477d088c8f161120ff4ab1563bb4983e2f995abc0e307190f9",
+    "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+  },
+  "sizeBytes": 982205,
+  "points": 56059,
+  "returnedInSeconds": 0.175,
+  "modelAvailableInSeconds": 1.838,
+  "modelGeneratedBeforeAnyRead": true,
+  "approvedArchiveStillVerifies": true
+}

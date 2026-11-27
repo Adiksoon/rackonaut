@@ -1,0 +1,78 @@
+{
+  "inspection_id": "INS-CONTROL-20261126-160615-2FAFCDA1",
+  "controller": "reference",
+  "stage": "COMPLETE",
+  "camera_locations": [
+    "A-01-01",
+    "A-01-03"
+  ],
+  "contact": true,
+  "safety": "RELEASED",
+  "map_session_id": null,
+  "wall_s": 314.8,
+  "sim_s": 174.16,
+  "rtf": 0.5532,
+  "path_length_m": 72.4223,
+  "furthest_m": 16.3662,
+  "height_range_m": [
+    0.05859,
+    6.79009
+  ],
+  "metrics": {
+    "count": 1049,
+    "rmse_mm": 15.929,
+    "p95_mm": 28.978,
+    "max_mm": 41.237,
+    "angle_rmse_deg": 0.11497,
+    "angle_p95_deg": 0.15886,
+    "angle_max_deg": 0.1969
+  },
+  "regions": {
+    "shaft": {
+      "count": 168,
+      "rmse_mm": 2.897,
+      "p95_mm": 3.804,
+      "max_mm": 4.64,
+      "angle_rmse_deg": 0.08261,
+      "angle_p95_deg": 0.11858,
+      "angle_max_deg": 0.1469
+    },
+    "tunnel": {
+      "count": 583,
+      "rmse_mm": 12.564,
+      "p95_mm": 17.633,
+      "max_mm": 21.444,
+      "angle_rmse_deg": 0.11817,
+      "angle_p95_deg": 0.16297,
+      "angle_max_deg": 0.1928
+    },
+    "aisle": {
+      "count": 298,
+      "rmse_mm": 24.076,
+      "p95_mm": 32.208,
+      "max_mm": 41.237,
+      "angle_rmse_deg": 0.12394,
+      "angle_p95_deg": 0.15602,
+      "angle_max_deg": 0.1969
+    }
+  },
+  "dryf_mm": 0.8889,
+  "estimate_rate_wall_hz": 3.3323,
+  "max_gap_sim_s": 0.168,
+  "non_tracking_heartbeats": 0,
+  "keyframes": 177,
+  "voxel_count": 54996,
+  "processing_p95_ms": 122.88,
+  "energy_points": 60.642,
+  "slam_resources": null,
+  "gazebo_resources": null,
+  "passes_quality_gate": true,
+  "ground_truth_envelope": {
+    "segments": 1048,
+    "outside_segments": 0,
+    "zones": [
+      "D",
+      "A"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+/opt/ros/humble/bin/ros2
+/usr/bin/colcon
+/usr/bin/rosdep
+/usr/bin/ign
+/usr/bin/setsid
+6.16.0
+ROS_DISTRO=humble ROS_DOMAIN_ID=62 ROS_LOCALHOST_ONLY=1 RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+AMENT_PREFIX_PATH=/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_showcase:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_control:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_safety:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_mission:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_localization:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_energy:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_warehouse:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_reference:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_perception:/home/zygar/rackonaut-learned-autonomy/ros2_ws/install/rackonaut_avoidance:/opt/ros/humble
+IGN_GAZEBO_RESOURCE_PATH=/home/zygar/rackonaut-learned-autonomy/ros2_ws/src
+/usr/bin/python3 3.10.12 OpenCV=4.5.4 NumPy=1.21.5 cv_bridge=round-trip

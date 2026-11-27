@@ -1,0 +1,20 @@
+{
+  "inspection": "INS-CONTROL-20261126-160321-74392821",
+  "archived": true,
+  "metrics": {
+    "observed": 3,
+    "total": 11,
+    "matches": 1,
+    "decisive": 3,
+    "accuracy": 0.3333333333333333,
+    "inventory_discrepancies": 2,
+    "inventory_attention": 2,
+    "damaged_packages": 1,
+    "discontinued_products": 1,
+    "manual_review_locations": 0
+  },
+  "photos": {
+    "original": "974958765b37332990ec2de4b3f84dd452638f6dc50c83c5550e8f086f0f90d2",
+    "annotated": "9429fab6d9d19b2bab8771e1d8567938d656a3168b8d54760cde1600bc9521b1"
+  }
+}
