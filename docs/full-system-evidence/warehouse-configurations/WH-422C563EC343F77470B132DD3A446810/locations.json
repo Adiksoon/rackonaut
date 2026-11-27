@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "calibration_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+  "mapping_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+  "frame": "rackonaut_odom",
+  "revision": 2,
+  "trajectory": "result.json",
+  "map": "map.ply",
+  "locations": [
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 135,
+        "nanosec": 400000000
+      },
+      "received_at_utc": "2026-11-27T07:07:16.925501+00:00",
+      "position_m": [
+        5.528575089723077,
+        0.453847996937597,
+        0.835031966266337
+      ],
+      "orientation_xyzw": [
+        0.0010209629665630623,
+        0.0007266699122802582,
+        0.7950223489796168,
+        0.6065788441813579
+      ],
+      "camera_direction": [
+        -0.26412212685245773,
+        0.9644889588909469,
+        0.0007418115608116719
+      ],
+      "sync": {
+        "before_ms": 60.0,
+        "after_ms": 0.0
+      },
+      "position_sigma_m": [
+        0.012244427820266326,
+        0.008446787443070515,
+        0.0058486441879697084
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0144,
+        "overlap": 0.869,
+        "weakest": 0.05819,
+        "sigma": [
+          0.0122,
+          0.0084,
+          0.0058
+        ],
+        "scan_age_ms": 99,
+        "imu_age_ms": 2
+      },
+      "record_id": "LOC-57E91E9981FA48B690CBA995926D6E5A",
+      "storage_location_id": "A-01-01",
+      "calibration_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+      "mapping_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+      "id_source": "aruco",
+      "suggested_id": "A-01-01",
+      "description": "",
+      "status": "approved",
+      "reference_image": "locations/CAP-21A5CC975F5A426B9EB00A0EB429FB4F/reference.jpg"
+    },
+    {
+      "frame": "rackonaut_odom",
+      "camera_frame": "rackonaut_camera_optical_frame",
+      "camera_stamp": {
+        "sec": 170,
+        "nanosec": 200000000
+      },
+      "received_at_utc": "2026-11-27T07:08:11.941987+00:00",
+      "position_m": [
+        8.667100977183356,
+        0.3004009610189313,
+        0.899792527129234
+      ],
+      "orientation_xyzw": [
+        0.0007392651695772355,
+        0.0005553268919968803,
+        0.8031280402471985,
+        0.5958057536376652
+      ],
+      "camera_direction": [
+        -0.2900299148385256,
+        0.9570174356417044,
+        0.000525715258928229
+      ],
+      "sync": {
+        "before_ms": 20.0,
+        "after_ms": 20.0
+      },
+      "position_sigma_m": [
+        0.016666257063090398,
+        0.009599573349852071,
+        0.005191463301318591
+      ],
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0152,
+        "overlap": 0.866,
+        "weakest": 0.03087,
+        "sigma": [
+          0.0167,
+          0.0096,
+          0.0052
+        ],
+        "scan_age_ms": 279,
+        "imu_age_ms": 81
+      },
+      "record_id": "LOC-2F8357F3514D4C1D831B60E8F03E3A8B",
+      "storage_location_id": "A-01-03",
+      "calibration_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+      "mapping_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+      "id_source": "aruco",
+      "suggested_id": "A-01-03",
+      "description": "",
+      "status": "approved",
+      "reference_image": "locations/CAP-B8DA0BF3461C4ED7A814C3671BC62571/reference.jpg"
+    }
+  ]
+}

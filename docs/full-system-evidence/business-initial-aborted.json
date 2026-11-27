@@ -1,0 +1,270 @@
+{
+  "kind": "business",
+  "testedStages": [
+    {
+      "stage": "STARTING",
+      "completed": 0,
+      "battery": 99.984
+    },
+    {
+      "stage": "WAITING",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 99.971
+    },
+    {
+      "stage": "VERTICAL_TAKEOFF",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 99.95
+    },
+    {
+      "stage": "ENTERING_CORRIDOR",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 92.438
+    },
+    {
+      "stage": "OVERHEAD_TRANSIT",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 87.073
+    },
+    {
+      "stage": "WAITING_FOR_AISLE_CLEARANCE",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 76.856
+    },
+    {
+      "stage": "AISLE_DESCENT",
+      "target": "PAD",
+      "completed": 0,
+      "battery": 76.759
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 72.908
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 72.199
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-01",
+      "completed": 0,
+      "battery": 71.059
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 70.452
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 69.593
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-01",
+      "completed": 1,
+      "battery": 68.962
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 67.861
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 64.902
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-02",
+      "completed": 1,
+      "battery": 64.807
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 64.23
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 63.735
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 62.518
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 62.011
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 61.291
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-02",
+      "completed": 2,
+      "battery": 60.64
+    },
+    {
+      "stage": "AISLE_APPROACH",
+      "target": "PAD",
+      "completed": 2,
+      "battery": 59.956
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 58.018
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 55.335
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-03",
+      "completed": 2,
+      "battery": 55.22
+    },
+    {
+      "stage": "TRANSIT",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 54.969
+    },
+    {
+      "stage": "ALIGN",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 52.073
+    },
+    {
+      "stage": "INSPECT",
+      "target": "A-01-04",
+      "completed": 3,
+      "battery": 51.979
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 51.645
+    },
+    {
+      "stage": "QUALITY_CLOSEUP",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 51.234
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 49.946
+    },
+    {
+      "stage": "REPOSITION",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 49.479
+    },
+    {
+      "stage": "REINSPECT",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 48.726
+    },
+    {
+      "stage": "RECENTER",
+      "target": "A-01-04",
+      "completed": 4,
+      "battery": 48.007
+    },
+    {
+      "stage": "AISLE_APPROACH",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 47.446
+    },
+    {
+      "stage": "ABORTED",
+      "target": "PAD",
+      "completed": 4,
+      "battery": 44.921
+    }
+  ],
+  "errors": [],
+  "run": "INS-CONTROL-20261127-072013-DDEA80E4",
+  "finish": {
+    "stage": "ABORTED",
+    "detail": "Route blocked; no measured, reserved bypass or verified return path",
+    "landed": false,
+    "elapsed": 290.825,
+    "safety": "RECOVERY",
+    "dock": false,
+    "energy": {
+      "departures": 1,
+      "sorties": [
+        {
+          "departure": 1,
+          "start_percent": 99.956,
+          "start_sim_time": 3.6,
+          "completed_before": [],
+          "result": "ABORTED",
+          "end_percent": 44.957,
+          "end_sim_time": 170.3,
+          "completed_after": [
+            "A-01-01",
+            "A-01-02",
+            "A-01-03",
+            "A-01-04"
+          ]
+        }
+      ],
+      "completed": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04"
+      ],
+      "remaining": [],
+      "interrupted": [],
+      "return_reason": "",
+      "return_percent": 29.11,
+      "required_percent": null,
+      "reserve_percent": 8,
+      "return_path": []
+    }
+  },
+  "failure": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'ABORTED'\n- 'COMPLETE'\n"
+}

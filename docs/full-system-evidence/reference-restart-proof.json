@@ -1,0 +1,35 @@
+{
+  "run": "INS-CONTROL-20261127-073625-81039295",
+  "previous": "INS-CONTROL-20261126-214430-08FAE03A",
+  "reportHash": "8832705ae6c51140365374d3b3c00f673e926bcc9bcc4448be4f9c31cca0d4fb",
+  "reportBytes": 214141,
+  "history": {
+    "run": "INS-CONTROL-20261127-073625-81039295",
+    "stage": "COMPLETE",
+    "landed": true,
+    "warehouse_configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "warehouse_revision": 2,
+    "warehouse_name": "Learned warehouse",
+    "drone_model": "reference",
+    "planned_slots": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "business": true,
+    "confirmed": 2,
+    "total": 2,
+    "url": "/reports/INS-CONTROL-20261127-073625-81039295"
+  },
+  "localization": "TRACKING",
+  "dock": true,
+  "binding": {
+    "format": 1,
+    "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+    "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+    "revision": 2,
+    "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+    "camera_profile": "reference",
+    "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+  },
+  "errors": []
+}

@@ -1,3 +1,6 @@
 # Keep executable scripts portable across Linux and Windows checkouts.
 * text=auto eol=lf
 *.png binary
+
+# Keep exported integration reports byte-for-byte as served by Control Center.
+docs/full-system-evidence/*report.html -text -whitespace

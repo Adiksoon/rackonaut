@@ -26,15 +26,15 @@ The setup command installs pinned backend packages into `.venv-backend`. ROS nod
 
 ### A. Business Demo
 
-This short profile focuses on HU reads, carton quality, Mock SAP comparison and the supervisor's decisions.
+This selected-location demo focuses on HU reads, carton quality, Mock SAP comparison and the supervisor's decisions. It uses the same onboard localization and protections as Full Robotics. Use X3 for the four-location route below, including its orthogonal descent between inspection heights. Prepare the X3 Fuel model as described in section B.
 
 ```bash
-scripts/robotics/checkpoint business
+scripts/robotics/checkpoint business drone_model:=x3
 ```
 
-1. Open Control Center and wait for **Mock SAP online** and the drone at the pad. [Control Center](http://127.0.0.1:8765)
-2. Choose **Selected locations** and select **A-01-01**, **A-01-02** and **A-01-03**. In **Inspection options**, enable **Check for package damage** and **Retry difficult readings**. Start the inspection.
-3. After landing, open **Results**. Choose a finding to compare the expected and observed stock, review available evidence and export the HTML report. The recorded reference run identified discontinued P001 at A-01-01, found P003 in the wrong location with visible damage at A-01-02, and found its expected location A-01-03 empty.
+1. Open Control Center and wait for **Mock SAP online**, a verified physical dock and localization. [Control Center](http://127.0.0.1:8765)
+2. Choose **Selected locations** and select **A-01-01**, **A-01-02**, **A-01-03** and **A-01-04**. Enable **Check for package damage** and **Retry difficult readings**, then start the inspection.
+3. After landing, open **Results**. Choose a finding to compare expected and observed stock, review the available camera evidence and export the HTML report. An earlier recorded Business Demo is available in the demonstration evidence.
 
 The local API serves the v1 Swagger UI on port 8000. [Swagger UI](http://127.0.0.1:8000/docs) · [Mock SAP and business endpoints](docs/SAP_BUSINESS_INTELLIGENCE.md)
 

@@ -60,6 +60,8 @@ flowchart LR
     J --> K["Scalenie importera · 3f42ff7"]
     I --> K
     K --> L["Wspólny profil i dowody · cd3f3b3"]
+    L --> D["Launcher biznesowy LiDAR–IMU · 473a942"]
+    D --> R["Końcowe zejście X3 · c78db1d"]
 ```
 
 - `control/node.py` zawierał konflikt inicjalizacji. Złożono inicjalizację jednej instancji archiwum z profilem drona z pracownikiem Digital Twin. Zachowano wyznaczanie i walidację tras, listę rewizji, historyczne raporty, warunki Service i blokady autoryzacji. Plan X3 zachowuje ortogonalne podejścia z gałęzi X3.
@@ -76,7 +78,7 @@ flowchart LR
 | Ramy | `rackonaut_odom`, `rackonaut_base_link`, `rackonaut_camera_optical_frame` | Te same interfejsy. Most X3 dostosowuje natywne nazwy ramek. |
 | Dok dla testowanego archiwum | `[-4.70, 10.30, 0.050]` m | `[-4.70, 10.30, 0.059]` m |
 | LiDAR | 8 m w standardowym uruchomieniu, 16 m w trybie nauczonego magazynu | Te same profile. Scenariusz 11/11 korzysta z 8 m. |
-| Zgodne archiwum w odbiorze | GOAL 24, `WH-E83B9581352A5C6DBC06694FE5E70FFA`, rewizja 2 | GOAL 25, `WH-216C75B710D2AF0D46B298CEC6B92350`, rewizja 2 |
+| Zgodne archiwum w odbiorze | GOAL 24, `WH-E83B9581352A5C6DBC06694FE5E70FFA`, rewizja 2 | GOAL 27, `WH-422C563EC343F77470B132DD3A446810`, rewizja 2. Archiwum GOAL 25 zachowano jako wcześniejszą konfigurację X3. |
 | Starszy format bez wpisu `drone_model` | Obsługiwany jako referencyjny, z pełną weryfikacją integralności | Odrzucany przy aktywacji |
 | Archiwum drugiego modelu | Blokada aktywacji | Blokada aktywacji, sprawdzona na poprawnym archiwum GOAL 24 |
 
@@ -94,7 +96,7 @@ We wspólnym worktree uruchom `scripts/robotics/check`, `python3.10 scripts/api/
 
 | Tryb | Launcher |
 | --- | --- |
-| Business Demo | `scripts/robotics/checkpoint business` |
+| Business Demo | `scripts/robotics/checkpoint business drone_model:=x3`. Wybierz A-01-01 do A-01-04 i włącz jakość oraz ponowne odczyty. |
 | Full Robotics reference | `scripts/robotics/checkpoint live drone_model:=reference` |
 | Pełny spis X3 na znanej mapie | `scripts/robotics/checkpoint live drone_model:=x3 full_route_slam:=false safety_sensor:=virtual` |
 | Learned Warehouse | `scripts/robotics/checkpoint live drone_model:=reference learned_warehouse:=true data_dir:=/absolute/path`. Dla X3 wybierz `x3` i katalog z kompatybilnym zapieczętowanym archiwum. |
@@ -106,7 +108,7 @@ We wspólnym worktree uruchom `scripts/robotics/check`, `python3.10 scripts/api/
 Przykład przygotowania kopii zapieczętowanego archiwum X3. Po starcie w **Service → Warehouse Configuration** zweryfikuj i aktywuj konfigurację w fizycznym doku. W `Plan inspection` wybierz A-01-01 i A-01-03.
 
 ```bash
-archive_id=WH-216C75B710D2AF0D46B298CEC6B92350
+archive_id=WH-422C563EC343F77470B132DD3A446810
 archive_dir="docs/full-system-evidence/warehouse-configurations/$archive_id"
 run_dir="$PWD/.rackonaut-data/x3-learned"
 mapping_id="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["mapping_id"])' "$archive_dir/manifest.json")"
@@ -118,8 +120,73 @@ RACKONAUT_ROS_DOMAIN_ID=212 RACKONAUT_GZ_PARTITION=rackonaut-x3-learned \
   http_port:=8822 mock_port:=8122 data_dir:="$run_dir"
 ```
 
-Dla `reference` wybierz archiwum GOAL 24, niezależny katalog danych i odpowiednie parametry uruchomienia. Kopia X3 pochodzi z poprzedniego odbioru, z zachowanym manifestem, trasą, mapą i referencyjnymi zdjęciami kalibracji. [Archiwum X3](full-system-evidence/warehouse-configurations/WH-216C75B710D2AF0D46B298CEC6B92350/manifest.json) · [Archiwum reference](learned-warehouse-evidence/warehouse-configurations/WH-E83B9581352A5C6DBC06694FE5E70FFA/manifest.json)
+Dla `reference` wybierz archiwum GOAL 24, niezależny katalog danych i odpowiednie parametry uruchomienia. Obie wersje archiwum X3 zachowują oryginalne pliki, manifest, trasę, mapę oraz zdjęcia kalibracyjne. [Archiwum X3 do powtórzenia](full-system-evidence/warehouse-configurations/WH-422C563EC343F77470B132DD3A446810/manifest.json) · [Historyczne archiwum X3](full-system-evidence/warehouse-configurations/WH-216C75B710D2AF0D46B298CEC6B92350/manifest.json) · [Archiwum reference](learned-warehouse-evidence/warehouse-configurations/WH-E83B9581352A5C6DBC06694FE5E70FFA/manifest.json)
 
 ## Walidacja
 
-Build z czystego worktree w WSL2 Ubuntu 22.04, ROS 2 Humble, Gazebo Fortress 6.16.0 i systemowy Python 3.10.12 zakończył się kompilacją 11 pakietów. `pytest -q ros2_ws/src` zaliczył 76 testów. `unittest discover -s tests` zaliczył 62 testy, w tym Mock SAP, kontrakt i importer. Smoke HTTP zaliczył zapis, powtórkę, błędy i odczyt ośmiu scenariuszy. Nowe próby obejmują wiązanie kamery z archiwum i foto dowód pustej lokalizacji.
+Build z czystego worktree w WSL2 Ubuntu 22.04, ROS 2 Humble, Gazebo Fortress 6.16.0 i systemowy Python 3.10.12 zakończył się kompilacją 11 pakietów. `pytest -q ros2_ws/src` zaliczył 77 testów. `unittest discover -s tests` zaliczył 62 testy, w tym Mock SAP, kontrakt i importer. Smoke HTTP zaliczył zapis, powtórkę, błędy i odczyt ośmiu scenariuszy. Nowe próby obejmują wiązanie kamery z archiwum, dowód fotograficzny pustej lokalizacji i zejście X3 od ostatniego wysokiego stanowiska.
+
+`rosdep check` z pominięciem typu budowania `ament_python`, zgodnie z instrukcją środowiska, potwierdził dostępność zależności. Sprawdzono także argumenty launchera Engineering Showcase i odczyt historycznego baga z 345 komunikatami bez uruchamiania dodatkowej symulacji. [Środowisko](onboarding/ADRIAN.md)
+
+Przed pierwszym lotem oba modele uruchomiono osobno przy fizycznie potwierdzonym doku. Odczytano RGB, `CameraInfo`, LiDAR, IMU, odometrię i zegar. TF potwierdził odrębne przesunięcia kamer oraz wspólny obrót optyczny. X3 zwrócił HTTP 400 przy weryfikacji i próbie aktywacji poprawnego archiwum reference. Zgodna aktywna konfiguracja X3 pozostała gotowa. [TF reference](full-system-evidence/reference-camera-tf.txt) · [TF X3](full-system-evidence/x3-camera-tf.txt) · [Odrzucenie archiwum](full-system-evidence/x3-incompatible-archive.json)
+
+### A · Reference na nauczonym magazynie
+
+`INS-CONTROL-20261127-073625-81039295` uruchomiono na domyślnym profilu reference z konfiguracją GOAL 24. Playwright wybrał A-01-01 i A-01-03 na modelu, a Digital Twin użył profilu kamery reference i chmury 56 059 punktów. W 337,7 s misja zapisała obie rzeczywiste obserwacje i oba oryginały, w tym pustą A-01-03. Potwierdzono fizyczne dokowanie, `COMPLETE`, `Safety RELEASED`, Results i eksport raportu. [Dowód lotu](full-system-evidence/reference-learned-inspection.json) · [Raport](full-system-evidence/reference-learned-report.html) · [Oryginał A-01-03](full-system-evidence/reference-learned-A-01-03.png) · [Nagranie 31 s](full-system-evidence/reference-learned-workflow.mp4)
+
+Po restarcie Gazebo, ROS, Mock SAP i Control Center ponownie odczytano konfigurację, fizyczny styk i `TRACKING`. Bieżący raport zachował 214 141 bajtów i ten sam SHA-256. Przeglądarka otworzyła bieżący dowód i wcześniejszy raport GOAL 26E. Skróty 48 pierwotnych plików z kopii archiwów reference i historycznego X3 zachowano przed i po integracji. [Dowód restartu](full-system-evidence/reference-restart-proof.json) · [Results po restarcie](full-system-evidence/reference-restart-results.png)
+
+### Pierwsze próby nauczonej konfiguracji X3
+
+W misji `INS-CONTROL-20261127-063421-8D211880` z llvmpipe i w powtórce `INS-CONTROL-20261127-064212-5DE7E03B` z konfiguracją GLX z poprzedniego odbioru dron wykonał nauczoną trasę, zachował `TRACKING` w próbkach interfejsu, zapisał A-01-01, fizycznie zadokował i zwolnił Safety. W obu próbach zabrakło potwierdzenia A-01-03. Misje zakończyły się `COMPLETE_WITH_MISSES`.
+
+W drugiej próbie zapisano 17 rzeczywistych podglądów JPEG podczas inspekcji A-01-03 i poddano je analizie poza lotem. Detektor odczytał marker. W 15 podglądach obszar potrzebny do ustalenia zajętości wykraczał poza kadr, jeden podgląd nie pokazał czytelnej krawędzi półki, a jeden wskazał pustą półkę. W przykładowej klatce prawy skraj pola półki wypadał przy x ≈ 344 px z 320 px dostępnych. Próbki JPEG służą do diagnozy kadrowania. Wynik obserwacji pozostaje wynikiem toru CV na natywnych klatkach z symulacji. [Pierwszy lot](full-system-evidence/x3-learned-initial-llvmpipe.json) · [Powtórka GLX](full-system-evidence/x3-learned-initial-glx.json) · [Klatka A-01-03](full-system-evidence/x3-a03-original-hold.jpg) · [Diagnostyka kadru](full-system-evidence/x3-a03-framing.json)
+
+### B · Wąska kalibracja X3 i nowy punkt widokowy
+
+W sesji `CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09` powtórzono tylko nauczanie A-01-01 i A-01-03 przy fabrycznym pliku lokalizacji poza ścieżką uruchomienia. Zmieniono fizyczny punkt obserwacji A-01-03, używając chronionego sterowania. W 11 z 12 różnych klatek kontrolnych widać było pustą półkę z zapasem co najmniej 23 px do krawędzi. Pomiary zapisano do nowej konfiguracji z odrębnym ID, po walidacji grafu i fizycznym zadokowaniu.
+
+Kalibracja przeszła dotychczasową bramkę GOAL 21A. W 1 491 sparowanych próbkach RMSE wyniósł 17,09 mm na całej trasie i 25,50 mm w alei. Maksimum wyniosło 41,44 mm, częstotliwość estymacji 3,76 Hz, RTF 0,624, a maksymalna przerwa 0,168 s w czasie symulacji. Żaden z 1 490 odcinków pozycji walidacyjnej nie wyszedł poza obwiednię D–A. Ground truth dostarczało dane wyłącznie niezależnemu walidatorowi. W lokalnym środowisku X3 użyto wcześniej kwalifikowanego renderera GLX z poprawką Ogre Next w osobnej przestrzeni montowań. [Kadr nowego punktu](full-system-evidence/x3-new-calibration-framing.json) · [Bramka kalibracji](full-system-evidence/x3-new-calibration-score.json) · [Obwiednia](full-system-evidence/x3-new-calibration-envelope.json) · [Brak mapy fabrycznej](full-system-evidence/x3-new-calibration-factory-check.txt)
+
+Po pełnym restarcie Playwright wybrał oba miejsca na Digital Twin i uruchomił `INS-CONTROL-20261127-071233-18CB3B0E`. Wizualizacja rozpoznała profil X3 i znalazła obie powierzchnie na zmierzonej geometrii. Obie obserwacje zapisano z oryginałami. A-01-01 była zajęta z nieczytelną etykietą, A-01-03 była pusta. W 368,7 s zegarowych misja osiągnęła `COMPLETE`, fizyczny dok i `Safety RELEASED`. Odmowę startu ręcznego w czasie lotu i powiązanie zdjęcia z A-01-03 sprawdzono przez wspólny Control Center. Końcową kartę Results ponownie odczytano w tej samej zakończonej sesji po zawężeniu selektora Playwright do listy spraw. [Dowód lotu i GUI](full-system-evidence/x3-learned-inspection.json) · [Raport przenośny](full-system-evidence/x3-learned-report.html) · [Oryginał A-01-03](full-system-evidence/x3-learned-A-01-03.png) · [Nagranie 33 s](full-system-evidence/x3-learned-workflow.mp4)
+
+Powtórzenie przeszło niezmienioną bramkę GOAL 21A. W 1 328 sparowanych próbkach uzyskano RMSE 17,74 mm na całej trasie i 26,56 mm w alei, maksimum 46,20 mm, dryf 0,37 mm, częstotliwość 3,65 Hz i RTF 0,605. Przerwa między dopasowaniami wyniosła maksymalnie 0,168 s. Fabryczny plik lokalizacji pozostawał niedostępny podczas restartu i lotu. [Bramka powtórzenia](full-system-evidence/x3-learned-score.json) · [Źródła odometrii i walidacji](full-system-evidence/x3-learned-position-topology.txt) · [Brak mapy fabrycznej](full-system-evidence/x3-learned-factory-check.txt)
+
+### C · X3 na znanej mapie
+
+`INS-CONTROL-20261127-064833-30F45BC2` uruchomiono na kodzie `cd3f3b3` z jedną instancją Gazebo, profilem LiDAR-u 8 m i lokalizacją względem wstępnie przygotowanej mapy. Playwright rozpoczął **Full inventory** w Control Center. Zapisano 11 unikalnych obserwacji z 11 miejsc, a Mock SAP udostępnił oryginał dla każdego ID, w tym pustej A-01-03 oraz niepewnej A-01-07. Misja trwała 863,2 s zegarowych łącznie z potwierdzeniem raportu. Zakończyła się `COMPLETE`, potwierdzonym stykiem fizycznym i `Safety RELEASED`. [Dane próby](full-system-evidence/x3-known-inventory.json) · [Raport przenośny](full-system-evidence/x3-known-report.html)
+
+Po ośmiu obserwacjach w alei A dron wrócił, zadokował i podniósł poziom baterii z 10,13% do 88,84%. Widok Live pokazywał 8/11 podczas ładowania i wznowienia, zachowując ID misji. Drugi lot objął pozostałe trzy miejsca z alei B. Końcowy poziom baterii wyniósł 14,25%. W tym odbiorze wystarczyło jedno ładowanie. Historyczna próba z `0953cbb` miała dwa ładowania i ukończyła siedem miejsc w pierwszym locie. Początkowa asercja skryptu przeglądarkowego oczekiwała historycznych dwóch cykli. Odczytowy etap testu potwierdził właściwe kryteria tej samej zakończonej próby bez ponownego startu. [Ładowanie](full-system-evidence/x3-known-charging-1.png) · [Wznowienie](full-system-evidence/x3-known-resuming-1.png) · [Results](full-system-evidence/x3-known-results.png) · [Pierwotny odbiór X3](X3_FULL_ROBOTICS_INTEGRATION.md#pełna-inwentaryzacja-x3-na-znanej-mapie)
+
+### D · Business Demo
+
+Wspólny launcher biznesowy korzysta z aktywnej lokalizacji LiDAR–IMU. Jedynym wydawcą odometrii był `rackonaut_localization`, a temat walidacyjny z pozycją Gazebo był nieobecny w tej sesji. [Graf odometrii](full-system-evidence/business-odometry-topology.txt)
+
+Pierwsza próba `INS-CONTROL-20261127-072013-DDEA80E4` zapisała cztery miejsca i wymagane ustalenia biznesowe, po czym Collision Prevention zatrzymało X3 na ukośnym odcinku między ostatnią wysoką półką A-01-04 a wejściem do alejki. Brak zweryfikowanej drogi powrotnej zakończył próbę w `ABORTED`, z zachowanymi rezerwacjami D i A. Raport tej próby został zachowany. [Pierwsza próba](full-system-evidence/business-initial-aborted.json) · [Przenośny raport pierwszej próby](full-system-evidence/business-initial-aborted-report.html)
+
+Poprawka `c78db1d` używa istniejącej reguły pionowego zejścia X3 także przed ostatnim poziomym przejściem do wejścia alejki. Test regresyjny odtwarza przypadek A-01-04. Plan dla pełnego spisu 11 miejsc porównano na tym samym układzie. Wynik był identyczny przed i po poprawce. Progi prześwitu, rezerwacje, dokowanie i zasady Recovery zachowały dotychczasowe warunki. [Porównanie planów](full-system-evidence/x3-final-descent-regression.json)
+
+Powtórka `INS-CONTROL-20261127-072816-DF71B22B` zakończyła się w 449,5 s z czterema sprawdzonymi miejscami, fizycznym dokiem i `Safety RELEASED`. Mock SAP rozpoznał wycofany P001 w A-01-01 po ponownym odczycie. Błędnie odłożony P003 był uszkodzony w A-01-02, a jego oczekiwane miejsce A-01-03 było puste. A-01-04 zawierała dodatkową uszkodzoną, nieoczekiwaną jednostkę P999. Siedem obserwacji obejmuje osobne próby adaptacyjne, każda z oryginałem przypisanym do własnego zdarzenia. W Results sprawdzono fotografie, rekomendacje i eksport. [Wynik Business Demo](full-system-evidence/business-inspection.json) · [Uszkodzenie A-01-02 w Results](full-system-evidence/business-results-A-01-02.png) · [Pusta A-01-03 w Results](full-system-evidence/business-results-A-01-03.png) · [Raport](full-system-evidence/business-report.html)
+
+### E · Safety, sterowanie ręczne i Recovery
+
+- Próby A i B odrzuciły start ręczny podczas trwającej autonomii. Reference w ręcznym locie odrzucił także start autonomiczny.
+- W `INS-CONTROL-20261127-074315-4871E7F8` przerwanie przesyłania poleceń z przeglądarki wywołało `LINK_LOST`, cztery zerowe wartości dozwolonego ruchu i zachowaną rezerwację. Po przywróceniu nadzorowanego kanału polecenie **Return to dock** zakończyło lot fizycznym stykiem, `DOCKED` i `Safety RELEASED`. [Watchdog i powrót](full-system-evidence/reference-manual-watchdog-return.json)
+- W `INS-CONTROL-20261127-074407-2393B1B1` Emergency Stop zatrzymał lot w referencyjnym zawisie i zachował strefy D oraz A. Po ocenie i oddzielnej akceptacji Recovery przeprowadziło lądowanie. Stan końcowy miał `RECOVERY_COMPLETE`, fizyczny styk i `Safety RELEASED`. [Emergency Stop i Recovery](full-system-evidence/reference-emergency-recovery.json)
+- Próba serwisowa X3 odrzuciła niezgodne archiwum przed zmianą aktywnego wskazania. Chroniony kokpit reference zachował podstawowe kontrolki w rozdzielczościach 1366 × 768, 1600 × 900 i 1920 × 1080. [Odrzucenie profilu](full-system-evidence/x3-incompatible-archive.json) · [Kokpit w locie](full-system-evidence/reference-manual-control.png)
+
+## Wynik odbioru i ograniczenia
+
+| Bramka | Wynik |
+| --- | --- |
+| A · Reference Learned Warehouse | Zaliczone · 2/2, oryginały, dok, Safety, eksport i ponowny odczyt po restarcie. |
+| B · X3 Learned Warehouse | Zaliczone po wąskiej kalibracji · 2/2 z oryginałami, zgodny profil kamery i bramka GOAL 21A. |
+| C · X3 znana mapa | Zaliczone · 11/11 w profilu 8 m, jeden cykl ładowania, wznowienie, dok i raport. Plan tego spisu pozostał identyczny po ostatniej poprawce. |
+| D · Business Demo | Zaliczone w powtórce · wszystkie rodzaje ustaleń, siedem powiązanych oryginałów, dok i raport. |
+| E · Ochrona i ręczne sterowanie | Zaliczone w zakresie uzgodnionych przypadków · blokady uruchomienia, watchdog, powrót, Emergency Stop, Recovery i kontrola profilu. |
+
+Wyniki dotyczą konkretnych scenariuszy symulacyjnych. Odbiór 11/11 dotyczy znanej mapy. Odbiór nauczonej konfiguracji obejmuje wyłącznie dwa stanowiska. Zachowane pierwsze próby pokazują ograniczenie kadru starszej konfiguracji X3 i działanie blokady przy skośnym zejściu. Historyczne raporty pozostają w oryginalnej postaci, również wtedy, gdy nie miały zachowanej fotografii danego miejsca.
+
+Na stanowisku WSL istniejący `start` wskazuje worktree integracyjny i uruchamia reference z archiwum GOAL 24. Podczas pierwszego zimnego uruchomienia identyfikator środowiska potomka pojawił się w `/proc` po pierwszym odczycie. Lokalny launcher ponawia odczyt przez maksymalnie sekundę przy działającym potomku. Próba po poprawce uruchomiła jedno Gazebo, Mock SAP i pięć kart Chrome z zachowaną galerią materiałów. Ponowne `start` wykorzystało tę samą sesję. [Weryfikacja stanowiska](full-system-evidence/meeting-start-status.txt)
+
+Nagrania pokazują Plan, przyspieszony przebieg rzeczywistych lotów oraz Results w przeglądarce. [Reference](full-system-evidence/reference-learned-workflow.mp4) · [X3](full-system-evidence/x3-learned-workflow.mp4)

@@ -1,0 +1,32 @@
+{
+  "lidar": {
+    "topic": "/rackonaut/drone/lidar/points",
+    "frame": "rackonaut_reference_drone/base_link/local_lidar",
+    "width": 192,
+    "height": 37,
+    "range_m": [
+      0.1,
+      16.0
+    ],
+    "position_m": [
+      0.0,
+      0.0,
+      0.09
+    ],
+    "collision_range_m": 8.0
+  },
+  "imu": {
+    "topic": "/rackonaut/drone/imu",
+    "frame": "rackonaut_reference_drone/base_link/local_imu"
+  },
+  "camera": {
+    "topic": "/rackonaut/camera/image_raw",
+    "frame": "rackonaut_camera_optical_frame",
+    "position_m": [
+      0.27,
+      0.0,
+      0.04
+    ]
+  },
+  "drone_model": "x3"
+}

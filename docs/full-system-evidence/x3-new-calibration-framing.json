@@ -1,0 +1,73 @@
+{
+  "mapping_id": "CAL-EB145ADCA1FC4EA0BDE46678C3DCFD09",
+  "xyz": [
+    8.668,
+    0.3,
+    0.9,
+    1.865
+  ],
+  "samples": [
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 25.7
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 25.7
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 26.7
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 23.5
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 25.7
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 24.6
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 24.6
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 23.5
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 23.5
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 23.5
+    },
+    {
+      "classification": "empty",
+      "reason": "Clear shelf surface",
+      "margin_px": 24.6
+    },
+    {
+      "classification": "uncertain",
+      "reason": "Shelf edge unclear",
+      "margin_px": 30.1
+    }
+  ],
+  "clear": 11,
+  "distinct_frames": 12
+}

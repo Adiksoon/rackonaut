@@ -1,0 +1,228 @@
+{
+  "model": {
+    "binding": {
+      "format": 1,
+      "configuration_id": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+      "mapping_id": "CAL-F93BD434D5904B86B940588AE9478BA4",
+      "revision": 2,
+      "source_sha256": "3f625df03e2f475b5d404dee978508ab7cc8dca10dd4e1bfd2f7174fe5892ccf",
+      "camera_profile": "reference",
+      "camera_sha256": "31d15c6d07106589d5317c85c39a7b7a0ae9be4f15b5411f4d8430297fadc4e3"
+    },
+    "points": 56059,
+    "locations": [
+      {
+        "id": "A-01-01",
+        "viewpoint_m": [
+          5.457046545038934,
+          0.4495405257481234,
+          0.7936417693926958
+        ],
+        "status": "projected",
+        "marker_pixel": [
+          96.5,
+          149.5
+        ],
+        "rack_id": "R02",
+        "level": null,
+        "position_m": [
+          4.697392660705308,
+          2.370883731165213,
+          0.6013590906288466
+        ],
+        "distance_m": 1.8512764549142522,
+        "support_nearby": 18,
+        "camera_origin_m": [
+          5.41695205730324,
+          0.6760187531618911,
+          0.7934306752667096
+        ]
+      },
+      {
+        "id": "A-01-03",
+        "viewpoint_m": [
+          8.455739598799596,
+          0.44765719755782557,
+          0.8735421184670498
+        ],
+        "status": "projected",
+        "marker_pixel": [
+          31.5,
+          163.5
+        ],
+        "rack_id": "R02",
+        "level": 1,
+        "position_m": [
+          7.497401830485012,
+          2.377897411731105,
+          0.5954991392756857
+        ],
+        "distance_m": 1.9640987286659826,
+        "support_nearby": 25,
+        "camera_origin_m": [
+          8.439629913320543,
+          0.6770921532247169,
+          0.8732607789965584
+        ]
+      }
+    ]
+  },
+  "plan": {
+    "selected": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "battery": "100%",
+    "required": "80% min.",
+    "status": "Ready for simulated takeoff."
+  },
+  "run": "INS-CONTROL-20261127-073625-81039295",
+  "manualDuringAutonomy": {
+    "error": "Wait for the running inspection and its report."
+  },
+  "calibrationConfirmation": {
+    "run": "INS-CONTROL-20261127-073625-81039295",
+    "cancelRetainedInspection": true,
+    "text": "Interrupt inspection and start calibration?\n\nInspection INS-CONTROL-20261127-073625-81039295 · A-01-01 → A-01-03\n\nRecorded observations are retained under this inspection.\nThe drone will return and wait for verified physical docking.\nNew inspections stay locked until calibration is closed.\nEmergency stop\nKeep inspecting\nInterrupt and return to dock"
+  },
+  "live": {
+    "target": "A-01-01",
+    "phase": "Waiting for a valid observation",
+    "battery": "71%",
+    "projected": "34%",
+    "reserve": "8%",
+    "margin": "+25.8 pp"
+  },
+  "finish": {
+    "stage": "COMPLETE",
+    "detail": "Learned route ended at the verified physical dock",
+    "docked": true,
+    "safety": "RELEASED",
+    "remainingBattery": 38.727,
+    "wallSeconds": 337.739,
+    "observed": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "visited": [
+      "A-01-01",
+      "A-01-03"
+    ],
+    "poses": 709,
+    "archive": "/reports/INS-CONTROL-20261127-073625-81039295",
+    "videoFrames": 205
+  },
+  "photos": [
+    {
+      "slot": "A-01-01",
+      "observation": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261127-073625-81039295",
+        "observation_id": "OBS-09AC35E8DDA7418BB7AB3E5DFE2EFE3B",
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "occupancy": "occupied",
+        "label_status": "unreadable",
+        "timestamp": "2026-11-27T07:39:04.582Z"
+      },
+      "photo": {
+        "quality_schema_version": "0.1",
+        "quality_id": "Q-5DC52A3F283A46A39A5DAC6DD10E31A2",
+        "inspection_id": "INS-CONTROL-20261127-073625-81039295",
+        "observation_id": "OBS-09AC35E8DDA7418BB7AB3E5DFE2EFE3B",
+        "observation_timestamp": "2026-11-27T07:39:04.582Z",
+        "slot_id": "A-01-01",
+        "pallet_id": null,
+        "status": "CAPTURED",
+        "reason": "Camera frame used for the inventory observation.",
+        "timestamp": "2026-11-27T07:39:04.582Z",
+        "camera": {
+          "frame_id": "rackonaut_camera_optical_frame",
+          "stamp": {
+            "sec": 90,
+            "nanosec": 500000000
+          },
+          "width": 320,
+          "height": 240
+        },
+        "defect_polygon_px": null,
+        "images": {
+          "original": "camera.png",
+          "annotated": "annotated.png"
+        },
+        "occupancy": "occupied",
+        "photos": {
+          "original": "/api/business/quality/INS-CONTROL-20261127-073625-81039295/Q-5DC52A3F283A46A39A5DAC6DD10E31A2/original.png",
+          "annotated": "/api/business/quality/INS-CONTROL-20261127-073625-81039295/Q-5DC52A3F283A46A39A5DAC6DD10E31A2/annotated.png"
+        }
+      },
+      "bytes": 36458
+    },
+    {
+      "slot": "A-01-03",
+      "observation": {
+        "schema_version": "1.0",
+        "inspection_id": "INS-CONTROL-20261127-073625-81039295",
+        "observation_id": "OBS-2B2591FDDC324DDCB3F795C05C7B45F1",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "occupancy": "empty",
+        "label_status": "not_applicable",
+        "timestamp": "2026-11-27T07:39:23.553Z"
+      },
+      "photo": {
+        "quality_schema_version": "0.1",
+        "quality_id": "Q-FC29342B0DF243768BD153A4FF59E1F8",
+        "inspection_id": "INS-CONTROL-20261127-073625-81039295",
+        "observation_id": "OBS-2B2591FDDC324DDCB3F795C05C7B45F1",
+        "observation_timestamp": "2026-11-27T07:39:23.553Z",
+        "slot_id": "A-01-03",
+        "pallet_id": null,
+        "status": "CAPTURED",
+        "reason": "Camera frame used for the inventory observation.",
+        "timestamp": "2026-11-27T07:39:23.553Z",
+        "camera": {
+          "frame_id": "rackonaut_camera_optical_frame",
+          "stamp": {
+            "sec": 100,
+            "nanosec": 600000000
+          },
+          "width": 320,
+          "height": 240
+        },
+        "defect_polygon_px": null,
+        "images": {
+          "original": "camera.png",
+          "annotated": "annotated.png"
+        },
+        "occupancy": "empty",
+        "photos": {
+          "original": "/api/business/quality/INS-CONTROL-20261127-073625-81039295/Q-FC29342B0DF243768BD153A4FF59E1F8/original.png",
+          "annotated": "/api/business/quality/INS-CONTROL-20261127-073625-81039295/Q-FC29342B0DF243768BD153A4FF59E1F8/annotated.png"
+        }
+      },
+      "bytes": 38834
+    }
+  ],
+  "performance": {
+    "chrome": "158.0.8127.88",
+    "webglCanvases": 1,
+    "metrics": [
+      {
+        "view": "Plan with Digital Twin",
+        "elapsedMs": 3010,
+        "taskMs": 45,
+        "scriptMs": 14,
+        "layouts": 8
+      },
+      {
+        "view": "Diagnostics with hidden Digital Twin",
+        "elapsedMs": 3004,
+        "taskMs": 74,
+        "scriptMs": 5,
+        "layouts": 9
+      }
+    ]
+  },
+  "browserErrors": []
+}
