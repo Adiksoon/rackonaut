@@ -81,10 +81,19 @@ Prognoza w tabeli używa istniejącego modelu demonstratora i po jednym nominaln
 
 ## Ujęcia z Gazebo
 
-Dla każdego opublikowanego zestawu kamera scenograficzna zarejestrowała siedem ujęć, klip i sześć zbliżeń stanowisk. Każdy klip używa 144 odrębnych klatek z Gazebo Fortress, zapisanych jako 1280 × 720 przy 24 kl./s. W zbliżeniach odczytano oczekiwane kody ArUco.
+Plansze i klipy pochodzą z osobnej kamery w Gazebo Fortress, bez interfejsu operatora. Każdy film trwa 6 s i ma 144 różne klatki wejściowe. Pliki MP4 mają rozdzielczość 1280 × 720 i 24 kl./s. Metryki zawierają pozycje kamery, sumy SHA-256 i wyniki dekodowania kart na wszystkich sześciu stanowiskach w każdej hali. Zbliżenia wykonano tą samą kamerą scenograficzną, przy nominalnych pozach inspekcji.
 
-- **Distribution Center.** [Klip](multi-warehouse-evidence/distribution-center/scenery.mp4) · [Galeria](multi-warehouse-evidence/distribution-center) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/distribution-center/capture.json)
-- **Logistics Hub.** [Klip](multi-warehouse-evidence/logistics-hub/scenery.mp4) · [Galeria](multi-warehouse-evidence/logistics-hub) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/logistics-hub/capture.json)
+| Ujęcie | Distribution Center | High-Bay Warehouse | Large Logistics Hub |
+| --- | --- | --- | --- |
+| Cała hala | ![Distribution Center](multi-warehouse-evidence/distribution-center/01-hall.jpg) | ![High-Bay Warehouse](multi-warehouse-evidence/high-bay/01-hall.jpg) | ![Large Logistics Hub](multi-warehouse-evidence/logistics-hub/01-hall.jpg) |
+| Poziom pracownika | [JPG](multi-warehouse-evidence/distribution-center/02-worker.jpg) | [JPG](multi-warehouse-evidence/high-bay/02-worker.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/02-worker.jpg) |
+| Wysokie regały | [JPG](multi-warehouse-evidence/distribution-center/03-rack-height.jpg) | [JPG](multi-warehouse-evidence/high-bay/03-rack-height.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/03-rack-height.jpg) |
+| Wzdłuż alejki | [JPG](multi-warehouse-evidence/distribution-center/04-aisle.jpg) | [JPG](multi-warehouse-evidence/high-bay/04-aisle.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/04-aisle.jpg) |
+| Tunel pod sufitem | [JPG](multi-warehouse-evidence/distribution-center/05-overhead.jpg) | [JPG](multi-warehouse-evidence/high-bay/05-overhead.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/05-overhead.jpg) |
+| Stacja dokująca | [JPG](multi-warehouse-evidence/distribution-center/06-dock.jpg) | [JPG](multi-warehouse-evidence/high-bay/06-dock.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/06-dock.jpg) |
+| Panorama | [JPG](multi-warehouse-evidence/distribution-center/07-panorama.jpg) | [JPG](multi-warehouse-evidence/high-bay/07-panorama.jpg) | [JPG](multi-warehouse-evidence/logistics-hub/07-panorama.jpg) |
+| Film scenograficzny | [MP4](multi-warehouse-evidence/distribution-center/scenery.mp4) | [MP4](multi-warehouse-evidence/high-bay/scenery.mp4) | [MP4](multi-warehouse-evidence/logistics-hub/scenery.mp4) |
+| Metryka ujęć i zdjęcia markerów | [JSON](multi-warehouse-evidence/distribution-center/capture.json) | [JSON](multi-warehouse-evidence/high-bay/capture.json) | [JSON](multi-warehouse-evidence/logistics-hub/capture.json) |
 
 ## Pochodzenie zasobów
 
