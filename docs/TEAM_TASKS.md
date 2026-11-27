@@ -1,13 +1,15 @@
 # Team tasks
 
-## Current responsibilities
+## Verified team contributions
 
-| Owner | Scope | Integration status |
+| Team member | Delivered work | Integration and attribution |
 | --- | --- | --- |
-| Adrian | Integrated demonstrator, warehouse, computer vision, autonomy, Mock SAP backend and business recommendations | Owns the current simulation, Control Center, Engineering Showcase and their release checks. |
-| Michał | Independent drone, camera and ROS transport work | Review after delivery of an identifiable model revision, license, launch instructions, interface samples and an isolated test result. The integrated demo uses the reference drone. |
+| Adrian Zygarowski (`Adiksoon`) | Warehouse and showcase (`d9b1d3d`), live computer vision (`4d971fc`), Mock SAP and business recommendations (`3c7c97b`), operator workflows and Results (`f50cfee`), and shared integration and release validation. | The common stack and operator interface are the basis of the [GOAL 27 acceptance](FULL_SYSTEM_INTEGRATION.md). |
+| Michał (`michalczaplinski5`) | Delivered the X3 drone, camera, ROS bridges and frame integration, and contributed the X3 flight, localization and energy acceptance work. | [PR #7](https://github.com/Adiksoon/rackonaut/pull/7) has seven cherry-picked commits in the common stack. [PR #9](https://github.com/Adiksoon/rackonaut/pull/9) was merged as `0953cbb` and is in the shared history. Those PRs identify Michał as submitter. The individual commits retain their recorded Git authors. |
+| Vahid Abdullayev (`abzdullayezz`) | Standalone inventory import and validation tool, templates, examples, documentation and 54 regression tests. | [PR #8](https://github.com/Adiksoon/rackonaut/pull/8), authored commit `0efb6b0`, included through merge `3f42ff7`. The tool is separate from active warehouse calibration and Mock SAP. |
+| Tharindu | Dashboard work was proposed during onboarding. | The audited branches and PRs gave no attributable delivery. |
 
-Earlier planning proposed a separate backend role for Vahid and a dashboard role for Tharindu. The repository contains the fixture API, dashboard onboarding and contracts for independent work. GOAL 17 delivered the integrated backend under Adrian's responsibility. Integration credit for separate work follows the supplied artifacts and Git history. This register records technical responsibility and leaves team membership to the team.
+Git records the X3 standalone acceptance commits `28bdaf7` and `a2fd71c` and the original Warehouse in Motion scenario `32d4092` under `Codex`. The repository evidence does not identify a human author for those three commits. See the [final branch audit](FINAL_BRANCH_AUDIT.md) for the original and adapted evidence.
 
 Adrian coordinates shared interfaces in `contracts/`. Confirm interface updates with the affected owners. Use the [onboarding guides](../README.md#team-onboarding), [integration gates](INTEGRATION.md) and each role's readiness checklist.
 

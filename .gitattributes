@@ -4,3 +4,4 @@
 
 # Keep exported integration reports byte-for-byte as served by Control Center.
 docs/full-system-evidence/*report.html -text -whitespace
+docs/final-branch-audit-evidence/report.html -text -whitespace

@@ -1,0 +1,28 @@
+{
+  "run": "INS-CONTROL-20261127-075753-B3666FCC",
+  "chrome": "158.0.8127.88",
+  "errors": [],
+  "photos": [
+    {
+      "slot": "A-01-01",
+      "width": 320,
+      "height": 240
+    },
+    {
+      "slot": "A-01-02",
+      "width": 320,
+      "height": 240
+    },
+    {
+      "slot": "A-01-03",
+      "width": 320,
+      "height": 240
+    }
+  ],
+  "final": {
+    "stage": "COMPLETE",
+    "safety": "RELEASED",
+    "physicalDock": true,
+    "landed": true
+  }
+}

@@ -14,11 +14,15 @@ W Ubuntu 22.04 lub WSL2 przygotuj środowisko według [README](../README.md#star
 scripts/robotics/warehouse-in-motion
 ```
 
-Dodaj `--gui`, aby zobaczyć ruch wózka w oknie Gazebo. Control Center jest dostępny lokalnie na porcie 18770, Mock SAP na 18005. Skrypt sam planuje i uruchamia inspekcję trzech stanowisk. Zmienne `RACKONAUT_SCENARIO_HTTP_PORT`, `RACKONAUT_SCENARIO_MOCK_PORT` i `RACKONAUT_SCENARIO_DOMAIN_ID` pozwalają oddzielić kolejną instancję. Ctrl+C kończy instancję scenariusza.
+Dodaj `--gui`, aby zobaczyć ruch wózka w oknie Gazebo, i `--keep-open`, aby przejrzeć Results po zakończeniu lotu. [Control Center](http://127.0.0.1:18770/) jest dostępny lokalnie, a Mock SAP działa na porcie 18005. Skrypt sam planuje i uruchamia inspekcję trzech stanowisk. Zmienne `RACKONAUT_SCENARIO_HTTP_PORT`, `RACKONAUT_SCENARIO_MOCK_PORT` i `RACKONAUT_SCENARIO_DOMAIN_ID` pozwalają wskazać wolne porty i domenę ROS. Do demonstracji wybierz jedną aktywną symulację. Ctrl+C kończy instancję scenariusza.
 
-Katalog dowodów jest wypisywany przy starcie. Zawiera dziennik zdarzeń, log startu, a po zaliczeniu także `result.json` i `report.html`. Program wymaga pomiaru zatrzymania przed wózkiem, obu oczekiwanych kategorii rozbieżności, trzech obserwacji, końcowego styku doku oraz stanu Safety `RELEASED`.
+Katalog dowodów jest wypisywany przy starcie. Zawiera dziennik zdarzeń, log startu, a po zaliczeniu także `result.json`, `report.html` i trzy oryginalne PNG z kamery. Program wymaga pomiaru zatrzymania przed wózkiem, wznowienia zniżania po odjeździe wózka, oczekiwanych kategorii rozbieżności, trzech obserwacji, końcowego styku doku oraz stanu Safety `RELEASED`. Każde zdjęcie musi być powiązane z identyfikatorem, lokalizacją, znacznikiem czasu i zajętością obserwacji.
 
-## Wynik próby
+## Wynik wspólnego stosu (GOAL 27A)
+
+Misja `INS-CONTROL-20261127-075753-B3666FCC` ukończyła trzy lokalizacje w 356,5 s. X3 zatrzymał się po przebyciu 0,094 m od wykrycia wózka pod bramką A i wznowił zniżanie po odjeździe wózka. Mock SAP poprawnie oznaczył nieczytelną etykietę, błędną i przestawioną paletę oraz puste miejsce z oczekiwaną paletą. Potwierdzono styk doku i zwolnienie stref. W Chrome widok Results wyświetlił oryginalne zdjęcia wszystkich trzech lokalizacji. [Wyniki audytu i dowody](FINAL_BRANCH_AUDIT.md#walidacja)
+
+## Próba źródłowa
 
 Misja `INS-CONTROL-20261126-211927-26746E94` potwierdziła wszystkie trzy stanowiska. Pod bramką A dron po wykryciu wózka przebył jeszcze 0,102 m, zanim się zatrzymał. Wznowił zniżanie po odjeździe wózka. Raport zwrócił HTTP 200 i rozróżnił zajęte stanowisko z nieczytelną etykietą, błędną paletę oraz brak oczekiwanej palety. Fizyczny styk w doku został potwierdzony, a Safety zwolniło strefy. [Dane próby](warehouse-in-motion-evidence.json)
 

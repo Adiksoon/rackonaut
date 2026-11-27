@@ -1,0 +1,179 @@
+{
+  "inspection_id": "INS-CONTROL-20261127-075753-B3666FCC",
+  "drone_model": "x3",
+  "confirmed": {
+    "A-01-01": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-075753-B3666FCC",
+      "observation_id": "OBS-BFCA1609CF55404E824EAD6BBD1EB25A",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-27T08:00:27.747Z"
+    },
+    "A-01-02": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-075753-B3666FCC",
+      "observation_id": "OBS-013613A2C11240949A5E64D6E62F802F",
+      "slot_id": "A-01-02",
+      "pallet_id": "P003",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-27T08:00:42.785Z"
+    },
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261127-075753-B3666FCC",
+      "observation_id": "OBS-85723A360E274F3D98AB49AE56FB1D21",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-27T08:01:12.697Z"
+    }
+  },
+  "discrepancies": [
+    {
+      "slot_id": "A-01-01",
+      "expected_pallet_id": "P001",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-BFCA1609CF55404E824EAD6BBD1EB25A",
+      "outcome": "unreadable_label"
+    },
+    {
+      "slot_id": "A-01-02",
+      "expected_pallet_id": "P002",
+      "observed_pallet_id": "P003",
+      "observation_id": "OBS-013613A2C11240949A5E64D6E62F802F",
+      "outcome": "wrong_pallet"
+    },
+    {
+      "slot_id": "A-01-03",
+      "expected_pallet_id": "P003",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-85723A360E274F3D98AB49AE56FB1D21",
+      "outcome": "missing_pallet"
+    }
+  ],
+  "photos": {
+    "A-01-01": {
+      "file": "A-01-01-original.png",
+      "observation_id": "OBS-BFCA1609CF55404E824EAD6BBD1EB25A",
+      "sha256": "33ffe319e3d20edd49b609140065242c92e2f783b028c3a7a3af0affae248733",
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 89,
+          "nanosec": 100000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    "A-01-02": {
+      "file": "A-01-02-original.png",
+      "observation_id": "OBS-013613A2C11240949A5E64D6E62F802F",
+      "sha256": "b2f3a0f26d861a090897b542735b291309c98ba50879fbb12468f5aa9ce06f02",
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 97,
+          "nanosec": 300000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    },
+    "A-01-03": {
+      "file": "A-01-03-original.png",
+      "observation_id": "OBS-85723A360E274F3D98AB49AE56FB1D21",
+      "sha256": "be57f1fee05c2c57d5a2d77bf07aa14b867b4063e12259be5959799121a89ce7",
+      "camera": {
+        "frame_id": "rackonaut_camera_optical_frame",
+        "stamp": {
+          "sec": 113,
+          "nanosec": 900000000
+        },
+        "width": 320,
+        "height": 240
+      }
+    }
+  },
+  "business_findings": [
+    {
+      "type": "MISPLACED_PALLET",
+      "slot_id": "A-01-02"
+    },
+    {
+      "type": "WRONG_PALLET",
+      "slot_id": "A-01-02"
+    },
+    {
+      "type": "MISSING_PALLET",
+      "slot_id": "A-01-03"
+    },
+    {
+      "type": "UNREADABLE_LABEL",
+      "slot_id": "A-01-01"
+    }
+  ],
+  "landed": true,
+  "physical_dock": true,
+  "safety": "RELEASED",
+  "report_http": 200,
+  "wall_seconds": 356.5,
+  "events": [
+    {
+      "event": "started",
+      "inspection_id": "INS-CONTROL-20261127-075753-B3666FCC",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03"
+      ]
+    },
+    {
+      "event": "label_covered",
+      "slot": "A-01-01"
+    },
+    {
+      "event": "cart_entered",
+      "gate": "A"
+    },
+    {
+      "event": "lidar_stop",
+      "detected": 6984.94626949,
+      "blocked_at": [
+        5.086,
+        0.45,
+        2.335
+      ],
+      "sim_detected": 75.032,
+      "receipt_to_brake_ms": 287,
+      "previous_speed": 0.25,
+      "stage": "AISLE_DESCENT",
+      "reason": "measured obstacle",
+      "stopped_at": [
+        5.094,
+        0.45,
+        2.241
+      ],
+      "reaction_s": 1.3,
+      "stopping_distance": 0.094
+    },
+    {
+      "event": "cart_cleared",
+      "gate": "A"
+    },
+    {
+      "event": "autonomous_resume",
+      "stage": "AISLE_DESCENT",
+      "position": [
+        5.101,
+        0.453,
+        2.086
+      ]
+    }
+  ]
+}
