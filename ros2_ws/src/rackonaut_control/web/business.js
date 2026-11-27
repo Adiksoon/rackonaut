@@ -1,4 +1,4 @@
-import { activeMission, displayDate, missionPhase } from "/operator.js";
+import { activeMission, displayDate, droneProfile, missionPhase } from "/operator.js";
 
 const confirmedFindings = new Set(["WRONG_PALLET", "MISSING_PALLET", "UNEXPECTED_PALLET", "DISCONTINUED_PRODUCT",
   "BLOCKED_PRODUCT", "DAMAGED_PACKAGE", "MISPLACED_PALLET"]);
@@ -58,7 +58,10 @@ export function createIntelligence(api, locate, reinspect, safe, label, sceneCha
         ? "Occupied · label unreadable" : "Occupancy uncertain")) : "No camera observation in this inspection";
     const outcome = locationResult(slot, issues);
     const linkedPhotos = (featured?.quality || []).filter(photo => photo.slot_id === slot.slot_id && photo.photos?.original);
-    const allPhotos = new Map((linkedPhotos.length ? linkedPhotos : slot.quality_history || [])
+    const observationIds = new Set(featured ? featured.evidence.filter(event => event.slot_id === slot.slot_id)
+      .map(event => event.observation_id) : reading ? [reading.observation_id] : []);
+    const matchingPhotos = (slot.quality_history || []).filter(photo => observationIds.has(photo.observation_id));
+    const allPhotos = new Map((linkedPhotos.length ? linkedPhotos : matchingPhotos)
       .filter(photo => photo.photos?.original).map(photo => [photo.quality_id, photo]));
     const photos = [...allPhotos.values()].sort((a, b) => Number(b.status === "DAMAGED") - Number(a.status === "DAMAGED")
       || (b.timestamp || "").localeCompare(a.timestamp || ""));
@@ -87,7 +90,7 @@ export function createIntelligence(api, locate, reinspect, safe, label, sceneCha
       <div class="evidence-workbench">
       ${source ? `<figure class="evidence-photo">
         <div class="evidence-toolbar action-row">
-          <span>${linkedPhotos.length || !featured ? safe(label(photo.status)) : "Location photo"} · ${safe(photo.reason)}</span>
+          <span>${photo.status === "CAPTURED" ? "Observation photo" : safe(label(photo.status))} · ${safe(photo.reason)}</span>
           ${photos.length > 1 ? `<label>Capture <select id="intelligence-photo">${photos.map((item, index) =>
             `<option value="${index}" ${item === photo ? "selected" : ""}>${index + 1}. ${safe(displayDate(item.timestamp, true) || label(item.status))}</option>`).join("")}</select></label>` : ""}
           ${photo.photos.annotated ? '<button type="button" class="chip" data-intel-annotate aria-pressed="' + annotated + '">' +
@@ -96,7 +99,7 @@ export function createIntelligence(api, locate, reinspect, safe, label, sceneCha
         <a href="${safe(source)}" target="_blank" rel="noopener"><img src="${safe(source)}"
           alt="${photoLabel} at ${safe(slot.slot_id)}"></a>
         <figcaption>${photoLabel}${photo.timestamp ? " · " + safe(displayDate(photo.timestamp, true)) : ""}</figcaption>
-      </figure>` : `<div class="empty-result"><p>No photo was saved for this location.</p>${reading
+      </figure>` : `<div class="empty-result"><p>No photo was saved for this observation.</p>${reading
         ? `<p><strong>Latest camera reading</strong> · ${safe(label(reading.occupancy))} · ${safe(label(reading.label_status))}
           · ${safe(displayDate(reading.timestamp,true))}</p>` : ""}</div>`}
       <div class="intelligence-facts"><div><strong>Expected in Mock SAP</strong><p>${safe(product(slot.expected_product) || slot.expected_pallet_id || "Empty location")}</p></div>
@@ -291,7 +294,8 @@ export function createIntelligence(api, locate, reinspect, safe, label, sceneCha
       const previousLatest = latest;
       latest = runs.keys().next().value || null;
       options("run", [...runs].map(([run, item]) => [run, [
-        inspectionDate(run) || run, item.warehouse_name, item.planned_slots?.length ? item.planned_slots.join(" → ") : "",
+        inspectionDate(run) || run, item.warehouse_name, item.drone_model && droneProfile(item.drone_model),
+        item.planned_slots?.length ? item.planned_slots.join(" → ") : "",
         item.stage ? missionPhase(item) : "",
       ].filter(Boolean).join(" · ")]), runs.size ? "" : "No saved inspection");
       selectRun(current && current !== previousLatest && runs.has(current) ? current : latest);

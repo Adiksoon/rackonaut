@@ -8,6 +8,8 @@ from uuid import uuid4
 import cv2
 import numpy as np
 
+from .quality import QualityVerdict
+
 
 class QualityEvidence:
     def __init__(self, directory, inspection_id, per_observation=False):
@@ -45,6 +47,11 @@ class QualityEvidence:
         keys = self.saved | {key for key, _, _ in ready}
         return len({key[:2] for key in keys if key[2] == "DAMAGED"})
 
+    def save_observation(self, observation, image, annotated, captured, header):
+        key = (observation["slot_id"], observation["pallet_id"], "CAPTURED", observation["observation_id"])
+        verdict = QualityVerdict("CAPTURED", "Camera frame used for the inventory observation.")
+        return self.save((key, verdict, observation), image, annotated, captured, header)
+
     def save(self, item, image, annotated, captured, header):
         key, verdict, observation = item
         quality_id = f"Q-{uuid4().hex.upper()}"
@@ -68,6 +75,8 @@ class QualityEvidence:
             "defect_polygon_px": np.rint(verdict.defect).astype(int).tolist() if verdict.defect is not None else None,
             "images": {"original": "camera.png", "annotated": "annotated.png"},
         }
+        if verdict.status == "CAPTURED":
+            report["occupancy"] = observation["occupancy"]
         self.directory.mkdir(parents=True, exist_ok=True)
         destination = self.directory / quality_id
         with TemporaryDirectory(dir=self.directory, prefix=".capture-") as temporary:

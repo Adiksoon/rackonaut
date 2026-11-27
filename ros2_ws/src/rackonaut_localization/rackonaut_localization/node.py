@@ -184,6 +184,7 @@ class Localization(Node):
                 return
             folder, manifest = verified_package(self.directory, identifier)
             check_drone_model(read(folder / "sensors.json"), self.drone_model)
+            check_drone_model(read(folder / "result.json"), self.drone_model)
             dock, frames = load_learned_map(folder / MAP_FILE)
             if np.linalg.norm(dock-self.installation_dock) > .02:
                 raise ValueError("Learned warehouse dock does not match the physical installation.")

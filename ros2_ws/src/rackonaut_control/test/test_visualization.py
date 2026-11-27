@@ -77,3 +77,26 @@ class VisualizationTest(unittest.TestCase):
                     models.for_run("INS-UNBOUND")
             finally:
                 models.close()
+
+    def test_camera_binding_comes_from_archive_and_mismatches_disable_projection(self):
+        reference = get_package_share_path("rackonaut_control") / "config" / "reference-camera.json"
+        x3 = reference.with_name("x3-camera.json")
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            result, sensors = folder / "result.json", folder / "sensors.json"
+            model = Visualizations(folder, reference)
+            try:
+                result.write_text("{}")
+                self.assertEqual(model.camera_for(folder), ("reference", reference))
+                result.write_text('{"drone_model":"x3"}')
+                self.assertEqual(model.camera_for(folder), ("x3", x3))
+                camera = {"frame": "rackonaut_camera_optical_frame", "position_m": [.27, 0., .04]}
+                sensors.write_text(json.dumps({"drone_model": "x3", "camera": camera}))
+                self.assertEqual(model.camera_for(folder), ("x3", x3))
+                for conflicting in ({}, {"drone_model": "x3", "camera": {**camera, "position_m": [.23, 0., 0.]}}):
+                    sensors.write_text(json.dumps(conflicting))
+                    self.assertEqual(model.camera_for(folder), (None, None))
+                result.write_text('{"drone_model":"unknown"}')
+                self.assertEqual(model.camera_for(folder), (None, None))
+            finally:
+                model.close()

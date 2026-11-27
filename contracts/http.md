@@ -63,7 +63,7 @@ Bind development API and dashboard services to loopback. For a browser dashboard
 
 ## Functional Mock SAP profile
 
-Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. Its additional business, photo and verification routes are documented separately. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)
+Launch `backend.sap_api:app --factory` for computed outcomes on the same v1 routes. The functional profile covers eleven locations and returns health mode `mock_sap`. It calculates the outcome from the most recent observation and the expected inventory. An observation photo uses the existing Mock SAP evidence endpoint with status `CAPTURED`. It binds to the inspection, observation ID, location, occupancy and capture time. The v1 observation payload stays the same. [Warehouse Intelligence integration](../docs/SAP_BUSINESS_INTELLIGENCE.md)
 
 ## Local storage location teaching
 

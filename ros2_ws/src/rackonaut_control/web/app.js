@@ -3,7 +3,7 @@ import { createService } from "/service.js";
 import { createManual } from "/manual.js";
 import { createTeaching } from "/teaching.js";
 import { createRouteReview } from "/route.js";
-import { activeMission, activeSafetyAlarm, batteryPercent, missionPhase, operatorState,
+import { activeMission, activeSafetyAlarm, batteryPercent, droneProfile, missionPhase, operatorState,
   percentagePoints, returnEnergy, terminal } from "/operator.js";
 
 "use strict";
@@ -1054,8 +1054,11 @@ function flightAlert(job, active, returnBalance, reserve) {
     return "Drone position is uncertain. Check the flight status.";
   }
   if (["BLOCKED", "FAULT", "ABORTED"].includes(status.avoidance?.state)) return status.avoidance.reason || status.detail;
-  if (status.energy?.return_reason?.includes("ENERGY")) return "Battery limit reached. The drone is returning to the dock.";
+  if (["RETURN_TO_DOCK", "DOCKING"].includes(job?.stage) && /low battery|energy/i.test(status.energy?.return_reason || "")) {
+    return "Battery limit reached. The drone will charge before resuming this inspection.";
+  }
   if (layout.dock && !state.energy?.fresh) return "Battery reading unavailable. Return capacity is unverified.";
+  if (["CHARGING", "READY_TO_RESUME"].includes(job?.stage)) return "";
   if ((returnBalance != null && returnBalance < reserve) || state.energy?.percent < state.energy?.model?.reserve) {
     return "Battery warning. Verified return reserve is low.";
   }
@@ -1194,8 +1197,13 @@ function draw() {
   const concern = flightAlert(job, canStop, budget.atDock, budget.reserve);
   put("live-phase", canStop && view === "live" && job.mode !== "manual" ? missionPhase(job, target) : operator.label);
   el("live-phase").dataset.tone = operator.tone;
+  const missionAction = {
+    CHARGING: "Automatically charging for the next sortie. The inspection remains active.",
+    READY_TO_RESUME: "Charged and waiting for departure clearance. The inspection remains active.",
+    RESUMING: "Continuing with the unfinished inspection locations.",
+  }[stage];
   put("live-operator-action", concern || (view === "manual" && canStop ? "Hold a control to move. Release it to stop."
-    : canStop ? "Autonomous flight · monitoring only." : state?.robot && view !== "manual" ? "Start an inspection from Plan inspection."
+    : canStop ? missionAction || "Autonomous flight · monitoring only." : state?.robot && view !== "manual" ? "Start an inspection from Plan inspection."
     : state?.robot ? "" : "Waiting for the simulated drone."));
   el("live-operator-action").dataset.tone = concern ? "warning" : "neutral";
   el("camera-expand").hidden = view !== "manual" || mapping;
@@ -1208,6 +1216,7 @@ function draw() {
   if (businessResults) el("review").hidden = true;
   drawAdaptive(job);
   if (view === "diagnostics") {
+    put("diagnostic-drone-model", droneProfile(state?.drone_model));
     put("diagnostic-phase", operator.label);
     el("diagnostic-phase").dataset.tone = operator.tone;
     const liveSummary = canStop ? [target && "Target " + (target === "PAD" ? "dock" : target),

@@ -1,4 +1,4 @@
-import { activeMission, displayDate, dockState, operatorState } from "/operator.js";
+import { activeMission, displayDate, dockState, droneProfile, operatorState } from "/operator.js";
 
 export function createService({ openWarehouse, openPreview, openPlan, sessionChanged } = {}) {
   const el = (id) => document.getElementById(id);
@@ -168,6 +168,7 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
       item.classList.toggle("completed", index < step || !!saved);
     }
     text("service-connection", system.connection ? "Connected" : "Offline");
+    text("service-drone-model", droneProfile(system.drone_model));
     text("service-localization", label(system.localization));
     text("service-lidar", fresh(system.lidar));
     text("service-imu", fresh(system.imu));

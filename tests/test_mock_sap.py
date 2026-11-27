@@ -152,3 +152,30 @@ class SapApiTests(TestCase):
         self.assertEqual(self.api(approval,{"inspection_id":"INS-TEST","revision":item["revision"]})[0],409)
         opened=next(i for i in self.summary("business/summary")["issues"] if i["issue_id"]==item["issue_id"])
         self.assertEqual(opened["status"],"OPEN")
+
+    def test_empty_observation_photo_is_linked_to_the_exact_camera_reading(self):
+        event = observation("A-01-03", None, "3", 3, state="empty", label="not_applicable")
+        self.assertEqual(self.put(event)[0], 201)
+        report = {
+            "quality_schema_version": "0.1",
+            "quality_id": "Q-" + "E" * 32,
+            **{key: event[key] for key in ("inspection_id", "observation_id", "slot_id", "pallet_id", "occupancy")},
+            "observation_timestamp": event["timestamp"],
+            "timestamp": event["timestamp"],
+            "status": "CAPTURED",
+            "reason": "Actual observation photo",
+            "images": {"original": "camera.png", "annotated": "annotated.png"},
+        }
+        body = {"report": report, "images": {"original": PNG, "annotated": PNG}}
+        endpoint = "/api/business/quality"
+        self.assertEqual(self.api(endpoint, {**body, "report": {**report, "occupancy": "uncertain"}})[0], 422)
+        self.assertEqual(self.api(endpoint, {**body, "report": {**report, "timestamp": "2026-11-25T12:00:04Z"}})[0], 422)
+        self.assertEqual(self.api(endpoint, body)[0], 201)
+        self.assertEqual(self.api(endpoint, body)[0], 200)
+        result = self.summary("business/summary")
+        row = next(item for item in result["slots"] if item["slot_id"] == event["slot_id"])
+        photo = row["quality_history"][0]
+        self.assertEqual(photo["observation_id"], event["observation_id"])
+        self.assertEqual(self.request(photo["photos"]["original"]), (200, base64.b64decode(PNG), "image/png"))
+        self.assertIsNone(row["active_quality"])
+        self.assertEqual(result["metrics"]["damaged_packages"], 0)

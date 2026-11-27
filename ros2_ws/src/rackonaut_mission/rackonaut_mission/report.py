@@ -97,15 +97,19 @@ def collect_evidence(directory, inspection_id, observations):
         report = json.loads((bundle / "report.json").read_text(encoding="utf-8"))
         quality_id = report["quality_id"]
         if (report["inspection_id"] != inspection_id or quality_id != bundle.name or quality_id in bundles
-                or report["quality_schema_version"] != "0.1" or report["status"] not in ("OK", "DAMAGED")
+                or report["quality_schema_version"] != "0.1" or report["status"] not in ("OK", "DAMAGED", "CAPTURED")
                 or report["images"] != IMAGE_NAMES):
             raise ValueError(f"Malformed or cross-inspection evidence in {bundle.name}.")
         event = observations.get(report["observation_id"])
         reference_time = utc(report["observation_timestamp"])
         delay = (utc(report["timestamp"]) - reference_time).total_seconds()
+        capture = report["status"] == "CAPTURED"
+        occupancy = report.get("occupancy") if capture else "occupied"
+        if capture and (delay != 0 or occupancy not in {"occupied", "empty", "uncertain"}):
+            raise ValueError(f"Invalid observation capture in {quality_id}.")
         if delay < 0 or (event is not None and (
             (event["slot_id"], event["pallet_id"], event["occupancy"], utc(event["timestamp"]))
-            != (report["slot_id"], report["pallet_id"], "occupied", reference_time)
+            != (report["slot_id"], report["pallet_id"], occupancy, reference_time)
         )):
             raise ValueError(f"Evidence {quality_id} disagrees with its inventory observation.")
         images = {key: (bundle / name).read_bytes() for key, name in IMAGE_NAMES.items()}
@@ -141,19 +145,21 @@ def image_url(data):
 def evidence_card(bundle):
     report, images, delay, linked = bundle
     damaged = report["status"] == "DAMAGED"
+    capture = report["status"] == "CAPTURED"
     slot = e(report["slot_id"])
-    pallet = e(report["pallet_id"] or "Unreadable pallet label")
+    pallet = e(report["pallet_id"] or {"empty": "Empty location", "uncertain": "Uncertain occupancy"}
+               .get(report.get("occupancy"), "Unreadable pallet label"))
     quality = "damage" if damaged else "ok"
     link_state = "Matched to API history" if linked else "Local evidence · awaiting inventory link"
     return f"""
       <article class="evidence {quality}" id="{e(report['quality_id'])}">
         <div class="evidence-title"><div><span class="eyebrow">LOCATION {slot}</span>
           <h3>{pallet}</h3></div><span class="badge">{e(report['status'])}</span></div>
-        <img class="photo" src="{image_url(images['annotated'])}" alt="Annotated carton image at {slot}">
+        <img class="photo" src="{image_url(images['original' if capture else 'annotated'])}" alt="Camera image at {slot}">
         <div class="evidence-copy"><strong>{e(report['reason'])}</strong>
           <dl>
             <div><dt>Inventory observation (UTC)</dt><dd>{e(report['observation_timestamp'])}</dd></div>
-            <div><dt>Quality photo (UTC)</dt><dd>{e(report['timestamp'])}</dd></div>
+            <div><dt>Evidence photo (UTC)</dt><dd>{e(report['timestamp'])}</dd></div>
           </dl>
           <p class="link-state">{e(link_state)} · {delay:.3f} s between timestamps</p>
           <code>{e(report['observation_id'])}</code>
@@ -254,15 +260,17 @@ def business_report(snapshot, evidence):
     metrics = business["metrics"]
     accuracy = (f"{100*metrics['accuracy']:.1f}% ({metrics['matches']}/{metrics['decisive']} conclusive)"
                 if metrics["accuracy"] is not None else "No conclusive locations")
-    photos = {bundle[0]["quality_id"] for bundle in evidence}
+    photos = {report["quality_id"]: report for report, _, _, linked in evidence if linked}
     issues = {item["issue_id"]: item for item in business["issues"]}
     rows = []
     for item in issues.values():
         observations = ", ".join(f"{event['slot_id']} · {event['observation_id']}" for event in item["evidence"])
         related = " / ".join(f"{issues[key]['type'].replace('_', ' ')} at {issues[key]['slot_id']}"
                              for key in item["related_issue_ids"])
-        links = " ".join(f'<a href="#{e(quality["quality_id"])}">Camera evidence</a>'
-                         for quality in item["quality"] if quality["quality_id"] in photos)
+        proof = [quality["quality_id"] for quality in item["quality"] if quality["quality_id"] in photos]
+        events = {event["observation_id"] for event in item["evidence"] if event["slot_id"] == item["slot_id"]}
+        proof = proof or [key for key, photo in photos.items() if photo["observation_id"] in events]
+        links = " ".join(f'<a href="#{e(key)}">Camera evidence</a>' for key in proof)
         rows.append(f"""<tr><td>{e(item['priority'])}<br>{e(item['type'].replace('_',' '))}<br>
           <code>{e(item['issue_id'])}</code></td><td>{e(item['slot_id'])}<br>{e(item['hu_id'] or '—')}</td>
           <td>{e(item['reason'])}<br><strong>{e(item['action'])}</strong></td>
@@ -287,6 +295,8 @@ def render(snapshot, evidence, observations):
     damage = {(report["slot_id"], report["pallet_id"])
               for report, _, _, _ in evidence if report["status"] == "DAMAGED"}
     cards = "".join(evidence_card(bundle) for bundle in evidence)
+    photographed = {report["observation_id"] for report, _, _, linked in evidence if linked}
+    missing = [event for key, event in observations.items() if key not in photographed]
     template = get_package_share_path("rackonaut_mission") / "templates/inspection.html"
     return Template(template.read_text(encoding="utf-8")).substitute(
         inspection_id=e(mission["inspection_id"]),
@@ -308,7 +318,10 @@ def render(snapshot, evidence, observations):
         rows=inventory_rows(mission, summary, observations),
         adaptive_history=adaptive_history(mission),
         energy_history=energy_history(mission),
-        cards=cards or '<p class="empty">No stable carton captures were archived for this inspection.</p>',
+        cards=cards or '<p class="empty">No camera evidence was archived for this inspection.</p>',
+        missing_evidence=('<p class="subtitle">No camera evidence saved for these observations:</p><ul>'
+                          + "".join(f"<li>{e(event['slot_id'])} · {e(event['observation_id'])}</li>" for event in missing)
+                          + "</ul>") if missing else "",
     )
 
 

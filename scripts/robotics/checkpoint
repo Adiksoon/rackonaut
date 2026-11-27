@@ -14,6 +14,10 @@ if [[ "$kind" == evidence ]]; then
 fi
 source "$(dirname -- "${BASH_SOURCE[0]}")/activate.bash"
 case "$kind" in
+    business)
+        export LP_NUM_THREADS="${LP_NUM_THREADS:-4}"
+        exec ros2 launch rackonaut_control control.launch.py api_profile:=mock_sap safety:=true +            adaptive_world:=true "$@"
+        ;;
     live)
         export LP_NUM_THREADS="${LP_NUM_THREADS:-4}"
         exec ros2 launch rackonaut_control control.launch.py api_profile:=mock_sap safety:=true \
@@ -43,7 +47,7 @@ case "$kind" in
         esac
         ;;
     help|-h|--help)
-        printf 'Usage: %s live [launch arguments] | tools [view:=...] | evidence rviz | evidence play\n' "$0"
+        printf 'Usage: %s business [launch arguments] | live [launch arguments] | tools [view:=...] | evidence rviz | evidence play\n' "$0"
         ;;
     *) printf 'Unknown checkpoint mode: %s\n' "$kind" >&2; exit 2 ;;
 esac

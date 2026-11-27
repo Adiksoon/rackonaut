@@ -1,6 +1,7 @@
 export const terminal = new Set(["COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", "INTERRUPTED_FOR_CALIBRATION", "ERROR"]);
 export const activeMission = mission => !!mission && !terminal.has(mission.stage);
 export const activeSafetyAlarm = safety => safety?.phase === "RECOVERY" ? safety.alarm : null;
+export const droneProfile = model => ({ reference: "Reference", x3: "X3" }[model] || "Unavailable");
 export const batteryPercent = value => Number.isFinite(value) ? `${Math.round(value)}%` : "Unavailable";
 export const percentagePoints = value => Number.isFinite(value)
   ? `${value >= 0 ? "+" : "−"}${Math.abs(value).toFixed(1)} pp` : "Unavailable";
