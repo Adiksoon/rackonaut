@@ -232,8 +232,11 @@ function showVisualizationDetails(visual, entry) {
   if (view === "plan" && layout.learned_warehouse) drawLearnedGroups(packet);
   const locations = packet?.enhanced.locations || [];
   const pending = el("visual-status");
-  pending.hidden = !visual.required || !!packet || (mapMode === "scan" && !visual.archiveScan);
-  put("visual-status", entry.status || "");
+  const partialRows = packet?.enhanced.rows.filter(row => row.partial).length || 0;
+  const coverage = mapMode === "model" && partialRows
+    ? `${partialRows} partially observed rack ${partialRows === 1 ? "row" : "rows"} · Showing measured shelf levels` : "";
+  pending.hidden = !coverage && (!visual.required || !!packet || (mapMode === "scan" && !visual.archiveScan));
+  put("visual-status", coverage || entry.status || "");
   el("visual-locations").hidden = !locations.some(location => location.status === "unplaced");
   html("unplaced-options", locations.filter(row => row.status === "unplaced").map(row =>
     `<button class="chip" type="button" data-location="${safe(row.id)}"

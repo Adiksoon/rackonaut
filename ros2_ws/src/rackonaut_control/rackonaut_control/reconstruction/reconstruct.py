@@ -19,7 +19,7 @@ from rackonaut_perception.vision import Inspector, load_markers
 from .geometry import GRID, reconstruct
 
 
-MARKERS = get_package_share_path("rackonaut_perception") / "config/markers.json"
+MARKERS = get_package_share_path("rackonaut_warehouse") / "config/control_markers.json"
 PHOTO = re.compile(r"locations/CAP-[0-9A-F]{32}/reference\.jpg")
 
 
@@ -30,6 +30,12 @@ def read_json(path):
 
 def encode(data):
     return b64encode(data).decode("ascii")
+
+
+def display_points(measured):
+    if len(measured) <= 80000:
+        return measured
+    return measured[np.linspace(0, len(measured) - 1, 80000, dtype=int)]
 
 
 def pose(record):
@@ -157,9 +163,12 @@ def generate(folder, camera, label):
     points = measured.astype(float)
     if np.abs(points).max() > 10000:
         raise ValueError("Measured coordinates exceed the supported local frame extent.")
-    rows,quality = reconstruct(points)
+    result_file = folder / "result.json"
+    result = read_json(result_file) if result_file.is_file() else {}
+    rows,quality = reconstruct(points, include_partial=result.get("multi_sortie") is True)
     for i,row in enumerate(rows,1):
         row["id"] = f"R{i:02d}"
+    measured = display_points(measured)
     return {"version":1, "label":label, "archive":archive, "point_count":len(measured),
             "map_sha256":sha256(path.read_bytes()).hexdigest(),
             "points_f32le":encode(measured.tobytes()), "grid_m":GRID,

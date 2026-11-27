@@ -180,7 +180,32 @@ def rack_geometry(stack, local_points, theta):
             "height_supported_by_posts": bool(posts), "support_points": len(all_points)}
 
 
-def reconstruct(points):
+def partial_racks(planes, complete, local, theta):
+    """Fit two observed shelves only when measured posts and a local rack pitch agree."""
+    pitches = [float(np.median(np.diff([level.height for level in stack]))) for stack in complete]
+    if not pitches:
+        return
+    accepted = [stack[1] for stack in complete]
+    for low, high in combinations(sorted(planes, key=lambda plane: plane.height), 2):
+        step = high.height - low.height
+        common_length = min(low.hi[0], high.hi[0]) - max(low.lo[0], high.lo[0])
+        if (not any(abs(step - pitch) <= max(.12, .12*pitch) for pitch in pitches)
+                or common_length < 2 * MIN_LENGTH or not np.all(overlap(low, high) >= [.70, .65])
+                or any(np.all(overlap(low, plane) >= [.45, .35]) for plane in accepted)):
+            continue
+        geometry = rack_geometry((low, high), local, theta)
+        posts = np.asarray(geometry["posts"])
+        if len(posts) < 4 or np.ptp(posts[:, 0]) < .45 * common_length:
+            continue
+        near, far = np.asarray(geometry["bounds_uv"])[:, 1]
+        if not all(np.count_nonzero(np.abs(posts[:, 1] - side) <= .23) >= 2 for side in (near, far)):
+            continue
+        geometry["partial"] = True
+        accepted.append(low)
+        yield geometry
+
+
+def reconstruct(points, include_partial=False):
     if len(points) < 120:
         return [], {"reason": "Too few measured points."}
     directions, reliable = normals(points)
@@ -206,5 +231,7 @@ def reconstruct(points):
                 continue
             selected.append(stack)
             rows.append(rack_geometry(extend_stack(stack, planes), local, theta))
+        if include_partial:
+            rows.extend(partial_racks(planes, selected, local, theta))
     return rows, {"horizontal_points": len(horizontal), "vertical_points": len(vertical),
                   "repeated_stacks": candidates}

@@ -54,11 +54,11 @@ export function rackTemplate(row) {
         beams.push([(low + high)/2, z - decking - beam/2, -face, span - steel*.52, beam, steel*.79]);
       }
     }
-    addInstances(group, decks, ["#d4dfed", "#c0d0e2", "#e0e7f1"][index % 3], .06);
+    addInstances(group, decks, row.partial ? "#d5dbe1" : ["#d4dfed", "#c0d0e2", "#e0e7f1"][index % 3], .06);
   });
-  addInstances(group, [...posts, ...crossbars], "#405a76");
+  addInstances(group, [...posts, ...crossbars], row.partial ? "#758494" : "#405a76");
   addInstances(group, shoes, "#516375");
-  addInstances(group, beams, "#ba733b", .02);
+  addInstances(group, beams, row.partial ? "#9c8e81" : "#ba733b", .02);
   return group;
 }
 

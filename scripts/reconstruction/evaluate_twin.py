@@ -28,7 +28,7 @@ def freeze(directory, camera, cases):
             if source == "combined" and not (archive / "localization.npz").is_file():
                 continue
             packet, seconds = generate_twin(archive, camera, display_label, source)
-            if {key: value for key, value in packet.items() if key != "enhanced"} != baseline:
+            if {key: value for key, value in packet.items() if key not in {"enhanced", "full_point_count"}} != baseline:
                 raise ValueError(f"{label} {source} changed the original measured output.")
             path = directory / f"{label}-{source}.json"
             with path.open("x", encoding="utf-8") as output:

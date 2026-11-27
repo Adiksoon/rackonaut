@@ -14,7 +14,7 @@ from scipy.signal import find_peaks
 from scipy.spatial import cKDTree
 
 from .geometry import GRID, normals, reconstruct
-from .reconstruct import FRAME, archive_details, encode, locations, pose, read_json, read_ply
+from .reconstruct import FRAME, archive_details, display_points, encode, locations, pose, read_json, read_ply
 from rackonaut_localization.learned_map import load
 
 
@@ -164,7 +164,8 @@ def fit_rack(row, ground, detail, detail_normals):
         "vertical_extent_m": [float(base), float(top)], "levels_m": levels.tolist(),
         "observed_bounds_uv": row["bounds_uv"], "observed_vertical_extent_m": row["vertical_extent_m"],
         "end_extension_m": [float(lo[0] - lower_u), float(upper_u - hi[0])],
-        "observed_levels_m": observed.tolist(), "stations_u": posts.tolist(),
+            "observed_levels_m": observed.tolist(), "stations_u": posts.tolist(),
+            **({"partial": True} if row.get("partial") else {}),
         "post_pitch_m": score[1] if score else None,
         "quality": {"post_evidence": score[2] if score else 0, "post_residual_m": score[3] if score else None,
                     "deck_area_support_fraction": coverage, "npz_level_voxels": level_votes,
@@ -317,7 +318,8 @@ def generate_twin(folder, camera, label, source):
     points = measured.astype(float)
     if np.abs(points).max() > 10000:
         raise ValueError("Measured coordinates exceed the supported local frame extent.")
-    rows, quality = reconstruct(points)
+    result = read_json(folder / "result.json") if (folder / "result.json").is_file() else {}
+    rows, quality = reconstruct(points, include_partial=result.get("multi_sortie") is True)
     for i, row in enumerate(rows, 1):
         row["id"] = f"R{i:02d}"
     npz = folder / "localization.npz"
@@ -326,7 +328,6 @@ def generate_twin(folder, camera, label, source):
     if camera and camera_frame and camera["frame"] != camera_frame:
         raise ValueError("The selected camera profile disagrees with the archived sensor frame.")
     route = read_json(folder / "route.json") if (folder / "route.json").is_file() else None
-    result = read_json(folder / "result.json") if (folder / "result.json").is_file() else {}
     if result and (result["frame"] != FRAME or result["mapping_id"] != archive["mapping_id"]):
         raise ValueError("The recorded dock belongs to another map or coordinate frame.")
     dock = result.get("dock")
@@ -347,8 +348,7 @@ def generate_twin(folder, camera, label, source):
                        partial(estimated_hit, twin["rows"], cKDTree(np.vstack((points, detail)))))
     twin.update(source="ply+npz" if evidence else "ply", keyframes=evidence, locations=fitted)
     full_count = len(measured)
-    if full_count > 80000:
-        measured = measured[np.linspace(0, full_count - 1, 80000, dtype=int)]
+    measured = display_points(measured)
     return {"version": 1, "label": label, "archive": archive, "point_count": len(measured),
             "full_point_count": full_count,
             "map_sha256": sha256(path.read_bytes()).hexdigest(), "points_f32le": encode(measured.tobytes()),
