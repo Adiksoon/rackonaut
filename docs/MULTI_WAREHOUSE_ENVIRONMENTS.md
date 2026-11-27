@@ -32,7 +32,7 @@ scripts/robotics/checkpoint live warehouse_variant:=logistics-hub
 
 Uruchamiaj jeden przykład naraz. `drone_model:=x3` wybiera przypięte zasoby Fuel v4 zgodnie z dokumentacją X3. `gazebo_gui:=true` włącza widok na hoście z działającym wyświetlaniem. Warianty korzystają z wirtualnego pomiaru obecności Safety i własnego Mock SAP. Kamera i LiDAR drona dostarczają pomiary symulowane. Profil laserowy Safety oraz historyczny backend są odrzucane na wejściu launchera dla tych trzech środowisk. Dotychczasowe warianty zachowują wybór własnych profili. [Integracja X3](X3_FULL_ROBOTICS_INTEGRATION.md)
 
-Generowanie poza colcon oraz kontrola offline:
+Poniższe polecenia generują środowiska poza colcon i uruchamiają walidator offline.
 
 ```bash
 source scripts/robotics/activate.bash
@@ -54,7 +54,7 @@ Oba zejścia są otwarte w dół. Pierścień bramy ma 1,72 × 1,72 m światła,
 
 ## Walidacja statyczna i wydajność
 
-Gazebo Fortress zaakceptował wszystkie trzy SDF za pomocą `ign sdf -k`. W dwóch niezależnych generacjach porównano SDF, konfiguracje i tekstury bajt po bajcie. Porównanie z instalacją bazową `dc9813c` wykazało zgodność bajtową czterech istniejących światów lokalizacyjnych `historical` i `open-aisle`, wraz z mapami lokalizacji i obydwoma profilami infrastruktury. Walidator dekoduje rzeczywiste PNG kart, weryfikuje zgodność z Mock SAP oraz sprawdza wszystkie ścieżki do stanowisk i do doku. Przeszło 85 testów ROS, 62 testy backendu i próba HTTP. [Dane walidatora](multi-warehouse-evidence/validation.json)
+Gazebo Fortress zaakceptował wszystkie trzy SDF za pomocą `ign sdf -k`. Porównano 91 plików z niezależnej generacji i z instalacji colcon. Wszystkie SDF, konfiguracje i tekstury były identyczne bajtowo. Porównanie z instalacją bazową `dc9813c` wykazało zgodność bajtową czterech istniejących światów lokalizacyjnych `historical` i `open-aisle`, wraz z mapami lokalizacji i obydwoma profilami infrastruktury. Walidator dekoduje rzeczywiste PNG kart, weryfikuje zgodność z Mock SAP oraz sprawdza wszystkie ścieżki do stanowisk i do doku. Launcher zbudował zestaw akcji dla wszystkich sześciu par wariant–model w próbie offline. Przeszło 85 testów ROS, 62 testy backendu i próba HTTP. [Dane walidatora](multi-warehouse-evidence/validation.json)
 
 | Wariant | Modele | Wizualizacje | Kolizje | Źródła światła | SDF |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -72,12 +72,16 @@ Weryfikacja geometrii obejmuje sześć stanowisk na wariant, dwa bezpieczne pion
 | --- | --- |
 | Energia i długość lotu | Obecny model z rezerwą 8 p.p. daje prognozę 69,15–128,19% w Distribution Center, 87,86–134,56% w High-Bay i 89,87–133,93% w Logistics Hub dla pojedynczych tras tam i z powrotem. Każda hala ma przynajmniej jedno stanowisko w każdej funkcjonalnej alejce w granicy budżetu stacji. Dalsze trasy wymagają organizacji krótszych cykli, punktów operacyjnych lub zweryfikowanego modelu zasięgu. Same wielokrotne starty z tego samego doku nie skracają niedopuszczalnego pojedynczego lotu. |
 | Wysokość i kamera | Standardowe miejsca inspekcji wynikają z pozy i rezerwacji. Launcher nowych hal wyłącza adaptacyjne przesunięcia oparte na dotychczasowej geometrii, w tym granicy Z ≤ 3,18 m i historycznym odstępie od regału. Potrzebna kwalifikacja ujęć i zakresu adaptacji na górnych poziomach, w tym osobne ekstrynsyki X3 w rekonstrukcji. |
-| LiDAR i SLAM | Nominalne 16 m nie obejmuje przeciwległych ścian dużych hal z centralnej alejki. W Distribution Center z B-08-03 końce regału są odległe o 19,46 i 16,94 m. W High-Bay oba końce są poza zasięgiem z A-07-04 i B-10-05. Wzdłuż żadnej z sześciu nominalnych pozycji w Logistics Hub nie występuje ten przypadek. Powtarzalne rzędy utrudniają wyznaczanie osi podłużnej. Potrzebne pomiary obserwowalności dla tunelu, skrzyżowań i wysokiego regału, pomiar tempa estymacji i walidacja dryfu względem czasu skanu. Zapis map, pamięć podmap i kalibracja między odlotami pozostają w zakresie oddzielnego GOAL 28. |
+| LiDAR i SLAM | Nominalne 16 m nie obejmuje przeciwległych ścian dużych hal z centralnej alejki. W Distribution Center z B-08-03 końce regału są odległe o 19,46 i 16,94 m. W High-Bay oba końce są poza zasięgiem z A-07-04 i B-10-05. W Logistics Hub z każdego z sześciu stanowisk przynajmniej jeden koniec regału mieści się w nominalnym zasięgu osiowym. Powtarzalne rzędy utrudniają wyznaczanie osi podłużnej. Potrzebne pomiary obserwowalności dla tunelu, skrzyżowań i wysokiego regału, pomiar tempa estymacji i walidacja dryfu względem czasu skanu. Zapis map, pamięć podmap i kalibracja między odlotami pozostają w zakresie oddzielnego GOAL 28. |
 | Safety i powroty | Dwie funkcjonalne alejki używają istniejących identyfikatorów A i B. Większy obszar wymaga deklaratywnych stref, konfiguracji progów sygnalizatorów i obsługi bram dla dodatkowych alejek. Przyjęcie naziemnego Safety laserowego wymaga kalibracji pól oraz walidacji zasłonięć. Polecenia ustawiania testowego pracownika poza bramami zachowują współrzędne dotychczasowej hali, dlatego ich użycie w nowych światach wymaga osobnej konfiguracji. |
 | Archiwum i Twin | Pliki runtime muszą obejmować zgodny wariant, model drona i rewizję konfiguracji. Studio może korzystać z referencyjnej geometrii generatora. Nauczony Twin wymaga nowego archiwum LiDAR, zdjęć, walidacji grafu i sprawdzenia rekonstrukcji na wyższych regałach. |
 | Markery i backend | Obecny słownik zawiera 50 kodów. Biblioteka przydziela 30, a wcześniejszy demonstrator ma własne kody. Rozszerzenie na wszystkie półki wymaga osobnego projektu zakresów identyfikatorów, zgodności archiwów i akceptacji kontraktu przed zmianą słownika. |
 
 Prognoza w tabeli używa istniejącego modelu demonstratora i po jednym nominalnym locie do stanowiska. To prognoza danego grafu i aktualnej rezerwy. [Prognozy dla 18 stanowisk](multi-warehouse-evidence/validation.json) · [Model energii](../ros2_ws/src/rackonaut_energy/rackonaut_energy/model.py)
+
+## Ujęcia z Gazebo
+
+Kamera scenograficzna Logistics Hub zarejestrowała siedem ujęć, klip i sześć zbliżeń działających stanowisk. Klip używa 144 odrębnych klatek z Gazebo Fortress, zapisanych jako 1280 × 720 przy 24 kl./s. W zbliżeniach odczytano wszystkie oczekiwane kody ArUco. [Klip](multi-warehouse-evidence/logistics-hub/scenery.mp4) · [Galeria](multi-warehouse-evidence/logistics-hub) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/logistics-hub/capture.json)
 
 ## Pochodzenie zasobów
 
