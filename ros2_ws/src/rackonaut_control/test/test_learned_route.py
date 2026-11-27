@@ -2,7 +2,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest import TestCase
 
-from rackonaut_control.learned_route import raw_knots, with_inspections
+from rackonaut_control.learned_route import raw_knots, stale_dock_preflight, with_inspections
 from rackonaut_control.route_recording import RouteRecorder
 from rackonaut_control.route_review import RouteReview
 from rackonaut_control.teaching import FRAME, Pose, Teaching
@@ -56,9 +56,15 @@ class LearnedRouteTests(TestCase):
                 recorder = RouteRecorder(teaching.root, SESSION, run, vars(Model()),
                                          {"contact": True, "contact_source": "gazebo_dock_switch"}, number)
                 try:
+                    if number == 2:
+                        preflight = observation(0, 0., 0., "STARTING", True)
+                        preflight["localization"] = {"state": "STALE", "source": "slam"}
+                        recorder.add(Pose((base-1)*100_000_000, 0., (0., 0., 0.), tuple(QUATERNION),
+                                          0., 0., (.01, .01, .01)), preflight, force=True)
                     for offset, (x, z, stage) in enumerate(states):
                         ros_index = base + offset
                         sample = observation(0, x, z, stage, offset in (0, len(states) - 1))
+                        sample["localization"]["source"] = "slam"
                         pose = Pose(ros_index * 100_000_000, 0., (x, 0., z), tuple(QUATERNION),
                                     0., 0., (.01, .01, .01))
                         recorder.add(pose, sample, force=True)
@@ -66,13 +72,14 @@ class LearnedRouteTests(TestCase):
                     recorder.finish("COMPLETE", True, {"dock_contact_source": "gazebo_dock_switch"})
                     self.assertTrue(recorder.done.wait(2.))
                 index.append(dict(number=number, trajectory=f"trajectory-{number:02d}.jsonl",
-                                  samples=len(states), status="DOCKED", inspection_id=run))
+                                  samples=recorder.count, status="DOCKED", inspection_id=run))
             manifest["revision"] = 2
             teaching.write_manifest(SESSION, manifest)
             review.write(SESSION, "sorties.json", index)
             proposal = review.action("review", SESSION, {})
             route = proposal["route"]
             self.assertEqual([leg["locations"][0]["record_id"] for leg in route["sorties"]], ["LOC-1", "LOC-2"])
+            self.assertEqual(route["sorties"][1]["nodes"][0]["raw_bracket"], [1, 1])
             self.assertTrue(all(edge["from"][:3] == edge["to"][:3] for edge in route["edges"]))
             request = {"route_sha256": proposal["route_sha256"], "confirm": True}
             self.assertEqual(review.action("validate", SESSION, request)["status"], "validated")
@@ -82,6 +89,18 @@ class LearnedRouteTests(TestCase):
             self.assertLess(planned["forecast"]["required_percent"], 100.)
             review.write(SESSION, "sorties.json", index[:1])
             self.assertEqual(review.state(SESSION)["status"], "stale")
+
+    def test_stale_preflight_cannot_hide_loss_or_motion(self):
+        dock = PROFILE["nodes"]["dock"]
+        first = {**observation(0, 0., 0., "STARTING", True), "speed_mps": 0.}
+        next_sample = {**observation(1, 0., 0., "WAITING", True), "speed_mps": 0.}
+        first["localization"] = {"state": "STALE", "source": "slam"}
+        next_sample["localization"]["source"] = "slam"
+        self.assertTrue(stale_dock_preflight(first, next_sample, dock))
+        self.assertFalse(stale_dock_preflight({**first, "dock_contact": False}, next_sample, dock))
+        self.assertFalse(stale_dock_preflight({**first, "speed_mps": .15}, next_sample, dock))
+        first["localization"]["state"] = "LOST"
+        self.assertFalse(stale_dock_preflight(first, next_sample, dock))
 
     def test_camera_time_distinguishes_repeated_visits_to_same_pose(self):
         rows = [observation(i, x, 1., "MANUAL_FLIGHT") for i, x in enumerate([1., 1., .9, 1., 1.])]

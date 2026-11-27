@@ -211,6 +211,19 @@ def required_zones(network, a, b, reserved):
     return [zone for zone in reserved if any(interval(a,b,box) is not None for box in network.reservable[zone])]
 
 
+def stale_dock_preflight(first, tracked, origin):
+    """Recognize a stale startup heartbeat before the recorded flight begins."""
+    return (
+        first["stage"] == "STARTING" and tracked["stage"] in {"STARTING", "WAITING"}
+        and first["localization"]["state"] == "STALE" and tracked["localization"]["state"] == "TRACKING"
+        and all(row["localization"]["source"] == "slam" and row["dock_contact"]
+                and row["speed_mps"] <= .055 and dist(row["position_m"], origin) <= DOCK_LIMIT_M
+                for row in (first, tracked))
+        and 0 < ns(tracked["stamp"])-ns(first["stamp"]) <= MAX_GAP_NS
+        and dist(first["position_m"], tracked["position_m"]) <= HOVER_M
+    )
+
+
 def graph(rows, profile, manifest, header, footer, require_locations=True):
     network = Network(profile)
     zones = sorted({zone for row in rows for zone in row["safety"]["zones"]})
@@ -218,8 +231,12 @@ def graph(rows, profile, manifest, header, footer, require_locations=True):
         raise ValueError("The recording contains an unknown or empty reservation.")
     if require_locations and not manifest["locations"]:
         raise ValueError("Teach at least one measured location before reviewing the route.")
-    measure_safety(rows, network)
     origin = network.nodes["dock"][:3]
+    # Keep the complete journal and its indices. A docked presample from before
+    # the initial heartbeat may precede the first measured, stationary dock pose.
+    start = int(header.get("sortie") is not None and len(rows) >= 2
+                and stale_dock_preflight(rows[0], rows[1], origin))
+    measure_safety(rows[start:], network)
     if not (rows[0]["dock_contact"] and rows[-1]["dock_contact"]
             and dist(rows[0]["position_m"],origin)<=DOCK_LIMIT_M
             and dist(rows[-1]["position_m"],origin)<=DOCK_LIMIT_M):
@@ -227,7 +244,7 @@ def graph(rows, profile, manifest, header, footer, require_locations=True):
     stages = {row["stage"] for row in rows}
     if not {"VERTICAL_TAKEOFF", "MANUAL_FLIGHT", "RETURN_TO_DOCK"} <= stages:
         raise ValueError("The recording does not contain the takeoff, manual flight and return phases.")
-    raw = raw_knots(rows)
+    raw = raw_knots(rows)[start:]
     raw_stamps = [k.time for k in raw]
     knots = with_inspections(raw,manifest["locations"])
     keep = simplify(knots,network,zones,rows)
