@@ -1,162 +1,137 @@
+<img src="ros2_ws/src/rackonaut_control/web/rackonaut-logo.png" width="112" alt="Rackonaut logo">
+
 # Rackonaut
 
-[![Contract tests](https://github.com/Adiksoon/rackonaut/actions/workflows/contract-tests.yml/badge.svg?branch=main)](https://github.com/Adiksoon/rackonaut/actions/workflows/contract-tests.yml)
+**Less time. Less effort. More control.**
 
-Rackonaut is a RobotHack 2026 prototype that helps warehouse supervisors decide which inventory discrepancies to investigate. A simulated drone visits selected storage locations, photographs handling unit (HU) labels and checks occupancy and visible packaging damage. The Control Center combines those observations with a synthetic Mock SAP inventory to flag misplaced HUs, unexpected empty locations, discontinued products and damaged cartons. A supervisor can inspect the evidence and export a portable report with recommended actions.
+An autonomous warehouse inspection prototype built with ROS 2 and Gazebo Fortress, combining LiDAR-based localization, visual inspection, digital twin reconstruction and inventory discrepancy detection.
 
-![Reference drone flying beside labeled storage racks in the simulated warehouse](docs/images/gazebo-drone-in-aisle.png)
+Rackonaut is an integrated simulation prototype for **RobotHack 2026**, addressing the automated warehouse inventory and quality inspection challenge. [Judge's guide](docs/JUDGES_GUIDE.md) · [Run the demo](docs/GETTING_STARTED.md) · [Gallery](docs/GALLERY.md) · [Technical documentation](docs/README.md)
 
-## Start here
+![Gazebo Fortress overview of the open-aisle warehouse, rack layout and suspended flight corridor](docs/open-aisle-evidence/01-warehouse.png)
 
-Clone the private repository after accepting the GitHub invitation. On WSL2, clone to the Linux filesystem. Run the commands from the repository root in Bash.
+*The open-aisle warehouse in Gazebo Fortress. The X3 and reference models share this environment. [Open-aisle X3 startup evidence](docs/open-aisle-evidence/x3-startup.json)*
 
-**Requirements.** Ubuntu 22.04 or WSL2 Ubuntu 22.04, ROS 2 Humble, Gazebo Fortress, system Python 3.10 with cv_bridge, OpenCV and NumPy, plus Git, colcon and rosdep. Use a WebGL2-capable browser for 3D. RViz2, rqt_graph, rqt_plot and rosbag2 are used by Engineering Showcase. Native GUI windows require a display such as WSLg. The simulator starts headless by default.
+## Problem
 
-If you are setting up ROS and Gazebo for the first time, follow the linked installation guide and review its rosdep commands. [Environment and dependency setup](docs/onboarding/ADRIAN.md#set-up-in-ubuntu-2204-or-wsl2)
+A warehouse can show stock in its management system while a shelf is empty, a pallet is in the wrong location, or a carton is visibly damaged. Physically checking those discrepancies takes time. Supervisors need to see where to look, what the camera observed, and which findings need a human decision.
 
-```bash
-git clone https://github.com/Adiksoon/rackonaut.git
-cd rackonaut
-scripts/robotics/check
-python3.10 scripts/api/setup.py
-scripts/robotics/build
-```
+## Our solution
 
-The setup command installs pinned backend packages into `.venv-backend`. ROS nodes use system Python. Run one demo at a time and stop it with Ctrl+C in the launch terminal. Control Center runs on port 8765 and its local inventory API uses port 8000. Override them with `http_port:=` and `mock_port:=` when needed. Use a separate `data_dir:=/absolute/path` for a fresh database and report archive. [Ports, profiles and logs](ros2_ws/src/rackonaut_control/README.md)
+**Warehouse calibration → Digital Twin → Mission planning → Autonomous inspection → Inventory comparison → Actionable results**
 
-### A. Business Demo
+A survey collects LiDAR measurements and teaches shelf locations from camera frames. The Control Center turns the approved survey into a warehouse model and plans a flight through reserved space. During inspection, the drone sends camera observations to Mock SAP. The supervisor reviews expected stock alongside observed stock, original photos and suggested actions, then exports an HTML report.
 
-This selected-location demo focuses on HU reads, carton quality, Mock SAP comparison and the supervisor's decisions. It uses the same onboard localization and protections as Full Robotics. Use X3 for the four-location route below, including its orthogonal descent between inspection heights. Prepare the X3 Fuel model as described in section B.
-
-```bash
-scripts/robotics/checkpoint business drone_model:=x3
-```
-
-1. Open Control Center and wait for **Mock SAP online**, a verified physical dock and localization. [Control Center](http://127.0.0.1:8765)
-2. Choose **Selected locations** and select **A-01-01**, **A-01-02**, **A-01-03** and **A-01-04**. Enable **Check for package damage** and **Retry difficult readings**, then start the inspection.
-3. After landing, open **Results**. Choose a finding to compare expected and observed stock, review the available camera evidence and export the HTML report. An earlier recorded Business Demo is available in the demonstration evidence.
-
-The local API serves the v1 Swagger UI on port 8000. [Swagger UI](http://127.0.0.1:8000/docs) · [Mock SAP and business endpoints](docs/SAP_BUSINESS_INTELLIGENCE.md)
-
-### B. Full Robotics Demo and calibration
-
-The full profile enables protected aerial corridors, LiDAR–IMU localization, onboard obstacle checks, energy and docking, operator-approved Recovery, Digital Twin and Mock SAP.
-
-```bash
-scripts/robotics/checkpoint live drone_model:=reference
-```
-
-Use **A-01-01 → A-01-03** in **Selected locations**. Wait for localization `TRACKING` and the dock to be ready before dispatch. The verified run uses **virtual Safety presence** for ground-zone interlocks. The onboard LiDAR and simulated physical dock contact remain active. Switch between **2D Map**, **3D Model** and **3D Scan** to compare the plan, reference warehouse and live LiDAR measurements. Use `gazebo_gui:=true` at launch to see the same simulation in Gazebo. [Full profile and launch details](docs/ENGINEERING_SHOWCASE.md#engineering-live) · [Measured 3D map](docs/MEASURED_3D_MAP.md)
-
-Reference is the default. X3 uses the same ROS stack and Control Center. Cache version 4 of the Fuel model once, or pass `x3_source:=` with the verified model directory. Stop the previous simulation first.
-
-```bash
-source scripts/robotics/activate.bash
-ign fuel download -u 'https://fuel.gazebosim.org/1.0/OpenRobotics/models/X3%20UAV/4'
-RACKONAUT_ROS_DOMAIN_ID=227 RACKONAUT_GZ_PARTITION=rackonaut-x3-demo \
-  scripts/robotics/checkpoint live drone_model:=x3 full_route_slam:=false \
-  http_port:=8777 mock_port:=8002 data_dir:="$PWD/.rackonaut-data/x3-known"
-```
-
-On a known map, choose **Full inventory** for the X3 8 m profile, including automatic charging and resumption. Service and Diagnostics show the active drone profile. Restart with the other launch argument to switch profiles. [X3 asset and profile requirements](docs/X3_FULL_ROBOTICS_INTEGRATION.md) · [Integration acceptance](docs/FULL_SYSTEM_INTEGRATION.md)
-
-Use the **Service** tab to prepare a new warehouse configuration and return the drone to its dock during an active inspection. [Service Center setup and recorded trial](docs/SERVICE_CENTER.md)
-
-Use **Service → Manual Control** to fly inside reserved space with the live camera, shared 3D view and onboard collision protection. [Controls and validation](docs/PROTECTED_MANUAL_FLIGHT.md)
-
-Use **Service → Warehouse Calibration → Start calibration → Open mapping controls** to prepare a LiDAR survey. Start the mapping flight from the controls once the dock and sensors are ready. Use `mapping_only:=true full_route_slam:=true` with an empty data directory for a new calibration without a factory localization map. [Warehouse mapping and SLAM](docs/UNKNOWN_WAREHOUSE_MAPPING.md) · [Teach storage locations from the camera and SLAM](docs/STORAGE_LOCATION_TEACHING.md)
-
-After verified docking, choose **Review Route** in Service to compare the recorded trajectory with its directed waypoint graph, validate the recorded flight envelope, and approve the proposal for the calibration archive. [Learn a flight route](docs/ROUTE_TEACHING.md)
-
-Launch `scripts/robotics/checkpoint live drone_model:=reference learned_warehouse:=true data_dir:=/absolute/path/to/a/copy` to use a sealed reference archive. Set `drone_model:=x3` and use a separate compatible archive for X3. Unlock Service and verify or activate the saved warehouse at the physical dock. Open **Plan inspection** to select its taught locations. [Archive setup and autonomous inspection](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
-
-Use `scripts/robotics/warehouse-in-motion` to run a repeatable X3 inspection with a moving cart, a covered label and a stock discrepancy. [Warehouse in motion](docs/WAREHOUSE_IN_MOTION.md)
-
-Select `warehouse_variant:=open-aisle` on the live launcher for the overhead portals and open descents into aisles A and B. The default `warehouse_variant:=historical` retains the earlier warehouse and its calibration compatibility. [Geometry, validation and views](docs/OPEN_AISLE_DESCENT.md)
-
-### C. Engineering Showcase
-
-Run the full profile in the first terminal. Open one engineering view at a time in another terminal.
-
-| View | Command from the repository root |
+| Measured Digital Twin | Inventory review |
 | --- | --- |
-| Navigation & Mapping | `scripts/robotics/checkpoint tools` |
-| Computer Vision | `scripts/robotics/checkpoint tools view:=vision` |
-| Safety & Recovery | `scripts/robotics/checkpoint tools view:=safety` |
-| Validation | `scripts/robotics/checkpoint tools view:=validation` with `localization_diagnostics:=true` on the live launcher |
-| ROS graph | `scripts/robotics/checkpoint tools view:=graph adapter:=false` |
-| Telemetry | `scripts/robotics/checkpoint tools view:=plot_energy` or `plot_flight`, `plot_localization`, `plot_avoidance`, `plot_validation` in the same `view:=` argument |
+| [![Racks reconstructed from the reference open-aisle survey](docs/full-warehouse-calibration-evidence/verified-survey/restart-twin.png)](docs/FULL_WAREHOUSE_CALIBRATION.md) | [![X3 inspection finding with expected and observed stock and its original camera image](docs/full-system-evidence/x3-known-results.png)](docs/full-system-evidence/x3-known-report.html) |
+| Open-aisle reference survey restored after restart. | X3 known-map results. Download the HTML report to view it offline. |
 
-If the engineering adapter is already running, add `adapter:=false` to the next viewer. The Vision view has separate live raw and processed streams. For offline playback, run these commands in two terminals on the same separate Evidence ROS domain.
+## Key capabilities
 
-```bash
-# Terminal 1
-scripts/robotics/checkpoint evidence rviz
-# Terminal 2
-scripts/robotics/checkpoint evidence play
-```
+| Capability | What Rackonaut does |
+| --- | --- |
+| Warehouse calibration | Records LiDAR–IMU SLAM, synchronized location photos and separately approved dock-to-dock sorties. Saves a sealed archive with file integrity checks. [Calibration and archive](docs/FULL_WAREHOUSE_CALIBRATION.md) |
+| Digital Twin | Shows measured point clouds, fitted rack rows, taught locations and validated route geometry. [Reconstruction evidence](docs/full-warehouse-calibration-evidence/verified-survey/twin-validation.json) |
+| Mission planning and flight | Plans selected locations or an inventory route. Safety manages zone reservations, Collision Prevention checks onboard LiDAR clearance, and Recovery handles guarded return when authorized. [Mission and recovery evidence](docs/AUTONOMOUS_RECOVERY.md) |
+| Energy management | Estimates route cost and reserve. With the verified X3 known-map profile, the drone can dock, charge and resume the same inspection. [Charging telemetry](docs/full-system-evidence/x3-known-inventory.json) |
+| Computer vision and Mock SAP | Associates ArUco reads, occupancy and visible carton damage with an inspection location. Matches observations to synthetic inventory and presents reviewable findings and exportable reports. [Business trial](docs/FULL_SYSTEM_INTEGRATION.md#d--business-demo) |
+| CSV inventory importer | Validates inventory and product CSVs against the shared contracts and prepares Mock SAP JSON for deliberate import. [Importer examples](scripts/inventory/README.md) |
+| Warehouse in Motion | Runs a scripted warehouse scenario in which X3 stops for a moving cart, continues once clear and reports inventory discrepancies. [Obstacle and mission telemetry](docs/final-branch-audit-evidence/result.json) |
+| Warehouse environments | The main demo offers historical and open-aisle worlds. A pinned companion profile provides three larger layouts with separate geometry and fixtures. [Environment library and launch instructions](docs/GETTING_STARTED.md#additional-warehouses) |
 
-The bag contains recorded measurements and visualization topics. Its playback domain defaults to 193. [Showcase views, diagnostics and replay](docs/ENGINEERING_SHOWCASE.md)
-
-## Architecture
+## System architecture
 
 ```mermaid
 flowchart LR
-    G["Gazebo Fortress · warehouse and drone"] <-->|"Gazebo Transport"| R["ROS–Gazebo bridge"]
-    R -->|"RGB and calibration"| P["Computer Vision · HU, occupancy, quality"]
-    R -->|"LiDAR, IMU and dock contact"| L["Localization, Safety and Energy"]
-    L --> M["Mission Manager · Avoidance and Recovery"]
-    M -->|"Velocity commands"| R
-    P -->|"Observation v1 over HTTP"| A["FastAPI · Mock SAP"]
-    A <-->|"Observations, evidence, reviews"| DB[("SQLite")]
-    A -->|"Business results"| C["Control Center · Digital Twin and report"]
-    M -->|"Mission status and paths"| C
-    R --> E["RViz and rqt"]
-    L --> E
+    Gazebo["Gazebo Fortress · warehouse, drone and dock"] <-->|"transport"| Bridge["ROS 2 · ROS–Gazebo bridge"]
+    Bridge -->|"LiDAR and IMU"| Localization["Localization / SLAM"]
+    Bridge -->|"LiDAR range data"| Collision["Collision Prevention"]
+    Bridge -->|"presence measurements"| Safety["Safety Manager"]
+    Bridge -->|"dock contact"| Energy["Energy Manager"]
+    Bridge -->|"RGB frames + calibration"| Perception["Computer Vision · Perception"]
+    Localization -->|"pose and mapping state"| Mission["Mission Manager and Recovery"]
+    Localization -->|"pose"| Safety
+    Energy -->|"verified dock state"| Safety
+    Safety -->|"reservations and permits"| Mission
+    Energy -->|"battery and charging state"| Mission
+    Collision -->|"path clearance"| Mission
+    Mission -->|"flight commands"| Bridge
+    Mission -->|"inspection context"| Perception
+    Perception -->|"HTTP Observation v1 + photo evidence"| SAP["Mock SAP · inventory comparison"]
+    CSV["Standalone CSV importer"] -.->|"compatible JSON for manual import"| Fixtures["Synthetic inventory and products"]
+    Fixtures -->|"expected stock"| SAP
+    SAP -->|"fresh observation confirmation"| Mission
+    Control["Control Center · plan, dispatch and review"] -->|"plan and dispatch"| Mission
+    Mission -->|"mission progress"| Control
+    Localization -->|"measured cloud and pose"| Twin["Digital Twin · measured and reference views"]
+    Control -->|"taught locations and approved routes"| Twin
+    SAP -->|"expected vs. observed stock"| Control
+    Control -->|"evidence and recommended actions"| Report["Portable HTML report"]
 ```
 
-[Architecture](docs/ARCHITECTURE.md) · [ROS and HTTP interfaces](docs/INTERFACES.md) · [Integration and historical baseline](docs/INTEGRATION.md)
+[Architecture and code boundaries](docs/ARCHITECTURE.md) · [ROS and HTTP interfaces](docs/INTERFACES.md)
 
-## Demonstration evidence
+## Quick start
 
-| Material | What it shows |
+### Start here
+
+On **Ubuntu 22.04** or **WSL2 Ubuntu 22.04**, install **ROS 2 Humble**, **Gazebo Fortress** and the system Python dependencies. Follow the clean-checkout instructions for dependencies and the repository clone. [Environment and setup](docs/GETTING_STARTED.md#clean-checkout)
+
+```bash
+scripts/robotics/check
+python3.10 scripts/api/setup.py
+scripts/robotics/build
+scripts/robotics/checkpoint live warehouse_variant:=open-aisle drone_model:=reference
+```
+
+<a id="b-full-robotics-demo"></a>
+
+### Full Robotics Demo
+
+Open the [local Control Center](http://127.0.0.1:8765/). Wait for Mock SAP, a fresh camera image, localization `TRACKING` and confirmed dock contact. Under **Selected locations**, select **A-01-01** and start the inspection. After docking, use **Results** to inspect the evidence and export the report. [Reference flight evidence](docs/open-aisle-evidence/reference-flight.json)
+
+<a id="a-business-demo"></a>
+
+### Business and X3 profiles
+
+For the X3 known-map inventory run, Warehouse in Motion and steps to restore the verified open-aisle archive, use the profile commands in the demo guide. [Demo profiles](docs/GETTING_STARTED.md#demo-profiles)
+
+## Validation highlights
+
+These measurements come from distinct recorded trials.
+
+| Trial | Recorded result | Source evidence |
+| --- | --- | --- |
+| Open-aisle full calibration · **reference drone** | **94,194** measured LiDAR points, **11/11** registered inspection locations, **4** completed sorties over **335.11 m**, and **13.71 mm** localization RMSE | [Point cloud and checkpoints](docs/full-warehouse-calibration-evidence/verified-survey/checkpoint-coverage.json) · [Location photos](docs/full-warehouse-calibration-evidence/verified-survey/photos.json) · [Flight metrics](docs/full-warehouse-calibration-evidence/verified-survey/flight-metrics.json) |
+| Open-aisle archive and replay · **reference drone** | **496** validated directed edges. The archive restored **11/11** locations and a four-sortie plan after restart. Two separate autonomous replays inspected one location in each functional aisle. | [Route validation](docs/full-warehouse-calibration-evidence/verified-survey/route-validation.json) · [Restart plan](docs/full-warehouse-calibration-evidence/verified-survey/restart-plan.json) · [Replay telemetry](docs/full-warehouse-calibration-evidence/verified-survey/restart-replay-metrics.json) |
+| Historical known-map inventory · **X3** | **11/11** inspected locations. Automatic docking, charging and mission resumption, followed by return to dock. | [Mission telemetry](docs/full-system-evidence/x3-known-inventory.json) · [Charging and resumption](docs/FULL_SYSTEM_INTEGRATION.md#c--x3-na-znanej-mapie) |
+| Warehouse in Motion · **X3** | Detected the cart, stopped after **0.094 m** of further motion, resumed autonomously and finished **3/3** inspections. | [Scenario result](docs/final-branch-audit-evidence/result.json) · [Portable report](docs/final-branch-audit-evidence/report.html) |
+| Companion warehouse library | **3** additional environments with generated SDF and recorded dock startup checks. | [Static validation and telemetry](https://github.com/Adiksoon/rackonaut/blob/6b9ebfaba39bd5e091d5de5f7d23301a9ec35115/docs/MULTI_WAREHOUSE_ENVIRONMENTS.md#pr%C3%B3by-uruchomienia-przy-doku) |
+
+## Project structure
+
+| Path | Contents |
 | --- | --- |
-| [Business demo video](docs/bi-evidence/demo.mp4) · [Supervisor report](docs/bi-evidence/warehouse-report.html) | Recorded GOAL 17 flight with business comparisons and recommended actions. Download the HTML and open it locally for an offline report. |
-| [P003 original photo](docs/bi-evidence/p003-original.png) · [Annotated photo](docs/bi-evidence/p003-annotated.png) | Visible carton damage and its linked inspection evidence. |
-| [Engineering video](docs/engineering-evidence/showcase.mp4) · [ROS graph](docs/engineering-evidence/active-ros-graph.png) · [LiDAR map](docs/engineering-evidence/map-complete.png) | Recorded engineering views, obstacle avoidance and Recovery. |
-| [Historical full inventory run](docs/DEMO_COMPLETE.md) | The `demo-complete` tag records an 11-location run and selected reinspection on an earlier profile. |
-
-[Safety sensor coverage](ros2_ws/src/rackonaut_safety/docs/SENSOR_SAFETY.md) · [Autonomous Recovery](docs/AUTONOMOUS_RECOVERY.md) · [Localization and mapping](docs/SENSOR_LOCALIZATION.md) · [Obstacle avoidance](docs/OBSTACLE_AVOIDANCE.md) · [Asset provenance](ros2_ws/src/rackonaut_warehouse/docs/ASSETS.md)
+| [`ros2_ws/src/`](ros2_ws/src/) | Simulation, drone profiles, localization, mission and protection modules, perception, Control Center and Digital Twin. |
+| [`backend/`](backend/) and [`contracts/`](contracts/) | Mock SAP service, REST schemas, ROS interfaces and observation contracts. |
+| [`scripts/`](scripts/) and [`tests/`](tests/) | Build and launch entry points, inventory importer, API and contract tests. |
+| [`docs/`](docs/README.md) and [`test_data/`](test_data/) | Technical documentation, original validation evidence and synthetic fixtures. |
 
 ## Tests
 
-The first command matches GitHub Actions and discovers both fixture contract tests and Mock SAP tests. The suite runs without launching Gazebo or an HTTP server. The second command starts a temporary loopback fixture API and exercises real HTTP requests.
+The release checks cover the ROS build and tests, backend and importer tests, HTTP, SDF, archive integrity and documentation. Recorded flights have their original revision and evidence. [Release checks](docs/RELEASE_VALIDATION.md) · [GitHub Actions](https://github.com/Adiksoon/rackonaut/actions/workflows/contract-tests.yml)
 
-```bash
-.venv-backend/bin/python -m unittest discover -s tests -v
-.venv-backend/bin/python scripts/api/smoke.py
-source scripts/robotics/activate.bash
-/usr/bin/python3 -m pytest -q ros2_ws/src
-```
+## Team
 
-Use Ubuntu's system `python3-pytest` for the ROS tests. Backend-only contributors can follow the Windows setup and run the same unittest suite.
+- **Adrian Zygarowski** integrated the simulated warehouse, autonomy and protection modules, perception, Control Center and Mock SAP workflows. He implemented and validated the multi-sortie reference calibration and its Digital Twin.
+- **Michał** (`michalczaplinski5`) submitted the X3 model integration with camera, ROS bridges and frame setup, and contributed flight and localization acceptance work. [X3 contribution](https://github.com/Adiksoon/rackonaut/pull/7)
+- **Vahid Abdullayev** authored the CSV inventory importer, including templates, sample inputs and 54 regression tests. [CSV contribution](https://github.com/Adiksoon/rackonaut/pull/8)
 
-```powershell
-python scripts/api/setup.py
-& .\.venv-backend\Scripts\python.exe -m unittest discover -s tests -v
-```
+### Team onboarding
 
-[Backend setup and test data](backend/README.md) · [Baseline test evidence](docs/TEST_RESULTS.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
+[Contribution record and Git history](docs/TEAM_TASKS.md) · [Robotics onboarding](docs/onboarding/ADRIAN.md) · [Drone onboarding](docs/onboarding/MICHAL.md) · [Dashboard onboarding](docs/onboarding/DASHBOARD.md) · [Third-party notices](docs/ATTRIBUTION.md)
 
-The standalone CSV importer validates inventory and product data against Mock SAP conventions. Run `python3 scripts/inventory/import_csv.py --help` for options. [Importer, templates and examples](scripts/inventory/README.md)
+## Limitations & roadmap
 
-## Team onboarding
-
-Adrian owns the integrated demonstrator, computer vision, autonomy, backend and business recommendations. The X3 profile incorporates Michał's drone and camera contribution. The CSV importer incorporates Vahid's standalone validation and conversion tool. [Current responsibilities and historical assignments](docs/TEAM_TASKS.md) · [Adrian's setup](docs/onboarding/ADRIAN.md) · [Michał's integration checklist](docs/onboarding/MICHAL.md) · [Dashboard guide](docs/onboarding/DASHBOARD.md)
-
-## Known limitations
-
-- In the **aerial** profile, the descent from A-01-02 toward A-01-03 repeatedly stopped with `ROUTE_BLOCKED`. LiDAR returns align with a crossbar in shaft A. In the reproduced case, Recovery also stopped and kept the A and D reservations. Use the two-location route for the full profile. [Recorded failure](docs/engineering-evidence/recovery-blocked.json) · [Integration constraints](docs/INTEGRATION.md#route-and-operator-constraints)
-- The refreshed Control Center displays raw camera video. The current mission-start gate uses a flag set when an annotated frame is received, without checking frame age. Engineering Showcase Vision displays annotated frames independently.
-- WSL2 software rendering slows simulated time. Stationary laser monitoring and extra graphics windows add load. The historical laser comparison at the dock measured an RTF of 0.4135 without RViz and 0.3842 with Navigation RViz. Keep one optional window open at a time. [Performance evidence](docs/engineering-evidence/laser-performance.json)
-- The warehouse, flight, safety interlocks and charging are simulated. Safety has no physical validation. Mock SAP uses synthetic inventory and product records. The operator reviews proposed actions in the demonstrator.
+Flight, docking, charging and stock data are simulated. Physical drone commissioning, site safety validation and certification, and production SAP integration are future work. Automatic battery swapping is a concept. The reference calibration captures a partial third rack and has a finite archived keyframe budget. Learned sorties are dispatched individually. The larger warehouses have startup and static evidence and require independent calibration, energy qualification and autonomous inspections. [Known limitations and next engineering steps](docs/JUDGES_GUIDE.md#limitations-and-roadmap)
