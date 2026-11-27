@@ -14,6 +14,58 @@ from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def test_x3_caps_translation_near_the_dock_and_still_sends_zero(self):
+        command = Mock()
+        target = Target(1., 1., .1, 0.)
+        mission = SimpleNamespace(
+            x3=True, stage="DOCKING", target=target, command=command,
+            route=SimpleNamespace(pad=Target(0., 0., .1, 0.)),
+            pose=Target(0., 0., .8, 0.),
+        )
+        with patch("rackonaut_mission.node.velocity", return_value=(.3, -.2, -.25, .2)):
+            Mission.send_velocity(mission)
+            slow = command.publish.call_args.args[0]
+            Mission.send_velocity(mission, scale=0.)
+            stopped = command.publish.call_args.args[0]
+            mission.stage = "RESUMING"
+            Mission.send_velocity(mission)
+            normal = command.publish.call_args.args[0]
+        for actual, expected in zip(
+            (slow.linear.x, slow.linear.y, slow.linear.z, slow.angular.z), (.12, -.08, -.10, .2),
+        ):
+            self.assertAlmostEqual(actual, expected)
+        self.assertEqual((stopped.linear.x, stopped.linear.y, stopped.linear.z, stopped.angular.z),
+                         (0., 0., 0., 0.))
+        self.assertEqual((normal.linear.x, normal.linear.y, normal.linear.z), (.3, -.2, -.25))
+
+    def test_x3_resume_waits_for_fresh_safety_clearance_and_ready_charge(self):
+        pad = Target(0., 0., .1, 0.)
+        mission = Mock(
+            calibration_id=None, energy_enabled=True, stage="READY_TO_RESUME",
+            safety_interlock=True, safety_permit=True, safety_at=99., safety_zones={"D", "A"},
+            permit_departure=2, departures=1, pose=pad, odom_at=100., speed=0.,
+            route=SimpleNamespace(zones=["D", "A"], pad=pad, takeoff=Target(0., 0., 2., 0.)),
+            battery={"percent": 70., "contact": True, "dock": "CHARGING", "sim_time": 101.},
+            learned=None, manual=None, aerial=None, sensor_localization=False, scanner=None,
+            command_topic="/drone/cmd_vel", started=98., completed=["A-01-01"], sorties=[],
+        )
+        mission.readiness = lambda now: Mission.readiness(mission, now)
+        mission.required_departure.return_value = 50.
+        mission.count_publishers.return_value = 0
+        mission.count_subscribers.return_value = 1
+
+        self.assertIn("safety interlock", Mission.start(mission, 100.))
+        mission.safety_at = 100.
+        self.assertIn("charge readiness", Mission.start(mission, 100.))
+        mission.set_flight_enabled.assert_not_called()
+        mission.create_publisher.assert_not_called()
+
+        mission.battery["dock"] = "READY"
+        self.assertEqual(Mission.start(mission, 100.), "")
+        mission.set_flight_enabled.assert_called_once_with(True)
+        self.assertEqual(mission.transition.call_args.args[0], "RESUMING")
+        self.assertEqual(mission.sorties[-1]["completed_before"], ["A-01-01"])
+
     def test_x3_cuts_power_only_after_confirmed_docking(self):
         for model, contact in ((True, False), (False, True), (True, True)):
             mission = Mock(stage="DOCKING", manual=None, calibration_id=None,

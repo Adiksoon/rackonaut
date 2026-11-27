@@ -1,14 +1,45 @@
+from collections import deque
+from threading import Lock
+from types import SimpleNamespace
 from unittest import TestCase
+from unittest.mock import patch
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+from sensor_msgs.msg import Imu
 
 from rackonaut_localization.inertial import GRAVITY, State, propagate
+from rackonaut_localization.node import IMU_FRAME, MAX_IMU_AGE, Localization
 from rackonaut_localization.registration import StaticMap
 from rackonaut_localization.slam import MeasuredRegistration, group_voxels, planar_voxel_support
 
 
 class LocalizationTests(TestCase):
+    def test_x3_imu_queue_checks_frame_order_and_original_receipt(self):
+        localizer = SimpleNamespace(
+            imu_lock=Lock(), imu_inbox=deque(maxlen=32), samples=deque(maxlen=100),
+            imu_at=float("-inf"), match_at=100., calibrated=True, accepted=1,
+            failures=0, quality="TRACKING", reason="Matched scans",
+        )
+        localizer.on_imu = lambda message: Localization.on_imu(localizer, message)
+        for stamp, frame, receipt in (
+            (20, IMU_FRAME, 99.75), (19, IMU_FRAME, 99.8),
+            (21, IMU_FRAME, 99.9), (22, "wrong_frame", 99.95), (21, IMU_FRAME, 100.),
+        ):
+            message = Imu()
+            message.header.frame_id, message.header.stamp.sec = frame, stamp
+            with patch("rackonaut_localization.node.monotonic", return_value=receipt):
+                Localization.enqueue_imu(localizer, message)
+        with patch("rackonaut_localization.node.monotonic", return_value=100.):
+            Localization.drain_imu(localizer)
+
+        self.assertFalse(localizer.imu_inbox)
+        self.assertEqual([sample[0] for sample in localizer.samples], [20, 21])
+        self.assertEqual(localizer.imu_at, 99.9)
+        self.assertEqual(Localization.status(localizer, 100.)[0], "TRACKING")
+        stale = localizer.imu_at + MAX_IMU_AGE + .01
+        self.assertEqual(Localization.status(localizer, stale), ("LOST", "IMU data stopped advancing"))
+
     def test_group_voxels_retains_the_first_index_and_sorted_group_order(self):
         voxels = np.array([[2, -1, 1], [-1, 3, 0], [2, -1, 1], [2, -1, -1], [-1, 3, 0]])
         first, membership = group_voxels(voxels)

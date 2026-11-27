@@ -7,7 +7,10 @@ from sensor_msgs.msg import PointCloud2, PointField
 
 from rackonaut_avoidance.manual import ZERO, protect
 from rackonaut_avoidance.planner import Navigator, sweep
-from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, FULL_ROUTE_RANGE, HEIGHT, MAX_RANGE, Scanner, WIDTH, rotation, unpack
+from rackonaut_avoidance.sensor import (
+    BEAMS, FRAME, FULL_ROUTE_RANGE, HEIGHT, MAX_RANGE, STALE_SECONDS, WIDTH,
+    Cloud, Scanner, rotation, unpack,
+)
 
 
 class ClearanceTests(TestCase):
@@ -27,7 +30,20 @@ class ClearanceTests(TestCase):
             cloud = scanner.current(100.21)
             self.assertEqual((cloud.time, cloud.received), (20., 100.))
             scanner.poses.append((21., np.zeros(3), np.eye(3)))
-            self.assertIsNone(scanner.current(100.86))
+            cloud = scanner.current(100.22)
+            self.assertEqual((cloud.time, cloud.received), (21., 100.20))
+            self.assertIsNone(scanner.current(100.20 + STALE_SECONDS + .01))
+
+    def test_exact_pairing_does_not_recover_an_expired_scan_on_late_odometry(self):
+        scanner = Scanner(Mock(), exact_pose=True)
+        scan = PointCloud2()
+        scan.header.stamp.sec = 20
+        with patch("rackonaut_avoidance.sensor.monotonic", return_value=100.):
+            scanner.receive(scan)
+        scanner.poses.append((20., np.zeros(3), np.eye(3)))
+        with patch("rackonaut_avoidance.sensor.unpack") as decode:
+            self.assertIsNone(scanner.current(100. + STALE_SECONDS + .01))
+        decode.assert_not_called()
 
     def frame(self, points=(), ranges=None):
         return Cloud(1., 2., np.array([0., 0., .88]), np.eye(3),

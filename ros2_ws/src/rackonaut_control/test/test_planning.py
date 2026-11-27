@@ -1,5 +1,7 @@
 import json
 from dataclasses import asdict
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import TestCase
 from xml.etree import ElementTree
 
@@ -8,6 +10,7 @@ from ament_index_python.packages import get_package_share_path
 from rackonaut_control.planning import energy_forecast, plan
 from rackonaut_energy.aerial import Network
 from rackonaut_energy.model import Model
+from rackonaut_mission.route import load_route
 
 
 class PlanningTests(TestCase):
@@ -17,20 +20,43 @@ class PlanningTests(TestCase):
         cls.layout = json.loads((cls.share / "config/control_layout.json").read_text())
 
     def test_x3_splits_aerial_descent_inside_reserved_volume(self):
-        layout = dict(self.layout)
         aerial = json.loads((self.share / "config/aerial_layout.json").read_text())
-        layout.update(aerial=aerial, pad=aerial["pad"], takeoff_z=aerial["nodes"]["shaft"][2])
-        selection = {"mode": "full", "quality": True}
-        baseline = plan(layout, selection)
-        candidate = plan(layout, selection, orthogonal_descent=True)
-        self.assertEqual(candidate["slots"], baseline["slots"])
-        self.assertEqual(candidate["required_zones"], baseline["required_zones"])
-        waypoints = candidate["route"]["waypoints"]
-        index = next(i for i, row in enumerate(waypoints) if row.get("slot_id") == "B-02-01")
-        high, descent, low = waypoints[index - 2:index + 1]
-        self.assertEqual(high["slot_id"], "B-01-02")
-        self.assertEqual((descent["x"], descent["y"], descent["z"]), (high["x"], high["y"], low["z"]))
-        self.assertEqual(descent["phase"], "AISLE_APPROACH")
+        safety = json.loads((self.share / "config/safety_fields.json").read_text())
+        layout = {**self.layout, "aerial": aerial, "pad": aerial["pad"], "adaptive_world": True,
+                  "takeoff_z": aerial["nodes"]["shaft"][2], "safety_fields": safety}
+        network = Network(aerial)
+        for adaptive in (False, True):
+            with self.subTest(adaptive=adaptive), TemporaryDirectory() as directory:
+                selection = {"mode": "full", "quality": True, "adaptive": adaptive}
+                baseline = plan(layout, selection)
+                candidate = plan(layout, selection, orthogonal_descent=True)
+                zones = candidate["required_zones"]
+                self.assertEqual(candidate["slots"], baseline["slots"])
+                self.assertEqual(zones, baseline["required_zones"])
+                route = candidate["route"]
+                waypoints = route["waypoints"]
+                for previous, target in (("A-01-02", "A-01-03"), ("A-01-04", "A-01-05"),
+                                         ("A-01-06", "A-01-07"), ("B-01-02", "B-02-01")):
+                    index = next(i for i, row in enumerate(waypoints) if row.get("slot_id") == target)
+                    high, descent, low = waypoints[index - 2:index + 1]
+                    self.assertEqual(high["slot_id"], previous)
+                    self.assertEqual((descent["x"], descent["y"], descent["z"]), (high["x"], high["y"], low["z"]))
+                    self.assertEqual(descent["phase"], "AISLE_APPROACH")
+                    xyz = [tuple(point[key] for key in ("x", "y", "z")) for point in (high, descent, low)]
+                    self.assertTrue(network.allows(xyz[0], xyz[1], zones))
+                    self.assertTrue(network.allows(xyz[1], xyz[2], zones))
+                if adaptive:
+                    self.assertEqual(route["retries"], baseline["route"]["retries"])
+                    self.assertTrue(all(point in candidate["safety_points"] for point in baseline["safety_points"]))
+                route_file = Path(directory) / "route.json"
+                route_file.write_text(json.dumps({
+                    **route, "energy_crossing_x": layout["crossing_x"], "energy_zones": zones,
+                }))
+                self.assertEqual(len(load_route(route_file).stops), 11)
+
+    def test_x3_descent_option_leaves_plain_layout_route_intact(self):
+        selection = {"mode": "custom", "slots": ["A-01-02", "A-01-03"]}
+        self.assertEqual(plan(self.layout, selection, orthogonal_descent=True), plan(self.layout, selection))
 
     def test_x3_descends_before_leaving_the_last_high_inspection_location(self):
         aerial = json.loads((self.share / "config/aerial_layout.json").read_text())
