@@ -1123,6 +1123,8 @@ function draw() {
   else if (previewError) reason = previewError;
   else if (previewPending) reason = "Calculating the route and checking departure conditions…";
   else if (!preview) reason = "Select at least one functional location.";
+  else if (preview.requires_multiple_sorties)
+    reason = `Verified plan for ${preview.sorties.length} sorties. Select the locations for one sortie to dispatch.`;
   else if (layout.localization?.mode === "sensor_based" && state?.localization?.state !== "TRACKING")
     reason = "The drone’s position is unverified. Wait until it can locate itself.";
   else if (!state?.robot) reason = "Waiting for the drone connection.";

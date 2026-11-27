@@ -8,14 +8,15 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, OFFSET
-from .slam import FullRouteRegistration, Keyframe
+from .slam import FullWarehouseRegistration, Keyframe
 
 
 FORMAT = 1
 MAP_FILE = "localization.npz"
 FRAME = "rackonaut_odom"
 FIELDS = {"version", "dock", "range_m", "offset", "positions", "orientations", "index", "points", "normals"}
-LIMIT = 40_000_000
+LIMIT = 55_000_000
+FULL_WAREHOUSE_POINTS = 160_000
 PLY_HEADER = re.compile(rb"ply\nformat binary_little_endian 1\.0\nelement vertex (\d+)\n"
                         rb"property float x\nproperty float y\nproperty float z\nend_header\n")
 
@@ -52,7 +53,7 @@ def load(path):
     if (version.ndim or version.item() != FORMAT or sensor_range.ndim or sensor_range.item() != FULL_ROUTE_RANGE
             or offset.shape != (3,) or not np.array_equal(offset, OFFSET) or dock.shape != (3,)
             or index.ndim != 1 or not np.issubdtype(index.dtype, np.integer)
-            or not 2 <= len(index) <= FullRouteRegistration.frame_limit + 1
+            or not 2 <= len(index) <= FullWarehouseRegistration.frame_limit + 1
             or positions.shape != (len(index)-1, 3) or orientations.shape != (len(index)-1, 4)
             or points.ndim != 2 or points.shape[1] != 3 or normals.shape != points.shape
             or index[0] != 0 or index[-1] != len(points) or any(
@@ -74,7 +75,7 @@ def read_ply(path):
     with path.open("rb") as stream:
         header = b"".join(stream.readline(128) for _ in range(7))
         match = PLY_HEADER.fullmatch(header)
-        if not match or not 1 <= int(match[1]) <= 80_000:
+        if not match or not 1 <= int(match[1]) <= FULL_WAREHOUSE_POINTS:
             raise ValueError("Unexpected measured PLY format.")
         count = int(match[1])
         payload = stream.read(count * 12 + 1)

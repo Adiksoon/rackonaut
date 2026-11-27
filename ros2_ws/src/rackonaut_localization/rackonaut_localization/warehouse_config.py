@@ -17,6 +17,23 @@ HISTORICAL_VARIANT = "historical"
 OPEN_AISLE_VARIANT = "open-aisle"
 REQUIRED = {"map.ply", "localization.npz", "result.json", "locations.json", "trajectory.jsonl",
             "route.json", "route-validation.json", "safety.json", "sensors.json"}
+MAX_SORTIES = 16
+SORTIE_JOURNAL = re.compile(r"trajectory-(?:0[1-9]|1[0-6])\.jsonl")
+FULL_FILES = (REQUIRED - {"trajectory.jsonl"}) | {"sorties.json", "digital-twin.json"}
+
+
+def trajectory_file(number):
+    return f"trajectory-{number:02d}.jsonl" if number is not None else "trajectory.jsonl"
+
+
+def archive_inputs(files):
+    names = set(files)
+    if "sorties.json" not in names:
+        return REQUIRED
+    journals = {name for name in names if SORTIE_JOURNAL.fullmatch(name)}
+    if not journals or journals != {trajectory_file(i) for i in range(1, len(journals) + 1)}:
+        raise ValueError("The full warehouse must include consecutive sortie journals.")
+    return FULL_FILES | journals
 
 
 def digest(value):
@@ -71,10 +88,13 @@ def verified_package(root, identifier):
             or not SESSION_ID.fullmatch(str(manifest.get("mapping_id")))):
         raise ValueError("Warehouse manifest integrity check failed.")
     files = manifest.get("files")
-    if not isinstance(files, dict) or not REQUIRED <= files.keys() or len(files) <= len(REQUIRED):
+    if not isinstance(files, dict):
+        raise ValueError("The learned warehouse archive is incomplete.")
+    required = archive_inputs(files)
+    if not required <= files.keys() or len(files) <= len(required):
         raise ValueError("The learned warehouse archive is incomplete.")
     for name, expected in files.items():
-        if name not in REQUIRED and not PHOTO.fullmatch(name):
+        if name not in required and not PHOTO.fullmatch(name):
             raise ValueError("Unexpected file in the learned warehouse manifest.")
         path = folder / name
         if path.resolve() != folder.resolve() / name or not path.is_file() or file_hash(path) != expected:

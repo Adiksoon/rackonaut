@@ -5,6 +5,7 @@ import re
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
+from tempfile import TemporaryDirectory
 from time import monotonic, perf_counter
 from threading import Lock, Thread
 
@@ -25,9 +26,9 @@ from tf2_ros import TransformBroadcaster
 
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, OFFSET, TOPIC, stamp, unpack
 from .inertial import GRAVITY, State, propagate
-from .learned_map import MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
+from .learned_map import FULL_WAREHOUSE_POINTS, MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
 from .registration import StaticMap, voxel_sample
-from .slam import FrozenRegistration, FullRouteRegistration, MeasuredRegistration
+from .slam import FrozenRegistration, FullRouteRegistration, FullWarehouseRegistration, MeasuredRegistration
 from .warehouse_config import (HISTORICAL_VARIANT, active_identifier, check_drone_model,
                                check_warehouse_variant, read, verified_package, warehouse_prefix)
 
@@ -53,6 +54,7 @@ class Measurements:
     unmatched: list = field(default_factory=list)
     path: deque = field(default_factory=lambda: deque(maxlen=1600))
     stamp: float = 0.
+    rejected_voxel_updates: int = 0
 
 
 @dataclass
@@ -61,6 +63,8 @@ class Mapping:
     stamp: float
     phase: str = "EMPTY"
     error: str = ""
+    multi_sortie: bool = False
+    checkpoint: int = 0
 
 
 def ros_time(seconds):
@@ -236,18 +240,39 @@ class Localization(Node):
         elif action == "begin" and self.mapping is None:
             if not self.anchor or self.status(now)[0] != "TRACKING":
                 return
-            self.mapping = Mapping(identifier, self.samples[-1][0])
-            self.slam, self.cloud = self.registration_type(), Measurements()
+            multi = command.get("multi_sortie") is True and self.mapping_only and self.registration_type is FullRouteRegistration
+            self.mapping = Mapping(identifier, self.samples[-1][0], multi_sortie=multi)
+            self.slam = FullWarehouseRegistration() if multi else self.registration_type()
+            self.cloud = Measurements()
             self.reset_match("Initializing submap from the first synchronized dock scan")
         elif self.mapping and self.mapping.id == identifier:
-            if action == "finish" and self.mapping.phase == "RECORDING":
+            if action == "pause" and self.mapping.multi_sortie and self.mapping.phase == "RECORDING":
+                number = self.mapping.checkpoint + 1
+                destination = self.directory / "mapping" / identifier / "checkpoints" / f"{number:02d}"
+                try:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    with TemporaryDirectory(dir=destination.parent) as scratch:
+                        staged = Path(scratch) / "measured"
+                        self.save_session(staged)
+                        staged.replace(destination)
+                except (OSError, ValueError) as error:
+                    self.mapping.error = f"Mapping checkpoint could not be saved: {error}"
+                else:
+                    self.mapping.checkpoint = number
+                    self.mapping.phase, self.mapping.error = "PAUSED", ""
+            elif action == "resume" and self.mapping.phase == "PAUSED" and self.status(now)[0] == "TRACKING":
+                self.mapping.phase = "READY"
+            elif action == "finish" and (
+                self.mapping.phase == "RECORDING" and not self.mapping.multi_sortie
+                or self.mapping.multi_sortie and self.mapping.checkpoint and self.mapping.phase in {"PAUSED", "READY"}
+            ):
                 try:
                     self.save_session()
                 except (OSError, ValueError) as error:
                     self.mapping.error = f"Mapping result could not be saved: {error}"
                 else:
                     self.mapping.phase, self.mapping.error = "COMPLETE", ""
-            elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "COMPLETE"}:
+            elif action == "close" and self.mapping.phase in {"EMPTY", "READY", "PAUSED", "COMPLETE"}:
                 self.mapping = None
                 self.slam = self.registration_type() if self.mapping_only else None
                 self.mapping_closed = identifier
@@ -385,7 +410,7 @@ class Localization(Node):
         self.estimate_pub.publish(odometry(self.anchor, gyro, fit.sigma))
         self.latest_estimate = self.anchor
         if self.quality == "TRACKING":
-            if self.slam is not None:
+            if self.slam is not None and not (self.mapping and self.mapping.phase in {"PAUSED", "COMPLETE"}):
                 self.slam.consider(raw, OFFSET, position, fit.attitude)
             if self.mapping and self.mapping.phase == "EMPTY" and self.accepted >= 3:
                 self.mapping.phase = "READY"
@@ -402,13 +427,16 @@ class Localization(Node):
         local = voxel_sample(raw[np.linalg.norm(raw, axis=1) <= 7.5], .14, 1500)
         world = self.anchor.attitude.apply(local + OFFSET) + self.anchor.xyz
         keys = np.floor(world / MAP_SIZE).astype(np.int32)
+        limit = FULL_WAREHOUSE_POINTS if self.mapping and self.mapping.multi_sortie else MAP_LIMIT
         for key, point in zip(keys, world):
             cell = tuple(key)
             previous = self.cloud.voxels.get(cell)
             if previous is not None:
                 self.cloud.voxels[cell] = .85 * previous + .15 * point
-            elif len(self.cloud.voxels) < MAP_LIMIT:
+            elif len(self.cloud.voxels) < limit:
                 self.cloud.voxels[cell] = point
+            else:
+                self.cloud.rejected_voxel_updates += 1
         if self.slam is None:
             distances, _ = self.reference.tree.query(world)
             self.cloud.unmatched = [rounded(p) for p in voxel_sample(world[distances > .23], .22, 120)]
@@ -474,6 +502,8 @@ class Localization(Node):
         points = np.asarray(tuple(self.cloud.voxels.values()), dtype="<f4")
         preview = points[np.linspace(0, len(points)-1, min(2200, len(points)), dtype=int)]
         self.cloud.preview = [rounded(p) for p in preview]
+        if len(points) > MAP_LIMIT:
+            points = points[np.linspace(0, len(points)-1, MAP_LIMIT, dtype=int)]
         cloud = PointCloud2(height=1, width=len(points), point_step=12, row_step=len(points)*12,
                             fields=[PointField(name=c, offset=i*4, datatype=PointField.FLOAT32, count=1)
                                     for i, c in enumerate("xyz")], is_dense=True, data=points.tobytes())
@@ -500,6 +530,7 @@ class Localization(Node):
             "mapping_phase": self.mapping.phase if self.mapping else None,
             "mapping_closed": self.mapping_closed,
             "mapping_stamp": self.mapping.stamp if self.mapping else None,
+            "mapping_checkpoint": self.mapping.checkpoint if self.mapping else None,
             "mapping_error": self.mapping.error if self.mapping else "",
             "keyframe_count": self.slam.keyframe_count if self.slam is not None else None,
             "keyframe_window": len(self.slam.keyframes) if self.slam is not None else None,
@@ -512,6 +543,7 @@ class Localization(Node):
             "sigma": rounded(fit.sigma, 4) if fit else None, "weakest": round(fit.weakest, 5) if fit else None,
             "processing_ms": round(self.compute_ms, 2), "pipeline_ms": round(self.pipeline_ms, 2),
             "scan_lag_sim_ms": round(self.clock_lag_ms), "map_voxels": len(self.cloud.voxels),
+            "rejected_voxel_updates": self.cloud.rejected_voxel_updates,
             "map_points": self.cloud.preview, "unmatched": self.cloud.unmatched, "trajectory": [rounded(p) for p in self.cloud.path],
         }
         self.diag_pub.publish(String(data=json.dumps(value, separators=(",", ":"))))
@@ -534,8 +566,8 @@ class Localization(Node):
         pending.write_bytes(header.encode() + points.tobytes())
         pending.replace(path)
 
-    def save_session(self):
-        directory = self.directory / "mapping" / self.mapping.id
+    def save_session(self, directory=None):
+        directory = directory or self.directory / "mapping" / self.mapping.id
         directory.mkdir(parents=True, exist_ok=True)
         self.write_ply(directory / "map.ply")
         result = {"mapping_id": self.mapping.id, "frame": FRAME, "dock": rounded(self.dock),
@@ -545,7 +577,11 @@ class Localization(Node):
             result["drone_model"] = self.drone_model
         if self.warehouse_variant != HISTORICAL_VARIANT:
             result["warehouse_variant"] = self.warehouse_variant
-        if type(self.slam) is FullRouteRegistration:
+        if self.mapping.multi_sortie:
+            result.update(multi_sortie=True, retained_keyframes=len(self.slam.keyframes),
+                          accepted_keyframes=self.slam.keyframe_count,
+                          rejected_voxel_updates=self.cloud.rejected_voxel_updates)
+        if isinstance(self.slam, FullRouteRegistration):
             save_learned_map(directory / MAP_FILE, self.slam.keyframes, self.dock)
             result["localization_archive"] = MAP_FILE
         pending = directory / "result.tmp"

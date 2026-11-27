@@ -86,9 +86,12 @@ class MeasuredRegistration:
         self.keyframes.append(frame)
         self.keyframe_count += 1
         if len(self.keyframes) > self.frame_limit:
-            self.keyframes.pop(self.discard_index)
+            self.keyframes.pop(self.redundant_frame())
         self.rebuild_target(position)
         return True
+
+    def redundant_frame(self):
+        return self.discard_index
 
     def rebuild_target(self, position):
         local = self.local_frames(position)
@@ -164,6 +167,27 @@ class FullRouteRegistration(MeasuredRegistration):
         # Preserve the earliest observation and its normal for each overlapping voxel.
         ordered = sorted((index, entry) for distance, index, entry in ranked[:60] if distance <= 12.)
         return [entry for _, entry in ordered]
+
+
+class FullWarehouseRegistration(FullRouteRegistration):
+    """Retain coverage for all visited areas while matching the same local window."""
+
+    frame_limit = 480
+
+    def redundant_frame(self):
+        # Approximate local density in position and viewing direction. Keep
+        # the original dock anchor and the most recent frame in every window.
+        positions = np.stack([frame.position for frame in self.keyframes])
+        rotations = np.stack([frame.orientation.as_quat() for frame in self.keyframes])
+        vicinity = np.linalg.norm(positions - positions[-1], axis=1)
+        candidates = np.flatnonzero(vicinity[:-1] <= 1.2)
+        candidates = candidates[candidates > 0]
+        if not len(candidates):
+            candidates = np.arange(1, len(positions) - 1)
+        distances = np.linalg.norm(positions[candidates, None] - positions[None, :], axis=2)
+        same_view = np.abs(rotations[candidates] @ rotations.T) >= .97
+        population = np.sum((distances <= .8) & same_view, axis=1)
+        return int(candidates[np.argmax(population)]) if population.max() > 1 else len(positions) - 1
 
 
 class FrozenRegistration(FullRouteRegistration):

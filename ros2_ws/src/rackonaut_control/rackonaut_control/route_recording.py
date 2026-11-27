@@ -7,6 +7,7 @@ from queue import Empty, Full, Queue
 from threading import Event, Thread
 from time import monotonic
 
+from rackonaut_localization.warehouse_config import trajectory_file
 from .teaching import FRAME, SECOND, session_path
 
 
@@ -16,13 +17,16 @@ MAX_SAMPLES = 12000
 
 
 class RouteRecorder:
-    def __init__(self, root, session, run, energy_model, takeoff_dock):
+    def __init__(self, root, session, run, energy_model, takeoff_dock, number=None):
         self.identity = session
         self.run = run
+        self.number = number
         self.header = {"kind": "header", "schema_version": FORMAT, "mapping_id": session,
                        "inspection_id": run, "frame": FRAME, "source": "slam",
                        "sample_interval_ns": INTERVAL_NS, "sample_limit": MAX_SAMPLES,
                        "energy_model": dict(energy_model), "takeoff_dock": dict(takeoff_dock)}
+        if number is not None:
+            self.header["sortie"] = number
         self.queue = Queue(maxsize=512)
         self.done = Event()
         self.ending = None
@@ -67,7 +71,7 @@ class RouteRecorder:
 
     def write(self, root):
         try:
-            path = session_path(root, self.identity, "trajectory.jsonl")
+            path = session_path(root, self.identity, trajectory_file(self.number))
             with path.open("x", encoding="utf-8") as out:
                 def append(row):
                     out.write(json.dumps(row, separators=(",", ":"), allow_nan=False) + "\n")

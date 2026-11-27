@@ -7,12 +7,24 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 from rackonaut_localization.learned_map import load, save
-from rackonaut_localization.slam import FrozenRegistration, Keyframe
-from rackonaut_localization.warehouse_config import (FORMAT, FRAME, REQUIRED, STORE, check_drone_model, digest,
-                                                    file_hash, verified_package)
+from rackonaut_localization.slam import FrozenRegistration, FullWarehouseRegistration, Keyframe
+from rackonaut_localization.warehouse_config import (FORMAT, FRAME, REQUIRED, STORE, archive_inputs,
+                                                    check_drone_model, digest, file_hash, verified_package)
 
 
 class LearnedMapTests(TestCase):
+    def test_full_warehouse_prunes_redundant_views_without_eviction_of_earlier_aisle(self):
+        registration = FullWarehouseRegistration()
+        points = np.empty((0, 3))
+        registration.keyframes = [Keyframe(np.array(xyz), Rotation.identity(), points, points)
+                                  for xyz in [(-4.7, 10.3, .05), (7., .45, 1.),
+                                              (7., -5.55, 1.), (7.3, -5.55, 1.), (7.35, -5.55, 1.)]]
+        self.assertIn(registration.redundant_frame(), {2, 3})
+        self.assertEqual(archive_inputs(REQUIRED), REQUIRED)
+        self.assertIn("digital-twin.json", archive_inputs({"sorties.json", "trajectory-01.jsonl"}))
+        with self.assertRaisesRegex(ValueError, "consecutive"):
+            archive_inputs({"sorties.json", "trajectory-02.jsonl"})
+
     def test_legacy_warehouse_is_reference_and_models_are_incompatible(self):
         check_drone_model({}, "reference")
         check_drone_model({"drone_model": "x3"}, "x3")

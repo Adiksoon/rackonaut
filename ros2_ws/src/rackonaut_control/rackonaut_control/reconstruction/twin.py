@@ -346,7 +346,11 @@ def generate_twin(folder, camera, label, source):
     fitted = locations(folder, manifest, camera, rows, points,
                        partial(estimated_hit, twin["rows"], cKDTree(np.vstack((points, detail)))))
     twin.update(source="ply+npz" if evidence else "ply", keyframes=evidence, locations=fitted)
+    full_count = len(measured)
+    if full_count > 80000:
+        measured = measured[np.linspace(0, full_count - 1, 80000, dtype=int)]
     return {"version": 1, "label": label, "archive": archive, "point_count": len(measured),
+            "full_point_count": full_count,
             "map_sha256": sha256(path.read_bytes()).hexdigest(), "points_f32le": encode(measured.tobytes()),
             "grid_m": GRID, "rows": rows, "quality": quality, "locations": baseline, "enhanced": twin}, perf_counter() - started
 

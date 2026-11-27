@@ -125,16 +125,19 @@
         </ol>
         <div id="service-introduction">
           <p id="service-start-hint" class="operator-hint"></p>
+          <label id="calibration-full-option" hidden><input type="checkbox" id="calibration-full" checked> Full warehouse · multiple mapping flights</label>
           <button type="button" class="primary" id="service-start" aria-describedby="service-start-hint">Start calibration</button>
         </div>
         <ul id="calibration-readiness" class="condition-list" aria-label="Calibration readiness"></ul>
         <div id="calibration-next" class="action-row">
           <button type="button" id="calibration-fly" class="primary" aria-describedby="calibration-action-help" hidden>Open mapping controls</button>
+          <button type="button" id="calibration-finish" class="primary" hidden>Finish full calibration</button>
           <button type="button" id="service-review-route" class="primary" aria-describedby="calibration-action-help" hidden>Review route</button>
           <button type="button" id="service-preview-calibration" class="secondary" hidden>Preview Digital Twin</button>
           <p id="calibration-action-help" class="operator-hint"></p>
         </div>
         <section id="calibration-workspace" aria-label="Calibration Workspace" hidden>
+          <p id="calibration-full-progress" role="status" hidden></p>
           <details class="calibration-measurements"><summary>Camera and calibration measurements</summary><div class="service-grid calibration-grid">
             <div>
               <h3>Live Camera</h3>

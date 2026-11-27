@@ -21,7 +21,7 @@ from .teaching import atomic_write, session_path
 ARTIFACT = "visualization.json"
 FORMAT = 1
 INPUTS = ("map.ply", "localization.npz", "locations.json", "result.json", "route.json", "sensors.json",
-          "manifest.json")
+          "manifest.json", "digital-twin.json")
 
 
 def file_stamp(path):
@@ -131,24 +131,19 @@ class Visualizations:
                    "mapping_id": mapping, "revision": revision, "source_sha256": source,
                    "camera_profile": camera_model, "camera_sha256": file_hash(camera) if camera else None}
         path = folder / ARTIFACT
+        packaged = folder / "digital-twin.json"
         try:
             saved = read(path)
         except (FileNotFoundError, ValueError):
             saved = {}
-        if isinstance(saved, dict) and saved.get("binding") == binding and self.valid(saved.get("model"), mapping):
+        if kind == "warehouse" and "digital-twin.json" in manifest.get("files", {}):
+            model = read(packaged)
+            if not self.valid(model, mapping) or model.get("map_sha256") != manifest["files"]["map.ply"]:
+                raise ValueError("The sealed Digital Twin does not match the measured map.")
+        elif isinstance(saved, dict) and saved.get("binding") == binding and self.valid(saved.get("model"), mapping):
             model = saved["model"]
         else:
-            with TemporaryDirectory(prefix="rackonaut-twin-", dir=folder) as directory:
-                output = Path(directory) / "model.json"
-                command = ["nice", "-n", "10", sys.executable, "-m", "rackonaut_control.reconstruction.twin",
-                           str(folder), str(output), "--label", name]
-                if camera:
-                    command.extend(["--camera-calibration", str(camera)])
-                done = subprocess.run(command, timeout=45, check=False, capture_output=True, text=True,
-                                      env={**os.environ, "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"})
-                if done.returncode:
-                    raise ValueError(done.stderr.strip()[-280:] or "Template exporter failed.")
-                model = read(output)
+            model = self.generate(folder, name)
             if not self.valid(model, mapping):
                 raise ValueError("Invalid warehouse visualization output.")
             if sources(folder) != stamp:
@@ -167,6 +162,20 @@ class Visualizations:
         operator = self.response({**common, "enhanced": {**published, "route_edges_m": []}})
         service = self.response({**common, "enhanced": visuals})
         return binding, operator, service, file_stamp(path)
+
+    def generate(self, folder, name):
+        _, camera = self.camera_for(folder)
+        with TemporaryDirectory(prefix="rackonaut-twin-", dir=folder) as directory:
+            output = Path(directory) / "model.json"
+            command = ["nice", "-n", "10", sys.executable, "-m", "rackonaut_control.reconstruction.twin",
+                       str(folder), str(output), "--label", name]
+            if camera:
+                command.extend(["--camera-calibration", str(camera)])
+            done = subprocess.run(command, timeout=55, check=False, capture_output=True, text=True,
+                                  env={**os.environ, "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"})
+            if done.returncode:
+                raise ValueError(done.stderr.strip()[-280:] or "Template exporter failed.")
+            return read(output)
 
     @staticmethod
     def valid(model, mapping):

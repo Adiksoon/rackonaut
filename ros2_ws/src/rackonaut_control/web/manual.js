@@ -60,6 +60,7 @@ export function createManual(api, terminal, onError) {
       || (!mappingReady && (state.service_mode !== "PRODUCTION" || state.mapping_only && !learnedReady));
     put("manual-start", mappingReady ? "Start mapping flight" : "Start and take off");
     el("manual-return").disabled = !flying;
+    put("manual-return", manual?.mapping_id && state?.calibration_full ? "Return and charge" : "Return to dock");
     el("manual-motion").disabled = !flying;
     const current = status?.state || (owned ? "Preparing" : state?.at_pad && state.physical_dock !== false ? "At dock" : "Standby");
     put("manual-status", manual?.stage === "MANUAL_FLIGHT" ? "Airborne" : current.replaceAll("_", " "));

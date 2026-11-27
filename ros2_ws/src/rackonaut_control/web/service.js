@@ -159,6 +159,23 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
     text("service-start", active && !blocked ? "Review interruption and start calibration" : "Start calibration");
     const saved = draft && catalog.find(row => row.mapping_id === draft.calibration_id);
     const captures = calibration.locations || [];
+    const multi = draft?.multi_sortie === true;
+    const remaining = calibration.remaining || [];
+    const sorties = draft?.sorties || [];
+    el("calibration-full-option").hidden = !current.full_calibration_available;
+    el("calibration-full-option").querySelector("input").disabled = !production || busy;
+    el("calibration-full-progress").hidden = !multi;
+    if (multi) {
+      const total = calibration.location_total;
+      const flightStatus = sorties.map(row => `Flight ${row.number} docked`).join(" · ");
+      text("calibration-full-progress", [
+        `${total - remaining.length}/${total} locations registered`,
+        remaining.length ? `Missing ${remaining.join(", ")}` : "All location markers confirmed",
+        `Battery ${percent(system.battery)} · ${label(system.dock)}`,
+        Number.isFinite(calibration.return_budget) ? `Return estimate ${percent(calibration.return_budget)}` : "",
+        flightStatus,
+      ].filter(Boolean).join(" · "));
+    }
     const step = production ? 0 : calibration.mode === "MAPPING_COMPLETE" ? (saved ? 6 : 4)
       : calibration.mode === "MAPPING_ACTIVE" ? (mapping?.mapping_phase === "FINISHING" ? 3 : captures.length ? 2 : 1)
         : calibration.mode === "CALIBRATION_READY" ? 1 : 0;
@@ -208,9 +225,14 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
     el("calibration-readiness").hidden = production;
     const tabCanFly = calibration.mode === "CALIBRATION_READY" && mapping?.mapping_phase === "READY";
     const tabReview = calibration.mode === "MAPPING_COMPLETE";
+    const canFinish = multi && ["CALIBRATION_READY", "CALIBRATION_CHARGING"].includes(calibration.mode)
+      && !!sorties.length && !remaining.length && system.contact && !active;
+    el("calibration-finish").hidden = !canFinish;
+    el("calibration-finish").disabled = busy;
     el("calibration-next").hidden = production;
     el("calibration-fly").hidden = tabReview;
     el("calibration-fly").disabled = !tabCanFly || busy;
+    text("calibration-fly", multi && sorties.length ? "Continue mapping" : "Open mapping controls");
     el("service-review-route").hidden = !tabReview;
     el("service-review-route").disabled = !draft?.map_reference || !system.contact || !system.at_pad || !!active || busy;
     el("service-preview-calibration").hidden = !tabReview || !draft?.map_reference;
@@ -219,6 +241,8 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
       : tabReview && el("service-review-route").disabled ? "Wait for the measured map and verified physical dock before reviewing the route."
       : tabReview ? "Review and approve the measured route, then save the configuration."
       : tabCanFly ? "Opens the mapping controls. Takeoff requires a separate command."
+      : calibration.mode === "CALIBRATION_CHARGING" ? "The measured map, locations and flight are saved. Continue when charged."
+      : calibration.mode === "CALIBRATION_FINALIZING" ? "Saving the measured warehouse and preparing the Digital Twin."
       : calibration.mode === "MAPPING_ACTIVE" ? "Finish registering locations and return using Manual Control."
       : `${docked.label}. Mapping controls unlock after dock, Safety and sensors are ready.`);
     el("calibration-workspace").hidden = !ready;
@@ -341,7 +365,8 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
   el("service-start").addEventListener("click", () => {
     const mission = current?.system?.mission;
     if (!activeMission(mission)) {
-      action("calibration/start", {expected_inspection_id: null});
+      action("calibration/start", {expected_inspection_id: null,
+        multi_sortie: !el("calibration-full-option").hidden && el("calibration-full").checked});
       return;
     }
     confirmationRun = mission.inspection_id;
@@ -352,10 +377,13 @@ export function createService({ openWarehouse, openPreview, openPlan, sessionCha
   });
   el("calibration-confirm").addEventListener("close", event => {
     if (event.target.returnValue === "interrupt")
-      action("calibration/start", {expected_inspection_id: confirmationRun});
+      action("calibration/start", {expected_inspection_id: confirmationRun,
+        multi_sortie: !el("calibration-full-option").hidden && el("calibration-full").checked});
     confirmationRun = null;
   });
   el("service-cancel").addEventListener("click", () => action("calibration/cancel", {}));
+  el("calibration-finish").addEventListener("click", () =>
+    action("mapping/finish", {calibration_id: current.calibration.draft.calibration_id}));
   el("warehouse-verify").addEventListener("click", () => warehouseAction("verify"));
   el("warehouse-activate").addEventListener("click", () => warehouseAction("activate"));
   el("warehouse-plan").addEventListener("click", () => openPlan(details));

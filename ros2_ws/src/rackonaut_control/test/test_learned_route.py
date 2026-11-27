@@ -35,6 +35,54 @@ def location(index):
 
 
 class LearnedRouteTests(TestCase):
+    def test_full_route_uses_two_directed_journals_without_joining_the_docks(self):
+        with TemporaryDirectory() as scratch:
+            teaching = Teaching(Path(scratch), None)
+            teaching.create(SESSION)
+            review = RouteReview(teaching, PROFILE)
+            review.write(SESSION, "result.json", {"mapping_id": SESSION, "frame": FRAME, "multi_sortie": True})
+            (teaching.root / SESSION / "map.ply").write_bytes(b"ply\n")
+            states = [(0., 0., "WAITING"), (0., 1., "VERTICAL_TAKEOFF"),
+                      (.8, 1., "MANUAL_FLIGHT"), (1., 1., "MANUAL_FLIGHT"), (1., 1., "MANUAL_FLIGHT"),
+                      (1., 1., "RETURN_TO_DOCK"), (0., 1., "RETURN_TO_DOCK"), (0., 0., "COMPLETE")]
+            manifest, index = teaching.manifest(SESSION), []
+            for number, base in [(1, 0), (2, 60)]:
+                record_id = f"LOC-{number}"
+                manifest["locations"].append({
+                    **location(base + 4), "record_id": record_id, "storage_location_id": f"A-01-0{number}",
+                    "camera_stamp": {"sec": base // 10, "nanosec": 400_000_000},
+                })
+                run = f"INS-{number}"
+                recorder = RouteRecorder(teaching.root, SESSION, run, vars(Model()),
+                                         {"contact": True, "contact_source": "gazebo_dock_switch"}, number)
+                try:
+                    for offset, (x, z, stage) in enumerate(states):
+                        ros_index = base + offset
+                        sample = observation(0, x, z, stage, offset in (0, len(states) - 1))
+                        pose = Pose(ros_index * 100_000_000, 0., (x, 0., z), tuple(QUATERNION),
+                                    0., 0., (.01, .01, .01))
+                        recorder.add(pose, sample, force=True)
+                finally:
+                    recorder.finish("COMPLETE", True, {"dock_contact_source": "gazebo_dock_switch"})
+                    self.assertTrue(recorder.done.wait(2.))
+                index.append(dict(number=number, trajectory=f"trajectory-{number:02d}.jsonl",
+                                  samples=len(states), status="DOCKED", inspection_id=run))
+            manifest["revision"] = 2
+            teaching.write_manifest(SESSION, manifest)
+            review.write(SESSION, "sorties.json", index)
+            proposal = review.action("review", SESSION, {})
+            route = proposal["route"]
+            self.assertEqual([leg["locations"][0]["record_id"] for leg in route["sorties"]], ["LOC-1", "LOC-2"])
+            self.assertTrue(all(edge["from"][:3] == edge["to"][:3] for edge in route["edges"]))
+            request = {"route_sha256": proposal["route_sha256"], "confirm": True}
+            self.assertEqual(review.action("validate", SESSION, request)["status"], "validated")
+            self.assertEqual(review.action("approve", SESSION, request)["status"], "approved")
+            planned = review.action("plan", SESSION, {**request, "record_ids": ["LOC-1", "LOC-2"]})
+            self.assertEqual(len(planned["sorties"]), 2)
+            self.assertLess(planned["forecast"]["required_percent"], 100.)
+            review.write(SESSION, "sorties.json", index[:1])
+            self.assertEqual(review.state(SESSION)["status"], "stale")
+
     def test_camera_time_distinguishes_repeated_visits_to_same_pose(self):
         rows = [observation(i, x, 1., "MANUAL_FLIGHT") for i, x in enumerate([1., 1., .9, 1., 1.])]
         bound = [point for point in with_inspections(raw_knots(rows), [location(4)]) if point.locations]

@@ -30,7 +30,7 @@ RECOVERY = re.compile(r"/recoveries/(REC-[A-F0-9]{12}\.json)$")
 BUSINESS_PHOTO = re.compile(fr"/api/business/quality/({RUN})/(Q-[A-F0-9]{{32}})/(original|annotated)\.png$")
 BUSINESS_VERIFY = re.compile(r"/api/business/issues/ISS-[A-F0-9]{20}/verify$")
 PHOTO = re.compile(fr"/evidence/({RUN})/(Q-[A-Z0-9]{{32}})/(camera|annotated)\.png$")
-MAPPING_RESULT = re.compile(fr"/api/service/mapping/({SESSION_ID})/([a-z.-]+)$")
+MAPPING_RESULT = re.compile(fr"/api/service/mapping/({SESSION_ID})/([a-z0-9.-]+)$")
 TEACHING_PHOTO = re.compile(fr"/api/service/mapping/({SESSION_ID})/locations/({CAPTURE_ID})/reference\.jpg$")
 TEACHING_PREVIEW = re.compile(fr"/api/service/teaching/preview/({CAPTURE_ID})/reference\.jpg$")
 TEACHING_ACTION = re.compile(r"/api/service/teaching/(capture|save|rename|delete)$")
@@ -114,6 +114,8 @@ def serve(control, port):
                 self.json(200, control.cancel_calibration(selection))
             elif path == "/api/service/mapping/start":
                 self.json(200, control.start_manual(selection, mapping=True))
+            elif path == "/api/service/mapping/finish":
+                self.json(200, control.finish_full_calibration(selection))
             elif match := TEACHING_ACTION.fullmatch(path):
                 self.json(200, control.teach_location(match[1], selection, self.service_token()))
             elif match := ROUTE_ACTION.fullmatch(path):

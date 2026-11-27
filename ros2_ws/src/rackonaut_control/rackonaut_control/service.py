@@ -20,6 +20,8 @@ RECOVERY = "RECOVERY_REQUIRED"
 READY = "CALIBRATION_READY"
 MAPPING = "MAPPING_ACTIVE"
 MAPPED = "MAPPING_COMPLETE"
+CHARGING = "CALIBRATION_CHARGING"
+FINALIZING = "CALIBRATION_FINALIZING"
 TRANSITIONING = {REQUESTED, "STOPPING_INSPECTION", "RETURNING_TO_DOCK", "WAITING_FOR_DOCK",
                  "PREPARING_CALIBRATION"}
 
@@ -91,11 +93,13 @@ class Calibration:
         pending.write_text(json.dumps(draft, indent=2) + "\n", encoding="utf-8")
         pending.replace(self.path)
 
-    def start(self, warehouse, owner, now, initialize_locations=None):
+    def start(self, warehouse, owner, now, initialize_locations=None, multi_sortie=False):
         draft = {"calibration_id": f"CAL-{uuid4().hex.upper()}",
                  "started_at": datetime.now(timezone.utc).isoformat(), "status": REQUESTED,
                  "warehouse_name": warehouse, "map_source": "ONBOARD_LIDAR_IMU",
                  "locations": [], "waypoints": [], "map_reference": None}
+        if multi_sortie:
+            draft.update(multi_sortie=True, sorties=[])
         if initialize_locations:
             identity = draft["calibration_id"]
             initialize_locations(identity)

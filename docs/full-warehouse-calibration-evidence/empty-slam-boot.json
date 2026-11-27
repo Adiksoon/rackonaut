@@ -1,0 +1,8 @@
+{
+  "state": "TRACKING",
+  "source": "slam",
+  "map_voxels": 0,
+  "keyframe_count": 1,
+  "update_hz": 2.97,
+  "processing_ms": 5.32
+}

@@ -32,7 +32,7 @@ from tf2_msgs.msg import TFMessage
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner, stamp
 from rackonaut_energy.model import Model
 from rackonaut_localization.node import MAPPING_COMMAND, SLAM_MAP
-from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
+from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, MAX_SORTIES, trajectory_file, warehouse_prefix
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_mission.manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, decode_axes, departure_energy
 from rackonaut_safety.geometry import route_zones
@@ -41,8 +41,9 @@ from .measured_map import ESTIMATE_TOPIC, FRAME, MAP_TOPIC, MeasuredMap, Sample
 from .planning import energy_forecast, plan
 from .route_recording import RouteRecorder
 from .route_review import RouteReview
-from .service import BLOCKED, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY, TRANSITIONING, Calibration, ServiceAccess
-from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching
+from .service import (BLOCKED, CHARGING, FINALIZING, MAPPED, MAPPING, PRODUCTION, READY, RECOVERY,
+                      TRANSITIONING, Calibration, ServiceAccess)
+from .teaching import HOVER_DISPLACEMENT, HOVER_ROTATION, Teaching, atomic_write, session_path
 from .visualization import Visualizations
 from .warehouse import WarehouseArchive
 from .web import serve
@@ -155,9 +156,9 @@ class Control(Node):
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"), variant)
         self.drone_model = self.declare_parameter("drone_model", "reference").value
-        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor,
-                                                  self.drone_model)
         self.visualizations = Visualizations(self.data, self.web.parent / "config" / "reference-camera.json", variant)
+        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor,
+                                                  self.drone_model, self.visualizations)
         if self.learned_mode:
             try:
                 self.visualizations.prime("warehouse", self.warehouse_archive.active_id())
@@ -522,20 +523,32 @@ class Control(Node):
         slots = [next(slot for slot, location in self.layout["slots"].items() if location["aisle"] == zone)
                  for zone in sorted(set(zones))]
         with self.lock:
-            identifier = None
+            identifier = number = None
             if mapping:
                 state = self.mapping_status()
                 if (self.calibration.state != READY or not state or state.get("mapping_phase") != "READY"
                         or self.calibration.mapping_run or self.calibration.cancel_pending):
                     raise RuntimeError("Wait for a new mapping session and synchronized dock scans.")
                 identifier = state["mapping_id"]
+                if self.calibration.draft.get("multi_sortie"):
+                    number = len(self.calibration.draft["sorties"]) + 1
+                    if number > MAX_SORTIES:
+                        raise RuntimeError("The calibration sortie limit has been reached.")
+                    energy = self.energy_state() or {}
+                    charged = energy.get("dock") == "READY" or (
+                        number == 1 and energy.get("dock") == "AVAILABLE"
+                        and energy["percent"] >= Model(**energy["model"]).ready
+                    )
+                    if not self.physical_dock(energy) or not charged:
+                        raise RuntimeError("Wait for verified docking and charge readiness.")
             result = self.begin({"mode": "custom", "slots": slots}, manual=True, mapping_id=identifier)
             if identifier:
                 energy = self.energy_state() or {}
                 self.route_recording = RouteRecorder(self.teaching.root, identifier, result["inspection_id"],
                                                       energy.get("model", {}),
                                                       {key: energy.get(key) for key in
-                                                       ("contact", "switch_engaged", "contact_source")})
+                                                       ("contact", "switch_engaged", "contact_source", "percent", "sim_time")},
+                                                      number=number)
                 if self.teaching.poses:
                     self.record_pose(self.teaching.poses[-1], monotonic(), force=True)
                 self.calibration.mapping_run = result["inspection_id"]
@@ -556,6 +569,8 @@ class Control(Node):
             if learned and not self.warehouse_status()["ready"]:
                 raise RuntimeError("Wait for the active learned warehouse to localize at the dock.")
             planned = self.preview(selection)
+            if planned.get("requires_multiple_sorties"):
+                raise RuntimeError("Review the full plan and dispatch one verified sortie at a time.")
             if learned and (self.localization.get("warehouse_id") != selection.get("configuration_id")
                             or self.localization.get("warehouse_revision") != selection.get("revision")):
                 raise RuntimeError("The active warehouse revision must match the loaded localization map.")
@@ -733,11 +748,17 @@ class Control(Node):
                 try:
                     captures = self.teaching.manifest(session)["locations"]
                     calibration["locations"] = [
-                        {"id": row["storage_location_id"], "photo": row["reference_image"]}
+                        {"id": row["storage_location_id"], "photo": row["reference_image"],
+                         "marker_verified": row.get("id_source") == "aruco"}
                         for row in captures
                     ]
                 except (ValueError, RuntimeError, KeyError, OSError):
                     calibration["locations"] = []
+                if draft.get("multi_sortie"):
+                    learned_ids = {row["id"] for row in calibration["locations"] if row.get("marker_verified")}
+                    calibration["remaining"] = sorted(self.layout["slots"].keys() - learned_ids)
+                    calibration["location_total"] = len(self.layout["slots"])
+                    calibration["return_budget"] = (self.job.status.get("energy") or {}).get("return_percent") if self.job else None
             source = ("Saved LiDAR keyframes" if learned.get("ready") else "Onboard dock localization"
                       if self.mapping_only else "Preconfigured reference warehouse geometry")
             current_map = (learned.get("active_id") or "Choose a saved configuration") if self.learned_mode else (
@@ -749,6 +770,8 @@ class Control(Node):
             if self.warehouse_prefix:
                 profile += " · Open aisle descent"
             return {"available": self.calibration_supported,
+                    "full_calibration_available": bool(self.calibration_supported and self.mapping_only
+                                                       and self.full_route_slam and self.warehouse_prefix),
                     "system": self.service_telemetry(monotonic()), "calibration": calibration,
                     "mapping": self.mapping_status(),
                     "learned_warehouse": learned,
@@ -807,11 +830,20 @@ class Control(Node):
 
     def send_mapping(self, identifier, action, now):
         if now >= self.next_mapping_command:
-            self.mapping_request.publish(String(data=json.dumps({"mapping_id": identifier, "action": action})))
+            command = {"mapping_id": identifier, "action": action}
+            if action == "begin" and self.calibration.draft.get("multi_sortie"):
+                command["multi_sortie"] = True
+            self.mapping_request.publish(String(data=json.dumps(command)))
             self.next_mapping_command = now + .32
 
     def start_calibration(self, request):
         warehouse = request.get("warehouse_name")
+        multi = request.get("multi_sortie", False)
+        if type(multi) is not bool:
+            raise ValueError("multi_sortie must be true or false.")
+        if multi and not (self.mapping_only and self.full_route_slam
+                          and self.layout["warehouse_variant"] == "open-aisle"):
+            raise RuntimeError("Full calibration requires open-aisle with full-range sensor-only mapping.")
         if warehouse is not None and (not isinstance(warehouse, str) or len(warehouse) > 100):
             raise ValueError("Use at most 100 characters for the optional warehouse name.")
         with self.lock:
@@ -832,8 +864,25 @@ class Control(Node):
             if job is None and self.start_client.service_is_ready():
                 raise RuntimeError("An independent Mission Manager is present. It must be stopped first.")
             self.calibration.start(warehouse.strip() or None if warehouse else None,
-                                   job.run if active else None, monotonic(), self.teaching.create)
+                                   job.run if active else None, monotonic(), self.teaching.create, multi)
             return self.calibration.snapshot()
+
+    def finish_full_calibration(self, request):
+        with self.teaching.operations, self.lock:
+            calibration = self.calibration
+            draft = calibration.draft or {}
+            identifier = draft.get("calibration_id")
+            if (not draft.get("multi_sortie") or request.get("calibration_id") != identifier
+                    or calibration.state not in {CHARGING, READY} or calibration.mapping_run
+                    or calibration.cancel_pending or not draft["sorties"]
+                    or not self.physical_dock(self.energy_state())):
+                raise RuntimeError("Finish the sortie, save its checkpoint and confirm the physical dock first.")
+            records = self.teaching.manifest(identifier)["locations"]
+            taught = {row["storage_location_id"] for row in records if row.get("id_source") == "aruco"}
+            if taught != self.layout["slots"].keys() or len(records) != len(taught):
+                raise RuntimeError("Register all functional locations before finishing the full calibration.")
+            calibration.set_state(FINALIZING, "Saving the complete measured warehouse at the physical dock.")
+            return calibration.snapshot()
 
     def teaching_gate(self, now):
         mapping = self.mapping_status() or {}
@@ -978,32 +1027,74 @@ class Control(Node):
                 except OSError as error:
                     calibration.set_state(BLOCKED, f"The calibration draft could not be cleared: {error.strerror}.")
                 return
+        phase = (session or {}).get("mapping_phase")
+        multi = bool(calibration.draft and calibration.draft.get("multi_sortie"))
+        if multi and calibration.state == FINALIZING and stable:
+            if phase != "COMPLETE":
+                self.send_mapping(identifier, "finish", now)
+                return
+        if phase == "COMPLETE" and calibration.state != MAPPED:
+            draft = {**calibration.draft, "map_reference": f"/api/service/mapping/{identifier}/map.ply"}
+            try:
+                calibration.store(draft)
+            except OSError as error:
+                calibration.set_state(BLOCKED, f"Mapping result saved. Draft storage unavailable: {error.strerror}.")
+                return
+            calibration.draft = draft
+            calibration.set_state(MAPPED, "Mapping result and trajectories saved after verified docking.")
+            self.visualizations.prime("calibration", identifier)
+            return
+        if multi and calibration.state == CHARGING and stable:
+            energy = self.energy_state() or {}
+            if energy.get("dock") == "READY" and telemetry["localization"] == "TRACKING" and all(
+                telemetry[key] for key in ("lidar", "imu", "camera")
+            ):
+                if phase == "PAUSED":
+                    self.send_mapping(identifier, "resume", now)
+                elif phase == "READY":
+                    calibration.set_state(READY, "Charged and localized in the same measured map. Start the next sortie or finish.")
+            return
         if identifier and calibration.mapping_run:
-            phase = (session or {}).get("mapping_phase")
+            recorder = self.route_recording
             if phase == "READY":
                 self.send_mapping(identifier, "arm", now)
             elif phase == "RECORDING" and stable and not self.teaching.writing:
-                recorder = self.route_recording
                 if recorder and recorder.run == calibration.mapping_run and not recorder.done.is_set():
                     if self.teaching.poses:
                         self.record_pose(self.teaching.poses[-1], now, force=True)
                     battery = job.status.get("energy", {}) if job else {}
                     recorder.finish(stage, telemetry["contact"], {"sorties": battery.get("sorties", []),
+                                                                   "landing_percent": (self.energy_state() or {}).get("percent"),
+                                                                   "landing_sim_time": (self.energy_state() or {}).get("sim_time"),
                                                                    "dock_contact_source": "gazebo_dock_switch"})
+                elif multi:
+                    if not recorder or recorder.error or not (recorder.ending or {}).get("complete"):
+                        calibration.set_state(BLOCKED, "The sortie has no complete trajectory and verified return.")
+                    else:
+                        self.send_mapping(identifier, "pause", now)
                 else:
                     self.send_mapping(identifier, "finish", now)
-            if telemetry["safety"] == "RECOVERY" and not stable:
-                calibration.set_state(RECOVERY, "Mapping paused. Resolve the incident in Recovery before closing the session.")
-            elif phase == "COMPLETE" and calibration.state != MAPPED:
-                draft = {**calibration.draft, "map_reference": f"/api/service/mapping/{identifier}/map.ply"}
+            elif multi and phase == "PAUSED" and stable and recorder and session.get("mapping_checkpoint") == recorder.number:
+                sorties = [*calibration.draft["sorties"], {
+                    "number": recorder.number, "inspection_id": recorder.run,
+                    "trajectory": trajectory_file(recorder.number), "samples": recorder.count,
+                    "start": recorder.header["takeoff_dock"], "end": recorder.ending["energy"],
+                    "status": "DOCKED",
+                }]
+                draft = {**calibration.draft, "sorties": sorties}
                 try:
+                    index = session_path(self.teaching.root, identifier, "sorties.json")
+                    atomic_write(index, (json.dumps(sorties, indent=2, allow_nan=False) + "\n").encode())
                     calibration.store(draft)
-                except OSError as error:
-                    calibration.set_state(BLOCKED, f"Mapping result saved. Draft storage unavailable: {error.strerror}.")
+                except (OSError, ValueError) as error:
+                    calibration.set_state(BLOCKED, f"The sortie checkpoint index could not be saved: {error}.")
                     return
                 calibration.draft = draft
-                calibration.set_state(MAPPED, "Mapping result and trajectory saved after verified docking.")
-                self.visualizations.prime("calibration", identifier)
+                calibration.mapping_run = None
+                self.route_recording = None
+                calibration.set_state(CHARGING, "Sortie saved at the physical dock. Charging for the next flight.")
+            if telemetry["safety"] == "RECOVERY" and not stable:
+                calibration.set_state(RECOVERY, "Mapping paused. Resolve the incident in Recovery before closing the session.")
             return
         if calibration.state not in TRANSITIONING:
             return
@@ -1189,6 +1280,7 @@ class Control(Node):
                     self.localization_mode == "sensor_based" else None,
                     "position_fresh": odometry_age <= .40, "speed": self.speed if odometry_age <= .40 else None,
                     "service_mode": self.calibration.state,
+                    "calibration_full": bool((self.calibration.draft or {}).get("multi_sortie")),
                     "mapping_only": self.mapping_only,
                     "position": self.position, "orientation": self.orientation,
                     "energy": energy,

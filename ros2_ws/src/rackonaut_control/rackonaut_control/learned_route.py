@@ -211,12 +211,12 @@ def required_zones(network, a, b, reserved):
     return [zone for zone in reserved if any(interval(a,b,box) is not None for box in network.reservable[zone])]
 
 
-def graph(rows, profile, manifest, header, footer):
+def graph(rows, profile, manifest, header, footer, require_locations=True):
     network = Network(profile)
     zones = sorted({zone for row in rows for zone in row["safety"]["zones"]})
     if not zones or any(zone not in network.reservable for zone in zones):
         raise ValueError("The recording contains an unknown or empty reservation.")
-    if not manifest["locations"]:
+    if require_locations and not manifest["locations"]:
         raise ValueError("Teach at least one measured location before reviewing the route.")
     measure_safety(rows, network)
     origin = network.nodes["dock"][:3]

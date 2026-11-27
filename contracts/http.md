@@ -82,6 +82,8 @@ Authentication failures return `401`. Ineligible flight state, a changed draft, 
 
 ## Local route review
 
+On `open-aisle` with sensor-only, full-range mapping, `POST /api/service/calibration/start` accepts `multi_sortie: true`. The normal return command ends only the current sortie. At a verified dock the map checkpoint and sortie journal are committed before `CALIBRATION_CHARGING`. After charge readiness and fresh localization, the existing `POST /api/service/mapping/start` requests the next flight. `POST /api/service/mapping/finish` requires the calibration ID, completed sortie evidence, a physical dock and a camera-confirmed record for every functional location.
+
 Route operations use the same authenticated Service cookie. Read archived routes by mapping ID. Review, validation, planning, and approval require the current completed session and verified physical docking. Requests submit a calibration ID and, after review, the exact `route_sha256` of the proposal.
 
 | Method and path | Behavior |
@@ -94,6 +96,8 @@ Route operations use the same authenticated Service cookie. Read archived routes
 | `GET /api/service/mapping/{calibration_id}/{filename}` | Downloads `trajectory.jsonl`, `route.json`, or `route-validation.json` once available. |
 
 The calibration journal uses ROS time, recorded XYZ in metres, and XYZW orientation in `rackonaut_odom`. Approval applies to the exact archive revision. Runtime clearance and flight dispatch remain separate operations.
+
+Multi-sortie proposals and approved configurations expose `sorties` with individually validated dock-to-dock graphs and energy budgets. A request containing locations from more than one graph returns a plan with `requires_multiple_sorties: true`. Dispatch accepts a selection on a single approved graph. Graphs are kept separate across charging.
 
 ## Learned warehouse activation and dispatch
 

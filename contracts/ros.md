@@ -82,6 +82,8 @@ The map of a mapping session is a packed XYZ `sensor_msgs/msg/PointCloud2` on `/
 
 The opt-in `full_route_slam:=true` profile uses the same organized onboard LiDAR topic, frame and cadence with a simulated 16 m maximum range. The SLAM submap can use the extended measured range. Collision Prevention and Recovery retain the original 8 m observation horizon and their existing swept-volume thresholds. Localization status also reports the total and currently retained SLAM keyframes. [Full-route validation](../docs/SLAM_FULL_ROUTE_VALIDATION.md)
 
+Full warehouse calibration keeps the same mapping ID and frame across operator-requested sorties. The mapping status reports `PAUSED` and the saved checkpoint number at verified docking. The next departure uses the existing physical dock, charge readiness and Safety gates. `RECORDING` resumes on explicit operator dispatch. [Full warehouse calibration](../docs/FULL_WAREHOUSE_CALIBRATION.md)
+
 ## Learned warehouse replay
 
 The `learned_warehouse:=true` profile uses the existing sensor, estimate, odometry, TF and motion interfaces. At the physical switch the localizer reads a verified archive and matches live LiDAR to frozen keyframes in `rackonaut_odom`. Its status reports `source: learned_map`, `warehouse_id`, `warehouse_revision`, `warehouse_ready` and `warehouse_error`. A new localization target needs three successful scans and the existing registration quality checks before dispatch. Mission Manager checks the selected revision independently on departure and throughout execution.
