@@ -8,6 +8,8 @@ An autonomous warehouse inspection prototype built with ROS 2 and Gazebo Fortres
 
 Rackonaut is an integrated simulation prototype for **RobotHack 2026**, addressing the automated warehouse inventory and quality inspection challenge. [Judge's guide](docs/JUDGES_GUIDE.md) · [Run the demo](docs/GETTING_STARTED.md) · [Gallery](docs/GALLERY.md) · [Technical documentation](docs/README.md)
 
+**[Watch our RobotHack 2026 project video on YouTube](https://www.youtube.com/watch?v=fSfK3Pa4xw8)**
+
 ![Gazebo Fortress overview of the open-aisle warehouse, rack layout and suspended flight corridor](docs/open-aisle-evidence/01-warehouse.png)
 
 *The open-aisle warehouse in Gazebo Fortress. The X3 and reference models share this environment. [Open-aisle X3 startup evidence](docs/open-aisle-evidence/x3-startup.json)*
