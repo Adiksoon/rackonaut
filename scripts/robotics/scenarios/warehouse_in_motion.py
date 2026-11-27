@@ -1,6 +1,7 @@
 """Stage three physical Gazebo events and verify reports from the real inspection stack."""
 
 import argparse
+from hashlib import sha256
 import json
 from math import hypot
 import os
@@ -87,7 +88,8 @@ class Scenario:
             except (URLError, OSError):
                 sleep(.25)
                 continue
-            if (state["at_pad"] and not state["busy"] and state["camera"]
+            if (state["drone_model"] == "x3" and state["physical_dock"] and state["at_pad"]
+                    and not state["busy"] and state["camera"]
                     and state["backend"]["online"] and state["backend"]["mode"] == "mock_sap"
                     and (state["localization"] or {}).get("state") == "TRACKING"
                     and (state["energy"] or {}).get("contact")
@@ -100,11 +102,12 @@ class Scenario:
         status = mission["status"]
         result = mission.get("result")
         if (mission["stage"] != "COMPLETE" or set(status["confirmed"]) != set(SLOTS)
-                or not status["landed"] or not state["energy"]["contact"]
+                or not status["landed"] or not state["physical_dock"]
                 or state["safety"]["phase"] != "RELEASED"):
             raise RuntimeError(f"Inspection did not land and confirm all requested slots: {status['detail']}")
-        if self.cart_in_lane or not any(row["event"] == "lidar_stop" for row in self.events):
-            raise RuntimeError("A measured stop at the cart was not observed")
+        observed_events = {row["event"] for row in self.events}
+        if self.cart_in_lane or not {"label_covered", "lidar_stop", "autonomous_resume"} <= observed_events:
+            raise RuntimeError("The label cover, measured stop or autonomous resume was not observed")
         query = urlencode({"inspection_id": self.run_id})
         discrepancies = self.read(f"/api/discrepancies?{query}", port=self.mock_port)
         actual = {row["slot_id"]: row for row in discrepancies}
@@ -117,6 +120,27 @@ class Scenario:
                 observations["A-01-01"]["pallet_id"], observations["A-01-02"]["pallet_id"]) != (
                     "occupied", "unreadable", None, "P003"):
             raise RuntimeError("Camera observations do not match the staged warehouse")
+        business = self.read(f"/api/business/summary?{query}", port=self.mock_port)
+        issues = {row["type"] for row in business["issues"]}
+        if not {"UNREADABLE_LABEL", "WRONG_PALLET", "MISSING_PALLET", "MISPLACED_PALLET"} <= issues:
+            raise RuntimeError("Mock SAP did not produce the expected business findings")
+        photos = {}
+        for slot, event in observations.items():
+            row = next(row for row in business["slots"] if row["slot_id"] == slot)
+            proof = next((item for item in row["quality_history"] if item["status"] == "CAPTURED"
+                          and item["inspection_id"] == self.run_id and item["slot_id"] == slot
+                          and item["observation_id"] == event["observation_id"]
+                          and item["timestamp"] == item["observation_timestamp"] == event["timestamp"]
+                          and item["occupancy"] == event["occupancy"]), None)
+            if proof is None:
+                raise RuntimeError(f"No original was linked to the camera observation at {slot}")
+            original = self.request(proof["photos"]["original"])
+            if not original.startswith(b"\x89PNG\r\n\x1a\n"):
+                raise RuntimeError(f"The original at {slot} was not a PNG")
+            filename = f"{slot}-original.png"
+            (self.output / filename).write_bytes(original)
+            photos[slot] = {"file": filename, "observation_id": event["observation_id"],
+                            "sha256": sha256(original).hexdigest(), "camera": proof["camera"]}
         html = self.request(result["url"])
         if self.run_id.encode() not in html or not all(slot.encode() in html for slot in SLOTS):
             raise RuntimeError("Inspection report does not contain the expected run and locations")
@@ -124,8 +148,11 @@ class Scenario:
             raise RuntimeError("Inspection report does not render all verified discrepancies")
         (self.output / "report.html").write_bytes(html)
         (self.output / "result.json").write_text(json.dumps({
-            "inspection_id": self.run_id, "confirmed": observations, "discrepancies": discrepancies,
-            "landed": True, "safety": "RELEASED", "report_http": 200, "events": self.events,
+            "inspection_id": self.run_id, "drone_model": state["drone_model"],
+            "confirmed": observations, "discrepancies": discrepancies, "photos": photos,
+            "business_findings": [{"type": row["type"], "slot_id": row["slot_id"]} for row in business["issues"]],
+            "landed": True, "physical_dock": True, "safety": "RELEASED", "report_http": 200,
+            "wall_seconds": round(monotonic() - self.started_at, 1), "events": self.events,
         }, indent=2) + "\n")
         self.event("verified", inspection_id=self.run_id, confirmed=len(SLOTS), report_http=200)
 
@@ -137,13 +164,16 @@ class Scenario:
         if plan["slots"] != list(SLOTS) or not plan["energy"]["can_start"]:
             raise RuntimeError("Scenario flight plan was rejected")
         self.run_id = self.read("/api/start", selection)["inspection_id"]
+        self.started_at = monotonic()
         self.event("started", inspection_id=self.run_id, slots=list(SLOTS))
         wrapped = False
         cart_entered_at = None
+        stopped_pose = None
+        resumed = False
         deadline = monotonic() + 650
         while monotonic() < deadline:
             state = self.read("/api/state")
-            mission = state["mission"]
+            mission = state["mission"] or {}
             if mission.get("inspection_id") != self.run_id:
                 raise RuntimeError("Control Center changed the active inspection")
             status, stage = mission["status"] or {}, mission["stage"]
@@ -164,13 +194,20 @@ class Scenario:
                                        row["stopped_at"][1] - BLOCKED[1]) < .25
                              and row["stopped_at"][2] > 1.80), None)
                 if stop:
+                    stopped_pose = stop["stopped_at"]
                     self.event("lidar_stop", **stop)
                     cross(BLOCKED, PARKED)
                     self.cart_in_lane = False
                     self.event("cart_cleared", gate="A")
+            if (stopped_pose and not self.cart_in_lane and not resumed
+                    and stage == "AISLE_DESCENT" and state["position_fresh"]
+                    and state["position"][2] < stopped_pose[2] - .15):
+                resumed = True
+                self.event("autonomous_resume", stage=stage, position=state["position"][:3])
             if stage in TERMINAL:
                 (self.output / "final-state.json").write_text(json.dumps(state, indent=2) + "\n")
-            if mission.get("result"):
+            if (stage == "COMPLETE" and mission.get("result")
+                    and state["physical_dock"] and state["safety"]["phase"] == "RELEASED"):
                 self.verify(mission, state)
                 return
             if stage in TERMINAL and stage != "COMPLETE":
