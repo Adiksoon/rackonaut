@@ -150,7 +150,7 @@ def shell(world, spec):
             box(area, f'roof_liner_{index}', (x+.5, y, height-.052), (.82, width-.26, .105), (.77,.86,.92))
         if style == 'logistics':
             box(area, f'west_to_east_{index}', (x, y, height-.58), (.15, width-.30, .14), design['accent'], True)
-    for y_index, fixture_y in enumerate((y0+width*.23, y, y1-width*.23)):
+    for y_index, fixture_y in enumerate((y0+width*.23, y+.60, y1-width*.23)):
         for x_index, fraction in enumerate((.17, .50, .83)):
             x = x0 + length * fraction
             key = f'{y_index}_{x_index}'

@@ -4,7 +4,7 @@ Trzy światy korzystają ze wspólnego launchera Rackonaut i tych samych układ�
 
 ## Hale
 
-| Wariant | Powierzchnia i wysokość wewnętrzna | Rzędy, alejki, poziomy | Odcinki regałów | Funkcjonalne stanowiska | Maks. Z kamery inspekcyjnej |
+| Wariant | Powierzchnia i wysokość wewnętrzna | Rzędy, alejki, poziomy | Odcinki regałów | Funkcjonalne stanowiska | Maks. Z zadanej pozy inspekcyjnej |
 | --- | --- | --- | --- | --- | --- |
 | `distribution-center` | 55 × 35 m, 12 m | 5 rzędów, 4 alejki, 4 poziomy | 36,40 m, regały 8 m | 6, alejki A i B | 7,06 m |
 | `high-bay` | 65 × 40 m, 17 m | 6 rzędów, 5 alejek, 6 poziomów | 44,80 m, regały 12 m | 6, alejki A i B | 11,24 m |
@@ -58,11 +58,11 @@ Gazebo Fortress zaakceptował wszystkie trzy SDF za pomocą `ign sdf -k`. W dwó
 
 | Wariant | Modele | Wizualizacje | Kolizje | Źródła światła | SDF |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| Distribution Center | 19 | 1 311 | 771 | 10 | 806 992 B |
-| High-Bay Warehouse | 21 | 2 001 | 1 154 | 10 | 1 222 203 B |
-| Large Logistics Hub | 25 | 2 008 | 1 142 | 10 | 1 221 804 B |
+| Distribution Center | 19 | 1 311 | 771 | 10 | 807 016 B |
+| High-Bay Warehouse | 21 | 2 001 | 1 154 | 10 | 1 222 227 B |
+| Large Logistics Hub | 25 | 2 008 | 1 142 | 10 | 1 221 828 B |
 
-Rząd ma po jednej bryle kolizyjnej na poziom, a paleta używa obwiedni prostopadłościennej. Części wizualne korzystają ze wspólnych materiałów, prostych brył, tej samej siatki placard i wyłączonych cieni punktowych. Światy referencyjne mają tę samą konfigurację sensorów jak pełny profil lokalizacji, w tym LiDAR 16 m i IMU. Ilość brył i rozmiar SDF opisują skalę scen. Obciążenie w locie zależy od widoczności i częstotliwości przebudowy podmapy, więc wymaga osobnej próby ze zmierzonym RTF, czasem rejestracji i przerwami estymat. [Zasoby bazowe](../ros2_ws/src/rackonaut_warehouse/docs/ASSETS.md)
+Rząd ma po jednej bryle kolizyjnej na poziom, a paleta używa obwiedni prostopadłościennej. Części wizualne korzystają ze wspólnych materiałów, prostych brył, tej samej siatki placard i wyłączonych cieni punktowych. Kontrola statyczna obejmuje również odstęp opraw od podwieszenia tunelu i wolne obrysy stref buforowych. Światy referencyjne mają tę samą konfigurację sensorów jak pełny profil lokalizacji, w tym LiDAR 16 m i IMU. Ilość brył i rozmiar SDF opisują skalę scen. Obciążenie w locie zależy od widoczności i częstotliwości przebudowy podmapy, więc wymaga osobnej próby ze zmierzonym RTF, czasem rejestracji i przerwami estymat. [Zasoby bazowe](../ros2_ws/src/rackonaut_warehouse/docs/ASSETS.md)
 
 ## Gotowość i zależności przed pełną kalibracją
 
@@ -71,8 +71,8 @@ Weryfikacja geometrii obejmuje sześć stanowisk na wariant, dwa bezpieczne pion
 | Obszar | Zależność przed pełnym odbiorem |
 | --- | --- |
 | Energia i długość lotu | Obecny model z rezerwą 8 p.p. daje prognozę 69,15–128,19% w Distribution Center, 87,86–134,56% w High-Bay i 89,87–133,93% w Logistics Hub dla pojedynczych tras tam i z powrotem. Każda hala ma przynajmniej jedno stanowisko w każdej funkcjonalnej alejce w granicy budżetu stacji. Dalsze trasy wymagają organizacji krótszych cykli, punktów operacyjnych lub zweryfikowanego modelu zasięgu. Same wielokrotne starty z tego samego doku nie skracają niedopuszczalnego pojedynczego lotu. |
-| Wysokość i kamera | Standardowe miejsca inspekcji wynikają z pozy i rezerwacji. Dotychczasowe adaptacyjne przesunięcia mają założenie Z ≤ 3,18 m i dotychczasowy odstęp od regału. Potrzebna kwalifikacja ujęć i zakresu adaptacji na górnych poziomach, w tym osobne ekstrynsyki X3 w rekonstrukcji. |
-| LiDAR i SLAM | Nominalne 16 m nie obejmuje przeciwległych ścian dużych hal z centralnej alejki. Powtarzalne rzędy utrudniają wyznaczanie osi podłużnej. Potrzebne pomiary obserwowalności dla tunelu, skrzyżowań i wysokiego regału, pomiar tempa estymacji i walidacja dryfu względem czasu skanu. Zapis map, pamięć podmap i kalibracja między odlotami pozostają w zakresie oddzielnego GOAL 28. |
+| Wysokość i kamera | Standardowe miejsca inspekcji wynikają z pozy i rezerwacji. Launcher nowych hal wyłącza adaptacyjne przesunięcia oparte na dotychczasowej geometrii, w tym granicy Z ≤ 3,18 m i historycznym odstępie od regału. Potrzebna kwalifikacja ujęć i zakresu adaptacji na górnych poziomach, w tym osobne ekstrynsyki X3 w rekonstrukcji. |
+| LiDAR i SLAM | Nominalne 16 m nie obejmuje przeciwległych ścian dużych hal z centralnej alejki. W Distribution Center z B-08-03 końce regału są odległe o 19,46 i 16,94 m. W High-Bay oba końce są poza zasięgiem z A-07-04 i B-10-05. Wzdłuż żadnej z sześciu nominalnych pozycji w Logistics Hub nie występuje ten przypadek. Powtarzalne rzędy utrudniają wyznaczanie osi podłużnej. Potrzebne pomiary obserwowalności dla tunelu, skrzyżowań i wysokiego regału, pomiar tempa estymacji i walidacja dryfu względem czasu skanu. Zapis map, pamięć podmap i kalibracja między odlotami pozostają w zakresie oddzielnego GOAL 28. |
 | Safety i powroty | Dwie funkcjonalne alejki używają istniejących identyfikatorów A i B. Większy obszar wymaga deklaratywnych stref, konfiguracji progów sygnalizatorów i obsługi bram dla dodatkowych alejek. Przyjęcie naziemnego Safety laserowego wymaga kalibracji pól oraz walidacji zasłonięć. Polecenia ustawiania testowego pracownika poza bramami zachowują współrzędne dotychczasowej hali, dlatego ich użycie w nowych światach wymaga osobnej konfiguracji. |
 | Archiwum i Twin | Pliki runtime muszą obejmować zgodny wariant, model drona i rewizję konfiguracji. Studio może korzystać z referencyjnej geometrii generatora. Nauczony Twin wymaga nowego archiwum LiDAR, zdjęć, walidacji grafu i sprawdzenia rekonstrukcji na wyższych regałach. |
 | Markery i backend | Obecny słownik zawiera 50 kodów. Biblioteka przydziela 30, a wcześniejszy demonstrator ma własne kody. Rozszerzenie na wszystkie półki wymaga osobnego projektu zakresów identyfikatorów, zgodności archiwów i akceptacji kontraktu przed zmianą słownika. |

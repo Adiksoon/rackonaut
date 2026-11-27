@@ -130,8 +130,8 @@
       "collisions": 771,
       "lights": 10
     },
-    "sdf_bytes": 806992,
-    "sha256": "370f0ba006f0f43e0dfa8ffe7590747ea8209c26b1e5c6e81d59d7ef4937fd5d",
+    "sdf_bytes": 807016,
+    "sha256": "85b4ffccffb8fd49df0871b4c92316ebf00ade576bc61554cc3ccaae0629cce7",
     "clearance": {
       "checked_volumes": 10,
       "visual_intersections": 0,
@@ -199,6 +199,80 @@
         "sim_s": 335.493,
         "required_pct_including_reserve": 128.187,
         "within_100_percent": false
+      }
+    ],
+    "lidar_axial_geometry": [
+      {
+        "slot": "A-02-01",
+        "rack_end_axial_distances_m": [
+          3.86,
+          32.54
+        ],
+        "hall_wall_axial_distances_m": [
+          15.86,
+          39.14
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "A-06-02",
+        "rack_end_axial_distances_m": [
+          14.26,
+          22.14
+        ],
+        "hall_wall_axial_distances_m": [
+          26.26,
+          28.74
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "A-10-04",
+        "rack_end_axial_distances_m": [
+          24.66,
+          11.74
+        ],
+        "hall_wall_axial_distances_m": [
+          36.66,
+          18.34
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-03-02",
+        "rack_end_axial_distances_m": [
+          6.46,
+          29.94
+        ],
+        "hall_wall_axial_distances_m": [
+          18.46,
+          36.54
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-08-03",
+        "rack_end_axial_distances_m": [
+          19.46,
+          16.94
+        ],
+        "hall_wall_axial_distances_m": [
+          31.46,
+          23.54
+        ],
+        "both_rack_ends_beyond_16m": true
+      },
+      {
+        "slot": "B-12-04",
+        "rack_end_axial_distances_m": [
+          29.86,
+          6.54
+        ],
+        "hall_wall_axial_distances_m": [
+          41.86,
+          13.14
+        ],
+        "both_rack_ends_beyond_16m": false
       }
     ]
   },
@@ -346,8 +420,8 @@
       "collisions": 1154,
       "lights": 10
     },
-    "sdf_bytes": 1222203,
-    "sha256": "a782d9a8d7725d699b4dbbc6a2356bd93f4f87f44709daa28103bde6d8f64e17",
+    "sdf_bytes": 1222227,
+    "sha256": "008ab046504a6efa34c80ae1497fe87f6e72e4c2ae2d6243fe16d1de18d9225c",
     "clearance": {
       "checked_volumes": 10,
       "visual_intersections": 0,
@@ -415,6 +489,80 @@
         "sim_s": 349.836,
         "required_pct_including_reserve": 134.564,
         "within_100_percent": false
+      }
+    ],
+    "lidar_axial_geometry": [
+      {
+        "slot": "A-03-02",
+        "rack_end_axial_distances_m": [
+          6.96,
+          37.84
+        ],
+        "hall_wall_axial_distances_m": [
+          20.56,
+          44.44
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "A-07-04",
+        "rack_end_axial_distances_m": [
+          18.16,
+          26.64
+        ],
+        "hall_wall_axial_distances_m": [
+          31.76,
+          33.24
+        ],
+        "both_rack_ends_beyond_16m": true
+      },
+      {
+        "slot": "A-12-06",
+        "rack_end_axial_distances_m": [
+          32.16,
+          12.64
+        ],
+        "hall_wall_axial_distances_m": [
+          45.76,
+          19.24
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-01-01",
+        "rack_end_axial_distances_m": [
+          1.36,
+          43.44
+        ],
+        "hall_wall_axial_distances_m": [
+          14.96,
+          50.04
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-05-04",
+        "rack_end_axial_distances_m": [
+          12.56,
+          32.24
+        ],
+        "hall_wall_axial_distances_m": [
+          26.16,
+          38.84
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-10-05",
+        "rack_end_axial_distances_m": [
+          26.56,
+          18.24
+        ],
+        "hall_wall_axial_distances_m": [
+          40.16,
+          24.84
+        ],
+        "both_rack_ends_beyond_16m": true
       }
     ]
   },
@@ -642,8 +790,8 @@
       "collisions": 1142,
       "lights": 10
     },
-    "sdf_bytes": 1221804,
-    "sha256": "b6add5c8bcb75f397cdc9a859427afa596a64692fc3e17024472421da9351bb9",
+    "sdf_bytes": 1221828,
+    "sha256": "3d72481d34f4bce0edc626f900061764ebd945efc1ccb6da99204ac2bebdb94c",
     "clearance": {
       "checked_volumes": 10,
       "visual_intersections": 0,
@@ -711,6 +859,80 @@
         "sim_s": 348.17,
         "required_pct_including_reserve": 133.929,
         "within_100_percent": false
+      }
+    ],
+    "lidar_axial_geometry": [
+      {
+        "slot": "A-07-01",
+        "rack_end_axial_distances_m": [
+          18.16,
+          9.84
+        ],
+        "hall_wall_axial_distances_m": [
+          32.16,
+          57.84
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "A-09-03",
+        "rack_end_axial_distances_m": [
+          23.76,
+          4.24
+        ],
+        "hall_wall_axial_distances_m": [
+          37.76,
+          52.24
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "A-10-05",
+        "rack_end_axial_distances_m": [
+          26.56,
+          1.44
+        ],
+        "hall_wall_axial_distances_m": [
+          40.56,
+          49.44
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-02-02",
+        "rack_end_axial_distances_m": [
+          4.16,
+          26.64
+        ],
+        "hall_wall_axial_distances_m": [
+          54.16,
+          35.84
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-07-04",
+        "rack_end_axial_distances_m": [
+          18.16,
+          12.64
+        ],
+        "hall_wall_axial_distances_m": [
+          68.16,
+          21.84
+        ],
+        "both_rack_ends_beyond_16m": false
+      },
+      {
+        "slot": "B-11-05",
+        "rack_end_axial_distances_m": [
+          29.36,
+          1.44
+        ],
+        "hall_wall_axial_distances_m": [
+          79.36,
+          10.64
+        ],
+        "both_rack_ends_beyond_16m": false
       }
     ]
   }

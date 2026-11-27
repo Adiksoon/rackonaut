@@ -83,7 +83,7 @@ def assert_resources(world,root):
             assert path.is_file(),path
 
 
-def graph_checks(network,profile,slots):
+def graph_checks(network,slots):
     model = Model(hover=.26,movement=.19,climb=.52)
     result = []
     for slot,row in slots.items():
@@ -100,6 +100,34 @@ def graph_checks(network,profile,slots):
                        'distance_m':round(sum(dist(a[:3],b[:3]) for a,b in zip(round_trip,round_trip[1:])),3),
                        'sim_s':round(duration,3),'required_pct_including_reserve':round(battery+model.reserve,3),
                        'within_100_percent':battery+model.reserve <= 100})
+    return result
+
+
+def installation_checks(metadata, layout, shapes):
+    racks = [bounds((r['x']+r['width']/2,r['y']+r['height']/2,1.),(r['width'],r['height'],2.))
+             for r in layout['racks']]
+    staging = [bounds((*area['center'],1.),(*area['size'],2.)) for area in metadata['staging']]
+    assert not any(overlap(a,b) for a,b in combinations(racks+staging,2)), metadata['warehouse_variant']
+    objects = shapes['collision']
+    lamps = [size for _,part,size in objects if part.startswith('led_housing_')]
+    rig = [size for model,_,size in objects if model=='protected_flight_infrastructure']
+    assert not any(overlap(lamp,steel) for lamp in lamps for steel in rig), metadata['warehouse_variant']
+
+
+def axial_geometry(metadata, slots):
+    """Check range to geometric endpoints without modelling occlusion or scan matching."""
+    banks = {bank['name']:bank for bank in metadata['banks']}
+    aisles = {aisle['name']:aisle for aisle in metadata['aisles']}
+    walls = metadata['bounds']['x']
+    result = []
+    for slot, row in slots.items():
+        bank = banks[aisles[row['aisle']]['bank']]
+        x = row['viewpoint'][0]
+        left, right = bank['start'], bank['start']+bank['bay_pitch']*bank['bays']
+        rack_ends = [round(x-left,3),round(right-x,3)]
+        result.append({'slot':slot,'rack_end_axial_distances_m':rack_ends,
+                       'hall_wall_axial_distances_m':[round(x-walls[0],3),round(walls[1]-x,3)],
+                       'both_rack_ends_beyond_16m':min(rack_ends)>16.})
     return result
 
 
@@ -120,6 +148,7 @@ def validate(root,variant):
             fields = [item.get('name') for item in model.findall(f'link/{role}')]
             assert len(set(fields))==len(fields),(model.get('name'),role)
     shapes = {kind:volumes(world,kind) for kind in ('visual','collision')}
+    installation_checks(metadata,data['control_layout'],shapes)
     tested = [(f'{a}→{b}',kind,expand(box)) for a,b,kind,box in network.edges]
     tested += [(f'aisle {zone}',zone,expand(box)) for zone,box in profile['inspection_volumes'].items()]
     for label,kind,swept in tested:
@@ -157,13 +186,16 @@ def validate(root,variant):
                 assert markers['pallets'][str(hu)]==row['pallet']
         else:
             assert not (png/f'hu-{slot}.png').exists()
-    forecasts = graph_checks(network,profile,slots)
+    forecasts = graph_checks(network,slots)
+    for zone in ('A','B'):
+        assert next(result for result in forecasts if result['slot'].startswith(zone))['within_100_percent'], zone
     return {**metadata,'sdf_bytes':world_file.stat().st_size,'sha256':hashlib.sha256(world_file.read_bytes()).hexdigest(),
             'clearance':{'checked_volumes':len(tested),'visual_intersections':0,'collision_intersections':0,
                          'portal_margin_per_side_m':round(PORTAL_WIDTH/2-HALF_ENVELOPE-BODY_RADIUS,3),
                          'inspection_margin_per_side_m':round(min(a['width']/2-.66-BODY_RADIUS for a in metadata['aisles']
                                                                 if a['functional']),3)},
-            'decoded_marker_ids':sorted(used),'route_energy_forecasts':forecasts}
+            'decoded_marker_ids':sorted(used),'route_energy_forecasts':forecasts,
+            'lidar_axial_geometry':axial_geometry(metadata,slots)}
 
 
 def main():
