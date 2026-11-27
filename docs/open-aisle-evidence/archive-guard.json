@@ -1,0 +1,21 @@
+{
+  "selected_from_copy": "WH-E83B9581352A5C6DBC06694FE5E70FFA",
+  "loaded": null,
+  "ready": false,
+  "dock_localizer_error": "The warehouse calibration uses a different warehouse geometry.",
+  "physical_dock": true,
+  "localization_source": "slam",
+  "planning_rejection": {
+    "http": 400,
+    "payload": {
+      "error": "The warehouse calibration uses a different warehouse geometry."
+    }
+  },
+  "active_twin_rejection": {
+    "http": 409,
+    "payload": {
+      "error": "The warehouse calibration uses a different warehouse geometry."
+    }
+  },
+  "source_archive_unchanged": true
+}

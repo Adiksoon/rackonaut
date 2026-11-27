@@ -1,0 +1,407 @@
+{
+  "run": "INS-CONTROL-20261127-082236-F408F8C7",
+  "model": "reference",
+  "variant": "open-aisle",
+  "zones": [
+    "D",
+    "A"
+  ],
+  "confirmed": [
+    "A-01-01"
+  ],
+  "landed": true,
+  "physical_dock": true,
+  "safety": "RELEASED",
+  "stages": [
+    {
+      "stage": "STARTING",
+      "position": [
+        -4.697,
+        10.3,
+        0.041,
+        0.0
+      ],
+      "safety": "AVAILABLE",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": false
+      },
+      "collision": {
+        "mode": null,
+        "reason": null,
+        "scan_age_ms": null
+      },
+      "elapsed_s": 0.01
+    },
+    {
+      "stage": "WAITING",
+      "position": [
+        -4.698,
+        10.299,
+        0.041,
+        0.0
+      ],
+      "safety": "PREPARING",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": false
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Waiting for live onboard lidar",
+        "scan_age_ms": null
+      },
+      "elapsed_s": 0.49
+    },
+    {
+      "stage": "VERTICAL_TAKEOFF",
+      "position": [
+        -4.697,
+        10.3,
+        0.041,
+        0.0
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 79
+      },
+      "elapsed_s": 3.66
+    },
+    {
+      "stage": "ENTERING_CORRIDOR",
+      "position": [
+        -4.7,
+        10.3,
+        6.699,
+        0.001
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 152
+      },
+      "elapsed_s": 29.97
+    },
+    {
+      "stage": "OVERHEAD_TRANSIT",
+      "position": [
+        2.095,
+        10.299,
+        6.703,
+        0.001
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 194
+      },
+      "elapsed_s": 55.37
+    },
+    {
+      "stage": "WAITING_FOR_AISLE_CLEARANCE",
+      "position": [
+        5.1,
+        0.451,
+        6.705,
+        0.0
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Holding the reached waypoint",
+        "scan_age_ms": 25
+      },
+      "elapsed_s": 107.42
+    },
+    {
+      "stage": "AISLE_DESCENT",
+      "position": [
+        5.1,
+        0.45,
+        6.703,
+        -0.001
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 18
+      },
+      "elapsed_s": 107.92
+    },
+    {
+      "stage": "TRANSIT",
+      "position": [
+        5.117,
+        0.449,
+        0.794,
+        -0.001
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 39
+      },
+      "elapsed_s": 131.97
+    },
+    {
+      "stage": "ALIGN",
+      "position": [
+        5.462,
+        0.452,
+        0.79,
+        0.001
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Holding the reached waypoint",
+        "scan_age_ms": 293
+      },
+      "elapsed_s": 134.96
+    },
+    {
+      "stage": "INSPECT",
+      "position": [
+        5.47,
+        0.447,
+        0.792,
+        1.555
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Holding the reached waypoint",
+        "scan_age_ms": 30
+      },
+      "elapsed_s": 142.9
+    },
+    {
+      "stage": "AISLE_APPROACH",
+      "position": [
+        5.451,
+        0.445,
+        0.793,
+        1.568
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 290
+      },
+      "elapsed_s": 143.89
+    },
+    {
+      "stage": "AISLE_ASCENT",
+      "position": [
+        5.097,
+        0.45,
+        0.792,
+        0.018
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 42
+      },
+      "elapsed_s": 151.58
+    },
+    {
+      "stage": "RETURN_TRANSIT",
+      "position": [
+        5.097,
+        0.452,
+        6.701,
+        -0.002
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Swept path verified by onboard lidar",
+        "scan_age_ms": 143
+      },
+      "elapsed_s": 176.36
+    },
+    {
+      "stage": "LAND",
+      "position": [
+        -4.698,
+        10.298,
+        6.704,
+        -0.0
+      ],
+      "safety": "RESERVED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": true
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Holding the reached waypoint",
+        "scan_age_ms": 190
+      },
+      "elapsed_s": 252.88
+    },
+    {
+      "stage": "COMPLETE",
+      "position": [
+        -4.702,
+        10.301,
+        0.044,
+        0.0
+      ],
+      "safety": "RELEASED",
+      "descent_a": {
+        "bounds": [
+          4.3,
+          -0.35000000000000003,
+          5.8999999999999995,
+          1.25
+        ],
+        "source": "virtual_worker_pose",
+        "cleared": false
+      },
+      "collision": {
+        "mode": null,
+        "reason": "Holding the reached waypoint",
+        "scan_age_ms": 79
+      },
+      "elapsed_s": 282.39
+    }
+  ]
+}

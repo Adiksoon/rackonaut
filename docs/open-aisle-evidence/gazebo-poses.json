@@ -1,0 +1,8 @@
+{
+  "01-warehouse": "pose { position { x: -5.9 y: -10.9 z: 7.7 } orientation { x: -0.0273949027 y: 0.094306613 z: 0.277607934 w: 0.955661874 } }",
+  "02-tunnel": "pose { position { x: -3.65 y: 7.5 z: 7.62 } orientation { x: 0.0250218788 y: 0.0471358852 z: -0.468208524 w: 0.882005041 } }",
+  "03-portal-a": "pose { position { x: 8.8 y: 1.44 z: 4.3 } orientation { x: -0.259386353 y: -0.0342808679 z: -0.956844776 w: 0.126457961 } }",
+  "04-portal-b": "pose { position { x: 8.9 y: -4.55 z: 4.26 } orientation { x: -0.257808154 y: -0.0335249503 z: -0.957552177 w: 0.124518518 } }",
+  "05-worker": "pose { position { x: 10.05 y: 0.96 z: 1.7 } orientation { x: -0.186075629 y: -0.00959898884 z: -0.981183855 w: 0.0506158325 } }",
+  "06-aisle-overhead": "pose { position { x: 7.7 y: 1.8 z: 8.25 } orientation { x: 0.575068922 y: 0.210194993 z: -0.742591056 w: 0.27142646 } }"
+}
