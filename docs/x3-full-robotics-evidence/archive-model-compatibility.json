@@ -1,0 +1,7 @@
+{
+  "configuration_id": "WH-0EAB1D4961E664EBCA930844FE73CC4D",
+  "archive_integrity": "PASS",
+  "reference_profile": "PASS",
+  "x3_profile": "REJECTED",
+  "reason": "The warehouse calibration uses a different drone model."
+}

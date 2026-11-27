@@ -1,6 +1,6 @@
 from math import pi
 from unittest import TestCase
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import numpy as np
 from sensor_msgs.msg import PointCloud2, PointField
@@ -11,6 +11,24 @@ from rackonaut_avoidance.sensor import BEAMS, Cloud, FRAME, FULL_ROUTE_RANGE, HE
 
 
 class ClearanceTests(TestCase):
+    def test_exact_pairing_retains_delayed_pose_without_refreshing_scan(self):
+        scanner = Scanner(Mock(), exact_pose=True)
+        older, newer = PointCloud2(), PointCloud2()
+        older.header.stamp.sec, newer.header.stamp.sec = 20, 21
+        scanner.poses.append((19., np.zeros(3), np.eye(3)))
+        unpacked = np.ones((1, 1)), np.empty((0, 3)), np.empty((0, 3))
+        with patch("rackonaut_avoidance.sensor.monotonic", return_value=100.):
+            scanner.receive(older)
+        self.assertIsNone(scanner.current(100.15))
+        with patch("rackonaut_avoidance.sensor.monotonic", return_value=100.20):
+            scanner.receive(newer)
+        scanner.poses.append((20., np.zeros(3), np.eye(3)))
+        with patch("rackonaut_avoidance.sensor.unpack", return_value=unpacked):
+            cloud = scanner.current(100.21)
+            self.assertEqual((cloud.time, cloud.received), (20., 100.))
+            scanner.poses.append((21., np.zeros(3), np.eye(3)))
+            self.assertIsNone(scanner.current(100.86))
+
     def frame(self, points=(), ranges=None):
         return Cloud(1., 2., np.array([0., 0., .88]), np.eye(3),
                      np.full((HEIGHT, WIDTH), 8. if ranges is None else ranges),

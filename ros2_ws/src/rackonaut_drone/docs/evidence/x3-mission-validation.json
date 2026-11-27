@@ -1,0 +1,216 @@
+{
+  "stack_base": "6e04fcfa6b8c5abd5db15598f03fb4ca54b9e099",
+  "x3_commit": "ddf0db2",
+  "world": "safety_showcase.sdf",
+  "safety_sensor": "virtual",
+  "api_profile": "fixture",
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12"
+  },
+  "runs": {
+    "x3": {
+      "normal": {
+        "run": "INS-CONTROL-20261126-102710-4073AEDB",
+        "elapsed_s": 63.0,
+        "stage": "COMPLETE",
+        "at_pad": true,
+        "landed": true,
+        "safety_phase": "RELEASED",
+        "report_http": 200,
+        "observation": {
+          "schema_version": "1.0",
+          "inspection_id": "INS-CONTROL-20261126-102710-4073AEDB",
+          "observation_id": "OBS-94BADF915F754782B4D1950B60C5C751",
+          "slot_id": "A-01-01",
+          "pallet_id": "P001",
+          "occupancy": "occupied",
+          "label_status": "readable",
+          "timestamp": "2026-11-26T10:27:51.417Z"
+        }
+      },
+      "intrusion": {
+        "run": "INS-CONTROL-20261126-102829-92149FF6",
+        "stage": "ABORTED",
+        "safety_phase": "RECOVERY",
+        "required": [
+          "A",
+          "T"
+        ],
+        "trigger_position": [
+          3.488,
+          0.448,
+          0.788,
+          -0.0
+        ],
+        "measurement": {
+          "trigger_to_aborted_s": 1.284,
+          "hover_window_s": 3.06,
+          "samples": 17,
+          "horizontal_drift_m": 0.015,
+          "vertical_drift_m": 0.002,
+          "min_height_m": 0.795,
+          "dispatch_http": 409,
+          "dispatch_rejection": {
+            "error": "The drone must be stopped on the launch pad before dispatch."
+          },
+          "reason": "Stopped by the operator",
+          "alarm": {
+            "time": "2026-11-26T10:28:58.162+00:00",
+            "monotonic_ns": 19661481127454,
+            "inspection_id": "INS-CONTROL-20261126-102829-92149FF6",
+            "event": "intrusion",
+            "zones": [
+              "A"
+            ],
+            "message": "Zone occupied: Aisle A.",
+            "presence_sample_ns": 19661479508479
+          }
+        },
+        "alarm_to_abort_confirmation_s": 0.251,
+        "safety_events": [
+          {
+            "time": "2026-11-26T10:28:58.162+00:00",
+            "monotonic_ns": 19661481127454,
+            "inspection_id": "INS-CONTROL-20261126-102829-92149FF6",
+            "event": "intrusion",
+            "zones": [
+              "A"
+            ],
+            "message": "Zone occupied: Aisle A.",
+            "presence_sample_ns": 19661479508479
+          },
+          {
+            "time": "2026-11-26T10:28:58.214+00:00",
+            "monotonic_ns": 19661532997581,
+            "inspection_id": "INS-CONTROL-20261126-102829-92149FF6",
+            "event": "abort_dispatched",
+            "zones": [
+              "A"
+            ],
+            "message": "Called the existing mission Abort service.",
+            "triggering_event_ns": 19661481127454
+          },
+          {
+            "time": "2026-11-26T10:28:58.413+00:00",
+            "monotonic_ns": 19661732588966,
+            "inspection_id": "INS-CONTROL-20261126-102829-92149FF6",
+            "event": "abort_confirmed",
+            "zones": [
+              "A"
+            ],
+            "message": "Mission Manager confirmed Abort.",
+            "triggering_event_ns": 19661481127454
+          }
+        ],
+        "panel": {
+          "alarm": "Safety alert · Intrusion detected",
+          "detail": "Zone occupied: Aisle A. Operator recovery required. Access remains restricted.",
+          "result": "Flight stopped. Stopped by the operator Restart the Rackonaut simulator before starting a new inspection."
+        }
+      }
+    },
+    "reference": {
+      "normal": {
+        "run": "INS-CONTROL-20261126-102936-DC1E305E",
+        "elapsed_s": 49.2,
+        "stage": "COMPLETE",
+        "at_pad": true,
+        "landed": true,
+        "safety_phase": "RELEASED",
+        "report_http": 200,
+        "observation": {
+          "schema_version": "1.0",
+          "inspection_id": "INS-CONTROL-20261126-102936-DC1E305E",
+          "observation_id": "OBS-F6A3C1498ABA4B79B32A1B6995DE51C2",
+          "slot_id": "A-01-01",
+          "pallet_id": "P001",
+          "occupancy": "occupied",
+          "label_status": "readable",
+          "timestamp": "2026-11-26T10:30:07.937Z"
+        }
+      },
+      "intrusion": {
+        "run": "INS-CONTROL-20261126-103040-0CA0A218",
+        "stage": "ABORTED",
+        "safety_phase": "RECOVERY",
+        "required": [
+          "A",
+          "T"
+        ],
+        "trigger_position": [
+          3.527,
+          0.451,
+          0.787,
+          0.0
+        ],
+        "measurement": {
+          "trigger_to_aborted_s": 1.293,
+          "hover_window_s": 3.036,
+          "samples": 17,
+          "horizontal_drift_m": 0.003,
+          "vertical_drift_m": 0.0,
+          "min_height_m": 0.788,
+          "dispatch_http": 409,
+          "dispatch_rejection": {
+            "error": "The drone must be stopped on the launch pad before dispatch."
+          },
+          "reason": "Stopped by the operator",
+          "alarm": {
+            "time": "2026-11-26T10:31:01.451+00:00",
+            "monotonic_ns": 19782491196125,
+            "inspection_id": "INS-CONTROL-20261126-103040-0CA0A218",
+            "event": "intrusion",
+            "zones": [
+              "A"
+            ],
+            "message": "Zone occupied: Aisle A.",
+            "presence_sample_ns": 19782482756170
+          }
+        },
+        "alarm_to_abort_confirmation_s": 0.249,
+        "safety_events": [
+          {
+            "time": "2026-11-26T10:31:01.451+00:00",
+            "monotonic_ns": 19782491196125,
+            "inspection_id": "INS-CONTROL-20261126-103040-0CA0A218",
+            "event": "intrusion",
+            "zones": [
+              "A"
+            ],
+            "message": "Zone occupied: Aisle A.",
+            "presence_sample_ns": 19782482756170
+          },
+          {
+            "time": "2026-11-26T10:31:01.503+00:00",
+            "monotonic_ns": 19782542708669,
+            "inspection_id": "INS-CONTROL-20261126-103040-0CA0A218",
+            "event": "abort_dispatched",
+            "zones": [
+              "A"
+            ],
+            "message": "Called the existing mission Abort service.",
+            "triggering_event_ns": 19782491196125
+          },
+          {
+            "time": "2026-11-26T10:31:01.701+00:00",
+            "monotonic_ns": 19782740649041,
+            "inspection_id": "INS-CONTROL-20261126-103040-0CA0A218",
+            "event": "abort_confirmed",
+            "zones": [
+              "A"
+            ],
+            "message": "Mission Manager confirmed Abort.",
+            "triggering_event_ns": 19782491196125
+          }
+        ]
+      }
+    }
+  },
+  "tests": {
+    "contracts_and_mock_sap": 7,
+    "control_mission_perception": 19
+  }
+}

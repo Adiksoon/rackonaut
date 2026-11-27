@@ -1,0 +1,39 @@
+{
+  "run": "x3-shadow-dropout.2mY885yT",
+  "profile_commit": "7e92578",
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12"
+  },
+  "profile": {
+    "mode": "shadow",
+    "world": "localization_showcase.sdf",
+    "ros_domain": 80
+  },
+  "method": "Pause only x3_shadow_sensor_bridge with SIGSTOP during hover, then resume with SIGCONT. Both IMU and LiDAR stop together. Gazebo and its odometry bridge keep running.",
+  "navigation_odometry_publisher": "x3_bridge",
+  "results": [
+    {
+      "pause_s": 1.015,
+      "lost_after_s": 0.445,
+      "lost_reason": "IMU data stopped advancing",
+      "tracking_after_resume_s": 0.128,
+      "odom_messages_during_pause": 18,
+      "largest_odom_wall_gap_s": 0.131,
+      "max_hover_displacement_m": 0.0085,
+      "hover_z_at_pause_m": 0.807
+    },
+    {
+      "pause_s": 3.007,
+      "lost_after_s": 0.537,
+      "lost_reason": "IMU data stopped advancing",
+      "tracking_after_resume_s": 0.154,
+      "odom_messages_during_pause": 49,
+      "largest_odom_wall_gap_s": 0.168,
+      "max_hover_displacement_m": 0.0007,
+      "hover_z_at_pause_m": 0.817
+    }
+  ]
+}

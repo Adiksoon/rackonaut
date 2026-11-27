@@ -1,0 +1,76 @@
+#!/usr/bin/python3
+"""Bridge recent operator commands and return to zero when the stream lapses."""
+from math import hypot, isfinite
+from time import monotonic
+
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+import rclpy
+from rclpy.clock import Clock, ClockType
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+
+TIMEOUT = 0.5
+DOCK_RADIUS = 0.36
+DOCK_APPROACH_HEIGHT = 0.45
+DOCK_DESCENT_LIMIT = 0.12
+
+
+class VelocityGuard(Node):
+    def __init__(self):
+        super().__init__("rackonaut_drone_velocity_guard")
+        self.output = self.create_publisher(Twist, "/rackonaut_drone/controller/cmd_vel", 10)
+        self.create_subscription(Twist, "/rackonaut/drone/cmd_vel", self.receive, 10)
+        self.command = None
+        self.received_at = 0.0
+        self.position = None
+        self.dock = self.declare_parameter("dock_position", [0., 0., 0.]).value
+        if self.declare_parameter("gentle_dock_descent", False).value:
+            if len(self.dock) != 3 or not all(isfinite(value) for value in self.dock):
+                raise ValueError("dock_position must contain three finite coordinates.")
+            self.create_subscription(Odometry, "/rackonaut/drone/odom", self.on_odometry, qos_profile_sensor_data)
+        self.create_timer(0.1, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
+
+    def on_odometry(self, message):
+        if (message.header.frame_id, message.child_frame_id) == ("rackonaut_odom", "rackonaut_base_link"):
+            p = message.pose.pose.position
+            position = p.x, p.y, p.z
+            if all(isfinite(value) for value in position):
+                self.position = position
+
+    def receive(self, message):
+        values = (message.linear.x, message.linear.y, message.linear.z, message.angular.z)
+        command = Twist()
+        if all(isfinite(value) for value in values):
+            x, y, z, yaw = (max(-limit, min(value, limit)) for value, limit in zip(values, (0.6, 0.6, 0.6, 0.5)))
+            if self.position is not None and z < -DOCK_DESCENT_LIMIT:
+                px, py, pz = self.position
+                dx, dy, dz = self.dock
+                if hypot(px-dx, py-dy) <= DOCK_RADIUS and pz <= dz + DOCK_APPROACH_HEIGHT:
+                    z = -DOCK_DESCENT_LIMIT
+            command.linear.x, command.linear.y, command.linear.z, command.angular.z = x, y, z, yaw
+        self.command = command
+        self.received_at = monotonic()
+
+    def tick(self):
+        if self.command is None:
+            return
+        if monotonic() - self.received_at >= TIMEOUT:
+            self.command = Twist()
+        self.output.publish(self.command)
+
+
+def main():
+    rclpy.init()
+    node = VelocityGuard()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.try_shutdown()
+
+
+if __name__ == "__main__":
+    main()

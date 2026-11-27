@@ -16,6 +16,22 @@ class PlanningTests(TestCase):
         cls.share = get_package_share_path("rackonaut_warehouse")
         cls.layout = json.loads((cls.share / "config/control_layout.json").read_text())
 
+    def test_x3_splits_aerial_descent_inside_reserved_volume(self):
+        layout = dict(self.layout)
+        aerial = json.loads((self.share / "config/aerial_layout.json").read_text())
+        layout.update(aerial=aerial, pad=aerial["pad"], takeoff_z=aerial["nodes"]["shaft"][2])
+        selection = {"mode": "full", "quality": True}
+        baseline = plan(layout, selection)
+        candidate = plan(layout, selection, orthogonal_descent=True)
+        self.assertEqual(candidate["slots"], baseline["slots"])
+        self.assertEqual(candidate["required_zones"], baseline["required_zones"])
+        waypoints = candidate["route"]["waypoints"]
+        index = next(i for i, row in enumerate(waypoints) if row.get("slot_id") == "B-02-01")
+        high, descent, low = waypoints[index - 2:index + 1]
+        self.assertEqual(high["slot_id"], "B-01-02")
+        self.assertEqual((descent["x"], descent["y"], descent["z"]), (high["x"], high["y"], low["z"]))
+        self.assertEqual(descent["phase"], "AISLE_APPROACH")
+
     def test_layout_slots_match_world_placards(self):
         markers = json.loads((self.share / "config/control_markers.json").read_text())
         world = ElementTree.parse(self.share / "worlds/control_showcase.sdf")

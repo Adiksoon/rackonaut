@@ -1,0 +1,84 @@
+{
+  "mapping_id": "CAL-087DC55861C24188844DB23C3B4601BF",
+  "locations": [
+    {
+      "storage_location_id": "A-01-01",
+      "record_id": "LOC-67FE37AC0588431B8ADAFC4F9972FCA3",
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0147,
+        "overlap": 0.866,
+        "weakest": 0.05469,
+        "sigma": [
+          0.0126,
+          0.0085,
+          0.006
+        ],
+        "scan_age_ms": 35,
+        "imu_age_ms": 8
+      },
+      "position_m": [
+        5.453063116256324,
+        0.4517829584481492,
+        0.810712462882782
+      ],
+      "orientation_xyzw": [
+        0.001517160141516602,
+        0.0005319150544951062,
+        0.7890166612411249,
+        0.6143696961727425
+      ],
+      "sync": {
+        "before_ms": 40.0,
+        "after_ms": 0.0
+      },
+      "id_source": "aruco",
+      "suggested_id": "A-01-01",
+      "reference_image": "x3-taught-a-01-01.jpg"
+    },
+    {
+      "storage_location_id": "A-01-03",
+      "record_id": "LOC-5AA8626348B0417DBB96A79FB7A0EED3",
+      "localization": {
+        "source": "slam",
+        "state": "TRACKING",
+        "rms": 0.0163,
+        "overlap": 0.819,
+        "weakest": 0.02992,
+        "sigma": [
+          0.0169,
+          0.0109,
+          0.0054
+        ],
+        "scan_age_ms": 109,
+        "imu_age_ms": 11
+      },
+      "position_m": [
+        8.46414255709851,
+        0.47335946155390846,
+        0.8716704198824929
+      ],
+      "orientation_xyzw": [
+        0.0001350419097181572,
+        -0.0008160540990655108,
+        0.7986906079868301,
+        0.6017413302516438
+      ],
+      "sync": {
+        "before_ms": 40.0,
+        "after_ms": 0.0
+      },
+      "id_source": "aruco",
+      "suggested_id": "A-01-03",
+      "reference_image": "x3-taught-a-01-03.jpg"
+    }
+  ],
+  "points": 56918,
+  "drone_model": "x3",
+  "dock": [
+    -4.7,
+    10.3,
+    0.059
+  ]
+}

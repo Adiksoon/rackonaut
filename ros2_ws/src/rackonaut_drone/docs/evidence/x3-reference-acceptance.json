@@ -1,0 +1,235 @@
+{
+  "reference_commit": "cc8f742a38f6b81fab5a12217a2a47e5592015ad",
+  "environment": {
+    "os": "Ubuntu 22.04.5 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress 6.18.0",
+    "python": "3.10.12"
+  },
+  "normal": {
+    "run": "INS-CONTROL-20261126-094924-2F2FA923",
+    "stage": "COMPLETE",
+    "elapsed_s": 48.7,
+    "landed": true,
+    "at_pad": true,
+    "report_http": 200,
+    "safety_phase": "RELEASED",
+    "observation": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-094924-2F2FA923",
+      "observation_id": "OBS-C22C374D5E36429DA6590104C0BA34A1",
+      "slot_id": "A-01-01",
+      "pallet_id": "P001",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-26T09:49:54.784Z"
+    }
+  },
+  "intrusion": {
+    "run": "INS-CONTROL-20261126-095110-8E152250",
+    "trigger_position": [
+      3.473,
+      0.452,
+      0.787,
+      0.0
+    ],
+    "stage": "ABORTED",
+    "safety_phase": "RECOVERY",
+    "required_zones": [
+      "A",
+      "T"
+    ],
+    "permit": false,
+    "at_pad": false,
+    "measurement": {
+      "trigger_to_aborted_s": 1.479,
+      "hover_window_s": 3.036,
+      "samples": 17,
+      "horizontal_drift_m": 0.003,
+      "vertical_drift_m": 0.001,
+      "min_height_m": 0.787,
+      "dispatch_http": 409,
+      "dispatch_rejection": {
+        "error": "The drone must be stopped on the launch pad before dispatch."
+      },
+      "reason": "Stopped by the operator",
+      "alarm": {
+        "time": "2026-11-26T09:51:32.063+00:00",
+        "monotonic_ns": 17449815876933,
+        "inspection_id": "INS-CONTROL-20261126-095110-8E152250",
+        "event": "intrusion",
+        "zones": [
+          "A",
+          "T"
+        ],
+        "message": "Zone occupied: Aisle A, Transfer corridor & pad.",
+        "presence_sample_ns": 17449768477432
+      }
+    },
+    "hover_samples": [
+      {
+        "t_s": 23.055,
+        "position": [
+          4.209,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 23.238,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 23.42,
+        "position": [
+          4.206,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 23.602,
+        "position": [
+          4.206,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 23.784,
+        "position": [
+          4.207,
+          0.452,
+          0.787,
+          0.0
+        ]
+      },
+      {
+        "t_s": 23.967,
+        "position": [
+          4.207,
+          0.452,
+          0.787,
+          0.0
+        ]
+      },
+      {
+        "t_s": 24.149,
+        "position": [
+          4.207,
+          0.452,
+          0.787,
+          0.0
+        ]
+      },
+      {
+        "t_s": 24.336,
+        "position": [
+          4.207,
+          0.452,
+          0.787,
+          0.0
+        ]
+      },
+      {
+        "t_s": 24.519,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 24.702,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 24.885,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.067,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.25,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.433,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.619,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.803,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      },
+      {
+        "t_s": 25.985,
+        "position": [
+          4.207,
+          0.452,
+          0.788,
+          0.0
+        ]
+      }
+    ],
+    "panel": {
+      "mission": "ABORTED",
+      "headline": "Safety alert · Intrusion detected",
+      "detail": "Zone occupied: Aisle A, Transfer corridor & pad. Operator recovery required. Access remains restricted.",
+      "safety_history": [
+        "Intrusion",
+        "Abort dispatched",
+        "Abort confirmed"
+      ]
+    }
+  }
+}

@@ -12,7 +12,8 @@ from rackonaut_energy.model import Model
 from rackonaut_localization.learned_map import MAP_FILE, load as load_map
 from rackonaut_localization.node import IMU, IMU_FRAME
 from rackonaut_localization.warehouse_config import (ACTIVE, CONFIG_ID, FORMAT, FRAME, PHOTO, REQUIRED, STORE,
-                                                    active_identifier, digest, file_hash, read, verified_package)
+                                                    active_identifier, check_drone_model, digest, file_hash, read,
+                                                    verified_package)
 from rackonaut_mission.learned import forecast, ordered_targets
 
 from .teaching import atomic_write, session_path
@@ -23,10 +24,11 @@ def write_json(path, value):
 
 
 class WarehouseArchive:
-    def __init__(self, directory, route_review, layout, sensor_mode):
+    def __init__(self, directory, route_review, layout, sensor_mode, drone_model="reference"):
         self.directory = Path(directory)
         self.review = route_review
         self.store = self.directory / STORE
+        self.drone_model = drone_model
         self.safety = {"aerial": layout.get("aerial"), "fields": layout.get("safety_fields"),
                        "laser_fields": layout.get("laser_fields"), "sensor_mode": sensor_mode}
         self.sensors = {"lidar": {"topic": LIDAR, "frame": LIDAR_FRAME, "width": WIDTH, "height": HEIGHT,
@@ -34,6 +36,9 @@ class WarehouseArchive:
                                   "collision_range_m": MAX_RANGE},
                         "imu": {"topic": IMU, "frame": IMU_FRAME},
                         "camera": {"topic": "/rackonaut/camera/image_raw", "frame": "rackonaut_camera_optical_frame"}}
+        if drone_model == "x3":
+            self.sensors["drone_model"] = drone_model
+            self.sensors["camera"]["position_m"] = [.27, 0., .04]
 
     def active_id(self):
         return active_identifier(self.directory)
@@ -45,8 +50,10 @@ class WarehouseArchive:
                 continue
             try:
                 item = read(folder / "manifest.json")
+                sensors = read(folder / "sensors.json")
                 output.append({"configuration_id": folder.name, "mapping_id": item["mapping_id"],
                                "name": item["name"], "revision": item["revision"],
+                               "drone_model": sensors.get("drone_model", "reference"),
                                "model_saved": (folder / "visualization.json").is_file()})
             except (OSError, ValueError, KeyError, TypeError):
                 output.append({"configuration_id": folder.name, "name": "Unreadable warehouse manifest"})
@@ -57,6 +64,7 @@ class WarehouseArchive:
         route = source["route"]
         if source["status"] != "approved" or not route or "localization_sha256" not in route["inputs"]:
             raise RuntimeError("Approve the current route from a completed full-range SLAM calibration.")
+        check_drone_model(read(session_path(self.review.root, session, "result.json")), self.drone_model)
         locations = source["locations"]
         photos = {location["reference_image"] for location in locations}
         if any(not PHOTO.fullmatch(photo) for photo in photos):
@@ -86,6 +94,9 @@ class WarehouseArchive:
 
     def verify(self, identifier):
         folder, manifest = verified_package(self.directory, identifier)
+        sensors = read(folder / "sensors.json")
+        check_drone_model(sensors, self.drone_model)
+        check_drone_model(read(folder / "result.json"), self.drone_model)
         source = self.review.state(manifest["mapping_id"])
         route = source["route"]
         if (source["status"] != "approved" or not route or manifest["route_sha256"] != source["route_sha256"]
@@ -93,7 +104,7 @@ class WarehouseArchive:
                 or manifest["files"]["map.ply"] != route["inputs"].get("map_sha256")
                 or manifest["files"][MAP_FILE] != route["inputs"].get("localization_sha256")):
             raise RuntimeError("The approved calibration route or its map has changed.")
-        if read(folder / "safety.json") != self.safety or read(folder / "sensors.json") != self.sensors:
+        if read(folder / "safety.json") != self.safety or sensors != self.sensors:
             raise RuntimeError("The warehouse uses a different sensor or Safety profile.")
         location_file = read(folder / "locations.json")
         photos = {location["reference_image"] for location in source["locations"]}

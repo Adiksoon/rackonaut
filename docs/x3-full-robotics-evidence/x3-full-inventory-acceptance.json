@@ -1,0 +1,197 @@
+{
+  "environment": {
+    "os": "Ubuntu 22.04 WSL2",
+    "ros": "Humble",
+    "gazebo": "Fortress",
+    "base": "f4ca62f",
+    "background_demo_paused_during_measurement": true
+  },
+  "command": "scripts/robotics/checkpoint live drone_model:=x3 full_route_slam:=false localization_diagnostics:=true safety_sensor:=virtual",
+  "mode": "full inventory, known map, X3 LiDAR 8 m, Mock SAP",
+  "inspection_id": "INS-CONTROL-20261126-185127-7855CF9E",
+  "wall_s": 1151.9,
+  "status": "COMPLETE",
+  "confirmed": [
+    "A-01-01",
+    "A-01-02",
+    "A-01-03",
+    "A-01-04",
+    "A-01-05",
+    "A-01-06",
+    "A-01-07",
+    "A-01-08",
+    "B-01-01",
+    "B-01-02",
+    "B-02-01"
+  ],
+  "missed": [],
+  "sqlite_observations": 11,
+  "sqlite_quality_reports": 1,
+  "stages": [
+    "STARTING",
+    "WAITING",
+    "VERTICAL_TAKEOFF",
+    "ENTERING_CORRIDOR",
+    "OVERHEAD_TRANSIT",
+    "WAITING_FOR_AISLE_CLEARANCE",
+    "AISLE_DESCENT",
+    "TRANSIT",
+    "ALIGN",
+    "INSPECT",
+    "AISLE_APPROACH",
+    "RETURN_TO_DOCK",
+    "DOCKING",
+    "CHARGING",
+    "READY_TO_RESUME",
+    "RESUMING",
+    "AISLE_ASCENT",
+    "RETURN_TRANSIT",
+    "LAND",
+    "COMPLETE"
+  ],
+  "landed": true,
+  "physical_dock_contact": true,
+  "safety": "RELEASED",
+  "report": {
+    "http": 200,
+    "path": "/reports/INS-CONTROL-20261126-185127-7855CF9E"
+  },
+  "charge_cycles": [
+    {
+      "cycle": 1,
+      "sim_time": 271.76,
+      "inspection_id": "INS-CONTROL-20261126-185127-7855CF9E",
+      "reached_percent": 88.2
+    },
+    {
+      "cycle": 2,
+      "sim_time": 488.74,
+      "inspection_id": "INS-CONTROL-20261126-185127-7855CF9E",
+      "reached_percent": 88.03
+    }
+  ],
+  "sorties": [
+    {
+      "departure": 1,
+      "start_percent": 99.938,
+      "start_sim_time": 4.8,
+      "completed_before": [],
+      "result": "DOCKED_FOR_CHARGE",
+      "end_percent": 12.611,
+      "end_sim_time": 258.6,
+      "completed_after": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07"
+      ],
+      "charged_percent": 88.443,
+      "charge_end_sim_time": 271.8
+    },
+    {
+      "departure": 2,
+      "start_percent": 88.443,
+      "start_sim_time": 271.8,
+      "completed_before": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07"
+      ],
+      "result": "DOCKED_FOR_CHARGE",
+      "end_percent": 18.076,
+      "end_sim_time": 476.64,
+      "completed_after": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08"
+      ],
+      "charged_percent": 88.63,
+      "charge_end_sim_time": 488.84
+    },
+    {
+      "departure": 3,
+      "start_percent": 88.87,
+      "start_sim_time": 488.88,
+      "completed_before": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08"
+      ],
+      "result": "COMPLETE",
+      "end_percent": 13.924,
+      "end_sim_time": 708.8,
+      "completed_after": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03",
+        "A-01-04",
+        "A-01-05",
+        "A-01-06",
+        "A-01-07",
+        "A-01-08",
+        "B-01-01",
+        "B-01-02",
+        "B-02-01"
+      ]
+    }
+  ],
+  "flight_enable_sequence": [
+    true,
+    false,
+    true,
+    false,
+    true,
+    false
+  ],
+  "charge_contact": [
+    {
+      "duration_wall_s": 21.547,
+      "sensor_frames": 3133,
+      "frames_with_x3_contact": 3133
+    },
+    {
+      "duration_wall_s": 19.416,
+      "sensor_frames": 2641,
+      "frames_with_x3_contact": 2641
+    }
+  ],
+  "regression": {
+    "ros": 63,
+    "backend": 7,
+    "reference_smoke": "PASS",
+    "mock_sap_api_smoke": "PASS"
+  },
+  "comparison": {
+    "baseline_full_inventory": {
+      "base": "f4ca62f",
+      "confirmed": 0,
+      "result": "Onboard lidar stopped advancing"
+    },
+    "baseline_targeted_recharge": {
+      "base": "f4ca62f",
+      "confirmed": 1,
+      "result": "Charging contact was lost"
+    },
+    "candidate_full_inventory_16m": {
+      "confirmed": 0,
+      "result": "LOCALIZATION_LOST: Matched scans stopped advancing"
+    }
+  }
+}

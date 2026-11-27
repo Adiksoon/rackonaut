@@ -1,4 +1,4 @@
-"""Start a local Control Center with the reference simulator and an optional fixture API."""
+"""Start a local Control Center with a selectable simulator drone."""
 
 import json
 import os
@@ -42,6 +42,12 @@ def setup(context):
     learned_warehouse = enabled("learned_warehouse")
     mapping_only = enabled("mapping_only") or learned_warehouse
     full_route_slam = enabled("full_route_slam") or learned_warehouse
+    drone_model = arg("drone_model")
+    if drone_model not in {"reference", "x3"}:
+        raise ValueError("drone_model must be reference or x3.")
+    x3 = drone_model == "x3"
+    if x3 and (localization != "sensor_based" or not recovery):
+        raise ValueError("drone_model:=x3 requires sensor_based localization and Recovery.")
     if recovery and localization != "sensor_based":
         raise ValueError("recovery:=true requires localization:=sensor_based.")
     if mapping_only and not recovery:
@@ -69,6 +75,10 @@ def setup(context):
     if localizer:
         world = "localization_laser_showcase.sdf" if laser else "localization_showcase.sdf"
     command = [str(root / "scripts/robotics/reference"), "--world", str(warehouse / "worlds" / world)]
+    if x3:
+        command.append("--x3")
+        if arg("x3_source"):
+            command.extend(["--x3-source", arg("x3_source")])
     profile = json.loads((warehouse / "config/aerial_layout.json").read_text()) if aerial else None
     props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
     if avoidance:
@@ -107,12 +117,17 @@ def setup(context):
         raise ValueError("Provide backend_url when mock:=false.")
     localization_nodes = []
     if localizer:
+        dock_xyz = profile["nodes"]["dock"].copy()
+        if x3:
+            # The X3 body extends 55 mm below its origin. The dock surface is at 4 mm.
+            dock_xyz[2] = .059
         localization_nodes.append(Node(package="rackonaut_localization", executable="localize", output="screen",
                               additional_env={"OPENBLAS_NUM_THREADS": "1"},
                               parameters=[{"mode": localization, "data_dir": data, "mapping_only": mapping_only,
                                            "full_route_slam": full_route_slam, "learned_warehouse": learned_warehouse,
-                                           **({"dock_xyz": profile["nodes"]["dock"]} if mapping_only else {})}]))
-    if recovery:
+                                           "drone_model": drone_model,
+                                           **({"dock_xyz": dock_xyz} if mapping_only or x3 else {})}]))
+    if recovery and not x3:
         localization_nodes.append(Node(
             package="ros_gz_bridge", executable="parameter_bridge", name="rackonaut_flight_enable_bridge", output="screen",
             arguments=["/rackonaut_reference/enable@std_msgs/msg/Bool]ignition.msgs.Boolean"],
@@ -136,6 +151,7 @@ def setup(context):
         "mapping_only": mapping_only,
         "full_route_slam": full_route_slam,
         "learned_warehouse": learned_warehouse,
+        "drone_model": drone_model,
     }]))
     if energy:
         initial = arg("battery_initial")
@@ -147,6 +163,7 @@ def setup(context):
             "aerial": aerial,
             "sensor_localization": localization == "sensor_based",
             "autonomous_recovery": recovery,
+            **({"dock_contact_collision": "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"} if x3 else {}),
             **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
     on_exit = [RegisterEventHandler(OnProcessExit(
@@ -193,7 +210,7 @@ def generate_launch_description():
                 "energy": "false", "aerial": "false", "avoidance": "false",
                 "localization": "ground_truth", "localization_diagnostics": "false",
                 "recovery": "false", "mapping_only": "false", "full_route_slam": "false", "learned_warehouse": "false",
-                "battery_initial": "auto", "charge_rate": "6.0"}
+                "battery_initial": "auto", "charge_rate": "6.0", "drone_model": "reference", "x3_source": ""}
     return LaunchDescription([
         *(DeclareLaunchArgument(name, default_value=value) for name, value in defaults.items()),
         OpaqueFunction(function=setup),

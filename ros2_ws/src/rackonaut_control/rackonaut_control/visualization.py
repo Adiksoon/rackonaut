@@ -38,8 +38,7 @@ def sources(folder):
 class Visualizations:
     def __init__(self, root, camera):
         self.root = Path(root)
-        self.camera = camera
-        self.camera_hash = file_hash(camera)
+        self.cameras = {"reference": camera, "x3": camera.with_name("x3-camera.json")}
         self.pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix="warehouse-visualization")
         self.lock = Lock()
         self.entries = {}
@@ -95,6 +94,23 @@ class Visualizations:
                 # availability never changes a calibration or dispatch decision.
                 pass
 
+    def camera_for(self, folder):
+        result = read(folder / "result.json")
+        model = result.get("drone_model", "reference")
+        profile = self.cameras.get(model) if isinstance(model, str) else None
+        if profile is None or not profile.is_file():
+            return None, None
+        path = folder / "sensors.json"
+        if path.is_file():
+            sensors, calibration = read(path), read(profile)
+            camera = sensors.get("camera") or {}
+            if (sensors.get("drone_model", "reference") != model or not isinstance(camera, dict)
+                    or camera.get("frame") != calibration["frame"]
+                    or camera.get("position_m", calibration["position_in_body_m"] if model == "reference" else None)
+                    != calibration["position_in_body_m"]):
+                return None, None
+        return model, profile
+
     def build(self, kind, identifier, folder, stamp):
         if kind == "warehouse":
             _, manifest = verified_package(self.root, identifier)
@@ -108,9 +124,10 @@ class Visualizations:
             mapping = identifier
             revision, name = manifest["revision"], "Warehouse calibration"
             source = digest({file: file_hash(folder / file) for file in INPUTS if (folder / file).is_file()})
+        camera_model, camera = self.camera_for(folder)
         binding = {"format": FORMAT, "configuration_id": identifier if kind == "warehouse" else None,
                    "mapping_id": mapping, "revision": revision, "source_sha256": source,
-                   "camera_sha256": self.camera_hash}
+                   "camera_profile": camera_model, "camera_sha256": file_hash(camera) if camera else None}
         path = folder / ARTIFACT
         try:
             saved = read(path)
@@ -122,7 +139,9 @@ class Visualizations:
             with TemporaryDirectory(prefix="rackonaut-twin-", dir=folder) as directory:
                 output = Path(directory) / "model.json"
                 command = ["nice", "-n", "10", sys.executable, "-m", "rackonaut_control.reconstruction.twin",
-                           str(folder), str(output), "--label", name, "--camera-calibration", str(self.camera)]
+                           str(folder), str(output), "--label", name]
+                if camera:
+                    command.extend(["--camera-calibration", str(camera)])
                 done = subprocess.run(command, timeout=45, check=False, capture_output=True, text=True,
                                       env={**os.environ, "OPENBLAS_NUM_THREADS": "1", "OMP_NUM_THREADS": "1"})
                 if done.returncode:

@@ -8,10 +8,19 @@ from scipy.spatial.transform import Rotation
 
 from rackonaut_localization.learned_map import load, save
 from rackonaut_localization.slam import FrozenRegistration, Keyframe
-from rackonaut_localization.warehouse_config import FORMAT, FRAME, REQUIRED, STORE, digest, file_hash, verified_package
+from rackonaut_localization.warehouse_config import (FORMAT, FRAME, REQUIRED, STORE, check_drone_model, digest,
+                                                    file_hash, verified_package)
 
 
 class LearnedMapTests(TestCase):
+    def test_legacy_warehouse_is_reference_and_models_are_incompatible(self):
+        check_drone_model({}, "reference")
+        check_drone_model({"drone_model": "x3"}, "x3")
+        with self.assertRaisesRegex(ValueError, "different drone model"):
+            check_drone_model({}, "x3")
+        with self.assertRaisesRegex(ValueError, "different drone model"):
+            check_drone_model({"drone_model": "x3"}, "reference")
+
     def test_round_trip_preserves_dock_and_measured_normals(self):
         with TemporaryDirectory() as scratch:
             path = Path(scratch) / "localization.npz"

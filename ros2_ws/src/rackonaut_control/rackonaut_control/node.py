@@ -150,7 +150,9 @@ class Control(Node):
         self.calibration = Calibration(self.data / "calibration-draft.json")
         self.teaching = Teaching(self.data, self.marker_map)
         self.route_review = RouteReview(self.teaching, self.layout.get("aerial"))
-        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor)
+        self.drone_model = self.declare_parameter("drone_model", "reference").value
+        self.warehouse_archive = WarehouseArchive(self.data, self.route_review, self.layout, safety_sensor,
+                                                  self.drone_model)
         self.visualizations = Visualizations(self.data, self.web.parent / "config" / "reference-camera.json")
         if self.learned_mode:
             try:
@@ -280,12 +282,13 @@ class Control(Node):
         for file in sorted((self.data / "reports").glob("*/run.json"), reverse=True)[:12]:
             try:
                 snapshot = json.loads(file.read_text())
-                result.append(self.history_item(snapshot["mission"], bool(snapshot.get("business"))))
+                result.append(self.history_item(snapshot["mission"], bool(snapshot.get("business")),
+                                                snapshot.get("drone_model")))
             except (OSError, ValueError, KeyError, TypeError) as error:
                 self.get_logger().warning(f"Could not read saved inspection {file.parent.name}: {error}")
         return result
 
-    def history_item(self, status, business):
+    def history_item(self, status, business, drone_model=None):
         run = status["inspection_id"]
         learned = status.get("learned") or {}
         identifier = learned.get("configuration_id")
@@ -294,6 +297,7 @@ class Control(Node):
         return {"run": run, "stage": status["stage"], "landed": status["landed"],
                 "warehouse_configuration_id": identifier, "warehouse_revision": learned.get("revision"),
                 "warehouse_name": archive.get("name", "Saved warehouse" if identifier else "Reference warehouse"),
+                "drone_model": drone_model or archive.get("drone_model"),
                 "planned_slots": status.get("planned_slots", []), "business": business,
                 "confirmed": len(status["confirmed"]), "total": status["total"], "url": f"/reports/{run}"}
 
@@ -493,7 +497,7 @@ class Control(Node):
             if not self.learned_mode:
                 raise RuntimeError("Launch the learned warehouse profile before planning inspections.")
             return self.warehouse_archive.plan(selection, self.energy_state())
-        route = plan(self.layout, selection)
+        route = plan(self.layout, selection, orthogonal_descent=self.drone_model == "x3")
         if self.safety_enabled and not self.aerial_enabled:
             route["required_zones"] = route_zones(route.get("safety_points", route["points"]), self.layout["safety_fields"])
         if self.energy_enabled:
@@ -615,6 +619,7 @@ class Control(Node):
                     **({"sensor_localization": "true"} if self.localization_mode == "sensor_based" else {}),
                     "safety_interlock": str(self.safety_enabled).lower(),
                     "adaptive_quality": str(planned["adaptive"] and planned["quality"]).lower(),
+                    "drone_model": self.drone_model,
                     **({"manual_flight": "true"} if manual else {}),
                     **({"mapping_id": mapping_id} if mapping_id else {}),
                     **({"full_route_slam": "true"} if self.full_route_slam else {}),
@@ -696,7 +701,8 @@ class Control(Node):
         contact = self.physical_dock(energy)
         job = self.job
         stage = self.stage(job) if job else None
-        return {"connection": connection, "localization": (localization or {}).get("state", "UNAVAILABLE"),
+        return {"connection": connection, "drone_model": self.drone_model,
+                "localization": (localization or {}).get("state", "UNAVAILABLE"),
                 "lidar": lidar, "imu": imu, "camera": camera, "contact": contact, "dock": energy.get("dock"),
                 "battery": energy.get("percent") if energy.get("fresh") else None,
                 "safety": safety.get("phase", "UNAVAILABLE"), "safety_sensors": safety.get("sensor"),
@@ -1063,7 +1069,7 @@ class Control(Node):
         if any(event["slot_id"] not in selected for event in api["observations"]):
             raise ValueError("Inventory API returned an observation outside this mission's scope.")
         source = self.data / "quality" / job.run
-        snapshot = {"mission": job.status, "api": api}
+        snapshot = {"mission": job.status, "api": api, "drone_model": self.drone_model}
         export(snapshot, source, self.data / "reports", backend=self.backend)
         return {"url": f"/reports/{job.run}", "events": len(api["observations"]),
                 "rows": [row for row in api["summary"]["slots"] if row["slot_id"] in selected],
@@ -1075,7 +1081,8 @@ class Control(Node):
         if job.archive_future and job.archive_future.done():
             try:
                 job.archive = job.archive_future.result()
-                self.history.insert(0, self.history_item(job.status, self.backend_state["mode"] == "mock_sap"))
+                self.history.insert(0, self.history_item(job.status, self.backend_state["mode"] == "mock_sap",
+                                                         self.drone_model))
             except (OSError, KeyError, ValueError) as error:
                 if job.attempts == 3:
                     job.export_error = str(error)
@@ -1170,6 +1177,7 @@ class Control(Node):
                            "evidence": job.evidence, "quality_uncertain": job.quality_uncertain,
                            "result": job.archive, "error": job.error or job.export_error}
             result = {"robot": odometry_age < 1.5, "at_pad": self.at_pad(), "busy": self.busy(),
+                    "drone_model": self.drone_model,
                     "physical_dock": self.physical_dock(energy) if self.energy_enabled and
                     self.localization_mode == "sensor_based" else None,
                     "position_fresh": odometry_age <= .40, "speed": self.speed if odometry_age <= .40 else None,

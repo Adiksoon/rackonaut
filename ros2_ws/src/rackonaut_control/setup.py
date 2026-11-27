@@ -9,7 +9,7 @@ setup(
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package}"]),
         (f"share/{package}", ["package.xml"]),
-        (f"share/{package}/config", ["config/reference-camera.json"]),
+        (f"share/{package}/config", ["config/reference-camera.json", "config/x3-camera.json"]),
         (f"share/{package}/launch", ["launch/control.launch.py"]),
         (f"share/{package}/web", ["web/index.html", "web/app.js", "web/operator.js", "web/operator.css", "web/business.js", "web/service.js", "web/manual.js", "web/style.css",
                                   "web/twin.js", "web/rack-templates.js", "web/twin-scene.js", "web/scan.js", "web/teaching.js", "web/route.js", "web/twin.css",

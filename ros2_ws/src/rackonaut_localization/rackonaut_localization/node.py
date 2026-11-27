@@ -6,6 +6,7 @@ from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
 from time import monotonic, perf_counter
+from threading import Lock, Thread
 
 import numpy as np
 import rclpy
@@ -13,6 +14,7 @@ from ament_index_python.packages import get_package_share_path
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
+from rclpy.executors import ExternalShutdownException, SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, qos_profile_sensor_data
 from scipy.spatial.transform import Rotation
@@ -26,7 +28,7 @@ from .inertial import GRAVITY, State, propagate
 from .learned_map import MAP_FILE, load as load_learned_map, read_ply, save as save_learned_map
 from .registration import StaticMap, voxel_sample
 from .slam import FrozenRegistration, FullRouteRegistration, MeasuredRegistration
-from .warehouse_config import active_identifier, verified_package
+from .warehouse_config import active_identifier, check_drone_model, read, verified_package
 
 FRAME, BODY = "rackonaut_odom", "rackonaut_base_link"
 IMU_FRAME = "rackonaut_reference_drone/base_link/local_imu"
@@ -92,6 +94,7 @@ class Localization(Node):
         if self.mode not in {"shadow", "sensor_based", "slam_shadow"}:
             raise ValueError("Unknown localization mode")
         self.directory = Path(self.declare_parameter("data_dir", "control").value)
+        self.drone_model = self.declare_parameter("drone_model", "reference").value
         self.mapping_only = self.declare_parameter("mapping_only", False).value
         full_route = self.declare_parameter("full_route_slam", False).value
         self.learned_mode = self.declare_parameter("learned_warehouse", False).value
@@ -102,13 +105,13 @@ class Localization(Node):
         self.slam = self.registration_type() if self.mode == "slam_shadow" or self.mapping_only else None
         self.reference = None
         if self.slam is not None:
-            dock = self.declare_parameter("dock_xyz", [-4.7, 10.3, .05]).value
+            dock = [-4.7, 10.3, .05]
         else:
             config = get_package_share_path("rackonaut_warehouse") / "config"
             layout = json.loads((config / "localization_map.json").read_text())
             self.reference = StaticMap(layout["boxes"], layout["triangles"])
             dock = json.loads((config / "aerial_layout.json").read_text())["nodes"]["dock"]
-        self.dock = np.array(dock)
+        self.dock = np.array(self.declare_parameter("dock_xyz", dock).value)
         self.installation_dock = self.dock.copy()
         self.warehouse_id = None
         self.warehouse_revision = None
@@ -137,7 +140,18 @@ class Localization(Node):
         self.estimate_pub = self.create_publisher(Odometry, ESTIMATE, qos_profile_sensor_data)
         self.diag_pub = self.create_publisher(String, STATUS, latest)
         self.map_pub = self.create_publisher(PointCloud2, MAP, qos_profile_sensor_data)
-        self.create_subscription(Imu, IMU, self.on_imu, qos_profile_sensor_data)
+        self.imu_worker = None
+        if self.drone_model == "x3" and self.mode == "sensor_based":
+            self.imu_inbox = deque(maxlen=32)
+            self.imu_lock = Lock()
+            self.imu_receiver = Node("rackonaut_x3_imu_receiver")
+            self.imu_receiver.create_subscription(Imu, IMU, self.enqueue_imu, qos_profile_sensor_data)
+            self.imu_executor = SingleThreadedExecutor()
+            self.imu_executor.add_node(self.imu_receiver)
+            self.imu_worker = Thread(target=self.receive_imu, name="x3-imu")
+            self.imu_worker.start()
+        else:
+            self.create_subscription(Imu, IMU, self.on_imu, qos_profile_sensor_data)
         self.create_subscription(PointCloud2, TOPIC, self.on_scan, qos_profile_sensor_data)
         self.create_service(Trigger, "/rackonaut/localization/export_map", self.export_map)
         if self.mode == "sensor_based":
@@ -169,6 +183,7 @@ class Localization(Node):
                 self.set_warehouse(None, None, self.registration_type(), self.installation_dock, Measurements())
                 return
             folder, manifest = verified_package(self.directory, identifier)
+            check_drone_model(read(folder / "sensors.json"), self.drone_model)
             dock, frames = load_learned_map(folder / MAP_FILE)
             if np.linalg.norm(dock-self.installation_dock) > .02:
                 raise ValueError("Learned warehouse dock does not match the physical installation.")
@@ -243,6 +258,33 @@ class Localization(Node):
         self.quality, self.reason = "STARTING", reason
         self.accepted = self.failures = 0
         self.updates.clear()
+
+    def receive_imu(self):
+        try:
+            self.imu_executor.spin()
+        except ExternalShutdownException:
+            pass
+
+    def enqueue_imu(self, message):
+        received = monotonic()
+        with self.imu_lock:
+            self.imu_inbox.append((received, message))
+
+    def drain_imu(self):
+        with self.imu_lock:
+            batch = tuple(self.imu_inbox)
+            self.imu_inbox.clear()
+        for received, message in batch:
+            previous = self.samples[-1] if self.samples else None
+            self.on_imu(message)
+            if self.samples and self.samples[-1] is not previous:
+                self.imu_at = received
+
+    def close(self):
+        if self.imu_worker is not None:
+            self.imu_executor.shutdown()
+            self.imu_worker.join()
+            self.imu_receiver.destroy_node()
 
     def on_imu(self, message):
         if message.header.frame_id != IMU_FRAME:
@@ -381,6 +423,8 @@ class Localization(Node):
         return state, reason
 
     def tick(self):
+        if self.imu_worker is not None:
+            self.drain_imu()
         now = monotonic()
         self.check_warehouse(now)
         if self.calibrated and self.pending:
@@ -392,6 +436,9 @@ class Localization(Node):
                     self.match(message, received, now)
             elif now-received > .20:
                 self.pending = None
+        if self.imu_worker is not None:
+            self.drain_imu()
+            now = monotonic()
         state, reason = self.status(now)
         if self.mode == "sensor_based" and state == "TRACKING":
             time, gyro, _ = self.samples[-1]
@@ -488,6 +535,8 @@ class Localization(Node):
         result = {"mapping_id": self.mapping.id, "frame": FRAME, "dock": rounded(self.dock),
                   "started_sim": self.mapping.stamp, "last_measurement_sim": self.cloud.stamp,
                   "points": len(self.cloud.voxels), "trajectory": [rounded(point, 5) for point in self.cloud.path]}
+        if self.drone_model != "reference":
+            result["drone_model"] = self.drone_model
         if type(self.slam) is FullRouteRegistration:
             save_learned_map(directory / MAP_FILE, self.slam.keyframes, self.dock)
             result["localization_archive"] = MAP_FILE
@@ -501,8 +550,9 @@ def main():
     node = Localization()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
+        node.close()
         node.destroy_node()
         rclpy.try_shutdown()

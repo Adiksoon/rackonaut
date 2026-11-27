@@ -42,6 +42,9 @@ class Energy(Node):
         self.maximum_draw = self.model.draw(.65, 0., .60, True)
         self.aerial = self.declare_parameter("aerial", False).value
         self.sensor_localization = self.declare_parameter("sensor_localization", False).value
+        drone_collision = self.declare_parameter(
+            "dock_contact_collision", "rackonaut_reference_drone::base_link::body_collision").value
+        self.pad_contact_pair = {"rackonaut_dock::body::dock_contact_surface_collision", drone_collision}
         layout_name = "aerial_layout.json" if self.aerial else "control_layout.json"
         layout = get_package_share_path("rackonaut_warehouse") / "config" / layout_name
         pad = json.loads(layout.read_text())["pad"]
@@ -95,9 +98,8 @@ class Energy(Node):
         if stamp <= self.pad_contact_stamp:
             return
         self.pad_contact_stamp, self.pad_contact_at = stamp, monotonic()
-        pair = {"rackonaut_dock::body::dock_contact_surface_collision",
-                "rackonaut_reference_drone::base_link::body_collision"}
-        self.pad_touched = any({item.collision1.name, item.collision2.name} == pair for item in message.contacts)
+        self.pad_touched = any({item.collision1.name, item.collision2.name} == self.pad_contact_pair
+                               for item in message.contacts)
 
     def physical_contact(self):
         return self.pad_touched and monotonic() - self.pad_contact_at <= .40

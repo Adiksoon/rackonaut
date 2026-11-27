@@ -16,6 +16,8 @@ avoidance=0
 localization=""
 validation=0
 full_route=0
+x3=0
+x3_source=()
 while (( $# )); do
     case "$1" in
         --world) world="${2:?--world requires a path}"; shift ;;
@@ -24,9 +26,11 @@ while (( $# )); do
         --localization) localization="${2:?--localization requires shadow or sensor_based}"; shift ;;
         --localization-validation) validation=1 ;;
         --full-route-slam) full_route=1 ;;
+        --x3) x3=1 ;;
+        --x3-source) x3_source=(--source "${2:?--x3-source requires a path}"); shift ;;
         --spawn) spawn=("${2:?missing X}" "${3:?missing Y}" "${4:?missing Z}" "${5:?missing yaw}"); shift 4 ;;
         --hardware-rendering) software=0 ;;
-        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH] [--spawn X Y Z YAW] [--avoidance] [--localization shadow|sensor_based] [--localization-validation] [--full-route-slam]\n' "$0" >&2; exit 2 ;;
+        *) printf 'Usage: %s [--gui] [--hardware-rendering] [--world PATH] [--spawn X Y Z YAW] [--avoidance] [--localization shadow|sensor_based] [--localization-validation] [--full-route-slam] [--x3 [--x3-source PATH]]\n' "$0" >&2; exit 2 ;;
     esac
     shift
 done
@@ -45,6 +49,21 @@ elif (( full_route )); then
     exit 2
 fi
 world="$(realpath -e -- "$world")"
+model_name=rackonaut_reference_drone
+camera_xyz=(--x 0.23)
+if (( x3 )); then
+    if [[ "$localization" != sensor_based ]]; then
+        printf '%s\n' 'The Full Robotics X3 simulator requires sensor_based localization.' >&2
+        exit 2
+    fi
+    x3_share="$(ros2 pkg prefix --share rackonaut_drone)"
+    x3_profile=standard
+    if (( full_route )); then x3_profile=full-route; fi
+    model="$(ros2 run rackonaut_drone prepare_model --integrated "$x3_profile" "${x3_source[@]}")"
+    model_name=rackonaut_x3
+    camera_xyz=(--x 0.27 --z 0.04)
+    bridge="$x3_share/config/full-robotics-bridge.yaml"
+fi
 export HOME="$RACKONAUT_WS/.gazebo-home"
 mkdir -p -- "$HOME"
 ulimit -c 0
@@ -80,26 +99,44 @@ if (( ! ready )); then
     exit 1
 fi
 timeout 10s ros2 run ros_gz_sim create -world rackonaut -file "$model" \
-    -name rackonaut_reference_drone -x "${spawn[0]}" -y "${spawn[1]}" -z "${spawn[2]}" -Y "${spawn[3]}"
+    -name "$model_name" -x "${spawn[0]}" -y "${spawn[1]}" -z "${spawn[2]}" -Y "${spawn[3]}"
 start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -p "config_file:=$bridge"
-start_owned ros2 run tf2_ros static_transform_publisher --x 0.23 --roll -1.57079632679 --yaw -1.57079632679 --frame-id rackonaut_base_link --child-frame-id rackonaut_camera_optical_frame --ros-args -p use_sim_time:=true
-if (( avoidance )); then
+start_owned ros2 run tf2_ros static_transform_publisher "${camera_xyz[@]}" --roll -1.57079632679 --yaw -1.57079632679 --frame-id rackonaut_base_link --child-frame-id rackonaut_camera_optical_frame --ros-args -p use_sim_time:=true
+if (( x3 )); then
+    LC_ALL=C printf -v dock_position '[%.9f,%.9f,0.059]' "${spawn[0]}" "${spawn[1]}"
+    start_owned ros2 run rackonaut_drone velocity_guard --ros-args -p gentle_dock_descent:=true \
+        -p "dock_position:=$dock_position"
+    start_owned ros2 run rackonaut_drone sensor_frames
+    start_owned ros2 run ros_gz_bridge parameter_bridge '/rackonaut_x3/local_lidar/points@sensor_msgs/msg/PointCloud2[ignition.msgs.PointCloudPacked' \
+        --ros-args -r __node:=rackonaut_x3_lidar_bridge -r /rackonaut_x3/local_lidar/points:=/rackonaut_drone/sensors/lidar
+    start_owned ros2 run ros_gz_bridge parameter_bridge '/rackonaut_x3/local_imu@sensor_msgs/msg/Imu[ignition.msgs.IMU' \
+        --ros-args -r __node:=rackonaut_x3_imu_bridge -r /rackonaut_x3/local_imu:=/rackonaut_drone/sensors/imu
+elif (( avoidance )); then
     start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_lidar_bridge \
         -p "config_file:=$share/config/avoidance-bridge.yaml"
+fi
+if (( avoidance )); then
     start_owned ros2 run tf2_ros static_transform_publisher --z 0.09 --frame-id rackonaut_base_link \
         --child-frame-id rackonaut_reference_drone/base_link/local_lidar --ros-args -p use_sim_time:=true
 fi
 if [[ -n "$localization" ]]; then
-    start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_localization_sensors_bridge \
-        -p "config_file:=$share/config/localization-sensors.yaml"
+    if (( ! x3 )); then
+        start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_localization_sensors_bridge \
+            -p "config_file:=$share/config/localization-sensors.yaml"
+    fi
     start_owned ros2 run tf2_ros static_transform_publisher --frame-id rackonaut_base_link \
         --child-frame-id rackonaut_reference_drone/base_link/local_imu --ros-args -p use_sim_time:=true
 fi
 if (( validation )); then
-    start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_validation_bridge \
-        -p "config_file:=$share/config/validation-bridge.yaml"
+    if (( x3 )); then
+        start_owned ros2 run ros_gz_bridge parameter_bridge '/rackonaut_x3/odom@nav_msgs/msg/Odometry[ignition.msgs.Odometry' \
+            --ros-args -r __node:=rackonaut_validation_bridge -r /rackonaut_x3/odom:=/rackonaut/validation/ground_truth
+    else
+        start_owned ros2 run ros_gz_bridge parameter_bridge --ros-args -r __node:=rackonaut_validation_bridge \
+            -p "config_file:=$share/config/validation-bridge.yaml"
+    fi
 fi
-if [[ -n "$localization" ]]; then
+if [[ -n "$localization" ]] && (( ! x3 )); then
     wait "$server_pid"
 else
     wait -n
