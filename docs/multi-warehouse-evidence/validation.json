@@ -1,0 +1,717 @@
+[
+  {
+    "warehouse_variant": "distribution-center",
+    "title": "Distribution Center",
+    "schema_version": 1,
+    "bounds": {
+      "x": [
+        -12,
+        43
+      ],
+      "y": [
+        -17.5,
+        17.5
+      ],
+      "height": 12
+    },
+    "rack": {
+      "height": 8,
+      "depth": 1.35,
+      "levels": [
+        0.58,
+        2.61,
+        4.64,
+        6.67
+      ],
+      "fill": 0.57
+    },
+    "banks": [
+      {
+        "name": "dispatch-racks",
+        "axis": "x",
+        "start": 0,
+        "bay_pitch": 2.6,
+        "bays": 14,
+        "rows": [
+          -11.8,
+          -5.65,
+          0.5,
+          6.65,
+          12.8
+        ],
+        "aisles": [
+          "B",
+          "C",
+          "A",
+          "D"
+        ]
+      }
+    ],
+    "aisles": [
+      {
+        "name": "B",
+        "axis": "x",
+        "center": -8.725000000000001,
+        "length": 36.4,
+        "width": 4.800000000000001,
+        "functional": true,
+        "bank": "dispatch-racks"
+      },
+      {
+        "name": "C",
+        "axis": "x",
+        "center": -2.575,
+        "length": 36.4,
+        "width": 4.800000000000001,
+        "functional": false,
+        "bank": "dispatch-racks"
+      },
+      {
+        "name": "A",
+        "axis": "x",
+        "center": 3.575,
+        "length": 36.4,
+        "width": 4.800000000000001,
+        "functional": true,
+        "bank": "dispatch-racks"
+      },
+      {
+        "name": "D",
+        "axis": "x",
+        "center": 9.725000000000001,
+        "length": 36.4,
+        "width": 4.800000000000001,
+        "functional": false,
+        "bank": "dispatch-racks"
+      }
+    ],
+    "staging": [
+      {
+        "name": "receiving",
+        "center": [
+          -6,
+          -10.0
+        ],
+        "size": [
+          7.6,
+          7.0
+        ],
+        "usage": "receiving"
+      },
+      {
+        "name": "outbound",
+        "center": [
+          39.4,
+          7.5
+        ],
+        "size": [
+          4.8,
+          9.2
+        ],
+        "usage": "dispatch"
+      }
+    ],
+    "rack_rows": 5,
+    "functional_slots": 6,
+    "decorative_stock_has_no_inventory_ids": true,
+    "tunnel_height_m": 9.65,
+    "dock": [
+      -7.8,
+      6.7,
+      0.05
+    ],
+    "portal_opening_m": [
+      1.72,
+      1.72
+    ],
+    "world_counts": {
+      "models": 19,
+      "visuals": 1311,
+      "collisions": 771,
+      "lights": 10
+    },
+    "sdf_bytes": 806992,
+    "sha256": "370f0ba006f0f43e0dfa8ffe7590747ea8209c26b1e5c6e81d59d7ef4937fd5d",
+    "clearance": {
+      "checked_volumes": 10,
+      "visual_intersections": 0,
+      "collision_intersections": 0,
+      "portal_margin_per_side_m": 0.05,
+      "inspection_margin_per_side_m": 1.26
+    },
+    "decoded_marker_ids": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      27
+    ],
+    "route_energy_forecasts": [
+      {
+        "slot": "A-02-01",
+        "viewpoint_z_m": 0.97,
+        "distance_m": 66.356,
+        "sim_s": 176.594,
+        "required_pct_including_reserve": 69.153,
+        "within_100_percent": true
+      },
+      {
+        "slot": "A-06-02",
+        "viewpoint_z_m": 3.0,
+        "distance_m": 87.521,
+        "sim_s": 217.543,
+        "required_pct_including_reserve": 84.807,
+        "within_100_percent": true
+      },
+      {
+        "slot": "A-10-04",
+        "viewpoint_z_m": 7.06,
+        "distance_m": 109.616,
+        "sim_s": 260.876,
+        "required_pct_including_reserve": 102.137,
+        "within_100_percent": false
+      },
+      {
+        "slot": "B-03-02",
+        "viewpoint_z_m": 3.0,
+        "distance_m": 97.124,
+        "sim_s": 237.993,
+        "required_pct_including_reserve": 91.834,
+        "within_100_percent": true
+      },
+      {
+        "slot": "B-08-03",
+        "viewpoint_z_m": 5.029999999999999,
+        "distance_m": 123.132,
+        "sim_s": 292.16,
+        "required_pct_including_reserve": 111.913,
+        "within_100_percent": false
+      },
+      {
+        "slot": "B-12-04",
+        "viewpoint_z_m": 7.06,
+        "distance_m": 144.313,
+        "sim_s": 335.493,
+        "required_pct_including_reserve": 128.187,
+        "within_100_percent": false
+      }
+    ]
+  },
+  {
+    "warehouse_variant": "high-bay",
+    "title": "High-Bay Warehouse",
+    "schema_version": 1,
+    "bounds": {
+      "x": [
+        -12,
+        53
+      ],
+      "y": [
+        -20,
+        20
+      ],
+      "height": 17
+    },
+    "rack": {
+      "height": 12,
+      "depth": 1.32,
+      "levels": [
+        0.65,
+        2.69,
+        4.73,
+        6.77,
+        8.81,
+        10.85
+      ],
+      "fill": 0.51
+    },
+    "banks": [
+      {
+        "name": "high-bay-racks",
+        "axis": "x",
+        "start": 1.6,
+        "bay_pitch": 2.8,
+        "bays": 16,
+        "rows": [
+          -12.4,
+          -7.48,
+          -2.56,
+          2.36,
+          7.28,
+          12.2
+        ],
+        "aisles": [
+          "C",
+          "B",
+          "D",
+          "A",
+          "E"
+        ]
+      }
+    ],
+    "aisles": [
+      {
+        "name": "C",
+        "axis": "x",
+        "center": -9.940000000000001,
+        "length": 44.8,
+        "width": 3.5999999999999996,
+        "functional": false,
+        "bank": "high-bay-racks"
+      },
+      {
+        "name": "B",
+        "axis": "x",
+        "center": -5.0200000000000005,
+        "length": 44.8,
+        "width": 3.5999999999999996,
+        "functional": true,
+        "bank": "high-bay-racks"
+      },
+      {
+        "name": "D",
+        "axis": "x",
+        "center": -0.10000000000000009,
+        "length": 44.8,
+        "width": 3.5999999999999996,
+        "functional": false,
+        "bank": "high-bay-racks"
+      },
+      {
+        "name": "A",
+        "axis": "x",
+        "center": 4.82,
+        "length": 44.8,
+        "width": 3.5999999999999996,
+        "functional": true,
+        "bank": "high-bay-racks"
+      },
+      {
+        "name": "E",
+        "axis": "x",
+        "center": 9.74,
+        "length": 44.8,
+        "width": 3.5999999999999988,
+        "functional": false,
+        "bank": "high-bay-racks"
+      }
+    ],
+    "staging": [
+      {
+        "name": "lift-staging",
+        "center": [
+          -6.6,
+          -13.7
+        ],
+        "size": [
+          7.4,
+          7.2
+        ],
+        "usage": "lifts"
+      },
+      {
+        "name": "marshalling",
+        "center": [
+          48.8,
+          11.5
+        ],
+        "size": [
+          4.5,
+          10.4
+        ],
+        "usage": "dispatch"
+      }
+    ],
+    "rack_rows": 6,
+    "functional_slots": 6,
+    "decorative_stock_has_no_inventory_ids": true,
+    "tunnel_height_m": 13.85,
+    "dock": [
+      -5.5,
+      6.95,
+      0.05
+    ],
+    "portal_opening_m": [
+      1.72,
+      1.72
+    ],
+    "world_counts": {
+      "models": 21,
+      "visuals": 2001,
+      "collisions": 1154,
+      "lights": 10
+    },
+    "sdf_bytes": 1222203,
+    "sha256": "a782d9a8d7725d699b4dbbc6a2356bd93f4f87f44709daa28103bde6d8f64e17",
+    "clearance": {
+      "checked_volumes": 10,
+      "visual_intersections": 0,
+      "collision_intersections": 0,
+      "portal_margin_per_side_m": 0.05,
+      "inspection_margin_per_side_m": 0.66
+    },
+    "decoded_marker_ids": [
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37
+    ],
+    "route_energy_forecasts": [
+      {
+        "slot": "A-03-02",
+        "viewpoint_z_m": 3.08,
+        "distance_m": 86.917,
+        "sim_s": 225.469,
+        "required_pct_including_reserve": 87.859,
+        "within_100_percent": true
+      },
+      {
+        "slot": "A-07-04",
+        "viewpoint_z_m": 7.159999999999999,
+        "distance_m": 110.736,
+        "sim_s": 272.136,
+        "required_pct_including_reserve": 106.37,
+        "within_100_percent": false
+      },
+      {
+        "slot": "A-12-06",
+        "viewpoint_z_m": 11.24,
+        "distance_m": 139.838,
+        "sim_s": 330.469,
+        "required_pct_including_reserve": 128.979,
+        "within_100_percent": false
+      },
+      {
+        "slot": "B-01-01",
+        "viewpoint_z_m": 1.04,
+        "distance_m": 94.762,
+        "sim_s": 254.887,
+        "required_pct_including_reserve": 96.058,
+        "within_100_percent": true
+      },
+      {
+        "slot": "B-05-04",
+        "viewpoint_z_m": 7.159999999999999,
+        "distance_m": 120.135,
+        "sim_s": 291.502,
+        "required_pct_including_reserve": 113.017,
+        "within_100_percent": false
+      },
+      {
+        "slot": "B-10-05",
+        "viewpoint_z_m": 9.200000000000001,
+        "distance_m": 147.526,
+        "sim_s": 349.836,
+        "required_pct_including_reserve": 134.564,
+        "within_100_percent": false
+      }
+    ]
+  },
+  {
+    "warehouse_variant": "logistics-hub",
+    "title": "Large Logistics Hub",
+    "schema_version": 1,
+    "bounds": {
+      "x": [
+        -12,
+        78
+      ],
+      "y": [
+        -27.5,
+        27.5
+      ],
+      "height": 15
+    },
+    "rack": {
+      "height": 10,
+      "depth": 1.4,
+      "levels": [
+        0.55,
+        2.64,
+        4.73,
+        6.82,
+        8.91
+      ],
+      "fill": 0.48
+    },
+    "banks": [
+      {
+        "name": "west-sort",
+        "axis": "x",
+        "start": 2,
+        "bay_pitch": 2.8,
+        "bays": 10,
+        "rows": [
+          -19.0,
+          -12.8,
+          -6.6,
+          -0.4,
+          5.8
+        ],
+        "aisles": [
+          "C",
+          "D",
+          "E",
+          "A"
+        ]
+      },
+      {
+        "name": "east-fulfilment",
+        "axis": "x",
+        "start": 38,
+        "bay_pitch": 2.8,
+        "bays": 11,
+        "rows": [
+          -21.5,
+          -15.3,
+          -9.1,
+          -2.9
+        ],
+        "aisles": [
+          "F",
+          "G",
+          "B"
+        ]
+      },
+      {
+        "name": "north-bulk",
+        "axis": "y",
+        "start": 7,
+        "bay_pitch": 2.6,
+        "bays": 6,
+        "rows": [
+          49.8,
+          56.6
+        ],
+        "aisles": [
+          "H"
+        ]
+      }
+    ],
+    "aisles": [
+      {
+        "name": "C",
+        "axis": "x",
+        "center": -15.9,
+        "length": 28.0,
+        "width": 4.799999999999999,
+        "functional": false,
+        "bank": "west-sort"
+      },
+      {
+        "name": "D",
+        "axis": "x",
+        "center": -9.7,
+        "length": 28.0,
+        "width": 4.800000000000001,
+        "functional": false,
+        "bank": "west-sort"
+      },
+      {
+        "name": "E",
+        "axis": "x",
+        "center": -3.5,
+        "length": 28.0,
+        "width": 4.799999999999999,
+        "functional": false,
+        "bank": "west-sort"
+      },
+      {
+        "name": "A",
+        "axis": "x",
+        "center": 2.6999999999999997,
+        "length": 28.0,
+        "width": 4.800000000000001,
+        "functional": true,
+        "bank": "west-sort"
+      },
+      {
+        "name": "F",
+        "axis": "x",
+        "center": -18.4,
+        "length": 30.799999999999997,
+        "width": 4.799999999999999,
+        "functional": false,
+        "bank": "east-fulfilment"
+      },
+      {
+        "name": "G",
+        "axis": "x",
+        "center": -12.2,
+        "length": 30.799999999999997,
+        "width": 4.800000000000001,
+        "functional": false,
+        "bank": "east-fulfilment"
+      },
+      {
+        "name": "B",
+        "axis": "x",
+        "center": -6.0,
+        "length": 30.799999999999997,
+        "width": 4.799999999999999,
+        "functional": true,
+        "bank": "east-fulfilment"
+      },
+      {
+        "name": "H",
+        "axis": "y",
+        "center": 53.2,
+        "length": 15.600000000000001,
+        "width": 5.400000000000004,
+        "functional": false,
+        "bank": "north-bulk"
+      }
+    ],
+    "staging": [
+      {
+        "name": "west-receiving",
+        "center": [
+          -4,
+          -8
+        ],
+        "size": [
+          9.4,
+          15.0
+        ],
+        "usage": "receiving"
+      },
+      {
+        "name": "north-buffer",
+        "center": [
+          21.0,
+          18.5
+        ],
+        "size": [
+          13.0,
+          10.0
+        ],
+        "usage": "buffer"
+      },
+      {
+        "name": "express-exchange",
+        "center": [
+          65.0,
+          13.7
+        ],
+        "size": [
+          10.0,
+          14.0
+        ],
+        "usage": "dispatch"
+      },
+      {
+        "name": "south-buffer",
+        "center": [
+          28.0,
+          -24.4
+        ],
+        "size": [
+          12.0,
+          4.5
+        ],
+        "usage": "buffer"
+      }
+    ],
+    "rack_rows": 11,
+    "functional_slots": 6,
+    "decorative_stock_has_no_inventory_ids": true,
+    "tunnel_height_m": 11.95,
+    "dock": [
+      33.0,
+      9.8,
+      0.05
+    ],
+    "portal_opening_m": [
+      1.72,
+      1.72
+    ],
+    "world_counts": {
+      "models": 25,
+      "visuals": 2008,
+      "collisions": 1142,
+      "lights": 10
+    },
+    "sdf_bytes": 1221804,
+    "sha256": "b6add5c8bcb75f397cdc9a859427afa596a64692fc3e17024472421da9351bb9",
+    "clearance": {
+      "checked_volumes": 10,
+      "visual_intersections": 0,
+      "collision_intersections": 0,
+      "portal_margin_per_side_m": 0.05,
+      "inspection_margin_per_side_m": 1.26
+    },
+    "decoded_marker_ids": [
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47
+    ],
+    "route_energy_forecasts": [
+      {
+        "slot": "A-07-01",
+        "viewpoint_z_m": 0.9400000000000001,
+        "distance_m": 94.661,
+        "sim_s": 238.887,
+        "required_pct_including_reserve": 91.356,
+        "within_100_percent": true
+      },
+      {
+        "slot": "A-09-03",
+        "viewpoint_z_m": 5.12,
+        "distance_m": 89.712,
+        "sim_s": 232.997,
+        "required_pct_including_reserve": 89.87,
+        "within_100_percent": true
+      },
+      {
+        "slot": "A-10-05",
+        "viewpoint_z_m": 9.3,
+        "distance_m": 97.911,
+        "sim_s": 255.592,
+        "required_pct_including_reserve": 97.964,
+        "within_100_percent": true
+      },
+      {
+        "slot": "B-02-02",
+        "viewpoint_z_m": 3.0300000000000002,
+        "distance_m": 98.726,
+        "sim_s": 250.9,
+        "required_pct_including_reserve": 95.802,
+        "within_100_percent": true
+      },
+      {
+        "slot": "B-07-04",
+        "viewpoint_z_m": 7.21,
+        "distance_m": 126.484,
+        "sim_s": 301.504,
+        "required_pct_including_reserve": 116.453,
+        "within_100_percent": false
+      },
+      {
+        "slot": "B-11-05",
+        "viewpoint_z_m": 9.3,
+        "distance_m": 148.956,
+        "sim_s": 348.17,
+        "required_pct_including_reserve": 133.929,
+        "within_100_percent": false
+      }
+    ]
+  }
+]

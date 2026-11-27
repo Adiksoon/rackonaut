@@ -74,6 +74,8 @@ Use `scripts/robotics/warehouse-in-motion` to run a repeatable X3 inspection wit
 
 Select `warehouse_variant:=open-aisle` on the live launcher for the overhead portals and open descents into aisles A and B. The default `warehouse_variant:=historical` retains the earlier warehouse and its calibration compatibility. [Geometry, validation and views](docs/OPEN_AISLE_DESCENT.md)
 
+The environment library adds `distribution-center`, `high-bay`, and `logistics-hub` as separate `warehouse_variant` values. They start with the protected calibration profile and a variant-specific Mock SAP inventory. [Layouts, launch instructions and validation scope](docs/MULTI_WAREHOUSE_ENVIRONMENTS.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

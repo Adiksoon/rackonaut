@@ -1,0 +1,177 @@
+{
+  "id": "distribution-center",
+  "title": "Distribution Center",
+  "seed": 281,
+  "bounds": {
+    "x": [
+      -12,
+      43
+    ],
+    "y": [
+      -17.5,
+      17.5
+    ],
+    "height": 12
+  },
+  "design": {
+    "shell": "distribution",
+    "frame": [
+      0.15,
+      0.27,
+      0.34
+    ],
+    "beam": [
+      0.91,
+      0.41,
+      0.1
+    ],
+    "accent": [
+      0.05,
+      0.61,
+      0.65
+    ],
+    "liner": [
+      0.65,
+      0.71,
+      0.74
+    ],
+    "floor": [
+      0.33,
+      0.37,
+      0.39
+    ]
+  },
+  "rack": {
+    "height": 8,
+    "depth": 1.35,
+    "levels": [
+      0.58,
+      2.61,
+      4.64,
+      6.67
+    ],
+    "fill": 0.57
+  },
+  "banks": [
+    {
+      "name": "dispatch-racks",
+      "axis": "x",
+      "start": 0,
+      "bay_pitch": 2.6,
+      "bays": 14,
+      "rows": [
+        -11.8,
+        -5.65,
+        0.5,
+        6.65,
+        12.8
+      ],
+      "aisles": [
+        "B",
+        "C",
+        "A",
+        "D"
+      ]
+    }
+  ],
+  "flight": {
+    "dock": [
+      -7.8,
+      6.7
+    ],
+    "trunk_x": -3.0,
+    "height": 9.65,
+    "portals": {
+      "A": 2.0,
+      "B": 2.0
+    }
+  },
+  "staging": [
+    {
+      "name": "receiving",
+      "center": [
+        -6,
+        -10.0
+      ],
+      "size": [
+        7.6,
+        7.0
+      ],
+      "usage": "receiving"
+    },
+    {
+      "name": "outbound",
+      "center": [
+        39.4,
+        7.5
+      ],
+      "size": [
+        4.8,
+        9.2
+      ],
+      "usage": "dispatch"
+    }
+  ],
+  "locations": [
+    {
+      "aisle": "A",
+      "bay": 2,
+      "level": 1,
+      "marker": 11,
+      "scenario": "match",
+      "expected": "P101",
+      "pallet": "P101",
+      "pallet_marker": 17
+    },
+    {
+      "aisle": "A",
+      "bay": 6,
+      "level": 2,
+      "marker": 12,
+      "scenario": "missing",
+      "expected": "P102",
+      "pallet": null,
+      "pallet_marker": null
+    },
+    {
+      "aisle": "A",
+      "bay": 10,
+      "level": 4,
+      "marker": 13,
+      "scenario": "wrong_pallet",
+      "expected": "P106",
+      "pallet": "P102",
+      "pallet_marker": 18
+    },
+    {
+      "aisle": "B",
+      "bay": 3,
+      "level": 2,
+      "marker": 14,
+      "scenario": "damaged",
+      "expected": "P104",
+      "pallet": "P104",
+      "pallet_marker": 19
+    },
+    {
+      "aisle": "B",
+      "bay": 8,
+      "level": 3,
+      "marker": 15,
+      "scenario": "unreadable",
+      "expected": "P103",
+      "pallet": "P103",
+      "pallet_marker": null
+    },
+    {
+      "aisle": "B",
+      "bay": 12,
+      "level": 4,
+      "marker": 16,
+      "scenario": "match",
+      "expected": "P105",
+      "pallet": "P105",
+      "pallet_marker": 27
+    }
+  ]
+}

@@ -923,6 +923,9 @@ def write_labels(control=False, safety=False):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--environment", choices=("distribution-center", "high-bay", "logistics-hub"),
+                        help="generate one environment-library scenario and its configurations")
+    parser.add_argument("--environment-output", type=Path, help="root for the environment's worlds, config and library")
     parser.add_argument("--output", type=Path, default=ROOT / "worlds/showcase.sdf")
     parser.add_argument("--truth", type=Path)
     parser.add_argument("--profile", choices=("pilot", "showcase"), default="showcase")
@@ -953,6 +956,14 @@ def main():
     parser.add_argument("--layout", type=Path)
     parser.add_argument("--marker-map", type=Path)
     args = parser.parse_args()
+    if args.environment:
+        if args.environment_output is None:
+            parser.error("--environment requires --environment-output")
+        from environment_library import generate_variant
+        generate_variant(args.environment, args.environment_output)
+        return
+    if args.environment_output:
+        parser.error("--environment-output requires --environment")
     if (args.quality or args.control) and args.output.resolve() in (ROOT / "worlds/showcase.sdf", ROOT / "worlds/pilot.sdf"):
         parser.error("--quality and --control require a separate --output path")
     if (args.layout or args.marker_map) and not args.control:

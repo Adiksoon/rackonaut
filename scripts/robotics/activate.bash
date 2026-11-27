@@ -43,6 +43,11 @@ export ROS_DOMAIN_ID="${RACKONAUT_ROS_DOMAIN_ID:-62}" ROS_LOCALHOST_ONLY=1
 export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
 export IGN_PARTITION="${RACKONAUT_GZ_PARTITION:-rackonaut-$UID}" GZ_PARTITION="${RACKONAUT_GZ_PARTITION:-rackonaut-$UID}"
 export IGN_GAZEBO_RESOURCE_PATH="$RACKONAUT_WS/src"
+_rackonaut_environment_assets="$RACKONAUT_WS/install/rackonaut_warehouse/share/rackonaut_warehouse/library"
+if [[ -d "$_rackonaut_environment_assets" ]]; then
+    IGN_GAZEBO_RESOURCE_PATH+=":$_rackonaut_environment_assets"
+fi
+unset _rackonaut_environment_assets
 export GZ_SIM_RESOURCE_PATH="$IGN_GAZEBO_RESOURCE_PATH"
 export ROS_LOG_DIR="$RACKONAUT_WS/log/ros"
 export XDG_CACHE_HOME="$RACKONAUT_WS/.cache"

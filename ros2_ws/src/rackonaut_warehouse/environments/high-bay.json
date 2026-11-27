@@ -1,0 +1,181 @@
+{
+  "id": "high-bay",
+  "title": "High-Bay Warehouse",
+  "seed": 282,
+  "bounds": {
+    "x": [
+      -12,
+      53
+    ],
+    "y": [
+      -20,
+      20
+    ],
+    "height": 17
+  },
+  "design": {
+    "shell": "high-bay",
+    "frame": [
+      0.08,
+      0.3,
+      0.52
+    ],
+    "beam": [
+      0.98,
+      0.65,
+      0.13
+    ],
+    "accent": [
+      0.24,
+      0.52,
+      0.91
+    ],
+    "liner": [
+      0.51,
+      0.59,
+      0.67
+    ],
+    "floor": [
+      0.33,
+      0.36,
+      0.41
+    ]
+  },
+  "rack": {
+    "height": 12,
+    "depth": 1.32,
+    "levels": [
+      0.65,
+      2.69,
+      4.73,
+      6.77,
+      8.81,
+      10.85
+    ],
+    "fill": 0.51
+  },
+  "banks": [
+    {
+      "name": "high-bay-racks",
+      "axis": "x",
+      "start": 1.6,
+      "bay_pitch": 2.8,
+      "bays": 16,
+      "rows": [
+        -12.4,
+        -7.48,
+        -2.56,
+        2.36,
+        7.28,
+        12.2
+      ],
+      "aisles": [
+        "C",
+        "B",
+        "D",
+        "A",
+        "E"
+      ]
+    }
+  ],
+  "flight": {
+    "dock": [
+      -5.5,
+      6.95
+    ],
+    "trunk_x": -2.5,
+    "height": 13.85,
+    "portals": {
+      "A": 3.65,
+      "B": 2.94
+    }
+  },
+  "staging": [
+    {
+      "name": "lift-staging",
+      "center": [
+        -6.6,
+        -13.7
+      ],
+      "size": [
+        7.4,
+        7.2
+      ],
+      "usage": "lifts"
+    },
+    {
+      "name": "marshalling",
+      "center": [
+        48.8,
+        11.5
+      ],
+      "size": [
+        4.5,
+        10.4
+      ],
+      "usage": "dispatch"
+    }
+  ],
+  "locations": [
+    {
+      "aisle": "A",
+      "bay": 3,
+      "level": 2,
+      "marker": 28,
+      "scenario": "match",
+      "expected": "P201",
+      "pallet": "P201",
+      "pallet_marker": 34
+    },
+    {
+      "aisle": "A",
+      "bay": 7,
+      "level": 4,
+      "marker": 29,
+      "scenario": "missing",
+      "expected": "P202",
+      "pallet": null,
+      "pallet_marker": null
+    },
+    {
+      "aisle": "A",
+      "bay": 12,
+      "level": 6,
+      "marker": 30,
+      "scenario": "wrong_pallet",
+      "expected": "P206",
+      "pallet": "P202",
+      "pallet_marker": 35
+    },
+    {
+      "aisle": "B",
+      "bay": 1,
+      "level": 1,
+      "marker": 31,
+      "scenario": "damaged",
+      "expected": "P204",
+      "pallet": "P204",
+      "pallet_marker": 36
+    },
+    {
+      "aisle": "B",
+      "bay": 5,
+      "level": 4,
+      "marker": 32,
+      "scenario": "unreadable",
+      "expected": "P203",
+      "pallet": "P203",
+      "pallet_marker": null
+    },
+    {
+      "aisle": "B",
+      "bay": 10,
+      "level": 5,
+      "marker": 33,
+      "scenario": "match",
+      "expected": "P205",
+      "pallet": "P205",
+      "pallet_marker": 37
+    }
+  ]
+}

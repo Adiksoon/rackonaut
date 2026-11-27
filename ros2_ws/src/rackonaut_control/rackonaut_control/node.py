@@ -32,7 +32,7 @@ from tf2_msgs.msg import TFMessage
 from rackonaut_avoidance.sensor import FULL_ROUTE_RANGE, MAX_RANGE, Scanner, stamp
 from rackonaut_energy.model import Model
 from rackonaut_localization.node import MAPPING_COMMAND, SLAM_MAP
-from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
+from rackonaut_localization.warehouse_config import ENVIRONMENT_LIBRARY, HISTORICAL_VARIANT, warehouse_prefix
 from rackonaut_mission.report import TERMINAL, export, fetch_api
 from rackonaut_mission.manual import COMMAND_AGE, MANUAL_STAGE, MANUAL_TOPIC, decode_axes, departure_energy
 from rackonaut_safety.geometry import route_zones
@@ -103,10 +103,12 @@ class Control(Node):
         warehouse = get_package_share_path("rackonaut_warehouse")
         variant = self.declare_parameter("warehouse_variant", HISTORICAL_VARIANT).value
         self.warehouse_prefix = warehouse_prefix(variant)
-        self.layout = json.loads((warehouse / "config/control_layout.json").read_text())
+        library = variant in ENVIRONMENT_LIBRARY
+        fixture_prefix = self.warehouse_prefix if library else ""
+        self.layout = json.loads((warehouse / f"config/{fixture_prefix}control_layout.json").read_text())
         self.layout["warehouse_variant"] = variant
         if self.safety_enabled:
-            self.layout["safety_fields"] = json.loads((warehouse / "config/safety_fields.json").read_text())
+            self.layout["safety_fields"] = json.loads((warehouse / f"config/{fixture_prefix}safety_fields.json").read_text())
         if self.laser_enabled:
             self.layout["laser_fields"] = json.loads((warehouse / "config/laser_fields.json").read_text())
         self.layout["adaptive_world"] = self.declare_parameter("adaptive_world", False).value
@@ -133,7 +135,8 @@ class Control(Node):
             self.layout["localization"] = {"mode": self.localization_mode, "diagnostics": self.localization_diagnostics}
         self.flight_props = set()
         if self.avoidance_enabled:
-            self.flight_props = set(json.loads((warehouse / "config/avoidance_layout.json").read_text()))
+            if not library:
+                self.flight_props = set(json.loads((warehouse / "config/avoidance_layout.json").read_text()))
             self.layout["avoidance"] = True
         self.energy_enabled = self.declare_parameter("energy_enabled", False).value
         if self.energy_enabled:
@@ -148,7 +151,7 @@ class Control(Node):
             else:
                 self.layout["dock"] = json.loads((warehouse / "config/dock_layout.json").read_text())
             self.layout["scene"]["parts"]["dock"] = self.layout["dock"]["parts"]
-        self.marker_map = warehouse / "config/control_markers.json"
+        self.marker_map = warehouse / f"config/{fixture_prefix}control_markers.json"
         self.lock = RLock()
         self.service_access = ServiceAccess()
         self.calibration = Calibration(self.data / "calibration-draft.json")

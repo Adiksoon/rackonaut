@@ -46,7 +46,8 @@ class Energy(Node):
             "dock_contact_collision", "rackonaut_reference_drone::base_link::body_collision").value
         self.pad_contact_pair = {"rackonaut_dock::body::dock_contact_surface_collision", drone_collision}
         layout_name = "aerial_layout.json" if self.aerial else "control_layout.json"
-        layout = get_package_share_path("rackonaut_warehouse") / "config" / layout_name
+        default_layout = get_package_share_path("rackonaut_warehouse") / "config" / layout_name
+        layout = Path(self.declare_parameter("dock_layout_file", str(default_layout)).value)
         pad = json.loads(layout.read_text())["pad"]
         self.dock = pad["x"], pad["y"], pad["z"], radians(pad["yaw_deg"])
         self.mission = {}

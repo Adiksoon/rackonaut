@@ -12,7 +12,7 @@ from launch.events import Shutdown
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-from rackonaut_localization.warehouse_config import HISTORICAL_VARIANT, warehouse_prefix
+from rackonaut_localization.warehouse_config import ENVIRONMENT_LIBRARY, HISTORICAL_VARIANT, warehouse_prefix
 
 
 def setup(context):
@@ -41,13 +41,16 @@ def setup(context):
     localizer = localization != "ground_truth"
     variant = arg("warehouse_variant")
     prefix = warehouse_prefix(variant)
+    library = variant in ENVIRONMENT_LIBRARY
     if prefix and not localizer:
-        raise ValueError("warehouse_variant:=open-aisle requires the aerial localization profile.")
+        raise ValueError("A non-historical warehouse requires the aerial localization profile.")
     diagnostics = enabled("localization_diagnostics")
     recovery = enabled("recovery")
+    if library and (laser or localization != "sensor_based" or not recovery):
+        raise ValueError("Environment-library warehouses require the protected sensor-based profile with virtual Safety.")
     learned_warehouse = enabled("learned_warehouse")
-    mapping_only = enabled("mapping_only") or learned_warehouse
-    full_route_slam = enabled("full_route_slam") or learned_warehouse
+    mapping_only = enabled("mapping_only") or learned_warehouse or library
+    full_route_slam = enabled("full_route_slam") or learned_warehouse or library
     drone_model = arg("drone_model")
     if drone_model not in {"reference", "x3"}:
         raise ValueError("drone_model must be reference or x3.")
@@ -86,7 +89,7 @@ def setup(context):
         if arg("x3_source"):
             command.extend(["--x3-source", arg("x3_source")])
     profile = json.loads((warehouse / f"config/{prefix}aerial_layout.json").read_text()) if aerial else None
-    props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance else {}
+    props = json.loads((warehouse / "config/avoidance_layout.json").read_text()) if avoidance and not library else {}
     if avoidance:
         command.append("--avoidance")
     if localizer:
@@ -105,6 +108,8 @@ def setup(context):
     api_profile = arg("api_profile")
     if api_profile not in {"fixture", "mock_sap"}:
         raise ValueError("api_profile must be fixture or mock_sap.")
+    if library and (api_profile != "mock_sap" or not enabled("mock")):
+        raise ValueError("Environment-library warehouses require their variant-specific Mock SAP fixture.")
     backend = arg("backend_url") or f"http://127.0.0.1:{arg('mock_port')}"
     if enabled("mock"):
         expected = f"http://127.0.0.1:{arg('mock_port')}"
@@ -114,10 +119,12 @@ def setup(context):
         if not python.is_file():
             raise RuntimeError("Run python3.10 scripts/api/setup.py to prepare the fixture API.")
         api_app = ["backend.sap_api:app", "--factory"] if api_profile == "mock_sap" else ["backend.control_fixture:app"]
+        database = Path(data).expanduser().resolve() / f"{prefix if library else ''}warehouse.sqlite3"
         processes.append(ExecuteProcess(
             cmd=[str(python), "-m", "uvicorn", *api_app, "--host", "127.0.0.1", "--port", arg("mock_port")],
             cwd=str(root), name=f"control_{api_profile}", output="screen",
-            additional_env={"RACKONAUT_SAP_DB": str(Path(data).expanduser().resolve() / "warehouse.sqlite3")},
+            additional_env={"RACKONAUT_SAP_DB": str(database), "RACKONAUT_SAP_FIXTURE":
+                            str(warehouse / f"config/{prefix}mock_sap.json") if library else ""},
         ))
     elif not arg("backend_url"):
         raise ValueError("Provide backend_url when mock:=false.")
@@ -147,7 +154,7 @@ def setup(context):
         "data_dir": data,
         "safety_enabled": safety,
         "safety_sensor": mode,
-        "adaptive_world": adaptive,
+        "adaptive_world": adaptive and not library,
         "energy_enabled": energy,
         "aerial_enabled": aerial,
         "avoidance_enabled": avoidance,
@@ -170,6 +177,7 @@ def setup(context):
             "aerial": aerial,
             "sensor_localization": localization == "sensor_based",
             "autonomous_recovery": recovery,
+            **({"dock_layout_file": str(warehouse / f"config/{prefix}aerial_layout.json")} if library else {}),
             **({"dock_contact_collision": "rackonaut_x3::X3/base_link::X3/base_link_inertia_collision"} if x3 else {}),
             **({"hover": .26, "movement": .19, "climb": .52} if aerial else {}),
         }]))
@@ -182,7 +190,10 @@ def setup(context):
         safety_nodes = [
             Node(package="rackonaut_safety", executable="manage", output="screen",
                  parameters=[{"events_file": str(Path(data) / "safety-events.jsonl"), "sensor_mode": mode,
-                              "aerial": aerial, "autonomous_recovery": recovery}]),
+                              "aerial": aerial, "autonomous_recovery": recovery,
+                              **({"fields_file": str(warehouse / f"config/{prefix}safety_fields.json"),
+                                  "aerial_layout_file": str(warehouse / f"config/{prefix}aerial_layout.json")}
+                                 if library else {})}]),
             Node(package="rackonaut_safety", executable="infrastructure", output="screen",
                  parameters=[{"laser_props": laser, "energy_dock": energy, "aerial": aerial,
                               **({f"descent_{zone}": profile["nodes"][f"foot_{zone}"][:2] for zone in ("A", "B")}

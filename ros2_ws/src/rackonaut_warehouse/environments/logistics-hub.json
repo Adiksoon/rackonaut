@@ -1,0 +1,234 @@
+{
+  "id": "logistics-hub",
+  "title": "Large Logistics Hub",
+  "seed": 283,
+  "bounds": {
+    "x": [
+      -12,
+      78
+    ],
+    "y": [
+      -27.5,
+      27.5
+    ],
+    "height": 15
+  },
+  "design": {
+    "shell": "logistics",
+    "frame": [
+      0.14,
+      0.36,
+      0.37
+    ],
+    "beam": [
+      0.84,
+      0.47,
+      0.24
+    ],
+    "accent": [
+      0.3,
+      0.72,
+      0.46
+    ],
+    "liner": [
+      0.59,
+      0.66,
+      0.59
+    ],
+    "floor": [
+      0.34,
+      0.39,
+      0.36
+    ]
+  },
+  "rack": {
+    "height": 10,
+    "depth": 1.4,
+    "levels": [
+      0.55,
+      2.64,
+      4.73,
+      6.82,
+      8.91
+    ],
+    "fill": 0.48
+  },
+  "banks": [
+    {
+      "name": "west-sort",
+      "axis": "x",
+      "start": 2,
+      "bay_pitch": 2.8,
+      "bays": 10,
+      "rows": [
+        -19.0,
+        -12.8,
+        -6.6,
+        -0.4,
+        5.8
+      ],
+      "aisles": [
+        "C",
+        "D",
+        "E",
+        "A"
+      ]
+    },
+    {
+      "name": "east-fulfilment",
+      "axis": "x",
+      "start": 38,
+      "bay_pitch": 2.8,
+      "bays": 11,
+      "rows": [
+        -21.5,
+        -15.3,
+        -9.1,
+        -2.9
+      ],
+      "aisles": [
+        "F",
+        "G",
+        "B"
+      ]
+    },
+    {
+      "name": "north-bulk",
+      "axis": "y",
+      "start": 7,
+      "bay_pitch": 2.6,
+      "bays": 6,
+      "rows": [
+        49.8,
+        56.6
+      ],
+      "aisles": [
+        "H"
+      ]
+    }
+  ],
+  "flight": {
+    "dock": [
+      33.0,
+      9.8
+    ],
+    "trunk_x": 35.2,
+    "height": 11.95,
+    "portals": {
+      "A": 27.1,
+      "B": 41.2
+    }
+  },
+  "staging": [
+    {
+      "name": "west-receiving",
+      "center": [
+        -4,
+        -8
+      ],
+      "size": [
+        9.4,
+        15.0
+      ],
+      "usage": "receiving"
+    },
+    {
+      "name": "north-buffer",
+      "center": [
+        21.0,
+        18.5
+      ],
+      "size": [
+        13.0,
+        10.0
+      ],
+      "usage": "buffer"
+    },
+    {
+      "name": "express-exchange",
+      "center": [
+        65.0,
+        13.7
+      ],
+      "size": [
+        10.0,
+        14.0
+      ],
+      "usage": "dispatch"
+    },
+    {
+      "name": "south-buffer",
+      "center": [
+        28.0,
+        -24.4
+      ],
+      "size": [
+        12.0,
+        4.5
+      ],
+      "usage": "buffer"
+    }
+  ],
+  "locations": [
+    {
+      "aisle": "A",
+      "bay": 7,
+      "level": 1,
+      "marker": 38,
+      "scenario": "match",
+      "expected": "P301",
+      "pallet": "P301",
+      "pallet_marker": 44
+    },
+    {
+      "aisle": "A",
+      "bay": 9,
+      "level": 3,
+      "marker": 39,
+      "scenario": "missing",
+      "expected": "P302",
+      "pallet": null,
+      "pallet_marker": null
+    },
+    {
+      "aisle": "A",
+      "bay": 10,
+      "level": 5,
+      "marker": 40,
+      "scenario": "wrong_pallet",
+      "expected": "P306",
+      "pallet": "P302",
+      "pallet_marker": 45
+    },
+    {
+      "aisle": "B",
+      "bay": 2,
+      "level": 2,
+      "marker": 41,
+      "scenario": "damaged",
+      "expected": "P304",
+      "pallet": "P304",
+      "pallet_marker": 46
+    },
+    {
+      "aisle": "B",
+      "bay": 7,
+      "level": 4,
+      "marker": 42,
+      "scenario": "unreadable",
+      "expected": "P303",
+      "pallet": "P303",
+      "pallet_marker": null
+    },
+    {
+      "aisle": "B",
+      "bay": 11,
+      "level": 5,
+      "marker": 43,
+      "scenario": "match",
+      "expected": "P305",
+      "pallet": "P305",
+      "pallet_marker": 47
+    }
+  ]
+}

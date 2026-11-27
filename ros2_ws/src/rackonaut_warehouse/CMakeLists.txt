@@ -124,7 +124,29 @@ foreach(variant IN ITEMS historical open_aisle)
   install(FILES "${localization_map}" ${layout_output} DESTINATION share/${PROJECT_NAME}/config)
 endforeach()
 
-install(DIRECTORY worlds meshes materials ground_truth docs
+set(library_dir "${CMAKE_CURRENT_BINARY_DIR}/environment_library")
+foreach(environment IN ITEMS distribution-center high-bay logistics-hub)
+  string(REPLACE "-" "_" name "${environment}")
+  set(world "${library_dir}/worlds/${name}_localization_showcase.sdf")
+  set(configs "")
+  foreach(kind IN ITEMS aerial_layout control_layout safety_fields control_markers mock_sap dock_layout environment ground_truth)
+    list(APPEND configs "${library_dir}/config/${name}_${kind}.json")
+  endforeach()
+  add_custom_command(OUTPUT "${world}" ${configs}
+    COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+      --environment "${environment}" --environment-output "${library_dir}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/scripts/generate.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}/scripts/environment_library.py"
+      "${CMAKE_CURRENT_SOURCE_DIR}/environments/${environment}.json"
+    VERBATIM)
+  add_custom_target(${name}_environment ALL DEPENDS "${world}" ${configs})
+  install(FILES "${world}" DESTINATION share/${PROJECT_NAME}/worlds)
+  install(FILES ${configs} DESTINATION share/${PROJECT_NAME}/config)
+  install(DIRECTORY "${library_dir}/library/rackonaut_warehouse_library/${environment}"
+    DESTINATION share/${PROJECT_NAME}/library/rackonaut_warehouse_library)
+endforeach()
+
+install(DIRECTORY worlds meshes materials ground_truth docs environments
   DESTINATION share/${PROJECT_NAME})
 install(FILES "${quality_world}" "${control_world}" DESTINATION share/${PROJECT_NAME}/worlds)
 install(FILES "${control_layout}" "${control_markers}" DESTINATION share/${PROJECT_NAME}/config)

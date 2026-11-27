@@ -43,11 +43,13 @@ class Manager(Node):
     def __init__(self):
         super().__init__("rackonaut_safety")
         config = get_package_share_path("rackonaut_warehouse") / "config"
-        self.fields = json.loads((config / "safety_fields.json").read_text())
+        fields_file = Path(self.declare_parameter("fields_file", str(config / "safety_fields.json")).value)
+        self.fields = json.loads(fields_file.read_text())
         self.pad = json.loads((config / "control_layout.json").read_text())["pad"]
         self.aerial = None
         if self.declare_parameter("aerial", False).value:
-            profile = json.loads((config / "aerial_layout.json").read_text())
+            aerial_file = Path(self.declare_parameter("aerial_layout_file", str(config / "aerial_layout.json")).value)
+            profile = json.loads(aerial_file.read_text())
             self.aerial = Network(profile)
             self.pad = profile["pad"]
         self.recovery_enabled = self.declare_parameter("autonomous_recovery", False).value

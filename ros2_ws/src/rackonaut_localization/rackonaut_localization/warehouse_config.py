@@ -15,6 +15,7 @@ FORMAT = 1
 FRAME = "rackonaut_odom"
 HISTORICAL_VARIANT = "historical"
 OPEN_AISLE_VARIANT = "open-aisle"
+ENVIRONMENT_LIBRARY = ("distribution-center", "high-bay", "logistics-hub")
 REQUIRED = {"map.ply", "localization.npz", "result.json", "locations.json", "trajectory.jsonl",
             "route.json", "route-validation.json", "safety.json", "sensors.json"}
 
@@ -46,7 +47,9 @@ def warehouse_prefix(variant):
         return ""
     if variant == OPEN_AISLE_VARIANT:
         return "open_aisle_"
-    raise ValueError("warehouse_variant must be historical or open-aisle.")
+    if variant in ENVIRONMENT_LIBRARY:
+        return variant.replace("-", "_") + "_"
+    raise ValueError(f"Unsupported warehouse_variant: {variant}")
 
 
 def check_warehouse_variant(record, variant):

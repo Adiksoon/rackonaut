@@ -58,20 +58,26 @@ def bundle(payload):
         raise error(422, "invalid_quality", "Supply linked quality metadata and the two PNG images.") from exc
 
 
-def create_sap_app(database):
-    store = SapStore(INVENTORY, database)
-    app = create_app(INVENTORY, store=store, mode="mock_sap")
+def create_sap_app(database, fixture=None):
+    inventory, catalog = INVENTORY, PRODUCTS
+    if fixture is not None:
+        inventory = {"source": "mock_sap", "locations": fixture["locations"]}
+        expected = {row["pallet_id"]: row["slot_id"] for row in inventory["locations"] if row["pallet_id"]}
+        catalog = {row["hu_id"]: {**row, "expected_slot": expected.get(row["hu_id"])}
+                   for row in fixture["handling_units"]}
+    store = SapStore(inventory, database)
+    app = create_app(inventory, store=store, mode="mock_sap")
 
     @app.get("/api/business/products")
     def products():
-        return {"source": "mock_sap", "synthetic": True, "handling_units": list(PRODUCTS.values())}
+        return {"source": "mock_sap", "synthetic": True, "handling_units": list(catalog.values())}
 
     @app.get("/api/business/summary")
     def intelligence(inspection_id: str):
         check_inspection(inspection_id)
         with store.connect() as db:
             db.execute("BEGIN")
-            return build(store, PRODUCTS, db, inspection_id)
+            return build(store, catalog, db, inspection_id)
 
     @app.post("/api/business/quality")
     async def upload(request: Request):
@@ -101,7 +107,7 @@ def create_sap_app(database):
         inspection, revision = payload.get("inspection_id"), payload.get("revision")
         check_inspection(inspection)
         with store.connect(write=True) as db:
-            data = build(store, PRODUCTS, db, inspection)
+            data = build(store, catalog, db, inspection)
             item = next((entry for entry in data["issues"] if entry["issue_id"] == issue_id), None)
             if item is None:
                 raise error(404, "unknown_issue", "No active issue with that ID in this inspection.")
@@ -116,4 +122,5 @@ def create_sap_app(database):
 
 def app():
     path = os.environ.get("RACKONAUT_SAP_DB", ".rackonaut-data/warehouse.sqlite3")
-    return create_sap_app(Path(path))
+    fixture = os.environ.get("RACKONAUT_SAP_FIXTURE")
+    return create_sap_app(Path(path), read_json(Path(fixture)) if fixture else None)
