@@ -72,7 +72,7 @@ Graf zawiera **496 skierowanych krawędzi**. Ograniczenia obwiedni, ciągłość
 
 ## Pokrycie i wydajność
 
-Checkpointy zawierały kolejno 65 252, 71 076, 93 085 i **94 194** punkty. Chmura obejmuje zakres XYZ od `(-6,963, -12,361, -0,061)` do `(20,752, 12,381, 10,368)` m w ramie `rackonaut_odom`. Skróty stanu i pozycje w rejonie doku wiążą wszystkie odloty w jednej ramie. Różnice w dopasowaniu kluczy pojedynczego woksela między PLY pochodzą z zaokrąglenia zapisu float32 na granicy siatki. Licznik pomiarów odrzuconych przez limit 160 000 wokseli wyniósł zero.
+Checkpointy zawierały kolejno 65 252, 71 076, 93 085 i **94 194** punkty. Chmura obejmuje zakres XYZ od `(-6,963, -12,361, -0,061)` do `(20,752, 12,381, 10,368)` m w ramie `rackonaut_odom`. Skróty stanu i pozycje w rejonie doku wiążą wszystkie odloty w jednej ramie. Każdy kolejny checkpoint zawierał wszystkie różne klucze wokseli odczytane z wcześniejszego PLY. Na granicy siatki zapis float32 może przypisać dwa punkty do jednego klucza. Licznik pomiarów odrzuconych przez limit 160 000 wokseli wyniósł zero.
 
 Widok wykorzystuje do 80 000 rzeczywistych punktów. Z 910 przyjętych klatek kluczowych zapisano 480, w tym 190 z przestrzeni inspekcyjnej A. W opublikowanym NPZ z B pozostała klatka podejścia do bramy oraz zwroty z B widziane z sąsiednich pozycji. Wewnętrzne pozy B zostały wyparte mimo zachowanej chmury B. Wykryto przypadek, w którym brak powtórzonej klatki blisko nowej obserwacji powodował odrzucanie nowego obszaru. Reguła retencji może teraz zwolnić miejsce w gęściej próbkowanym obszarze. Regresję pokrywa test w dwóch rozłącznych regionach. Oryginalne NPZ zawiera pomiary zapisane podczas ukończonej kalibracji.
 
@@ -115,3 +115,12 @@ Zatrzymano procesy Gazebo, ROS, Control Center i Mock SAP. Porty obu usług prze
 Pakiet zawiera surowy katalog `mapping` i odpowiadający mu `warehouse-configurations`. Rozpakuj pakiet do pustego katalogu i podaj go jako `data_dir` w poleceniu uruchomienia. Przy fizycznie zadokowanym dronie otwórz **Service → Warehouse Configuration**, wybierz powyższy identyfikator, sprawdź integralność i aktywuj magazyn. Plan z pełną listą miejsc pokazuje oddzielne budżety każdego odlotu. [Plan 11/11](full-warehouse-calibration-evidence/verified-survey/restart-plan.json)
 
 Pierwsza próba uruchomienia jednej nauczonej pętli zatrzymała się przy doku. Proces misji porównał skrót całego grafu z treścią jednej pętli. Po poprawce dyspozycja przekazuje zatwierdzony graf i numer pętli, a proces misji sprawdza skrót przed wyborem odlotu i walidacją jego stanowisk. [Stan po odrzuceniu pierwszej dyspozycji](full-warehouse-calibration-evidence/verified-survey/restart-first-dispatch.json)
+
+Po poprawce wykonano dwa ograniczone odtworzenia z odtworzonej konfiguracji. Dron wykrył B-02-01 jako puste oraz odczytał P008 w A-01-08. Obie obserwacje przyjął Mock SAP. W obu próbach lokalizacja pochodziła z `learned_map`, wszystkie sektory spełniły bramki GOAL 21A, a fizyczny dok pozwolił zwolnić rezerwacje. Pełna lista 11 miejsc została sprawdzona w planie. Próby w locie obejmowały dwa miejsca.
+
+| Próba | Zapis kamery | Energia na doku | RMSE / p95 / maks. / dryf (mm) | Hz / RTF |
+| --- | --- | ---: | ---: | ---: |
+| B-02-01 | puste | 24,79% | 16,56 / 33,51 / 41,38 / 0,21 | 3,281 / 0,545 |
+| A-01-08 | P008, czytelna etykieta | 32,67% | 13,08 / 26,12 / 36,00 / 0,21 | 3,303 / 0,548 |
+
+W zapisie pomocniczego odczytu HTTP próby A jest 85,7 s przerwy. Niezależny strumień pozycji obejmuje ten odcinek, a największa przerwa między sparowanymi estymatami wyniosła 0,168 s czasu symulacji. Próba ze zmianą jednego bajtu pliku PLY na kopii odrzuciła pakiet w kontroli SHA-256. Końcowy build 11 pakietów oraz 82 testy ROS przeszły. [Odtworzenie A](full-warehouse-calibration-evidence/verified-survey/restart-probe-A-01-08.json) · [Odtworzenie B](full-warehouse-calibration-evidence/verified-survey/restart-probe-B-02-01.json) · [Metryki odtworzeń](full-warehouse-calibration-evidence/verified-survey/restart-replay-metrics.json) · [Próba integralności](full-warehouse-calibration-evidence/verified-survey/integrity-negative-test.json)

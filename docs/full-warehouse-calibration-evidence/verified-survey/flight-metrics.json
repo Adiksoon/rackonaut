@@ -134,8 +134,7 @@
         "TRACKING"
       ],
       "departure_percent": 99.782,
-      "landing_percent": 18.134,
-      "pending_or_rejected_cloud_frames": null
+      "landing_percent": 18.134
     },
     {
       "count": 1553,
@@ -258,8 +257,7 @@
         "TRACKING"
       ],
       "departure_percent": 99.734,
-      "landing_percent": 16.077,
-      "pending_or_rejected_cloud_frames": null
+      "landing_percent": 16.077
     },
     {
       "count": 1478,
@@ -382,8 +380,7 @@
         "TRACKING"
       ],
       "departure_percent": 99.597,
-      "landing_percent": 19.482,
-      "pending_or_rejected_cloud_frames": null
+      "landing_percent": 19.482
     },
     {
       "count": 1292,
@@ -506,8 +503,7 @@
         "TRACKING"
       ],
       "departure_percent": 99.642,
-      "landing_percent": 27.999,
-      "pending_or_rejected_cloud_frames": null
+      "landing_percent": 27.999
     }
   ]
 }
