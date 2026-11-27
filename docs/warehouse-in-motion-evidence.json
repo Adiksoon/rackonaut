@@ -1,0 +1,117 @@
+{
+  "base": "0953cbb",
+  "environment": "Ubuntu 22.04 WSL2, ROS 2 Humble, Gazebo Fortress, X3 LiDAR 8 m",
+  "command": "scripts/robotics/warehouse-in-motion",
+  "wall_seconds": 339.8,
+  "physical_dock_contact": true,
+  "other_gazebo_demo_paused_for_measurement": true,
+  "regression": {
+    "ros": 63,
+    "backend": 7,
+    "reference_smoke": "PASS",
+    "mock_sap_api_smoke": "PASS"
+  },
+  "inspection_id": "INS-CONTROL-20261126-211927-26746E94",
+  "confirmed": {
+    "A-01-01": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-211927-26746E94",
+      "observation_id": "OBS-673BC1D6E45D4FFABDFE890149E359B5",
+      "slot_id": "A-01-01",
+      "pallet_id": null,
+      "occupancy": "occupied",
+      "label_status": "unreadable",
+      "timestamp": "2026-11-26T21:21:59.664Z"
+    },
+    "A-01-02": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-211927-26746E94",
+      "observation_id": "OBS-C38ED448162C4F81BCB60159DA5B4106",
+      "slot_id": "A-01-02",
+      "pallet_id": "P003",
+      "occupancy": "occupied",
+      "label_status": "readable",
+      "timestamp": "2026-11-26T21:22:16.041Z"
+    },
+    "A-01-03": {
+      "schema_version": "1.0",
+      "inspection_id": "INS-CONTROL-20261126-211927-26746E94",
+      "observation_id": "OBS-0AC6763ED1D24347852F2395DF438AE7",
+      "slot_id": "A-01-03",
+      "pallet_id": null,
+      "occupancy": "empty",
+      "label_status": "not_applicable",
+      "timestamp": "2026-11-26T21:22:44.900Z"
+    }
+  },
+  "discrepancies": [
+    {
+      "slot_id": "A-01-01",
+      "expected_pallet_id": "P001",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-673BC1D6E45D4FFABDFE890149E359B5",
+      "outcome": "unreadable_label"
+    },
+    {
+      "slot_id": "A-01-02",
+      "expected_pallet_id": "P002",
+      "observed_pallet_id": "P003",
+      "observation_id": "OBS-C38ED448162C4F81BCB60159DA5B4106",
+      "outcome": "wrong_pallet"
+    },
+    {
+      "slot_id": "A-01-03",
+      "expected_pallet_id": "P003",
+      "observed_pallet_id": null,
+      "observation_id": "OBS-0AC6763ED1D24347852F2395DF438AE7",
+      "outcome": "missing_pallet"
+    }
+  ],
+  "landed": true,
+  "safety": "RELEASED",
+  "report_http": 200,
+  "events": [
+    {
+      "event": "started",
+      "inspection_id": "INS-CONTROL-20261126-211927-26746E94",
+      "slots": [
+        "A-01-01",
+        "A-01-02",
+        "A-01-03"
+      ]
+    },
+    {
+      "event": "label_covered",
+      "slot": "A-01-01"
+    },
+    {
+      "event": "cart_entered",
+      "gate": "A"
+    },
+    {
+      "event": "lidar_stop",
+      "detected": 58001.273848465,
+      "blocked_at": [
+        5.09,
+        0.45,
+        2.333
+      ],
+      "sim_detected": 75.032,
+      "receipt_to_brake_ms": 349,
+      "previous_speed": 0.238,
+      "stage": "AISLE_DESCENT",
+      "reason": "measured obstacle",
+      "stopped_at": [
+        5.108,
+        0.45,
+        2.232
+      ],
+      "reaction_s": 1.216,
+      "stopping_distance": 0.102
+    },
+    {
+      "event": "cart_cleared",
+      "gate": "A"
+    }
+  ]
+}

@@ -70,6 +70,8 @@ After verified docking, choose **Review Route** in Service to compare the record
 
 Launch `scripts/robotics/checkpoint live drone_model:=reference learned_warehouse:=true data_dir:=/absolute/path/to/a/copy` to use a sealed reference archive. Set `drone_model:=x3` and use a separate compatible archive for X3. Unlock Service and verify or activate the saved warehouse at the physical dock. Open **Plan inspection** to select its taught locations. [Archive setup and autonomous inspection](docs/LEARNED_WAREHOUSE_AUTONOMY.md)
 
+Use `scripts/robotics/warehouse-in-motion` to run a repeatable X3 inspection with a moving cart, a covered label and a stock discrepancy. [Warehouse in motion](docs/WAREHOUSE_IN_MOTION.md)
+
 ### C. Engineering Showcase
 
 Run the full profile in the first terminal. Open one engineering view at a time in another terminal.

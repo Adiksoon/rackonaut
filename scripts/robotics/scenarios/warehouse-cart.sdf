@@ -1,0 +1,107 @@
+<sdf version="1.8">
+  <model name="scenario_loaded_cart">
+    <static>true</static>
+    <link name="cart">
+      <collision name="wrapped_load">
+        <pose>0 0 .96 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.80 1.48 1.68</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="base">
+        <pose>0 0 .20 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.86 1.54 .17</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>.91 .60 .13 1</diffuse>
+        </material>
+      </visual>
+      <visual name="boxes">
+        <pose>0 0 1.015 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.80 1.48 1.46</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>.52 .39 .25 1</diffuse>
+        </material>
+      </visual>
+      <visual name="lower_strap">
+        <pose>0 0 .72 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.81 1.49 .055</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>.23 .27 .22 1</diffuse>
+        </material>
+      </visual>
+      <visual name="upper_strap">
+        <pose>0 0 1.35 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>.81 1.49 .055</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>.23 .27 .22 1</diffuse>
+        </material>
+      </visual>
+      <visual name="wheel_1">
+        <pose>-.31 -.54 .09 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.09</radius>
+            <length>.08</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>.12 .12 .12 1</diffuse>
+        </material>
+      </visual>
+      <visual name="wheel_2">
+        <pose>.31 -.54 .09 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.09</radius>
+            <length>.08</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>.12 .12 .12 1</diffuse>
+        </material>
+      </visual>
+      <visual name="wheel_3">
+        <pose>-.31 .54 .09 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.09</radius>
+            <length>.08</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>.12 .12 .12 1</diffuse>
+        </material>
+      </visual>
+      <visual name="wheel_4">
+        <pose>.31 .54 .09 1.5708 0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>.09</radius>
+            <length>.08</length>
+          </cylinder>
+        </geometry>
+        <material>
+          <diffuse>.12 .12 .12 1</diffuse>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
