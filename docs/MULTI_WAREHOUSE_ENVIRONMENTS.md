@@ -81,7 +81,10 @@ Prognoza w tabeli używa istniejącego modelu demonstratora i po jednym nominaln
 
 ## Ujęcia z Gazebo
 
-Kamera scenograficzna Logistics Hub zarejestrowała siedem ujęć, klip i sześć zbliżeń działających stanowisk. Klip używa 144 odrębnych klatek z Gazebo Fortress, zapisanych jako 1280 × 720 przy 24 kl./s. W zbliżeniach odczytano wszystkie oczekiwane kody ArUco. [Klip](multi-warehouse-evidence/logistics-hub/scenery.mp4) · [Galeria](multi-warehouse-evidence/logistics-hub) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/logistics-hub/capture.json)
+Dla każdego opublikowanego zestawu kamera scenograficzna zarejestrowała siedem ujęć, klip i sześć zbliżeń stanowisk. Każdy klip używa 144 odrębnych klatek z Gazebo Fortress, zapisanych jako 1280 × 720 przy 24 kl./s. W zbliżeniach odczytano oczekiwane kody ArUco.
+
+- **Distribution Center.** [Klip](multi-warehouse-evidence/distribution-center/scenery.mp4) · [Galeria](multi-warehouse-evidence/distribution-center) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/distribution-center/capture.json)
+- **Logistics Hub.** [Klip](multi-warehouse-evidence/logistics-hub/scenery.mp4) · [Galeria](multi-warehouse-evidence/logistics-hub) · [Pozycje kamery i wyniki odczytów](multi-warehouse-evidence/logistics-hub/capture.json)
 
 ## Pochodzenie zasobów
 
