@@ -14,6 +14,65 @@ from rackonaut_mission.route import Target, heading_error, load_route, velocity
 
 
 class MissionTests(TestCase):
+    def sensor_guard_mission(self, *, localization_ready=True, cloud_ready=True):
+        cloud = SimpleNamespace(received=99.9)
+        mission = Mock(
+            stage="VERTICAL_TAKEOFF", energy_enabled=True, safety_at=100., safety_phase="RESERVED",
+            safety_zones={"D", "A"}, route=SimpleNamespace(zones=["D", "A"]),
+            scanner=Mock(cloud=cloud), navigation=Mock(), sensor_localization=True,
+            localization={"state": "TRACKING", "reason": "Synchronized LiDAR fit"},
+            localization_at=100., odom_at=100., sensor_hold_at=None,
+            sensor_ready_at=None, sensor_hold_reason="", settled_since=99.,
+            recovery=Mock(), calibration_id=None, manual=None, learned=None,
+            command=Mock(), battery={"percent": 90.}, energy_model=SimpleNamespace(reserve=8.),
+        )
+        mission.scanner.current.return_value = cloud if cloud_ready else None
+        mission.localization_ready.return_value = localization_ready
+        mission.energy_fresh.return_value = True
+        mission.next_inspection_index.return_value = None
+        mission.autonomous_sensor_hold.side_effect = lambda now: Mission.autonomous_sensor_hold(mission, now)
+        return mission
+
+    def test_transient_sensor_gap_stops_motion_and_waits_for_fresh_aligned_cloud(self):
+        for localization_ready, cloud_ready in ((False, True), (True, False)):
+            with self.subTest(localization=localization_ready, lidar=cloud_ready):
+                mission = self.sensor_guard_mission(
+                    localization_ready=localization_ready, cloud_ready=cloud_ready)
+                self.assertTrue(Mission.energy_guard(mission, 100.))
+                mission.send_velocity.assert_called_once_with(scale=0.)
+                self.assertIsNone(mission.settled_since)
+
+                mission.localization_ready.return_value = True
+                mission.scanner.current.return_value = mission.scanner.cloud
+                self.assertTrue(Mission.energy_guard(mission, 100.1))
+                self.assertIsNone(mission.sensor_ready_at)
+
+                mission.scanner.cloud.received = 100.2
+                self.assertTrue(Mission.energy_guard(mission, 100.2))
+                self.assertTrue(Mission.energy_guard(mission, 100.4))
+                self.assertFalse(Mission.energy_guard(mission, 100.5))
+                self.assertIsNone(mission.sensor_hold_at)
+                mission.finish.assert_not_called()
+
+    def test_persistent_sensor_gap_aborts_with_diagnostics(self):
+        mission = self.sensor_guard_mission(cloud_ready=False)
+        self.assertTrue(Mission.energy_guard(mission, 100.))
+        mission.odom_at = mission.localization_at = mission.safety_at = 101.25
+        self.assertTrue(Mission.energy_guard(mission, 101.25))
+        result, detail, _ = mission.finish.call_args.args
+        self.assertEqual(result, "ABORTED")
+        self.assertIn("Onboard lidar stopped advancing", detail)
+        self.assertIn("aligned lidar age=1.350s", detail)
+
+    def test_reservation_loss_still_aborts_during_sensor_hold(self):
+        mission = self.sensor_guard_mission(cloud_ready=False)
+        self.assertTrue(Mission.energy_guard(mission, 100.))
+        mission.safety_phase = "RECOVERY"
+        self.assertTrue(Mission.energy_guard(mission, 100.1))
+        mission.finish.assert_called_once_with(
+            "ABORTED", "Safety clearance lost; automatic restart disabled", 100.1)
+        mission.send_velocity.assert_called_once_with(scale=0.)
+
     def test_x3_caps_translation_near_the_dock_and_still_sends_zero(self):
         command = Mock()
         target = Target(1., 1., .1, 0.)

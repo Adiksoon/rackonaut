@@ -41,6 +41,8 @@ from .visualization import make_markers, planned_path, stamped_pose
 
 MISSION = "/rackonaut/mission"
 DOCK_WAIT = {"CHARGING", "READY_TO_RESUME"}
+SENSOR_HOLD_LIMIT = 1.2
+SENSOR_RECHECK_SECONDS = .25
 AERIAL_MOTION = {"ENTERING_CORRIDOR", "OVERHEAD_TRANSIT", "AISLE_DESCENT", "AISLE_ASCENT", "AISLE_APPROACH",
                  "RETURN_TRANSIT"}
 
@@ -156,6 +158,8 @@ class Mission(Node):
         self.command = None
         self.pose, self.odom_stamp = None, None
         self.odom_at = self.speed = 0.0
+        self.sensor_hold_at = self.sensor_ready_at = None
+        self.sensor_hold_reason = ""
         self.body_speed, self.yaw_rate = (0., 0., 0.), 0.
         self.stage = "WAITING"
         self.started = self.ended = self.settled_since = None
@@ -960,16 +964,64 @@ class Mission(Node):
         else:
             self.start(now)
 
+    def autonomous_sensor_hold(self, now):
+        localization_age = now - self.localization_at
+        cloud = self.scanner.current(now)
+        scan_age = now - self.scanner.cloud.received if self.scanner.cloud else None
+        if not self.localization_ready(now) or now - self.odom_at > .65:
+            reason = "LOCALIZATION_LOST: Sensor position is no longer reliable"
+        elif cloud is None or (self.sensor_hold_at is not None and cloud.received < self.sensor_hold_at):
+            reason = "Onboard lidar stopped advancing"
+        else:
+            reason = ""
+
+        if reason:
+            self.sensor_ready_at = None
+            self.sensor_hold_reason = reason
+        elif self.sensor_hold_at is None:
+            return False
+        elif self.sensor_ready_at is None:
+            self.sensor_ready_at = now
+
+        if self.sensor_hold_at is None or now - self.sensor_hold_at >= SENSOR_HOLD_LIMIT:
+            lidar_age = f"{scan_age:.3f}s" if scan_age is not None else "unknown"
+            diagnostic = (f"status={self.localization.get('state', 'unknown')}, "
+                          f"status age={localization_age:.3f}s, "
+                          f"odometry age={now-self.odom_at:.3f}s, aligned lidar age={lidar_age}, "
+                          f"scan age ms={self.localization.get('scan_age_ms')}, "
+                          f"IMU age ms={self.localization.get('imu_age_ms')}, "
+                          f"estimator reason={self.localization.get('reason', 'unknown')}")
+            if self.sensor_hold_at is not None:
+                self.navigation.set_state("FAULT", self.sensor_hold_reason)
+                self.finish("ABORTED", f"{self.sensor_hold_reason} ({diagnostic})", now)
+                return True
+            self.sensor_hold_at = now
+            self.get_logger().warning(f"Sensor hold at {self.stage}: {reason} ({diagnostic})")
+
+        if self.sensor_ready_at is not None and now - self.sensor_ready_at >= SENSOR_RECHECK_SECONDS:
+            self.sensor_hold_at = self.sensor_ready_at = None
+            self.sensor_hold_reason = ""
+            self.get_logger().info(f"Fresh localization and onboard lidar restored at {self.stage}")
+            return False
+
+        self.navigation.cloud = cloud
+        self.navigation.set_state("BRAKING", self.sensor_hold_reason + "; holding for fresh sensor data")
+        self.settled_since = None
+        self.send_velocity(scale=0.)
+        return True
+
     def energy_guard(self, now):
         if not self.energy_enabled or self.stage in TERMINAL | {"WAITING"}:
             return False
         if now - self.safety_at > .65 or self.safety_phase != "RESERVED" or not set(self.route.zones) <= self.safety_zones:
             self.finish("ABORTED", "Safety clearance lost; automatic restart disabled", now)
             return True
-        if self.sensor_localization and not self.localization_ready(now):
+        protected_autonomy = (self.recovery and self.scanner and self.command is not None
+                              and not self.manual and not self.calibration_id)
+        if not protected_autonomy and self.sensor_localization and not self.localization_ready(now):
             self.finish("ABORTED", "LOCALIZATION_LOST: Sensor position is no longer reliable", now)
             return True
-        if not self.energy_fresh(now) or now - self.odom_at > .65:
+        if not self.energy_fresh(now) or (not protected_autonomy and now - self.odom_at > .65):
             self.finish("ABORTED", "Energy or odometry telemetry stopped advancing", now)
             return True
         if self.stage in DOCK_WAIT:
@@ -977,6 +1029,10 @@ class Mission(Node):
             return True
         if self.battery["percent"] <= 0.5:
             self.finish("ABORTED", "Battery exhausted; operator recovery required", now)
+            return True
+        if protected_autonomy and self.autonomous_sensor_hold(now):
+            if self.command is not None and self.battery["percent"] <= self.energy_model.reserve:
+                self.finish("ABORTED", "Insufficient energy to hold for fresh sensor data", now)
             return True
         if self.learned:
             return self.learned_energy_guard(now)
@@ -1141,11 +1197,12 @@ class Mission(Node):
             if now-self.status_at >= .20:
                 self.publish_state(now)
             return
-        held_for_energy = self.calibration_guard(now) or self.energy_guard(now)
-        if self.command is not None and not held_for_energy:
-            if self.count_publishers(self.command_topic) > 1:
-                self.finish("ABORTED", "Another publisher claimed the command topic", now, competing=True)
-            elif self.safety_interlock and now - self.safety_at > .65:
+        if self.command is not None and self.count_publishers(self.command_topic) > 1:
+            self.finish("ABORTED", "Another publisher claimed the command topic", now, competing=True)
+            return
+        held = self.calibration_guard(now) or self.energy_guard(now)
+        if self.command is not None and not held:
+            if self.safety_interlock and now - self.safety_at > .65:
                 self.finish("ABORTED", "Safety Manager heartbeat stopped", now)
             elif now - self.odom_at > .65:
                 self.finish("ABORTED", "Odometry stopped advancing", now)
