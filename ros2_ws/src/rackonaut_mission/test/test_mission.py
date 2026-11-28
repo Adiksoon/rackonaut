@@ -73,6 +73,19 @@ class MissionTests(TestCase):
             "ABORTED", "Safety clearance lost; automatic restart disabled", 100.1)
         mission.send_velocity.assert_called_once_with(scale=0.)
 
+    def test_docked_charging_continues_when_safety_opens_the_zones(self):
+        mission = Mock(stage="CHARGING", command=None, landed=True, energy_enabled=True,
+                       recovery=Mock(), safety_phase="RELEASED")
+        mission.physical_dock.return_value = True
+        self.assertTrue(Mission.energy_guard(mission, 100.))
+        mission.dock_tick.assert_called_once_with(100.)
+        mission.finish.assert_not_called()
+
+        mission.physical_dock.return_value = False
+        self.assertTrue(Mission.energy_guard(mission, 100.1))
+        mission.finish.assert_called_once_with(
+            "ABORTED", "Dock contact or Safety clearance lost during charging", 100.1)
+
     def test_x3_caps_translation_near_the_dock_and_still_sends_zero(self):
         command = Mock()
         target = Target(1., 1., .1, 0.)

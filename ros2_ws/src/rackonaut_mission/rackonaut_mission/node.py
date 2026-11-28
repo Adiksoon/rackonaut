@@ -315,8 +315,9 @@ class Mission(Node):
                 if self.learned:
                     return "Insufficient energy for the learned route and required reserve"
                 return "Insufficient energy for manual takeoff and return" if self.manual else "Insufficient energy to inspect the first remaining location and return"
-            if self.departures and self.battery.get("dock") != "READY":
-                return "Waiting for confirmed charge readiness"
+            if self.departures and (self.battery.get("dock") != "READY"
+                                    or self.recovery and not self.physical_dock(now)):
+                return "Waiting for confirmed charge readiness and dock contact"
         if self.pose is None or now - self.odom_at > .65:
             return f"Waiting for fresh odometry in {self.frame}"
         if self.sensor_localization and not self.localization_ready(now):
@@ -959,7 +960,7 @@ class Mission(Node):
                 self.last_charge_progress = now, self.battery["percent"]
             elif now - last > 12.:
                 self.finish("ABORTED", "Dock reported no charging progress", now)
-        elif now - self.stage_since > 16.:
+        elif not self.recovery and now - self.stage_since > 16.:
             self.finish("ABORTED", "Fresh departure clearance was not granted", now)
         else:
             self.start(now)
@@ -1013,6 +1014,12 @@ class Mission(Node):
     def energy_guard(self, now):
         if not self.energy_enabled or self.stage in TERMINAL | {"WAITING"}:
             return False
+        if self.recovery and self.stage in DOCK_WAIT and self.command is None and self.landed:
+            if not self.physical_dock(now) or self.safety_phase == "RECOVERY":
+                self.finish("ABORTED", "Dock contact or Safety clearance lost during charging", now)
+            else:
+                self.dock_tick(now)
+            return True
         if now - self.safety_at > .65 or self.safety_phase != "RESERVED" or not set(self.route.zones) <= self.safety_zones:
             self.finish("ABORTED", "Safety clearance lost; automatic restart disabled", now)
             return True

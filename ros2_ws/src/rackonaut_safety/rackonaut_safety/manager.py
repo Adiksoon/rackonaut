@@ -25,6 +25,7 @@ from .laser import LaserPresence
 
 SAFETY = "/rackonaut/safety"
 CALIBRATION_INTERRUPTED = "INTERRUPTED_FOR_CALIBRATION"
+DOCK_WAIT = {"CHARGING", "READY_TO_RESUME"}
 TERMINAL = {"COMPLETE", "COMPLETE_WITH_MISSES", "ABORTED", CALIBRATION_INTERRUPTED}
 LABELS = {"A": "Aisle A", "B": "Aisle B", "T": "Transfer corridor & pad", "D": "Technical dock and shaft"}
 PREPARE_SECONDS = 3.
@@ -83,6 +84,7 @@ class Manager(Node):
         self.reserved_at = self.prepared_at = self.next_abort = 0.
         self.permit_issued = self.airborne = self.abort_logged = False
         self.calibration_terminal_at = None
+        self.charging_pause = False
         self.energy_permits = set()
         self.abort_future = None
         self.occupied_since = {}
@@ -206,7 +208,7 @@ class Manager(Node):
             required = self.aerial.required(payload["points"]) if self.aerial else route_zones(payload["points"], self.fields)
         except (KeyError, TypeError, ValueError):
             return
-        if run in self.recent_requests or self.phase in {"PREPARING", "RESERVED", "RECOVERY"}:
+        if self.charging_pause or run in self.recent_requests or self.phase in {"PREPARING", "RESERVED", "RECOVERY"}:
             return
         self.recovery_id, self.recovery_revocation = None, None
         self.recent_requests.append(run)
@@ -249,12 +251,62 @@ class Manager(Node):
         self.phase, self.message = "RELEASED", message
         self.event("released", message, self.required)
 
+    def supervise_charging(self, stage, now):
+        if not self.recovery_enabled or self.phase == "RECOVERY":
+            return False
+        if not self.charging_pause and (self.phase != "RESERVED" or stage != "CHARGING"):
+            return False
+        docked = (now - self.mission_at <= .65 and self.mission.get("landed") is True
+                  and self.mission.get("motion_owned") is False and self.at_pad(now)
+                  and physical_dock(self.energy, now - self.energy_at))
+
+        if not self.charging_pause:
+            if not docked:
+                return False
+            self.charging_pause = True
+            self.airborne = self.permit_issued = False
+            self.release("Physical dock confirmed. Zones open while charging.")
+            return True
+
+        if self.permit_issued and stage not in DOCK_WAIT:
+            self.charging_pause = False
+            return False
+
+        if not docked:
+            self.charging_pause = False
+            self.recover("Docked charging state could not be verified.", self.required, "touchdown_unknown")
+            return True
+
+        if self.permit_issued:
+            return False
+
+        if stage in TERMINAL:
+            self.charging_pause = False
+            if self.phase != "RELEASED":
+                self.release("Inspection ended at the verified physical dock.")
+            return True
+
+        problem, _, _ = self.blockers(now)
+        if self.phase == "RELEASED":
+            if stage == "READY_TO_RESUME":
+                if problem:
+                    self.message = "Next departure on hold. " + problem
+                else:
+                    self.phase, self.prepared_at = "PREPARING", now
+                    self.message = "Charge ready. Verifying clear zones for the next departure."
+                    self.event("preparing", self.message, self.required)
+            return True
+        if problem:
+            self.release("Next departure on hold. " + problem)
+            return True
+        return False
+
     def supervise(self, now):
-        if self.phase not in {"PREPARING", "RESERVED", "RECOVERY"}:
-            return
         stage = self.mission.get("stage")
+        if self.supervise_charging(stage, now) or self.phase not in {"PREPARING", "RESERVED", "RECOVERY"}:
+            return
         if self.phase != "RECOVERY":
-            if stage and stage not in TERMINAL | {"WAITING"}:
+            if stage and stage not in TERMINAL | DOCK_WAIT | {"WAITING"}:
                 if not self.airborne:
                     self.event("flight_started", "Mission Manager started the flight.", self.required)
                 self.airborne = True
