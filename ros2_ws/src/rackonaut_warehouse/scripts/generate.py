@@ -615,6 +615,30 @@ def aerial_infrastructure(world, aisles, rack_height, open_descent=False, hall_s
             plane_label(frame, f"aerial_notice_{zone}", (x - .86, y - .98, 2.20),
                         .78, .32, texture="safety_notice")
 
+    if open_descent:
+        # Straight runs stop 0.93 m before their nodes. Bridge the overhead
+        # turns while leaving every connected face open to the flight path.
+        for joint in ("junction", "trunk_A", "trunk_B"):
+            x, y, _ = nodes[joint]
+            openings = set()
+            for first, last, kind in edges:
+                if kind == "tunnel" and joint in (first, last):
+                    nx, ny, _ = nodes[last if first == joint else first]
+                    axis = 0 if nx != x else 1
+                    delta = nx - x if axis == 0 else ny - y
+                    openings.add((axis, 1 if delta > 0 else -1))
+
+            part((x, y, height - .60), (1.86, 1.86, .035), wire, collision=True, screen=True)
+            for axis in (0, 1):
+                for side in (-1, 1):
+                    px, py = (x + side*.91, y) if axis == 0 else (x, y + side*.91)
+                    wall = (.032, 1.86, 1.10) if axis == 0 else (1.86, .032, 1.10)
+                    rail = (.09, 1.86, .09) if axis == 0 else (1.86, .09, .09)
+                    part((px, py, height + .58), rail, steel)
+                    if (axis, side) not in openings:
+                        part((px, py, height), wall, wire, collision=True, screen=True)
+                        part((px, py, height - .60), rail, steel)
+
     for first, last, kind in edges:
         if kind != "tunnel":
             continue

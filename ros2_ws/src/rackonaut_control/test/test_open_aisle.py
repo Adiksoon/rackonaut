@@ -61,6 +61,28 @@ class OpenAisleTests(TestCase):
         self.assertEqual(old - new, boxes[""] - twin)
         self.assertEqual(new - old, twin - boxes[""])
 
+    def test_overhead_turns_have_floors_and_only_connected_faces_are_open(self):
+        world = self.world("open_aisle_localization_showcase.sdf")
+        structure = world.find("model[@name='protected_flight_infrastructure']/link")
+        solids = set(map(box_data, structure.findall("collision")))
+        network = Network(self.open_aisle)
+        for joint, closed in (("junction", {(0, 1), (1, 1)}),
+                              ("trunk_A", {(0, -1)}),
+                              ("trunk_B", {(0, -1), (1, -1)})):
+            with self.subTest(joint=joint):
+                x, y, z = network.nodes[joint][:3]
+                self.assertIn((x, y, round(z - .6, 3), 1.86, 1.86, .035), solids)
+                for axis in (0, 1):
+                    for side in (-1, 1):
+                        px = round(x + side*.91, 3) if axis == 0 else x
+                        py = round(y + side*.91, 3) if axis == 1 else y
+                        size = (.032, 1.86, 1.10) if axis == 0 else (1.86, .032, 1.10)
+                        self.assertEqual((px, py, z, *size) in solids, (axis, side) in closed)
+                radius, half = .33 + RADIUS, .33 + HALF_HEIGHT
+                self.assertFalse(any(intersects(
+                    (x-radius, y-radius, z-half, x+radius, y+radius, z+half), solid
+                ) for solid in solids))
+
     def test_both_portals_clear_the_shared_guard_volume_and_keep_zone_requirements(self):
         network = Network(self.open_aisle)
         world = self.world("open_aisle_localization_showcase.sdf")

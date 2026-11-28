@@ -933,6 +933,16 @@ function drawRecovery() {
   const pct = value => value == null ? "—" : `${value.toFixed(1)}%`;
   put("recovery-energy", r.energy_verified ? [state.energy?.percent, r.return_cost, r.reserve].map(pct).join(" / ") : "Unverified");
   const energyBlocked = r.conditions?.energy_telemetry && r.return_cost != null && r.conditions.return_budget === false;
+  const nextStep = complete ? "The drone is docked. You can plan another inspection."
+    : active ? "Return in progress. Keep the reserved zones clear."
+    : energyBlocked ? "Battery too low for a verified return. In this simulator, restart the demo to place the drone back at its dock."
+    : phase === "WAITING_FOR_OPERATOR_APPROVAL" ? "Review the proposed route, then select Authorize return to dock."
+    : phase === "RECOVERY_PLANNING" ? "Checking whether a safe return is possible."
+    : phase === "WAITING_FOR_LOCALIZATION" ? "Waiting for reliable localization. The drone will hold position."
+    : phase === "WAITING_FOR_ZONE_CLEARANCE" ? "Keep the reserved zones clear. Recovery is waiting for Safety."
+    : phase === "RECOVERY_BLOCKED" ? "Return blocked. Review the failed checks below and clear the cause before reevaluating."
+    : "The inspection has stopped. Select Evaluate recovery to check whether the drone can return to the dock.";
+  put("recovery-next-step", nextStep);
   put("recovery-wait", energyBlocked ? "Return budget insufficient · physical recovery required" :
       r.wait_per_sim_s != null && !complete ? `${state.energy?.fresh ? "Hover" : "Conservative draw"} ${r.wait_per_sim_s.toFixed(2)} pp per simulation second` : complete ? "Physical contact confirmed" : "");
   const legs = Math.max(0, (r.planned?.length || 0)-1);

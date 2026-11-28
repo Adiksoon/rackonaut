@@ -2,6 +2,8 @@
 
 Recovery jest odrębną procedurą nad tą samą misją i symulacją. Operator ocenia możliwość powrotu, sprawdza trasę i osobno zatwierdza ruch. Po dotarciu do doku Safety zwalnia strefy na podstawie potwierdzonego kontaktu i stabilnego położenia. Raport inspekcji zachowuje pierwotny wynik oraz zebrane obserwacje i zdjęcia. Osobny raport `REC-…` wskazuje identyfikator tej inspekcji.
 
+Po **Emergency Stop** dron utrzymuje zawis, jeśli nadal ma wiarygodną lokalizację i napęd. Panel podaje kolejny krok. Wybierz **Evaluate recovery** i osobno zatwierdź **Authorize return to dock**, gdy warunki na to pozwolą. Jeśli panel zgłasza niewystarczającą energię na powrót z rezerwą, w symulacji uruchom demonstrator od nowa, aby odtworzyć start w doku.
+
 ## Uruchomienie
 
 Z katalogu repozytorium, na Ubuntu 22.04 lub WSL2 z ROS 2 Humble i Gazebo Fortress.

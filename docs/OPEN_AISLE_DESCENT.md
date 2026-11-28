@@ -10,6 +10,8 @@ Wariant `open-aisle` zastępuje pionowe klatki w alejkach A i B krótkimi bramam
 
 Punkty mocowania wybrano na dolnych powierzchniach nośnych modelu hali, między Z = 8,35 a 10,31 m. Elementy podwieszenia są wizualne, a rama i osłony bram mają odpowiadające im bryły kolizyjne. Najmniejsza odległość od obwiedni pojedynczych lamp do elementów podwieszenia wyniosła około 0,40 m. Pomiędzy górnym poziomem regałów (5,70 m) a dolną krawędzią nowych bram (6,10 m) pozostaje 0,40 m różnicy wysokości. To geometria demonstracyjna i wizualny sposób mocowania, bez obliczeń wytrzymałościowych.
 
+Na zakrętach i rozgałęzieniu dołożono poziome podłogi oraz osłony po zamkniętych stronach. Każdy wlot prowadzący do sąsiedniego odcinka pozostaje otwarty. Geometria Gazebo, Digital Twin i statyczna mapa lokalizacji powstają z tego samego generatora.
+
 ## Otwory i nawigacja
 
 | Pomiar | A | B |
